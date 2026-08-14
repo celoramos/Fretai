@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estrutura da página de cadastro de motorista">
+    <title>Fretaí | Cadastro de Motorista</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../styles/buttons.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+</head>
+<body>
+    <header>
+        <button id="menuToggle" class="menu-toggle" aria-label="Abrir menu lateral" aria-expanded="false">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <nav class="main-nav" aria-label="Navegação principal">
+            <a href="index.html"><i class="bi bi-house-door-fill"></i> Início</a>
+            <a href="frete.html"><i class="bi bi-truck-front-fill"></i> Fretes</a>
+            <a href="cadastroFrete.html"><i class="bi bi-file-earmark-plus-fill"></i> Cadastro de Frete</a>
+            <a href="cadastroMotorista.html"><i class="bi bi-person-badge-fill"></i> Cadastro de Motorista</a>
+        </nav>
+    </header>
+
+    <div class="layout-with-sidebar">
+        <aside class="side-panel" id="sidePanel" aria-label="Menu lateral de navegação">
+            <div class="side-panel-header">
+                <h2>Menu</h2>
+                <button id="sideClose" class="side-close" aria-label="Fechar menu"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <nav class="side-links" aria-label="Navegação secundária">
+                <a href="index.html"><i class="bi bi-house-door-fill"></i> Início</a>
+                <a href="frete.html"><i class="bi bi-truck-front-fill"></i> Fretes</a>
+                <a href="cadastroFrete.html"><i class="bi bi-file-earmark-plus-fill"></i> Cadastro de Frete</a>
+                <a href="cadastroMotorista.html"><i class="bi bi-person-badge-fill"></i> Cadastro de Motorista</a>
+            </nav>
+        </aside>
+
+        <main>
+        <section class="page-header">
+            <p class="eyebrow"><i class="bi bi-person-badge-fill"></i> Cadastro de motorista</p>
+            <h1><i class="bi bi-person-badge-fill"></i> Cadastro de motorista</h1>
+            <p>Cadastre sua disponibilidade e destaque seu perfil para quem precisa de frete com agilidade.</p>
+        </section>
+
+        <section class="content-grid">
+            <form class="form-card" id="formCadastroMotorista">
+                <fieldset>
+                    <legend><i class="bi bi-person-vcard-fill"></i> Dados do motorista</legend>
+
+                    <label for="nome"><i class="bi bi-person-fill"></i> Nome completo</label>
+                    <input type="text" id="nome" name="nome" placeholder="Digite o nome completo" required>
+
+                    <label for="telefone"><i class="bi bi-telephone-fill"></i> Telefone</label>
+                    <input type="tel" id="telefone" name="telefone" placeholder="Ex: (99)9999-9999" inputmode="tel" autocomplete="tel" required>
+
+                    <label for="cnh"><i class="bi bi-card-list"></i> CNH</label>
+                    <input type="text" id="cnh" name="cnh" placeholder="Digite a CNH" required>
+
+                    <label for="veiculo"><i class="bi bi-truck-front-fill"></i> Tipo de veículo</label>
+                    <input type="text" id="veiculo" name="veiculo" placeholder="Ex: Caminhonete, caminhão, van" required>
+
+                    <label for="cidade"><i class="bi bi-geo-alt-fill"></i> Cidade</label>
+                    <input type="text" id="cidade" name="cidade" placeholder="Digite a cidade que se encontra" required>
+
+                    <label for="disponibilidade"><i class="bi bi-calendar2-week-fill"></i> Disponibilidade</label>
+                    <input type="text" id="disponibilidade" name="disponibilidade" placeholder="Ex: Disponível para viagens na semana" required>
+
+                    <label for="observacoes"><i class="bi bi-chat-left-text-fill"></i> Observações</label>
+                    <textarea id="observacoes" name="observacoes" rows="4" placeholder="Descreva detalhes como: qual tipo de carga você costuma levar, cidade de origem, experiências ou preferências"></textarea>
+                    
+                    <div style="margin-top:18px;">
+                        <div class="demo-row">
+                            <button id="submitBtn" class="btn btn-primary" type="submit">Enviar</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+
+            <aside class="hero-card">
+                <h3><i class="bi bi-shield-check"></i> Perfil completo</h3>
+                <p>Um cadastro mais completo transmite confiança e ajuda a encontrar oportunidades com mais rapidez.</p>
+                <div class="card-step">
+                    <span>1</span>
+                    <p>Informe seus dados básicos.</p>
+                </div>
+                <div class="card-step">
+                    <span>2</span>
+                    <p>Mostre seu veículo e disponibilidade.</p>
+                </div>
+                <div class="card-step">
+                    <span>3</span>
+                    <p>Ganhe mais oportunidades de frete.</p>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fa-solid fa-copyright"></i> Fretaí © 2026</p>
+    </footer>
+
+    <script src="../scripts/script.js"></script>
+</body>
+</html>
