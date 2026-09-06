@@ -9,18 +9,50 @@ const app = express();
 
 app.use(
   helmet({
-    contentSecurityPolicy: false
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com",
+          "https://cdn.jsdelivr.net",
+          "https://cdnjs.cloudflare.com"
+        ],
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "https://cdn.jsdelivr.net",
+          "https://cdnjs.cloudflare.com"
+        ],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "http://localhost:3000", "https://api.whatsapp.com"]
+      }
+    },
+    crossOriginEmbedderPolicy: false
   })
 );
 
+// Limite global de requisições
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   message: { erro: "Muitas requisições originadas deste IP. Tente novamente mais tarde." }
 });
-app.use("/api/", limiter);
+app.use(limiter);
+
+// Limite estrito de segurança para autenticação (proteção contra brute-force)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { erro: "Muitas tentativas de login/cadastro deste IP. Tente novamente após 15 minutos." }
+});
+app.use("/api/auth/", authLimiter);
 
 app.use(cors());
 app.use(express.json());
