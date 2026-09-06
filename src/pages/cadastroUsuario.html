@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Página de cadastro de usuário / cliente no Fretaí para quem deseja anunciar fretes e contratar motoristas.">
+    <title>Fretaí | Cadastro de Usuário</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../styles/buttons.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+</head>
+<body>
+    <header>
+        <button id="menuToggle" class="menu-toggle" aria-label="Abrir menu lateral" aria-expanded="false">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <nav class="main-nav" aria-label="Navegação principal">
+            <a href="index.html"><i class="bi bi-house-door-fill"></i> Início</a>
+            <a href="frete.html"><i class="bi bi-truck-front-fill"></i> Fretes</a>
+            <a href="cadastroFrete.html"><i class="bi bi-file-earmark-plus-fill"></i> Cadastro de Frete</a>
+            <a href="cadastroMotorista.html"><i class="bi bi-person-badge-fill"></i> Cadastro de Motorista</a>
+            <a href="cadastroUsuario.html" class="active" style="background: rgba(255, 255, 255, 0.3);"><i class="bi bi-person-plus-fill"></i> Cadastre-se</a>
+            <a href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+        </nav>
+    </header>
+
+    <div class="layout-with-sidebar">
+        <aside class="side-panel" id="sidePanel" aria-label="Menu lateral de navegação">
+            <div class="side-panel-header">
+                <h2>Menu</h2>
+                <button id="sideClose" class="side-close" aria-label="Fechar menu"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <nav class="side-links" aria-label="Navegação secundária">
+                <a href="index.html"><i class="bi bi-house-door-fill"></i> Início</a>
+                <a href="frete.html"><i class="bi bi-truck-front-fill"></i> Fretes</a>
+                <a href="cadastroFrete.html"><i class="bi bi-file-earmark-plus-fill"></i> Cadastro de Frete</a>
+                <a href="cadastroMotorista.html"><i class="bi bi-person-badge-fill"></i> Cadastro de Motorista</a>
+                <a href="cadastroUsuario.html"><i class="bi bi-person-plus-fill"></i> Cadastre-se</a>
+                <a href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+            </nav>
+        </aside>
+
+        <main>
+            <section class="page-header">
+                <p class="eyebrow"><i class="bi bi-person-plus-fill"></i> Cadastro de Cliente / Contratante</p>
+                <h1><i class="bi bi-person-vcard-fill"></i> Crie sua Conta de Usuário</h1>
+                <p>Cadastre-se para anunciar suas cargas, conectar-se a motoristas qualificados e gerenciar entregas com praticidade.</p>
+            </section>
+
+            <section class="content-grid">
+                <form class="form-card" id="formCadastroUsuario" novalidate>
+                    <fieldset>
+                        <legend><i class="bi bi-journal-text"></i> Formuário de Cadastro</legend>
+
+                        <!-- Nome Completo -->
+                        <div class="input-group">
+                            <label for="regNome"><i class="bi bi-person-fill"></i> Nome Completo</label>
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-person-fill input-icon"></i>
+                                <input type="text" id="regNome" name="nome" placeholder="Digite seu nome completo" required>
+                            </div>
+                            <div class="field-error-message" id="regNomeError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Por favor, informe seu nome completo.
+                            </div>
+                        </div>
+
+                        <!-- E-mail -->
+                        <div class="input-group">
+                            <label for="regEmail"><i class="bi bi-envelope-fill"></i> E-mail</label>
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-envelope-fill input-icon"></i>
+                                <input type="email" id="regEmail" name="email" placeholder="seuemail@exemplo.com" required>
+                            </div>
+                            <div class="field-error-message" id="regEmailError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Informe um e-mail válido.
+                            </div>
+                        </div>
+
+                        <!-- Nome de Usuário (Username) -->
+                        <div class="input-group">
+                            <label for="regUsername"><i class="bi bi-at"></i> Nome de Usuário</label>
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-at input-icon"></i>
+                                <input type="text" id="regUsername" name="username" placeholder="Escolha um nome de usuário (ex: marcelo_silva)" required>
+                            </div>
+                            <div class="field-error-message" id="regUsernameError">
+                                <i class="bi bi-exclamation-circle-fill"></i> O nome de usuário deve ter no mínimo 3 caracteres sem espaços.
+                            </div>
+                        </div>
+
+                        <!-- CPF -->
+                        <div class="input-group">
+                            <label for="regCpf"><i class="bi bi-card-text"></i> CPF do Titular</label>
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-card-text input-icon"></i>
+                                <input type="text" id="regCpf" name="cpf" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" required>
+                            </div>
+                            <div class="field-error-message" id="regCpfError">
+                                <i class="bi bi-exclamation-circle-fill"></i> <span id="regCpfErrorText">CPF inválido. Verifique os números digitados.</span>
+                            </div>
+                            <div class="field-success-message" id="regCpfSuccess">
+                                <i class="bi bi-check-circle-fill"></i> CPF válido e confirmado.
+                            </div>
+                        </div>
+
+                        <!-- Telefone / WhatsApp -->
+                        <div class="input-group">
+                            <label for="regTelefone"><i class="bi bi-whatsapp"></i> Telefone / WhatsApp</label>
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-whatsapp input-icon" style="color: #25d366;"></i>
+                                <input type="tel" id="regTelefone" name="telefone" placeholder="(00) 00000-0000" inputmode="tel" required>
+                            </div>
+                            <div class="field-error-message" id="regTelefoneError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Informe um número de telefone/WhatsApp válido.
+                            </div>
+                        </div>
+
+                        <!-- Senha -->
+                        <div class="input-group">
+                            <label for="regSenha"><i class="bi bi-lock-fill"></i> Senha de Acesso</label>
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-lock-fill input-icon"></i>
+                                <input type="password" id="regSenha" name="senha" placeholder="Digite uma senha forte (mín. 6 caracteres)" required>
+                                <button type="button" class="toggle-password-btn" id="toggleRegSenhaBtn" title="Mostrar/Ocultar senha">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="field-error-message" id="regSenhaError">
+                                <i class="bi bi-exclamation-circle-fill"></i> A senha deve ter no mínimo 6 caracteres.
+                            </div>
+                        </div>
+
+                        <!-- Confirmação de Senha -->
+                        <div class="input-group">
+                            <label for="regConfirmaSenha"><i class="bi bi-check2-circle"></i> Confirmar Senha</label>
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-check2-circle input-icon"></i>
+                                <input type="password" id="regConfirmaSenha" name="confirmaSenha" placeholder="Repita a senha digitada" required>
+                            </div>
+                            <div class="field-error-message" id="regConfirmaSenhaError">
+                                <i class="bi bi-exclamation-circle-fill"></i> As senhas digitadas não coincidem.
+                            </div>
+                        </div>
+
+                        <!-- Botão Submit -->
+                        <div style="margin-top: 22px;">
+                            <button id="submitCadastroUsuarioBtn" class="btn btn-primary blob-btn" type="submit" style="width: 100%; font-size: 1.05rem;">
+                                <i class="bi bi-person-check-fill"></i> Criar Minha Conta de Cliente
+                            </button>
+                        </div>
+
+                        <div class="login-divider">
+                            <span>Já tem uma conta ou é motorista?</span>
+                        </div>
+
+                        <div class="login-footer-register" style="display: flex; flex-direction: column; gap: 8px;">
+                            <span>Já tem cadastro? <a href="login.html"><i class="bi bi-box-arrow-in-right"></i> Faça Login</a></span>
+                            <span>Possui veículo de carga? <a href="cadastroMotorista.html"><i class="bi bi-truck-front-fill"></i> Cadastre-se como Motorista</a></span>
+                        </div>
+                    </fieldset>
+                </form>
+
+                <aside class="hero-card">
+                    <h3><i class="bi bi-box-seam-fill"></i> Vantagens para Clientes</h3>
+                    <p>Ao se cadastrar no Fretaí, você tem um canal direto para encontrar motoristas parceiros em tempo recorde.</p>
+
+                    <div class="card-step">
+                        <span>1</span>
+                        <p><strong>Cadastre sua Carga:</strong> Preencha os dados de origem, destino e tipo de transporte em segundos.</p>
+                    </div>
+
+                    <div class="card-step">
+                        <span>2</span>
+                        <p><strong>Motoristas Verificados:</strong> Acesse uma rede de motoristas com CNH e veículos cadastrados.</p>
+                    </div>
+
+                    <div class="card-step">
+                        <span>3</span>
+                        <p><strong>Contato via WhatsApp:</strong> Negocie valores e detalhes do frete sem intermediários abusivos.</p>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Fretaí — Plataforma Conectando Fretes e Motoristas. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="../scripts/buttons.js"></script>
+    <script src="../scripts/script.js"></script>
+</body>
+</html>

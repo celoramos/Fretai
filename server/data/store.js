@@ -2,6 +2,7 @@ const { randomUUID } = require("crypto");
 
 const fretes = [];
 const motoristas = [];
+const usuarios = [];
 
 function createRecord(data) {
   const now = new Date();
@@ -25,4 +26,4 @@ function removeExpiredFretes() {
   return removed;
 }
 
-module.exports = { fretes, motoristas, createRecord, updateRecord, removeExpiredFretes };
+module.exports = { fretes, motoristas, usuarios, createRecord, updateRecord, removeExpiredFretes };

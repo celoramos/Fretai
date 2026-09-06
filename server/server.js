@@ -37,7 +37,7 @@ app.use("/api/fretes", require("./routes/fretes"));
 app.use("/api/motoristas", require("./routes/motoristas"));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../src/pages/index.html"));
+  res.sendFile(path.join(__dirname, "../src/pages/login.html"));
 });
 
 const PORT = process.env.PORT || 3000;

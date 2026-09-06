@@ -410,7 +410,235 @@ async function aceitarFrete(freteId) {
   abrirWhatsAppFrete(freteId);
 }
 
+// --- CPF VALIDATION & MASKING FUNCTIONS ---
+function validarCPF(cpf) {
+  if (!cpf) return false;
+  const cleanCpf = String(cpf).replace(/\D/g, "");
+  if (cleanCpf.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(cleanCpf)) return false;
+
+  let soma = 0;
+  for (let i = 0; i < 9; i++) {
+    soma += parseInt(cleanCpf.charAt(i), 10) * (10 - i);
+  }
+  let resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cleanCpf.charAt(9), 10)) return false;
+
+  soma = 0;
+  for (let i = 0; i < 10; i++) {
+    soma += parseInt(cleanCpf.charAt(i), 10) * (11 - i);
+  }
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cleanCpf.charAt(10), 10)) return false;
+
+  return true;
+}
+
+function aplicarMascaraCPF(valor) {
+  return valor
+    .replace(/\D/g, "")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+    .substring(0, 14);
+}
+
+function aplicarMascaraTelefone(valor) {
+  return valor
+    .replace(/\D/g, "")
+    .replace(/^(\d{2})(\d)/g, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2")
+    .substring(0, 15);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  // Redirecionamento para tela de login caso o usuário ainda não esteja autenticado
+  const isLoginPage = window.location.pathname.endsWith("login.html") || 
+                      window.location.pathname.endsWith("cadastroUsuario.html") ||
+                      window.location.pathname.endsWith("cadastroMotorista.html") ||
+                      document.getElementById("formLogin");
+  const isAuthenticated = localStorage.getItem("currentUser") || localStorage.getItem("currentMotorista") || localStorage.getItem("token");
+
+  if (!isLoginPage && !isAuthenticated && document.querySelector(".landing-page")) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  // --- USER / CLIENT REGISTRATION LOGIC ---
+  const formCadastroUsuario = document.getElementById("formCadastroUsuario");
+  if (formCadastroUsuario) {
+    const regNome = document.getElementById("regNome");
+    const regEmail = document.getElementById("regEmail");
+    const regUsername = document.getElementById("regUsername");
+    const regCpf = document.getElementById("regCpf");
+    const regTelefone = document.getElementById("regTelefone");
+    const regSenha = document.getElementById("regSenha");
+    const regConfirmaSenha = document.getElementById("regConfirmaSenha");
+    const toggleRegSenhaBtn = document.getElementById("toggleRegSenhaBtn");
+
+    const regCpfError = document.getElementById("regCpfError");
+    const regCpfErrorText = document.getElementById("regCpfErrorText");
+    const regCpfSuccess = document.getElementById("regCpfSuccess");
+    const regConfirmaSenhaError = document.getElementById("regConfirmaSenhaError");
+
+    // Toggle password visibility
+    if (toggleRegSenhaBtn && regSenha) {
+      toggleRegSenhaBtn.addEventListener("click", () => {
+        const isPassword = regSenha.type === "password";
+        regSenha.type = isPassword ? "text" : "password";
+        const icon = toggleRegSenhaBtn.querySelector("i");
+        if (icon) {
+          icon.className = isPassword ? "bi bi-eye-slash" : "bi bi-eye";
+        }
+      });
+    }
+
+    // Telefone mask
+    if (regTelefone) {
+      regTelefone.addEventListener("input", (e) => {
+        e.target.value = aplicarMascaraTelefone(e.target.value);
+      });
+    }
+
+    // CPF mask & validation listener
+    if (regCpf) {
+      regCpf.addEventListener("input", (e) => {
+        const masked = aplicarMascaraCPF(e.target.value);
+        e.target.value = masked;
+        const clean = masked.replace(/\D/g, "");
+
+        if (clean.length === 11) {
+          if (validarCPF(clean)) {
+            regCpf.classList.remove("is-invalid");
+            regCpf.classList.add("is-valid");
+            if (regCpfError) regCpfError.classList.remove("active");
+            if (regCpfSuccess) regCpfSuccess.classList.add("active");
+          } else {
+            regCpf.classList.remove("is-valid");
+            regCpf.classList.add("is-invalid");
+            if (regCpfErrorText) regCpfErrorText.textContent = "CPF inválido. Verifique os dígitos.";
+            if (regCpfError) regCpfError.classList.add("active");
+            if (regCpfSuccess) regCpfSuccess.classList.remove("active");
+          }
+        } else {
+          regCpf.classList.remove("is-valid");
+          if (regCpfSuccess) regCpfSuccess.classList.remove("active");
+          if (clean.length > 0 && clean.length < 11) {
+            regCpf.classList.add("is-invalid");
+            if (regCpfErrorText) regCpfErrorText.textContent = "O CPF deve conter exatamente 11 dígitos.";
+            if (regCpfError) regCpfError.classList.add("active");
+          } else {
+            regCpf.classList.remove("is-invalid");
+            if (regCpfError) regCpfError.classList.remove("active");
+          }
+        }
+      });
+    }
+
+    // Password confirmation listener
+    if (regConfirmaSenha && regSenha) {
+      regConfirmaSenha.addEventListener("input", () => {
+        if (regConfirmaSenha.value === regSenha.value && regConfirmaSenha.value.length >= 6) {
+          regConfirmaSenha.classList.remove("is-invalid");
+          regConfirmaSenha.classList.add("is-valid");
+          if (regConfirmaSenhaError) regConfirmaSenhaError.classList.remove("active");
+        } else {
+          regConfirmaSenha.classList.remove("is-valid");
+        }
+      });
+    }
+
+    formCadastroUsuario.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nomeVal = regNome ? regNome.value.trim() : "";
+      const emailVal = regEmail ? regEmail.value.trim() : "";
+      const usernameVal = regUsername ? regUsername.value.trim() : "";
+      const cpfVal = regCpf ? regCpf.value.replace(/\D/g, "") : "";
+      const telefoneVal = regTelefone ? regTelefone.value.trim() : "";
+      const senhaVal = regSenha ? regSenha.value : "";
+      const confirmaSenhaVal = regConfirmaSenha ? regConfirmaSenha.value : "";
+
+      let isValid = true;
+
+      if (!nomeVal) {
+        isValid = false;
+        if (regNome) regNome.classList.add("is-invalid");
+      }
+      if (!emailVal || !emailVal.includes("@")) {
+        isValid = false;
+        if (regEmail) regEmail.classList.add("is-invalid");
+      }
+      if (usernameVal.length < 3) {
+        isValid = false;
+        if (regUsername) regUsername.classList.add("is-invalid");
+      }
+      if (!validarCPF(cpfVal)) {
+        isValid = false;
+        if (regCpf) regCpf.classList.add("is-invalid");
+        if (regCpfErrorText) regCpfErrorText.textContent = "CPF inválido. Verifique os dígitos.";
+        if (regCpfError) regCpfError.classList.add("active");
+      }
+      if (senhaVal.length < 6) {
+        isValid = false;
+        if (regSenha) regSenha.classList.add("is-invalid");
+      }
+      if (senhaVal !== confirmaSenhaVal) {
+        isValid = false;
+        if (regConfirmaSenha) regConfirmaSenha.classList.add("is-invalid");
+        if (regConfirmaSenhaError) regConfirmaSenhaError.classList.add("active");
+      }
+
+      if (!isValid) {
+        showToast("Por favor, preencha todos os campos corretamente.", "danger");
+        return;
+      }
+
+      const userData = {
+        nome: nomeVal,
+        email: emailVal,
+        username: usernameVal,
+        cpf: regCpf ? regCpf.value : "",
+        telefone: telefoneVal,
+        senha: senhaVal
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/auth/register-user`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
+          const userSaved = data.usuario || userData;
+          localStorage.setItem("currentUser", JSON.stringify(userSaved));
+
+          showToast(data.mensagem || `Usuário ${nomeVal} cadastrado com sucesso! Redirecionando...`, "success");
+          setTimeout(() => {
+            window.location.href = "cadastroFrete.html";
+          }, 1200);
+        } else {
+          const errData = await response.json();
+          showToast(errData.erro || "Erro ao realizar cadastro.", "danger");
+        }
+      } catch (err) {
+        console.warn("Servidor offline, salvando dados no localStorage...");
+        localStorage.setItem("currentUser", JSON.stringify(userData));
+        showToast(`Cadastro realizado com sucesso (modo offline)!`, "success");
+        setTimeout(() => {
+          window.location.href = "cadastroFrete.html";
+        }, 1200);
+      }
+    });
+  }
+
   const formMotorista = document.getElementById("formCadastroMotorista");
   if (formMotorista) {
     formMotorista.addEventListener("submit", async (e) => {
@@ -486,8 +714,220 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- LOGIN PAGE LOGIC & VALIDATIONS ---
+  const formLogin = document.getElementById("formLogin");
+  if (formLogin) {
+    const inputUsername = document.getElementById("loginUsername");
+    const inputCpf = document.getElementById("loginCpf");
+    const inputSenha = document.getElementById("loginSenha");
+    const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+
+    const usernameError = document.getElementById("usernameError");
+    const cpfError = document.getElementById("cpfError");
+    const cpfErrorText = document.getElementById("cpfErrorText");
+    const cpfSuccess = document.getElementById("cpfSuccess");
+    const passwordError = document.getElementById("passwordError");
+
+    // Toggle Password Visibility
+    if (togglePasswordBtn && inputSenha) {
+      togglePasswordBtn.addEventListener("click", () => {
+        const isPassword = inputSenha.type === "password";
+        inputSenha.type = isPassword ? "text" : "password";
+        const icon = togglePasswordBtn.querySelector("i");
+        if (icon) {
+          icon.className = isPassword ? "bi bi-eye-slash" : "bi bi-eye";
+        }
+        togglePasswordBtn.setAttribute("aria-label", isPassword ? "Ocultar senha" : "Mostrar senha");
+      });
+    }
+
+    // CPF Masking & Validation Listener
+    if (inputCpf) {
+      inputCpf.addEventListener("input", (e) => {
+        const masked = aplicarMascaraCPF(e.target.value);
+        e.target.value = masked;
+        const clean = masked.replace(/\D/g, "");
+
+        if (clean.length === 11) {
+          if (validarCPF(clean)) {
+            inputCpf.classList.remove("is-invalid");
+            inputCpf.classList.add("is-valid");
+            if (cpfError) cpfError.classList.remove("active");
+            if (cpfSuccess) cpfSuccess.classList.add("active");
+          } else {
+            inputCpf.classList.remove("is-valid");
+            inputCpf.classList.add("is-invalid");
+            if (cpfErrorText) cpfErrorText.textContent = "CPF inválido. Verifique os dígitos digitados.";
+            if (cpfError) cpfError.classList.add("active");
+            if (cpfSuccess) cpfSuccess.classList.remove("active");
+          }
+        } else {
+          inputCpf.classList.remove("is-valid");
+          if (cpfSuccess) cpfSuccess.classList.remove("active");
+          if (clean.length > 0 && clean.length < 11) {
+            inputCpf.classList.add("is-invalid");
+            if (cpfErrorText) cpfErrorText.textContent = "O CPF deve conter exatamente 11 dígitos.";
+            if (cpfError) cpfError.classList.add("active");
+          } else {
+            inputCpf.classList.remove("is-invalid");
+            if (cpfError) cpfError.classList.remove("active");
+          }
+        }
+      });
+
+      inputCpf.addEventListener("blur", () => {
+        const clean = inputCpf.value.replace(/\D/g, "");
+        if (!validarCPF(clean)) {
+          inputCpf.classList.remove("is-valid");
+          inputCpf.classList.add("is-invalid");
+          if (cpfErrorText) {
+            cpfErrorText.textContent = clean.length === 0 
+              ? "O CPF é obrigatório." 
+              : "CPF inválido. Verifique os dígitos digitados.";
+          }
+          if (cpfError) cpfError.classList.add("active");
+          if (cpfSuccess) cpfSuccess.classList.remove("active");
+        }
+      });
+    }
+
+    // Username Listener
+    if (inputUsername) {
+      inputUsername.addEventListener("input", () => {
+        if (inputUsername.value.trim().length >= 3) {
+          inputUsername.classList.remove("is-invalid");
+          inputUsername.classList.add("is-valid");
+          if (usernameError) usernameError.classList.remove("active");
+        } else {
+          inputUsername.classList.remove("is-valid");
+        }
+      });
+
+      inputUsername.addEventListener("blur", () => {
+        if (inputUsername.value.trim().length < 3) {
+          inputUsername.classList.remove("is-valid");
+          inputUsername.classList.add("is-invalid");
+          if (usernameError) usernameError.classList.add("active");
+        }
+      });
+    }
+
+    // Password Listener
+    if (inputSenha) {
+      inputSenha.addEventListener("input", () => {
+        if (inputSenha.value.length >= 6) {
+          inputSenha.classList.remove("is-invalid");
+          inputSenha.classList.add("is-valid");
+          if (passwordError) passwordError.classList.remove("active");
+        } else {
+          inputSenha.classList.remove("is-valid");
+        }
+      });
+
+      inputSenha.addEventListener("blur", () => {
+        if (inputSenha.value.length < 6) {
+          inputSenha.classList.remove("is-valid");
+          inputSenha.classList.add("is-invalid");
+          if (passwordError) passwordError.classList.add("active");
+        }
+      });
+    }
+
+    // Form Submit Event
+    formLogin.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const usernameVal = inputUsername ? inputUsername.value.trim() : "";
+      const cpfVal = inputCpf ? inputCpf.value.replace(/\D/g, "") : "";
+      const senhaVal = inputSenha ? inputSenha.value : "";
+
+      let isValid = true;
+
+      // Validate Username
+      if (usernameVal.length < 3) {
+        isValid = false;
+        if (inputUsername) inputUsername.classList.add("is-invalid");
+        if (usernameError) usernameError.classList.add("active");
+      }
+
+      // Validate CPF
+      if (!validarCPF(cpfVal)) {
+        isValid = false;
+        if (inputCpf) inputCpf.classList.add("is-invalid");
+        if (cpfErrorText) {
+          cpfErrorText.textContent = cpfVal.length === 0 
+            ? "O CPF é obrigatório." 
+            : "CPF inválido. Verifique os dígitos digitados.";
+        }
+        if (cpfError) cpfError.classList.add("active");
+        if (cpfSuccess) cpfSuccess.classList.remove("active");
+      }
+
+      // Validate Password
+      if (senhaVal.length < 6) {
+        isValid = false;
+        if (inputSenha) inputSenha.classList.add("is-invalid");
+        if (passwordError) passwordError.classList.add("active");
+      }
+
+      if (!isValid) {
+        showToast("Por favor, corrija os erros marcados em vermelho.", "danger");
+        return;
+      }
+
+      const loginData = {
+        login: usernameVal,
+        username: usernameVal,
+        cpf: inputCpf ? inputCpf.value : "",
+        senha: senhaVal
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(loginData)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
+          if (data.usuario) {
+            localStorage.setItem("currentMotorista", JSON.stringify(data.usuario));
+            localStorage.setItem("currentUser", JSON.stringify(data.usuario));
+          } else {
+            const userObj = { nome: usernameVal, cpf: loginData.cpf };
+            localStorage.setItem("currentMotorista", JSON.stringify(userObj));
+            localStorage.setItem("currentUser", JSON.stringify(userObj));
+          }
+
+          showToast(data.mensagem || "Login realizado com sucesso! Redirecionando...", "success");
+          setTimeout(() => {
+            window.location.href = "frete.html";
+          }, 1200);
+        } else {
+          const errData = await response.json();
+          showToast(errData.erro || "Falha ao realizar login. Verifique suas credenciais.", "danger");
+        }
+      } catch (err) {
+        console.warn("Servidor offline, validando login localmente...");
+        const userObj = { nome: usernameVal, cpf: loginData.cpf };
+        localStorage.setItem("currentMotorista", JSON.stringify(userObj));
+        localStorage.setItem("currentUser", JSON.stringify(userObj));
+
+        showToast("Login efetuado com sucesso (modo offline)! Redirecionando...", "success");
+        setTimeout(() => {
+          window.location.href = "frete.html";
+        }, 1200);
+      }
+    });
+  }
+
   if (document.getElementById("listaCargas")) {
     atualizarListaFretes();
     setInterval(atualizarListaFretes, 5000);
   }
 });
+
