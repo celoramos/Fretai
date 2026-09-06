@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Motorista = require("../models/motorista");
+const { motoristas, createRecord, updateRecord } = require("../data/store");
 const { JWT_SECRET } = require("../middleware/authMiddleware");
 
 router.post("/register", async (req, res) => {
@@ -16,16 +16,11 @@ router.post("/register", async (req, res) => {
     const cnhLimpao = String(cnh).trim();
     const emailLimpao = email ? String(email).trim().toLowerCase() : undefined;
 
-    let motoristaExistente = await Motorista.findOne({ cnh: cnhLimpao });
-    if (!motoristaExistente && emailLimpao) {
-      motoristaExistente = await Motorista.findOne({ email: emailLimpao });
-    }
+    let motoristaExistente = motoristas.find((item) => item.cnh === cnhLimpao);
+    if (!motoristaExistente && emailLimpao) motoristaExistente = motoristas.find((item) => item.email === emailLimpao);
 
     if (motoristaExistente) {
-      motoristaExistente.nome = nome;
-      motoristaExistente.telefone = telefone;
-      motoristaExistente.veiculo = veiculo;
-      motoristaExistente.cidade = cidade;
+      updateRecord(motoristaExistente, { nome, telefone, veiculo, cidade });
       if (disponibilidade) motoristaExistente.disponibilidade = disponibilidade;
       if (observacoes) motoristaExistente.observacoes = observacoes;
       if (emailLimpao) motoristaExistente.email = emailLimpao;
@@ -35,15 +30,13 @@ router.post("/register", async (req, res) => {
         motoristaExistente.senha = await bcrypt.hash(senha, salt);
       }
 
-      await motoristaExistente.save();
-
       const token = jwt.sign(
         { id: motoristaExistente._id, nome: motoristaExistente.nome, email: motoristaExistente.email },
         JWT_SECRET,
         { expiresIn: "7d" }
       );
 
-      const userObj = motoristaExistente.toObject();
+      const userObj = { ...motoristaExistente };
       delete userObj.senha;
       delete userObj.cnh;
 
@@ -60,7 +53,7 @@ router.post("/register", async (req, res) => {
       senhaHash = await bcrypt.hash(senha, salt);
     }
 
-    const novoMotorista = new Motorista({
+    const novoMotorista = createRecord({
       nome,
       email: emailLimpao,
       senha: senhaHash,
@@ -73,7 +66,7 @@ router.post("/register", async (req, res) => {
       dataCadastro: new Date().toLocaleDateString("pt-BR")
     });
 
-    await novoMotorista.save();
+    motoristas.push(novoMotorista);
 
     const token = jwt.sign(
       { id: novoMotorista._id, nome: novoMotorista.nome, email: novoMotorista.email },
@@ -81,7 +74,7 @@ router.post("/register", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    const userObj = novoMotorista.toObject();
+    const userObj = { ...novoMotorista };
     delete userObj.senha;
     delete userObj.cnh;
 
@@ -104,13 +97,9 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ erro: "Informe seu E-mail, CNH ou Telefone para entrar." });
     }
 
-    const motorista = await Motorista.findOne({
-      $or: [
-        { email: termoBusca.toLowerCase() },
-        { cnh: termoBusca },
-        { telefone: termoBusca }
-      ]
-    });
+    const motorista = motoristas.find((item) => item.email === termoBusca.toLowerCase()
+      || item.cnh === termoBusca
+      || item.telefone === termoBusca);
 
     if (!motorista) {
       return res.status(404).json({ erro: "Nenhum motorista encontrado com esses dados." });
@@ -132,7 +121,7 @@ router.post("/login", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    const userObj = motorista.toObject();
+    const userObj = { ...motorista };
     delete userObj.senha;
     delete userObj.cnh;
 
