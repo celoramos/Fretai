@@ -27,7 +27,7 @@ app.use(
         ],
         scriptSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "http://localhost:3000", "https://api.whatsapp.com"]
+        connectSrc: ["'self'", "http://localhost:3000", "https://api.whatsapp.com", "https://viacep.com.br"]
       }
     },
     crossOriginEmbedderPolicy: false
@@ -67,6 +67,7 @@ setInterval(removeExpiredFretes, 60000);
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/fretes", require("./routes/fretes"));
 app.use("/api/motoristas", require("./routes/motoristas"));
+app.use("/api/cep", require("./routes/cep"));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../src/pages/login.html"));

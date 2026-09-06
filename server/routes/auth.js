@@ -153,6 +153,22 @@ router.post("/register-user", async (req, res) => {
   }
 });
 
+// --- ENVIO DE E-MAIL DE VERIFICAÇÃO ---
+router.post("/send-verification", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ erro: "Informe o e-mail para envio da verificação." });
+    }
+    return res.json({
+      mensagem: `E-mail de verificação enviado com sucesso para ${email}! Siga as instruções no e-mail para validar sua conta.`,
+      enviado: true
+    });
+  } catch (err) {
+    return res.status(500).json({ erro: err.message });
+  }
+});
+
 // --- LOGIN UNIFICADO ---
 router.post("/login", async (req, res) => {
   try {

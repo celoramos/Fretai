@@ -53,26 +53,44 @@
         <section class="content-grid">
             <form class="form-card" id="formCadastroFrete">
                 <fieldset>
-                    <legend><i class="bi bi-map-fill"></i> Dados do frete</legend>
-                    <label for="nomeCarga"><i class="bi bi-box-seam"></i> Nome da carga</label>
-                    <input type="text" id="nomeCarga" name="nomeCarga" placeholder="Digite o nome da carga" required>
-
-                    <label for="nomePessoa"><i class="bi bi-person-circle"></i> Responsável</label>
-                    <input type="text" id="nomePessoa" name="nomePessoa" placeholder="Digite o nome do responsável" required>
-
-                    <label for="telefoneContato"><i class="bi bi-telephone-fill"></i> Telefone</label>
-                    <input type="tel" id="telefoneContato" name="telefoneContato" placeholder="Ex: (99)9999-9999" inputmode="tel" autocomplete="tel" required>
-
-                    <label for="origem"><i class="bi bi-geo-alt-fill"></i> Origem</label>
-                    <input type="text" id="origem" name="origem" placeholder="Digite a origem" required>
-
-                    <label for="destino"><i class="bi bi-geo-fill"></i> Destino</label>
-                    <input type="text" id="destino" name="destino" placeholder="Digite o destino" required>
+                    <legend><i class="bi bi-map-fill"></i> Dados da Carga e Localização</legend>
                     
-                    <div style="margin-top:18px;">
-                        <div class="demo-row">
-                            <button type="submit" class="btn btn-primary"><span>Enviar</span></button>
+                    <label for="nomeCarga"><i class="bi bi-box-seam-fill"></i> Nome da Carga / Descrição</label>
+                    <input type="text" id="nomeCarga" name="nomeCarga" placeholder="Ex: Mudança de móveis, Caixas de materiais" required>
+
+                    <label for="nomePessoa"><i class="bi bi-person-fill"></i> Nome do Responsável</label>
+                    <input type="text" id="nomePessoa" name="nomePessoa" placeholder="Digite o nome completo do responsável" required>
+
+                    <label for="telefoneContato"><i class="bi bi-telephone-fill"></i> Telefone / WhatsApp de Contato</label>
+                    <input type="tel" id="telefoneContato" name="telefoneContato" placeholder="(00) 00000-0000" inputmode="tel" required>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label for="freteCep"><i class="bi bi-building"></i> CEP Coleta</label>
+                            <input type="text" id="freteCep" name="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" required>
                         </div>
+                        <div>
+                            <label for="freteEstado"><i class="bi bi-pin-map-fill"></i> Estado (UF)</label>
+                            <input type="text" id="freteEstado" name="estado" placeholder="Ex: SP" maxlength="2" style="text-transform: uppercase;" required>
+                        </div>
+                    </div>
+
+                    <label for="freteCidade"><i class="bi bi-geo-alt-fill"></i> Cidade</label>
+                    <input type="text" id="freteCidade" name="cidade" placeholder="Digite a cidade de coleta" required>
+
+                    <label for="freteEndereco"><i class="bi bi-house-door-fill"></i> Endereço Completo</label>
+                    <input type="text" id="freteEndereco" name="endereco" placeholder="Rua, Número, Bairro" required>
+
+                    <label for="origem"><i class="bi bi-geo-alt"></i> Ponto de Origem</label>
+                    <input type="text" id="origem" name="origem" placeholder="Ex: Bairro Centro, São Paulo - SP" required>
+
+                    <label for="destino"><i class="bi bi-geo-fill"></i> Ponto de Destino</label>
+                    <input type="text" id="destino" name="destino" placeholder="Ex: Bairro Jardim, Campinas - SP" required>
+                    
+                    <div style="margin-top: 22px;">
+                        <button type="submit" class="btn btn-primary blob-btn" style="width: 100%; font-size: 1.05rem;" id="submitFreteBtn">
+                            <i class="bi bi-plus-circle-fill"></i> Postar Frete no Sistema
+                        </button>
                     </div>
                 </fieldset>
             </form>

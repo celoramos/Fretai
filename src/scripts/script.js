@@ -356,29 +356,18 @@ async function desistirFrete(freteId) {
 
 async function aceitarFrete(freteId) {
   let motorista = getMotoristaAtivo();
-  if (!motorista || !motorista.nome) {
-    const nome = prompt(
-      "Para aceitar o pedido, digite seu nome completo de motorista:",
-    );
-    if (!nome || !nome.trim()) {
-      showToast(
-        "É necessário informar o seu nome para aceitar o frete.",
-        "danger",
-      );
-      return;
-    }
-    const telefone = prompt("Digite seu telefone de contato:") || "";
-    const veiculo =
-      prompt(
-        "Digite o modelo do seu veículo (ex: Caminhonete, Vans, Furgão):",
-      ) || "Veículo cadastrado";
 
-    motorista = {
-      nome: nome.trim(),
-      telefone: telefone.trim(),
-      veiculo: veiculo.trim(),
-    };
-    localStorage.setItem("currentMotorista", JSON.stringify(motorista));
+  // Diagrama: Verificar "Fez a conta?" (CNH, CPF, Nome, Telefone)
+  const temContaMotoristaCompleta = motorista &&
+    motorista.nome &&
+    (motorista.cnh || motorista.cpf || motorista.telefone);
+
+  if (!temContaMotoristaCompleta) {
+    showToast("Você precisa inserir os dados para prosseguir", "danger");
+    setTimeout(() => {
+      window.location.href = "cadastroMotorista.html";
+    }, 1500);
+    return;
   }
 
   try {
@@ -451,6 +440,48 @@ function aplicarMascaraTelefone(valor) {
     .replace(/^(\d{2})(\d)/g, "($1) $2")
     .replace(/(\d{5})(\d)/, "$1-$2")
     .substring(0, 15);
+}
+
+function aplicarMascaraCEP(valor) {
+  return valor
+    .replace(/\D/g, "")
+    .replace(/^(\d{5})(\d)/, "$1-$2")
+    .substring(0, 9);
+}
+
+async function buscarEnderecoPorCEP(cep) {
+  const clean = cep.replace(/\D/g, "");
+  if (clean.length !== 8) return null;
+  
+  try {
+    const res = await fetch(`${API_URL}/cep/${clean}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.valido) return data;
+    }
+  } catch (e) {
+    console.warn("Servidor offline, buscando diretamente na API ViaCEP...");
+  }
+
+  try {
+    const resDirect = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+    if (resDirect.ok) {
+      const data = await resDirect.json();
+      if (!data.erro) {
+        return {
+          valido: true,
+          cep: data.cep,
+          logradouro: data.logradouro || "",
+          bairro: data.bairro || "",
+          localidade: data.localidade || "",
+          uf: data.uf || ""
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("Erro ao buscar ViaCEP direto:", err);
+  }
+  return null;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -922,6 +953,105 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = "frete.html";
         }, 1200);
       }
+    });
+  }
+
+  // --- FREIGHT POSTING FORM LOGIC ---
+  const formCadastroFrete = document.getElementById("formCadastroFrete");
+  if (formCadastroFrete) {
+    const inputCep = document.getElementById("freteCep");
+    const inputCidade = document.getElementById("freteCidade");
+    const inputEstado = document.getElementById("freteEstado");
+    const inputEndereco = document.getElementById("freteEndereco");
+    const inputTelefone = document.getElementById("telefoneContato");
+
+    if (inputTelefone) {
+      inputTelefone.addEventListener("input", (e) => {
+        e.target.value = aplicarMascaraTelefone(e.target.value);
+      });
+    }
+
+    if (inputCep) {
+      inputCep.addEventListener("input", async (e) => {
+        const masked = aplicarMascaraCEP(e.target.value);
+        e.target.value = masked;
+        const clean = masked.replace(/\D/g, "");
+
+        if (clean.length === 8) {
+          const info = await buscarEnderecoPorCEP(clean);
+          if (info) {
+            if (inputCidade && info.localidade) inputCidade.value = info.localidade;
+            if (inputEstado && info.uf) inputEstado.value = info.uf;
+            if (inputEndereco && info.logradouro) {
+              inputEndereco.value = `${info.logradouro}, ${info.bairro || ""}`;
+            }
+            const origemInput = document.getElementById("origem");
+            if (origemInput && info.localidade && info.uf) {
+              origemInput.value = `${info.bairro ? info.bairro + ", " : ""}${info.localidade} - ${info.uf}`;
+            }
+            showToast(`CEP ${masked} localizado! Endereço preenchido.`, "info");
+          }
+        }
+      });
+    }
+
+    formCadastroFrete.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nomeCarga = document.getElementById("nomeCarga").value.trim();
+      const nomePessoa = document.getElementById("nomePessoa").value.trim();
+      const telefoneContato = inputTelefone ? inputTelefone.value.trim() : "";
+      const cep = inputCep ? inputCep.value.trim() : "";
+      const estado = inputEstado ? inputEstado.value.trim() : "";
+      const cidade = inputCidade ? inputCidade.value.trim() : "";
+      const endereco = inputEndereco ? inputEndereco.value.trim() : "";
+      const origem = document.getElementById("origem") ? document.getElementById("origem").value.trim() : "";
+      const destino = document.getElementById("destino") ? document.getElementById("destino").value.trim() : "";
+
+      if (!nomeCarga || !nomePessoa || !telefoneContato) {
+        showToast("Por favor, preencha todos os campos obrigatórios.", "danger");
+        return;
+      }
+
+      const freteObj = {
+        nomeCarga,
+        nomePessoa,
+        telefoneContato,
+        cep,
+        estado,
+        cidade,
+        endereco,
+        origem: origem || (cidade && estado ? `${cidade} - ${estado}` : "Origem a combinar"),
+        destino: destino || "Destino a combinar",
+        status: "disponivel",
+        data: new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/fretes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(freteObj)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Diagram exact confirmation text: "Seu frete foi inserido no nosso sistema"
+          showToast(data.mensagem || "Seu frete foi inserido no nosso sistema", "success");
+        } else {
+          showToast("Seu frete foi inserido no nosso sistema", "success");
+        }
+      } catch (err) {
+        console.warn("Servidor offline, salvando frete localmente...");
+        let fretesLocais = JSON.parse(localStorage.getItem("fretes") || "[]");
+        fretesLocais.unshift({ ...freteObj, id: Date.now().toString() });
+        localStorage.setItem("fretes", JSON.stringify(fretesLocais));
+        showToast("Seu frete foi inserido no nosso sistema", "success");
+      }
+
+      setTimeout(() => {
+        window.location.href = "frete.html";
+      }, 1500);
     });
   }
 

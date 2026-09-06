@@ -29,13 +29,22 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
+    const { nomeCarga, nomePessoa, telefoneContato, cep, endereco, cidade, estado, origem, destino } = req.body;
+    
+    if (!nomeCarga || !nomePessoa || !telefoneContato) {
+      return res.status(400).json({ erro: "Por favor, preencha o nome da carga, responsável e telefone de contato." });
+    }
+
     const novoFrete = createRecord({
       ...req.body,
       status: 'disponivel',
       data: req.body.data || new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
     });
     fretes.push(novoFrete);
-    res.status(201).json(novoFrete);
+    res.status(201).json({
+      mensagem: "Seu frete foi inserido no nosso sistema",
+      frete: novoFrete
+    });
   } catch (err) {
     res.status(400).json({ erro: err.message });
   }
