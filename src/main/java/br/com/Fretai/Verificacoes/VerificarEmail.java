@@ -1,21 +1,39 @@
 package br.com.Fretai.Verificacoes;
-import br.com.Fretai.Usuarios.CadastroCliente;
 
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 
-public class VerificarEmail extends CadastroCliente {
+public class VerificarEmail {
+
+    private static final EmailValidator VALIDATOR = new EmailValidator();
     private String email;
+
+    public VerificarEmail() {
+    }
 
     public VerificarEmail(String email) {
         this.email = email;
     }
 
     public boolean isEmailValid() {
-        String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-        Pattern pattern = Pattern.compile(emailPattern);
-        Matcher matcher = pattern.matcher(this.email);
-        return matcher.matches();
+        return isValido(this.email);
+    }
+
+    public static boolean isValido(String email) {
+        if (email == null || email.isBlank()) {
+            return false;
+        }
+
+        String emailTrimmed = email.trim();
+        int atIndex = emailTrimmed.lastIndexOf('@');
+        if (atIndex <= 0 || atIndex == emailTrimmed.length() - 1) {
+            return false;
+        }
+
+        String domain = emailTrimmed.substring(atIndex + 1);
+        if (!domain.contains(".") || domain.startsWith(".") || domain.endsWith(".")) {
+            return false;
+        }
+
+        return VALIDATOR.isValid(emailTrimmed, null);
     }
 }

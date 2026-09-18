@@ -1,0 +1,12 @@
+br\com\Fretai\Application$RemoverAcentos.class
+br\com\Fretai\Usuarios\CadastroCliente.class
+br\com\Fretai\Cep\GeradorArquivo.class
+br\com\Fretai\Verificacoes\VerificarCPF.class
+br\com\Fretai\Verificacoes\VerificarEmail.class
+br\com\Fretai\Usuarios\CadastroMotorista.class
+br\com\Fretai\Exception\ExceptionErros.class
+br\com\Fretai\Cep\ConsultaCep.class
+br\com\Fretai\Exception\CpfInvalidoException.class
+br\com\Fretai\Cep\Principal.class
+br\com\Fretai\Cep\Endereco.class
+br\com\Fretai\Application.class

@@ -6,10 +6,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class GeradorArquivo {
+
     public void salvarJson(Endereco endereco) throws IOException {
+        if (endereco == null || endereco.getCep() == null) {
+            throw new IllegalArgumentException("Endereço ou CEP inválido para persistência.");
+        }
+
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (FileWriter writer = new FileWriter(endereco.getCep() + ".json")) {
-            //writer.write(gson.toJson(endereco));
+        String nomeArquivo = endereco.getCep().replaceAll("\\D", "") + ".json";
+
+        try (FileWriter writer = new FileWriter(nomeArquivo)) {
+            writer.write(gson.toJson(endereco));
         }
     }
 }
