@@ -2,7 +2,6 @@ package br.com.Fretai.Frete;
 
 import br.com.Fretai.Usuarios.CadastroCliente;
 import br.com.Fretai.Usuarios.CadastroMotorista;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -39,101 +38,34 @@ public class Frete {
         this.valor = valor;
     }
 
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public void setId(String id) {this.id = id;}
+    public void setCliente(CadastroCliente cliente) {this.cliente = cliente;}
+    public void setMotorista(CadastroMotorista motorista) {this.motorista = motorista;}
+    public void setPontoColeta(EnderecoFrete pontoColeta) {this.pontoColeta = pontoColeta;}
+    public void setPontoEntrega(EnderecoFrete pontoEntrega) {this.pontoEntrega = pontoEntrega;}
+    public void setNomeDestinatario(String nomeDestinatario) {this.nomeDestinatario = nomeDestinatario;}
+    public void setTelefoneDestinatario(String telefoneDestinatario) {this.telefoneDestinatario = telefoneDestinatario;}
+    public void setDescricaoCarga(String descricaoCarga) {this.descricaoCarga = descricaoCarga;}
+    public void setValor(Double valor) {this.valor = valor;}
+    public void setStatus(StatusFrete status) {this.status = status;}
+    public void setDataCriacao(LocalDateTime dataCriacao) {this.dataCriacao = dataCriacao;}
+    public void setDataConclusao(LocalDateTime dataConclusao) {this.dataConclusao = dataConclusao;}
 
-    public CadastroCliente getCliente() {
-        return cliente;
-    }
 
-    public void setCliente(CadastroCliente cliente) {
-        this.cliente = cliente;
-    }
+    public String getId() {return id;}
+    public CadastroCliente getCliente() {return cliente;}
+    public CadastroMotorista getMotorista() {return motorista;}
+    public EnderecoFrete getPontoColeta() {return pontoColeta;}
+    public EnderecoFrete getPontoEntrega() {return pontoEntrega;}
+    public String getNomeDestinatario() {return nomeDestinatario;}
+    public String getTelefoneDestinatario() {return telefoneDestinatario;}
+    public String getDescricaoCarga() {return descricaoCarga;}
+    public Double getValor() {return valor;}
+    public StatusFrete getStatus() {return status;}
+    public LocalDateTime getDataCriacao() {return dataCriacao;}
+    public LocalDateTime getDataConclusao() {return dataConclusao;}
 
-    public CadastroMotorista getMotorista() {
-        return motorista;
-    }
-
-    public void setMotorista(CadastroMotorista motorista) {
-        this.motorista = motorista;
-    }
-
-    public EnderecoFrete getPontoColeta() {
-        return pontoColeta;
-    }
-
-    public void setPontoColeta(EnderecoFrete pontoColeta) {
-        this.pontoColeta = pontoColeta;
-    }
-
-    public EnderecoFrete getPontoEntrega() {
-        return pontoEntrega;
-    }
-
-    public void setPontoEntrega(EnderecoFrete pontoEntrega) {
-        this.pontoEntrega = pontoEntrega;
-    }
-
-    public String getNomeDestinatario() {
-        return nomeDestinatario;
-    }
-
-    public void setNomeDestinatario(String nomeDestinatario) {
-        this.nomeDestinatario = nomeDestinatario;
-    }
-
-    public String getTelefoneDestinatario() {
-        return telefoneDestinatario;
-    }
-
-    public void setTelefoneDestinatario(String telefoneDestinatario) {
-        this.telefoneDestinatario = telefoneDestinatario;
-    }
-
-    public String getDescricaoCarga() {
-        return descricaoCarga;
-    }
-
-    public void setDescricaoCarga(String descricaoCarga) {
-        this.descricaoCarga = descricaoCarga;
-    }
-
-    public Double getValor() {
-        return valor;
-    }
-
-    public void setValor(Double valor) {
-        this.valor = valor;
-    }
-
-    public StatusFrete getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusFrete status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
-    }
-
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
-    }
-
-    public LocalDateTime getDataConclusao() {
-        return dataConclusao;
-    }
-
-    public void setDataConclusao(LocalDateTime dataConclusao) {
-        this.dataConclusao = dataConclusao;
-    }
 
     public String gerarResumoFrete() {
         StringBuilder sb = new StringBuilder();

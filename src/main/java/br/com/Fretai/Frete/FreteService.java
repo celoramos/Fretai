@@ -4,7 +4,6 @@ import br.com.Fretai.Cep.ConsultaCep;
 import br.com.Fretai.Cep.Endereco;
 import br.com.Fretai.Usuarios.CadastroCliente;
 import br.com.Fretai.Usuarios.CadastroMotorista;
-
 import java.time.LocalDateTime;
 
 public class FreteService {

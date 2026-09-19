@@ -23,37 +23,34 @@ public class EnderecoFrete {
         this.pontoReferencia = pontoReferencia;
     }
 
-    public Endereco getEnderecoBase() {
-        return enderecoBase;
-    }
 
     public void setEnderecoBase(Endereco enderecoBase) {
         this.enderecoBase = enderecoBase;
     }
-
-    public String getNumero() {
-        return numero;
-    }
-
     public void setNumero(String numero) {
         this.numero = numero;
     }
-
-    public String getComplemento() {
-        return complemento;
-    }
-
     public void setComplemento(String complemento) {
         this.complemento = complemento;
     }
+    public void setPontoReferencia(String pontoReferencia) {
+        this.pontoReferencia = pontoReferencia;
+    }
 
+
+    public Endereco getEnderecoBase() {
+        return enderecoBase;
+    }
+    public String getNumero() {
+        return numero;
+    }
+    public String getComplemento() {
+        return complemento;
+    }
     public String getPontoReferencia() {
         return pontoReferencia;
     }
 
-    public void setPontoReferencia(String pontoReferencia) {
-        this.pontoReferencia = pontoReferencia;
-    }
 
     public String getEnderecoCompleto() {
         if (enderecoBase == null) {
