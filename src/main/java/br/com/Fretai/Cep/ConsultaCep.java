@@ -1,5 +1,6 @@
 package br.com.Fretai.Cep;
 
+import br.com.Fretai.Exception.CepNaoEncontradoException;
 import com.google.gson.Gson;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -24,7 +25,14 @@ public class ConsultaCep {
                     .newHttpClient()
                     .send(request, HttpResponse.BodyHandlers.ofString());
 
-            return new Gson().fromJson(response.body(), Endereco.class);
+            Endereco endereco = new Gson().fromJson(response.body(), Endereco.class);
+            if (endereco == null || endereco.isErro()) {
+                throw new CepNaoEncontradoException("CEP não encontrado: " + cep);
+            }
+
+            return endereco;
+        } catch (CepNaoEncontradoException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Não consegui obter o endereço a partir desse CEP: " + cep, e);
         }

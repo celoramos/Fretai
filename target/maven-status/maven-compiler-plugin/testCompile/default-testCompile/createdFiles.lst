@@ -1,3 +1,4 @@
 br\com\Fretai\ApplicationTests.class
 br\com\Fretai\Verificacoes\VerificarCPFTest.class
+br\com\Fretai\Frete\FreteServiceTest.class
 br\com\Fretai\Verificacoes\VerificarEmailTest.class

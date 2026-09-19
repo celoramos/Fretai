@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="br.com.Fretai.Verificacoes.VerificarCPFTest" time="2.518" tests="34" errors="0" skipped="0" failures="0" flakes="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="br.com.Fretai.Frete.FreteServiceTest" time="1.98" tests="5" errors="0" skipped="0" failures="0" flakes="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -66,38 +66,9 @@
     <property name="java.class.version" value="65.0"/>
     <property name="LOGGED_APPLICATION_NAME" value="[demo] "/>
   </properties>
-  <testcase name="deveTratarFormatacaoDefensiva" classname="Testes de Validação e Formatação de CPF" time="0.027"/>
-  <testcase name="deveFormatarCpfCorretamente" classname="Testes de Validação e Formatação de CPF" time="0.026"/>
-  <testcase name="deveRejeitarCpfsComDigitosIncorretos(String)[1]" classname="Testes de Validação e Formatação de CPF" time="0.32"/>
-  <testcase name="deveRejeitarCpfsComDigitosIncorretos(String)[2]" classname="Testes de Validação e Formatação de CPF" time="0.044"/>
-  <testcase name="deveRejeitarCpfsComDigitosIncorretos(String)[3]" classname="Testes de Validação e Formatação de CPF" time="0.039"/>
-  <testcase name="deveRejeitarCpfsComDigitosIncorretos(String)[4]" classname="Testes de Validação e Formatação de CPF" time="0.005"/>
-  <testcase name="deveRejeitarEntradasMalformadas(String)[1]" classname="Testes de Validação e Formatação de CPF" time="0.007"/>
-  <testcase name="deveRejeitarEntradasMalformadas(String)[2]" classname="Testes de Validação e Formatação de CPF" time="0.003"/>
-  <testcase name="deveRejeitarEntradasMalformadas(String)[3]" classname="Testes de Validação e Formatação de CPF" time="0.004"/>
-  <testcase name="deveRejeitarEntradasMalformadas(String)[4]" classname="Testes de Validação e Formatação de CPF" time="0.008"/>
-  <testcase name="deveRejeitarEntradasMalformadas(String)[5]" classname="Testes de Validação e Formatação de CPF" time="0.005"/>
-  <testcase name="deveRejeitarEntradasMalformadas(String)[6]" classname="Testes de Validação e Formatação de CPF" time="0.007"/>
-  <testcase name="deveRejeitarEntradasMalformadas(String)[7]" classname="Testes de Validação e Formatação de CPF" time="0.005"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[1]" classname="Testes de Validação e Formatação de CPF" time="0.013"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[2]" classname="Testes de Validação e Formatação de CPF" time="0.026"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[3]" classname="Testes de Validação e Formatação de CPF" time="0.008"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[4]" classname="Testes de Validação e Formatação de CPF" time="0.009"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[5]" classname="Testes de Validação e Formatação de CPF" time="0.024"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[6]" classname="Testes de Validação e Formatação de CPF" time="0.004"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[7]" classname="Testes de Validação e Formatação de CPF" time="0.003"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[8]" classname="Testes de Validação e Formatação de CPF" time="0.005"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[9]" classname="Testes de Validação e Formatação de CPF" time="0.001"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[10]" classname="Testes de Validação e Formatação de CPF" time="0.007"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[11]" classname="Testes de Validação e Formatação de CPF" time="0.024"/>
-  <testcase name="deveRejeitarCpfsComDigitosRepetidos(String)[12]" classname="Testes de Validação e Formatação de CPF" time="0.011"/>
-  <testcase name="deveValidarCpfsValidos(String)[1]" classname="Testes de Validação e Formatação de CPF" time="0.115"/>
-  <testcase name="deveValidarCpfsValidos(String)[2]" classname="Testes de Validação e Formatação de CPF" time="0.013"/>
-  <testcase name="deveValidarCpfsValidos(String)[3]" classname="Testes de Validação e Formatação de CPF" time="0.035"/>
-  <testcase name="deveValidarCpfsValidos(String)[4]" classname="Testes de Validação e Formatação de CPF" time="0.025"/>
-  <testcase name="deveValidarCpfsValidos(String)[5]" classname="Testes de Validação e Formatação de CPF" time="0.006"/>
-  <testcase name="deveValidarCpfsValidos(String)[6]" classname="Testes de Validação e Formatação de CPF" time="0.004"/>
-  <testcase name="deveValidarCpfsValidos(String)[7]" classname="Testes de Validação e Formatação de CPF" time="0.003"/>
-  <testcase name="deveValidarCpfsValidos(String)[8]" classname="Testes de Validação e Formatação de CPF" time="0.006"/>
-  <testcase name="deveRetornarFalseParaCpfNull" classname="Testes de Validação e Formatação de CPF" time="0.19"/>
+  <testcase name="naoDevePermitirIniciarTransporteSemMotorista" classname="Testes do Serviço de Frete e Ciclo de Vida da Entrega" time="1.857"/>
+  <testcase name="devePercorrerFluxoCompletoDoFrete" classname="Testes do Serviço de Frete e Ciclo de Vida da Entrega" time="0.022"/>
+  <testcase name="deveSolicitarFreteComSucesso" classname="Testes do Serviço de Frete e Ciclo de Vida da Entrega" time="0.016"/>
+  <testcase name="deveLancarExcecaoQuandoCepNaoExistir" classname="Testes do Serviço de Frete e Ciclo de Vida da Entrega" time="0.017"/>
+  <testcase name="devePermitirCancelarFretePendente" classname="Testes do Serviço de Frete e Ciclo de Vida da Entrega" time="0.013"/>
 </testsuite>

@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.br.CPF;
 
 public class CadastroCliente {
-
     @NotBlank(message = "O CPF é obrigatório.")
     @CPF(message = "CPF inválido.")
     private String cpf;
@@ -26,62 +25,63 @@ public class CadastroCliente {
     @NotBlank(message = "O telefone é obrigatório.")
     private String telefone;
 
-    private String endereco;
+    @NotBlank(message = "É necessário informar o endereço.\nPara sabermos onde será o local de remetente da entrega")
+    private String enderecoRemetente;
 
-    public CadastroCliente(String cpf, String nome, String email, String senha, String telefone, String endereco) {
-        this.cpf = cpf;
-        this.nome = nome;
-        this.email = email;
-        this.senha = senha;
-        this.telefone = telefone;
-        this.endereco = endereco;
+    @NotBlank(message = "É necessário informar o endereço de entrega.\nPara sabermos onde será o local de entrega da encomenda")
+    private String enderecoEntrega;
+
+    public CadastroCliente(String cpfCliente, String nomeCliente, String emailCliente, String senhaCliente, String telefoneCliente, String enderecoRemetente, String enderecoEntrega) {
+        this.cpf = cpfCliente;
+        this.nome = nomeCliente;
+        this.email = emailCliente;
+        this.senha = senhaCliente;
+        this.telefone = telefoneCliente;
+        this.enderecoRemetente = enderecoRemetente;
+        this.enderecoEntrega = enderecoEntrega;
     }
 
-    public String getCpf() {
-        return cpf;
-    }
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
     }
-
-    public String getNome() {
-        return nome;
-    }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
-
-    public String getEmail() {
-        return email;
-    }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public String getSenha() {
-        return senha;
-    }
-
     public void setSenha(String senha) {
         this.senha = senha;
     }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
     public void setTelefone(String telefone) {
         this.telefone = telefone;
     }
-
-    public String getEndereco() {
-        return endereco;
+    public void setEnderecoRemetente(String enderecoRemetente) {
+        this.enderecoRemetente = enderecoRemetente;
+    }
+    public void setEnderecoEntrega(String enderecoEntrega) {
+        this.enderecoEntrega = enderecoEntrega;
     }
 
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
+
+    public String getCpf() {
+        return cpf;
     }
+    public String getNome() {
+        return nome;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getSenha() {
+        return senha;
+    }
+    public String getTelefone() {
+        return telefone;
+    }
+    public String getEnderecoRemetente() {
+        return enderecoRemetente;
+    }
+    public String getEnderecoEntrega() {return enderecoEntrega;}
 }

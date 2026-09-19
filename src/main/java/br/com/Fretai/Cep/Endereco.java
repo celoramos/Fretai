@@ -14,6 +14,7 @@ public class Endereco {
     private String gia;
     private String ddd;
     private String siafi;
+    private Boolean erro;
 
     public Endereco() {
     }
@@ -61,5 +62,31 @@ public class Endereco {
     public void setGia(String gia) { this.gia = gia; }
     public void setDdd(String ddd) { this.ddd = ddd; }
     public void setSiafi(String siafi) { this.siafi = siafi; }
+    public Boolean getErro() { return erro; }
+    public void setErro(Boolean erro) { this.erro = erro; }
+    public boolean isErro() { return Boolean.TRUE.equals(erro); }
+
+    public String getEnderecoFormatado() {
+        StringBuilder sb = new StringBuilder();
+        if (logradouro != null && !logradouro.isBlank()) {
+            sb.append(logradouro);
+        }
+        if (bairro != null && !bairro.isBlank()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(bairro);
+        }
+        if (localidade != null && !localidade.isBlank()) {
+            if (sb.length() > 0) sb.append(" - ");
+            sb.append(localidade);
+            if (uf != null && !uf.isBlank()) {
+                sb.append("/").append(uf);
+            }
+        }
+        if (cep != null && !cep.isBlank()) {
+            if (sb.length() > 0) sb.append(", CEP: ");
+            sb.append(cep);
+        }
+        return sb.toString();
+    }
 
 }
