@@ -1,0 +1,19 @@
+# Build
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Ambiente / segredos
+.env
+*.env
+
+# Arquivos gerados pelo antigo GeradorArquivo (CEP em JSON)
+/*.json
+
+# SO
+.DS_Store
+Thumbs.db

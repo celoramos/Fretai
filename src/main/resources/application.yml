@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: fretai
+  datasource:
+    # Valores padrão servem para o docker-compose local; em produção vêm de variáveis de ambiente.
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/fretai}
+    username: ${DB_USER:fretai}
+    password: ${DB_PASSWORD:fretai}
+  jpa:
+    # O banco é descrito pelas migrations do Flyway; o Hibernate só confere se bate.
+    hibernate:
+      ddl-auto: validate
+      naming:
+        # Colunas de @Embedded ganham prefixo: ponto_coleta_cep, ponto_entrega_cep...
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+    # Sem sessão aberta durante a renderização da resposta: toda consulta acontece no service.
+    open-in-view: false
+
+fretai:
+  viacep:
+    url: https://viacep.com.br
+    timeout: 3s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
