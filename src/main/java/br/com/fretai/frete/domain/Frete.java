@@ -1,5 +1,6 @@
 package br.com.fretai.frete.domain;
 
+import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.Motorista;
@@ -71,6 +72,11 @@ public class Frete {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal valor;
 
+    /** Nula quando não foi possível localizar a coleta ou a entrega no mapa. */
+    @Column(precision = 8, scale = 1)
+    private BigDecimal distanciaKm;
+    private Boolean distanciaEstimada;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private StatusFrete status;
@@ -99,6 +105,14 @@ public class Frete {
         this.valor = valor;
         this.status = StatusFrete.PENDENTE;
         this.criadoEm = Instant.now();
+    }
+
+    /** A distância entra na formação do preço, então só pode mudar antes de um motorista aceitar. */
+    public void registrarRota(Rota rota) {
+        Objects.requireNonNull(rota, "Rota não pode ser nula.");
+        exigirStatus(StatusFrete.PENDENTE, "A rota só pode ser alterada enquanto o frete está pendente.");
+        this.distanciaKm = rota.distanciaKm();
+        this.distanciaEstimada = rota.estimada();
     }
 
     // ---------- Transições de estado ----------
@@ -157,6 +171,8 @@ public class Frete {
     public String getDescricaoCarga() {return descricaoCarga;}
     public BigDecimal getPesoKg() {return pesoKg;}
     public BigDecimal getValor() {return valor;}
+    public BigDecimal getDistanciaKm() {return distanciaKm;}
+    public Boolean getDistanciaEstimada() {return distanciaEstimada;}
     public StatusFrete getStatus() {return status;}
     public String getMotivoCancelamento() {return motivoCancelamento;}
     public Instant getCriadoEm() {return criadoEm;}

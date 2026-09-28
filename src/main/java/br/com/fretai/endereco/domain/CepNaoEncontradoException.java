@@ -1,8 +1,10 @@
 package br.com.fretai.endereco.domain;
 
-public class CepNaoEncontradoException extends RuntimeException {
+import br.com.fretai.shared.exception.RegraNegocioException;
+
+public class CepNaoEncontradoException extends RegraNegocioException {
 
     public CepNaoEncontradoException(String message) {
-        super(message);
+        super("CEP não encontrado", message);
     }
 }

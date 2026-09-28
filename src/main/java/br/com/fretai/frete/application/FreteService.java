@@ -1,7 +1,9 @@
 package br.com.fretai.frete.application;
 
+import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.Endereco;
 import br.com.fretai.endereco.domain.EnderecoGateway;
+import br.com.fretai.endereco.domain.GeocodificacaoGateway;
 import br.com.fretai.frete.application.dto.EnderecoRequest;
 import br.com.fretai.frete.application.dto.FreteResponse;
 import br.com.fretai.frete.application.dto.SolicitarFreteRequest;
@@ -9,11 +11,14 @@ import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.frete.domain.StatusFrete;
+import br.com.fretai.rota.domain.Rota;
+import br.com.fretai.rota.domain.RotaGateway;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.ClienteRepository;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.MotoristaRepository;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import org.springframework.data.domain.Page;
@@ -33,13 +38,18 @@ public class FreteService {
     private final ClienteRepository clienteRepository;
     private final MotoristaRepository motoristaRepository;
     private final EnderecoGateway enderecoGateway;
+    private final GeocodificacaoGateway geocodificacaoGateway;
+    private final RotaGateway rotaGateway;
 
     public FreteService(FreteRepository freteRepository, ClienteRepository clienteRepository,
-                        MotoristaRepository motoristaRepository, EnderecoGateway enderecoGateway) {
+                        MotoristaRepository motoristaRepository, EnderecoGateway enderecoGateway,
+                        GeocodificacaoGateway geocodificacaoGateway, RotaGateway rotaGateway) {
         this.freteRepository = freteRepository;
         this.clienteRepository = clienteRepository;
         this.motoristaRepository = motoristaRepository;
         this.enderecoGateway = enderecoGateway;
+        this.geocodificacaoGateway = geocodificacaoGateway;
+        this.rotaGateway = rotaGateway;
     }
 
     @Transactional
@@ -53,6 +63,7 @@ public class FreteService {
         Frete frete = new Frete(cliente, coleta, entrega,
                 request.nomeDestinatario(), request.telefoneDestinatario(),
                 request.descricaoCarga(), request.pesoKg(), request.valor());
+        calcularRota(coleta, entrega).ifPresent(frete::registrarRota);
         return FreteResponse.de(freteRepository.save(frete));
     }
 
@@ -103,6 +114,17 @@ public class FreteService {
 
     private EnderecoFrete montarEndereco(EnderecoRequest request) {
         Endereco base = enderecoGateway.buscarPorCep(request.cep());
-        return new EnderecoFrete(base, request.numero(), request.complemento(), request.pontoReferencia());
+        Coordenadas coordenadas = geocodificacaoGateway.localizar(base, request.numero()).orElse(null);
+        return new EnderecoFrete(base, request.numero(), request.complemento(), request.pontoReferencia(), coordenadas);
+    }
+
+    /** Sem as duas pontas no mapa não há distância; o frete é criado mesmo assim. */
+    private Optional<Rota> calcularRota(EnderecoFrete coleta, EnderecoFrete entrega) {
+        Optional<Coordenadas> origem = coleta.getCoordenadas();
+        Optional<Coordenadas> destino = entrega.getCoordenadas();
+        if (origem.isEmpty() || destino.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(rotaGateway.calcular(origem.get(), destino.get()));
     }
 }

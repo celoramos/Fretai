@@ -1,10 +1,9 @@
 package br.com.fretai.shared.api;
 
-import br.com.fretai.endereco.domain.CepNaoEncontradoException;
-import br.com.fretai.endereco.domain.ServicoCepIndisponivelException;
 import br.com.fretai.shared.exception.ConflitoException;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.shared.exception.RegraNegocioException;
+import br.com.fretai.shared.exception.ServicoExternoIndisponivelException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -61,20 +60,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problema(HttpStatus.CONFLICT, "Dado já cadastrado", "Já existe um registro com esses dados.");
     }
 
+    /** Inclui CEP inexistente: cada subclasse traz o próprio título. */
     @ExceptionHandler(RegraNegocioException.class)
     ProblemDetail regraNegocio(RegraNegocioException e) {
-        return problema(HttpStatus.UNPROCESSABLE_CONTENT, "Regra de negócio", e.getMessage());
+        return problema(HttpStatus.UNPROCESSABLE_CONTENT, e.getTitulo(), e.getMessage());
     }
 
-    @ExceptionHandler(CepNaoEncontradoException.class)
-    ProblemDetail cepNaoEncontrado(CepNaoEncontradoException e) {
-        return problema(HttpStatus.UNPROCESSABLE_CONTENT, "CEP não encontrado", e.getMessage());
-    }
-
-    @ExceptionHandler(ServicoCepIndisponivelException.class)
-    ProblemDetail cepIndisponivel(ServicoCepIndisponivelException e) {
-        log.error("Falha ao consultar serviço de CEP", e);
-        return problema(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de CEP indisponível", e.getMessage());
+    /** ViaCEP, BrasilAPI e afins fora do ar ou lentos demais. */
+    @ExceptionHandler(ServicoExternoIndisponivelException.class)
+    ProblemDetail servicoExternoIndisponivel(ServicoExternoIndisponivelException e) {
+        log.error("Falha ao consultar serviço externo: {}", e.getTitulo(), e);
+        return problema(HttpStatus.SERVICE_UNAVAILABLE, e.getTitulo(), e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

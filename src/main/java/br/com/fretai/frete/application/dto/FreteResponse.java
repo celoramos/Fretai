@@ -1,5 +1,6 @@
 package br.com.fretai.frete.application.dto;
 
+import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.StatusFrete;
@@ -22,6 +23,8 @@ public record FreteResponse(
         String descricaoCarga,
         BigDecimal pesoKg,
         BigDecimal valor,
+        BigDecimal distanciaKm,
+        Boolean distanciaEstimada,
         String motivoCancelamento,
         Instant criadoEm,
         Instant aceitoEm,
@@ -35,11 +38,13 @@ public record FreteResponse(
 
     public record EnderecoResponse(String cep, String logradouro, String numero, String complemento,
                                    String bairro, String cidade, String uf, String pontoReferencia,
-                                   String enderecoCompleto) {
+                                   String enderecoCompleto, Double latitude, Double longitude) {
 
         static EnderecoResponse de(EnderecoFrete e) {
+            Coordenadas c = e.getCoordenadas().orElse(null);
             return new EnderecoResponse(e.getCep(), e.getLogradouro(), e.getNumero(), e.getComplemento(),
-                    e.getBairro(), e.getCidade(), e.getUf(), e.getPontoReferencia(), e.getEnderecoCompleto());
+                    e.getBairro(), e.getCidade(), e.getUf(), e.getPontoReferencia(), e.getEnderecoCompleto(),
+                    c == null ? null : c.latitude(), c == null ? null : c.longitude());
         }
     }
 
@@ -58,6 +63,8 @@ public record FreteResponse(
                 frete.getDescricaoCarga(),
                 frete.getPesoKg(),
                 frete.getValor(),
+                frete.getDistanciaKm(),
+                frete.getDistanciaEstimada(),
                 frete.getMotivoCancelamento(),
                 frete.getCriadoEm(),
                 frete.getAceitoEm(),

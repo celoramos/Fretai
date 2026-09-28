@@ -1,12 +1,18 @@
 package br.com.fretai;
 
+import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.Endereco;
 import br.com.fretai.endereco.domain.EnderecoGateway;
+import br.com.fretai.endereco.domain.GeocodificacaoGateway;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
+import br.com.fretai.rota.domain.Rota;
+import br.com.fretai.rota.domain.RotaGateway;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.MotoristaRepository;
 import com.jayway.jsonpath.JsonPath;
+import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -31,7 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Sobe a aplicação inteira (Flyway + JPA + MVC) contra o H2 do perfil "test".
- * Só o ViaCEP é simulado, para o teste não depender da internet.
+ * As integrações externas (CEP, geocodificação, rota) são simuladas, para o
+ * teste não depender da internet.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,11 +54,18 @@ class FluxoFreteIntegrationTest {
 
     @MockitoBean
     private EnderecoGateway enderecoGateway;
+    @MockitoBean
+    private GeocodificacaoGateway geocodificacaoGateway;
+    @MockitoBean
+    private RotaGateway rotaGateway;
 
     @BeforeEach
-    void simularViaCep() {
+    void simularServicosExternos() {
         when(enderecoGateway.buscarPorCep(anyString()))
                 .thenReturn(new Endereco("01001-000", "Praça da Sé", "Sé", "São Paulo", "SP"));
+        when(geocodificacaoGateway.localizar(any(), any()))
+                .thenReturn(Optional.of(new Coordenadas(-23.5503898, -46.633081)));
+        when(rotaGateway.calcular(any(), any())).thenReturn(new Rota(new BigDecimal("12.4"), true));
     }
 
     @Test
@@ -63,6 +78,11 @@ class FluxoFreteIntegrationTest {
         mvc.perform(get("/api/fretes").param("status", "PENDENTE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(freteId));
+
+        // Relido do banco: coordenadas e distância passaram pela migration V2.
+        mvc.perform(get("/api/fretes/{id}", freteId))
+                .andExpect(jsonPath("$.distanciaKm").value(12.4))
+                .andExpect(jsonPath("$.coleta.latitude").value(-23.5503898));
 
         mvc.perform(post("/api/fretes/{id}/aceite", freteId).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"motoristaId\": \"%s\"}".formatted(motoristaId)))
@@ -166,6 +186,8 @@ class FluxoFreteIntegrationTest {
                         """.formatted(clienteId)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("PENDENTE"))
+                .andExpect(jsonPath("$.distanciaKm").value(12.4))
+                .andExpect(jsonPath("$.distanciaEstimada").value(true))
                 .andReturn().getResponse().getContentAsString();
         return JsonPath.read(corpo, "$.id");
     }

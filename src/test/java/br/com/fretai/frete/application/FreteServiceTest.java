@@ -2,13 +2,17 @@ package br.com.fretai.frete.application;
 
 import br.com.fretai.endereco.domain.CepNaoEncontradoException;
 import br.com.fretai.endereco.domain.Endereco;
+import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.EnderecoGateway;
+import br.com.fretai.endereco.domain.GeocodificacaoGateway;
 import br.com.fretai.frete.application.dto.EnderecoRequest;
 import br.com.fretai.frete.application.dto.FreteResponse;
 import br.com.fretai.frete.application.dto.SolicitarFreteRequest;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.frete.domain.StatusFrete;
+import br.com.fretai.rota.domain.Rota;
+import br.com.fretai.rota.domain.RotaGateway;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.support.Fixtures;
 import br.com.fretai.usuario.domain.Cliente;
@@ -29,6 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +44,8 @@ class FreteServiceTest {
     @Mock private ClienteRepository clienteRepository;
     @Mock private MotoristaRepository motoristaRepository;
     @Mock private EnderecoGateway enderecoGateway;
+    @Mock private GeocodificacaoGateway geocodificacaoGateway;
+    @Mock private RotaGateway rotaGateway;
 
     @InjectMocks
     private FreteService freteService;
@@ -77,6 +84,45 @@ class FreteServiceTest {
         assertTrue(resposta.coleta().enderecoCompleto().contains("Praça da Sé, nº 100"));
         assertEquals("Rio de Janeiro", resposta.entrega().cidade());
         verify(freteRepository).save(any(Frete.class));
+    }
+
+    @Test
+    @DisplayName("Com as duas pontas no mapa, grava coordenadas e distância da rota")
+    void registraRota() {
+        Coordenadas sp = new Coordenadas(-23.5503898, -46.633081);
+        Coordenadas rj = new Coordenadas(-22.9035, -43.1756);
+        Endereco enderecoSp = Fixtures.enderecoSaoPaulo();
+        Endereco enderecoRj = Fixtures.enderecoRioDeJaneiro();
+        when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(cliente));
+        when(enderecoGateway.buscarPorCep("01001000")).thenReturn(enderecoSp);
+        when(enderecoGateway.buscarPorCep("20040002")).thenReturn(enderecoRj);
+        when(geocodificacaoGateway.localizar(enderecoSp, "100")).thenReturn(Optional.of(sp));
+        when(geocodificacaoGateway.localizar(enderecoRj, "50")).thenReturn(Optional.of(rj));
+        when(rotaGateway.calcular(sp, rj)).thenReturn(new Rota(new BigDecimal("429.3"), false));
+        when(freteRepository.save(any(Frete.class))).thenAnswer(i -> i.getArgument(0));
+
+        FreteResponse resposta = freteService.solicitar(pedido("01001000", "20040002"));
+
+        assertEquals(new BigDecimal("429.3"), resposta.distanciaKm());
+        assertFalse(resposta.distanciaEstimada());
+        assertEquals(-23.5503898, resposta.coleta().latitude());
+        assertEquals(-43.1756, resposta.entrega().longitude());
+    }
+
+    @Test
+    @DisplayName("Endereço fora do mapa → frete criado mesmo assim, sem distância")
+    void semGeocodificacao() {
+        when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(cliente));
+        when(enderecoGateway.buscarPorCep(anyString())).thenReturn(Fixtures.enderecoSaoPaulo());
+        when(geocodificacaoGateway.localizar(any(), any())).thenReturn(Optional.empty());
+        when(freteRepository.save(any(Frete.class))).thenAnswer(i -> i.getArgument(0));
+
+        FreteResponse resposta = freteService.solicitar(pedido("01001000", "20040002"));
+
+        assertEquals(StatusFrete.PENDENTE, resposta.status());
+        assertNull(resposta.distanciaKm());
+        assertNull(resposta.coleta().latitude());
+        verifyNoInteractions(rotaGateway);
     }
 
     @Test

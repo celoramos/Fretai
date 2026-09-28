@@ -17,9 +17,28 @@ spring:
     open-in-view: false
 
 fretai:
+  # CEP: ViaCEP primeiro, BrasilAPI de reserva.
   viacep:
     url: https://viacep.com.br
     timeout: 3s
+  # BrasilAPI: CEP (reserva), CNPJ e feriados. Pública, sem chave.
+  brasilapi:
+    url: https://brasilapi.com.br
+    timeout: 5s
+  # Geocodificação (endereço → coordenadas). A política do serviço público exige
+  # um User-Agent com contato e no máximo 1 requisição por segundo.
+  nominatim:
+    url: https://nominatim.openstreetmap.org
+    timeout: 5s
+    user-agent: Fretai/0.1 (${NOMINATIM_CONTATO:https://github.com/celoramos/Fretai})
+    intervalo-minimo: 1s
+  # Distância de estrada. Sem chave, a distância é estimada pela linha reta.
+  # Chave gratuita em https://graphhopper.com/dashboard/#/register
+  graphhopper:
+    url: https://graphhopper.com/api/1
+    timeout: 5s
+    chave: ${GRAPHHOPPER_CHAVE:}
+    perfil: car
 
 management:
   endpoints:

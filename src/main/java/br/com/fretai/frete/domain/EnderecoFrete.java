@@ -1,8 +1,10 @@
 package br.com.fretai.frete.domain;
 
+import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.Endereco;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.util.Optional;
 
 /**
  * Endereço de coleta ou entrega de um frete. É uma cópia (snapshot) do endereço
@@ -23,11 +25,19 @@ public class EnderecoFrete {
     @Column(length = 2)
     private String uf;
     private String pontoReferencia;
+    /** Nulos quando a geocodificação não achou o endereço. */
+    private Double latitude;
+    private Double longitude;
 
     protected EnderecoFrete() {
     }
 
     public EnderecoFrete(Endereco base, String numero, String complemento, String pontoReferencia) {
+        this(base, numero, complemento, pontoReferencia, null);
+    }
+
+    public EnderecoFrete(Endereco base, String numero, String complemento, String pontoReferencia,
+                         Coordenadas coordenadas) {
         this.cep = base.cep() != null ? base.cep().replaceAll("\\D", "") : null;
         this.logradouro = base.logradouro();
         this.bairro = base.bairro();
@@ -36,6 +46,16 @@ public class EnderecoFrete {
         this.numero = numero;
         this.complemento = complemento;
         this.pontoReferencia = pontoReferencia;
+        if (coordenadas != null) {
+            this.latitude = coordenadas.latitude();
+            this.longitude = coordenadas.longitude();
+        }
+    }
+
+    public Optional<Coordenadas> getCoordenadas() {
+        return (latitude != null && longitude != null)
+                ? Optional.of(new Coordenadas(latitude, longitude))
+                : Optional.empty();
     }
 
     public String getCep() {return cep;}

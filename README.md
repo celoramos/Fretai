@@ -10,7 +10,10 @@ Hoje o projeto é uma API REST em Java com Spring Boot e PostgreSQL. A interface
 - PostgreSQL 17, com migrations pelo Flyway
 - Spring Data JPA (Hibernate)
 - Bean Validation, incluindo `@CPF` do Hibernate Validator
-- ViaCEP para consulta de endereço por CEP
+- ViaCEP para consulta de endereço por CEP, com a BrasilAPI de reserva
+- BrasilAPI para CNPJ e feriados nacionais
+- Nominatim (OpenStreetMap) para localizar os endereços no mapa
+- GraphHopper para a distância de estrada entre coleta e entrega
 - springdoc-openapi (Swagger UI)
 - JUnit 5, Mockito, ArchUnit, H2 e Testcontainers nos testes
 
@@ -33,6 +36,22 @@ A API sobe em `http://localhost:8080`. A documentação interativa fica em `http
 
 As credenciais do banco vêm de `DB_URL`, `DB_USER` e `DB_PASSWORD`. Sem essas variáveis, a aplicação usa os valores do `docker-compose.yml`.
 
+| Variável | Para quê | Sem ela |
+|---|---|---|
+| `GRAPHHOPPER_CHAVE` | distância de estrada ([chave gratuita](https://graphhopper.com/dashboard/#/register)) | distância estimada pela linha reta × 1,3, com `distanciaEstimada: true` |
+| `NOMINATIM_CONTATO` | contato no User-Agent, exigido pela política do Nominatim | usa o endereço do repositório |
+
+## Integrações externas
+
+| Serviço | Uso | Se falhar |
+|---|---|---|
+| [ViaCEP](https://viacep.com.br) | endereço pelo CEP | tenta a BrasilAPI, inclusive quando o ViaCEP não acha o CEP |
+| [BrasilAPI](https://brasilapi.com.br) | CEP de reserva, CNPJ, feriados nacionais | 503 |
+| [Nominatim](https://nominatim.org) | coordenadas de coleta e entrega | frete criado sem coordenadas e sem distância |
+| [GraphHopper](https://www.graphhopper.com) | distância de estrada | distância estimada |
+
+As consultas ficam em cache em memória. Para o Nominatim só vão logradouro, número, cidade e UF, e o cliente respeita o limite de 1 requisição por segundo do serviço público. Da consulta de CNPJ, o quadro de sócios é descartado.
+
 ## Testes
 
 ```bash
@@ -54,16 +73,19 @@ Os testes de integração rodam contra um H2 em modo PostgreSQL e aplicam as mes
 | POST | `/api/fretes/{id}/inicio` | inicia o transporte |
 | POST | `/api/fretes/{id}/conclusao` | conclui a entrega |
 | POST | `/api/fretes/{id}/cancelamento` | cancela, com motivo |
+| GET | `/api/empresas/{cnpj}` | dados públicos de um CNPJ (numérico ou alfanumérico) |
+| GET | `/api/feriados/{ano}` | feriados nacionais do ano |
+| GET | `/api/calendario/verificacao?data=2026-11-02` | diz se a data é feriado, domingo ou dia útil |
 
 Os erros seguem o formato ProblemDetail (RFC 9457):
 
 | Status | Quando |
 |---|---|
-| 400 | campo inválido; a resposta traz `erros` com a mensagem de cada campo |
-| 404 | cliente, motorista ou frete não existe |
+| 400 | campo inválido; a resposta traz `erros` com a mensagem de cada campo; CNPJ com dígito verificador errado |
+| 404 | cliente, motorista, frete ou CNPJ não existe |
 | 409 | CPF, e-mail ou placa já cadastrados; transição de status inválida; frete alterado por outra pessoa ao mesmo tempo |
 | 422 | CEP inexistente; veículo não suporta o peso da carga |
-| 503 | ViaCEP fora do ar ou lento |
+| 503 | serviço externo de CEP, CNPJ ou feriados fora do ar ou lento |
 
 ## Ciclo de vida do frete
 
@@ -106,15 +128,28 @@ src/main/java/br/com/fretai/
 │   ├── domain/         Usuario, Cliente, Motorista, TipoVeiculo, repositórios
 │   └── infra/          SenhaConfig (BCrypt)
 ├── endereco/
-│   ├── domain/         Endereco, EnderecoGateway, exceções de CEP
-│   └── infra/          ViaCepClient, CacheConfig
+│   ├── domain/         Endereco, Coordenadas, EnderecoGateway, GeocodificacaoGateway, exceções de CEP
+│   └── infra/          EnderecoGatewayComFallback, ViaCepClient, BrasilApiCepClient, NominatimClient
+├── rota/
+│   ├── domain/         Rota, RotaGateway
+│   └── infra/          GraphHopperClient
+├── empresa/
+│   ├── api/            EmpresaController
+│   ├── domain/         Empresa, EmpresaGateway (validação de CNPJ)
+│   └── infra/          BrasilApiCnpjClient
+├── calendario/
+│   ├── api/            CalendarioController
+│   ├── application/    CalendarioService, dto/
+│   ├── domain/         Feriado, FeriadoGateway
+│   └── infra/          BrasilApiFeriadoClient
 └── shared/
     ├── api/            GlobalExceptionHandler
-    └── exception/      exceções usadas por todos os módulos
+    ├── exception/      exceções usadas por todos os módulos
+    └── infra/          CacheConfig, RestClients
 
 src/main/resources/
 ├── application.yml
-└── db/migration/       V1__schema_inicial.sql
+└── db/migration/       V1__schema_inicial.sql, V2__coordenadas_e_distancia.sql
 
 src/test/java/br/com/fretai/
 ├── ArquiteturaTest, FluxoFreteIntegrationTest, PostgresSchemaTest
@@ -123,7 +158,9 @@ src/test/java/br/com/fretai/
 └── support/            Fixtures (objetos de teste prontos)
 ```
 
-O `EnderecoGateway` é uma interface do domínio, e o `ViaCepClient` é só uma implementação dela. Trocar de provedor de CEP, ou colocar um segundo como reserva, não mexe em nenhum service.
+O `EnderecoGateway` é uma interface do domínio. O `EnderecoGatewayComFallback` implementa essa interface consultando o ViaCEP e a BrasilAPI em ordem, e nenhum service sabe quantos provedores existem. O mesmo vale para `GeocodificacaoGateway`, `RotaGateway`, `EmpresaGateway` e `FeriadoGateway`.
+
+Os testes dos clients HTTP sobem um `HttpServer` do próprio JDK (`support/ServidorHttpFalso`), então não dependem de internet.
 
 ## Convenções
 
