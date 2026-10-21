@@ -19,5 +19,15 @@ fretai:
     email: ${FRETAI_ADMIN_EMAIL}
     senha: ${FRETAI_ADMIN_SENHA}   # mínimo 12 caracteres
     cpf: ${FRETAI_ADMIN_CPF}
+  arquivos:
+    provedor: s3                   # local (disco) ou s3 (S3/MinIO)
+    segredo: ${FRETAI_ARQUIVOS_SEGREDO}   # assina os links do provedor local
+    s3:
+      endpoint: ${S3_ENDPOINT}     # http://localhost:9000 no MinIO do docker-compose
+      regiao: ${S3_REGIAO}
+      bucket: ${S3_BUCKET}
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+      criptografia-servidor: true  # SSE-S3 (AES-256) no S3 da AWS
   graphhopper:
     chave: ${GRAPHHOPPER_CHAVE}    # opcional: sem ela a distância é estimada

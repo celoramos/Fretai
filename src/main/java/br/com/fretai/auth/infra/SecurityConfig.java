@@ -32,6 +32,8 @@ class SecurityConfig {
                         // Consulta de CNPJ (formulário de cadastro), feriados e calendário: dados públicos.
                         .requestMatchers(HttpMethod.GET, "/api/empresas/{cnpj:[0-9A-Za-z.\\-]{14,18}}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/feriados/**", "/api/calendario/**").permitAll()
+                        // Link assinado de arquivo: a permissão foi conferida quando o link foi gerado.
+                        .requestMatchers(HttpMethod.GET, "/api/arquivos/*").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/error").permitAll()

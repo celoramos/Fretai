@@ -5,3 +5,7 @@ spring:
     url: jdbc:h2:mem:fretai;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
     username: sa
     password:
+fretai:
+  arquivos:
+    local:
+      diretorio: target/arquivos-teste

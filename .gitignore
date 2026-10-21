@@ -17,3 +17,6 @@ target/
 # SO
 .DS_Store
 Thumbs.db
+
+# Arquivos enviados no armazenamento local (documentos, canhotos)
+/dados/
