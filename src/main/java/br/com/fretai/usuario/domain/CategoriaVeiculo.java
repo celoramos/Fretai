@@ -2,7 +2,7 @@ package br.com.fretai.usuario.domain;
 
 import java.math.BigDecimal;
 
-public enum TipoVeiculo {
+public enum CategoriaVeiculo {
     MOTO("Moto"),
     CARRO("Carro de passeio"),
     UTILITARIO("Utilitário (Fiorino, Kangoo)"),
@@ -11,7 +11,7 @@ public enum TipoVeiculo {
 
     private final String descricao;
 
-    TipoVeiculo(String descricao) {
+    CategoriaVeiculo(String descricao) {
         this.descricao = descricao;
     }
 

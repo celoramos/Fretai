@@ -1,6 +1,6 @@
 package br.com.fretai.empresa.infra;
 
-import br.com.fretai.empresa.domain.Empresa;
+import br.com.fretai.empresa.domain.DadosCnpj;
 import br.com.fretai.empresa.domain.EmpresaGateway;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.shared.exception.ServicoExternoIndisponivelException;
@@ -29,7 +29,7 @@ class BrasilApiCnpjClient implements EmpresaGateway {
 
     @Override
     @Cacheable(cacheNames = "cnpj", key = "T(br.com.fretai.empresa.domain.EmpresaGateway).normalizarCnpj(#cnpj)")
-    public Empresa buscarPorCnpj(String cnpj) {
+    public DadosCnpj buscarPorCnpj(String cnpj) {
         String cnpjNormalizado = EmpresaGateway.normalizarCnpj(cnpj);
 
         RespostaCnpj r;
@@ -49,7 +49,7 @@ class BrasilApiCnpjClient implements EmpresaGateway {
         if (r == null) {
             throw new RecursoNaoEncontradoException("CNPJ não encontrado na Receita Federal: " + cnpjNormalizado);
         }
-        return new Empresa(r.cnpj(), r.razaoSocial(), vazioComoNulo(r.nomeFantasia()), r.situacaoCadastral(),
+        return new DadosCnpj(r.cnpj(), r.razaoSocial(), vazioComoNulo(r.nomeFantasia()), r.situacaoCadastral(),
                 r.inicioAtividade(), r.atividadePrincipal(), r.municipio(), r.uf(), r.cep());
     }
 

@@ -1,6 +1,6 @@
 package br.com.fretai.empresa.infra;
 
-import br.com.fretai.empresa.domain.Empresa;
+import br.com.fretai.empresa.domain.DadosCnpj;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.shared.exception.ServicoExternoIndisponivelException;
 import br.com.fretai.support.ServidorHttpFalso;
@@ -34,7 +34,7 @@ class BrasilApiCnpjClientTest {
                  "qsa":[{"nome_socio":"FULANO","cnpj_cpf_do_socio":"***112108**"}]}
                 """);
 
-        Empresa empresa = client.buscarPorCnpj("19.131.243/0001-97");
+        DadosCnpj empresa = client.buscarPorCnpj("19.131.243/0001-97");
 
         assertEquals("OPEN KNOWLEDGE BRASIL", empresa.razaoSocial());
         assertNull(empresa.nomeFantasia(), "nome fantasia vazio vira null");

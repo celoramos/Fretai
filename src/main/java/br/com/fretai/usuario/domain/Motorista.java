@@ -10,7 +10,7 @@ public class Motorista extends Usuario {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private TipoVeiculo tipoVeiculo;
+    private CategoriaVeiculo tipoVeiculo;
 
     @Column(nullable = false, unique = true, length = 7)
     private String placa;
@@ -23,7 +23,7 @@ public class Motorista extends Usuario {
     }
 
     public Motorista(String cpf, String nome, String email, String senhaHash, String telefone,
-                     TipoVeiculo tipoVeiculo, String placa) {
+                     CategoriaVeiculo tipoVeiculo, String placa) {
         super(cpf, nome, email, senhaHash, telefone);
         this.tipoVeiculo = tipoVeiculo;
         this.placa = placa;
@@ -33,7 +33,7 @@ public class Motorista extends Usuario {
         this.aceitaFeriado = aceitaFeriado;
     }
 
-    public TipoVeiculo getTipoVeiculo() {return tipoVeiculo;}
+    public CategoriaVeiculo getTipoVeiculo() {return tipoVeiculo;}
     public String getPlaca() {return placa;}
     public boolean isAceitaFeriado() {return aceitaFeriado;}
 }

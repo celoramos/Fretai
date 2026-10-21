@@ -1,10 +1,17 @@
 package br.com.fretai.frete.domain;
 
+import br.com.fretai.empresa.domain.Empresa;
 import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.Motorista;
+import br.com.fretai.veiculo.domain.TipoCarroceria;
+import br.com.fretai.veiculo.domain.TipoVeiculo;
+import br.com.fretai.veiculo.domain.Veiculo;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,12 +22,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -45,13 +59,24 @@ public class Frete {
     @Version
     private Long versao;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    /** Contratante pessoa física. Nulo quando o frete é de uma empresa. */
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
+
+    /** Contratante pessoa jurídica. Nulo quando o frete é de um cliente. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "motorista_id")
     private Motorista motorista;
+
+    /** Caminhão com que o motorista vai fazer o frete (só nos fretes de empresa). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "veiculo_id")
+    private Veiculo veiculo;
 
     @Embedded
     private EnderecoFrete pontoColeta;
@@ -59,28 +84,60 @@ public class Frete {
     @Embedded
     private EnderecoFrete pontoEntrega;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String nomeDestinatario;
 
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private String telefoneDestinatario;
 
     @Column(nullable = false, length = 500)
     private String descricaoCarga;
 
+    @Column(length = 100)
+    private String especieCarga;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 40)
+    private TipoCargaAntt tipoCargaAntt;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal pesoKg;
 
-    /** O que o cliente ofereceu. */
-    @Column(nullable = false, precision = 12, scale = 2)
+    /** O que o contratante ofereceu. Nulo quando o valor é "a combinar". */
+    @Column(precision = 12, scale = 2)
     private BigDecimal valor;
+
+    @Column(name = "valor_a_combinar", nullable = false)
+    private boolean valorACombinar;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal adicionalFeriado;
 
-    /** valor + adicionalFeriado: é o que o cliente paga. */
-    @Column(nullable = false, precision = 12, scale = 2)
+    /** valor + adicionalFeriado: é o que o contratante paga. Nulo enquanto o valor estiver "a combinar". */
+    @Column(precision = 12, scale = 2)
     private BigDecimal valorTotal;
+
+    @ElementCollection
+    @CollectionTable(name = "frete_tipo_veiculo", joinColumns = @JoinColumn(name = "frete_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_veiculo", length = 20)
+    private Set<TipoVeiculo> veiculosAceitos = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name = "frete_tipo_carroceria", joinColumns = @JoinColumn(name = "frete_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_carroceria", length = 20)
+    private Set<TipoCarroceria> carroceriasAceitas = new HashSet<>();
+
+    @Column(nullable = false)
+    private boolean exigeRastreador;
+
+    /** A carga não lota o caminhão: o motorista pode completar com outra. */
+    @Column(nullable = false)
+    private boolean complemento;
+
+    @Column(nullable = false)
+    private boolean publicadoPorAgenciador;
 
     @Column(nullable = false)
     private LocalDate dataColeta;
@@ -113,18 +170,44 @@ public class Frete {
     private Instant aceitoEm;
     private Instant concluidoEm;
 
+    @OneToMany(mappedBy = "frete", cascade = CascadeType.PERSIST)
+    @OrderBy("ocorridoEm")
+    private List<EventoFrete> eventos = new ArrayList<>();
+
     protected Frete() {
     }
 
-    public Frete(Cliente cliente, EnderecoFrete pontoColeta, EnderecoFrete pontoEntrega,
-                 String nomeDestinatario, String telefoneDestinatario,
-                 String descricaoCarga, BigDecimal pesoKg, BigDecimal valor, LocalDate dataColeta) {
-        this.cliente = Objects.requireNonNull(cliente, "Cliente solicitante é obrigatório.");
+    /**
+     * Frete publicado por uma empresa no marketplace. Se a empresa for agenciadora,
+     * o frete sai marcado como tal: o motorista tem o direito de saber que está
+     * negociando com um intermediário.
+     *
+     * @param valor nulo = "a combinar"
+     */
+    public static Frete publicar(Empresa empresa, EnderecoFrete pontoColeta, EnderecoFrete pontoEntrega,
+                                 DadosCarga carga, BigDecimal valor, LocalDate dataColeta,
+                                 RequisitosFrete requisitos) {
+        Objects.requireNonNull(empresa, "Empresa é obrigatória.");
+        Objects.requireNonNull(carga, "Dados da carga são obrigatórios.");
+        Objects.requireNonNull(requisitos, "Requisitos do frete são obrigatórios.");
+        if (!empresa.isAtiva()) {
+            throw new RegraNegocioException("Empresa desativada não pode publicar fretes.");
+        }
+        Frete frete = new Frete(pontoColeta, pontoEntrega, carga.descricao(), carga.pesoKg(), valor, dataColeta);
+        frete.empresa = empresa;
+        frete.especieCarga = carga.especie();
+        frete.tipoCargaAntt = Objects.requireNonNull(carga.tipoCargaAntt(), "Tipo de carga ANTT é obrigatório.");
+        frete.valorACombinar = valor == null;
+        frete.publicadoPorAgenciador = empresa.isAgenciador();
+        frete.aplicarRequisitos(requisitos);
+        return frete;
+    }
+
+    private Frete(EnderecoFrete pontoColeta, EnderecoFrete pontoEntrega, String descricaoCarga,
+                  BigDecimal pesoKg, BigDecimal valor, LocalDate dataColeta) {
         this.pontoColeta = Objects.requireNonNull(pontoColeta, "Ponto de coleta é obrigatório.");
         this.pontoEntrega = Objects.requireNonNull(pontoEntrega, "Ponto de entrega é obrigatório.");
         this.dataColeta = Objects.requireNonNull(dataColeta, "Data da coleta é obrigatória.");
-        this.nomeDestinatario = nomeDestinatario;
-        this.telefoneDestinatario = telefoneDestinatario;
         this.descricaoCarga = descricaoCarga;
         this.pesoKg = pesoKg;
         this.valor = valor;
@@ -133,6 +216,32 @@ public class Frete {
         this.domingo = dataColeta.getDayOfWeek() == DayOfWeek.SUNDAY;
         this.status = StatusFrete.PENDENTE;
         this.criadoEm = Instant.now();
+    }
+
+    private void aplicarRequisitos(RequisitosFrete requisitos) {
+        this.veiculosAceitos.clear();
+        this.veiculosAceitos.addAll(requisitos.veiculosAceitos());
+        this.carroceriasAceitas.clear();
+        this.carroceriasAceitas.addAll(requisitos.carroceriasAceitas());
+        this.exigeRastreador = requisitos.exigeRastreador();
+        this.complemento = requisitos.complemento();
+    }
+
+    /** O caminhão atende ao que a empresa pediu? Lista vazia de tipos ou carrocerias = qualquer um serve. */
+    public boolean aceitaVeiculo(Veiculo veiculo) {
+        return (veiculosAceitos.isEmpty() || veiculosAceitos.contains(veiculo.getTipo()))
+                && (carroceriasAceitas.isEmpty() || carroceriasAceitas.contains(veiculo.getCarroceria()))
+                && (!exigeRastreador || veiculo.isRastreador());
+    }
+
+    public Frete(Cliente cliente, EnderecoFrete pontoColeta, EnderecoFrete pontoEntrega,
+                 String nomeDestinatario, String telefoneDestinatario,
+                 String descricaoCarga, BigDecimal pesoKg, BigDecimal valor, LocalDate dataColeta) {
+        this(pontoColeta, pontoEntrega, descricaoCarga, pesoKg, Objects.requireNonNull(valor, "Valor é obrigatório."),
+                dataColeta);
+        this.cliente = Objects.requireNonNull(cliente, "Cliente solicitante é obrigatório.");
+        this.nomeDestinatario = nomeDestinatario;
+        this.telefoneDestinatario = telefoneDestinatario;
     }
 
     /**
@@ -147,8 +256,11 @@ public class Frete {
         exigirStatus(StatusFrete.PENDENTE, "O feriado só pode ser registrado enquanto o frete está pendente.");
         this.feriado = true;
         this.nomeFeriado = nomeFeriado;
-        this.adicionalFeriado = AdicionalFeriado.calcular(valor, percentual);
-        this.valorTotal = valor.add(adicionalFeriado);
+        // "A combinar": o adicional entra na negociação, não há valor sobre o qual calcular.
+        if (valor != null) {
+            this.adicionalFeriado = AdicionalFeriado.calcular(valor, percentual);
+            this.valorTotal = valor.add(adicionalFeriado);
+        }
     }
 
     /** A distância entra na formação do preço, então só pode mudar antes de um motorista aceitar. */
@@ -211,7 +323,18 @@ public class Frete {
 
     public UUID getId() {return id;}
     public Cliente getCliente() {return cliente;}
+    public Empresa getEmpresa() {return empresa;}
     public Motorista getMotorista() {return motorista;}
+    public Veiculo getVeiculo() {return veiculo;}
+    public String getEspecieCarga() {return especieCarga;}
+    public TipoCargaAntt getTipoCargaAntt() {return tipoCargaAntt;}
+    public boolean isValorACombinar() {return valorACombinar;}
+    public Set<TipoVeiculo> getVeiculosAceitos() {return Collections.unmodifiableSet(veiculosAceitos);}
+    public Set<TipoCarroceria> getCarroceriasAceitas() {return Collections.unmodifiableSet(carroceriasAceitas);}
+    public boolean isExigeRastreador() {return exigeRastreador;}
+    public boolean isComplemento() {return complemento;}
+    public boolean isPublicadoPorAgenciador() {return publicadoPorAgenciador;}
+    public List<EventoFrete> getEventos() {return Collections.unmodifiableList(eventos);}
     public EnderecoFrete getPontoColeta() {return pontoColeta;}
     public EnderecoFrete getPontoEntrega() {return pontoEntrega;}
     public String getNomeDestinatario() {return nomeDestinatario;}

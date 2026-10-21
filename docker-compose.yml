@@ -1,19 +1,39 @@
-# Banco local para desenvolvimento: docker compose up -d
+# Ambiente local de desenvolvimento: docker compose up -d
+# As credenciais abaixo são só para a máquina do desenvolvedor; em qualquer outro
+# ambiente elas vêm de variáveis (veja application-example.yml).
 services:
   postgres:
-    image: postgres:17-alpine
+    # PostgreSQL 17 com PostGIS: coordenadas como geography(Point) e busca por raio.
+    image: postgis/postgis:17-3.5-alpine
     environment:
       POSTGRES_DB: fretai
-      POSTGRES_USER: fretai
-      POSTGRES_PASSWORD: fretai
+      POSTGRES_USER: ${DB_USER:-fretai}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-fretai}
     ports:
       - "5432:5432"
     volumes:
       - fretai-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fretai -d fretai"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-fretai} -d fretai"]
       interval: 5s
       retries: 10
 
+  # Armazenamento de documentos (CNH, CRLV, canhotos) compatível com S3.
+  # A MinIO deixou de publicar imagens oficiais; esta é a build comunitária do
+  # mesmo código. O bucket é criado pela aplicação na primeira subida.
+  # Console em http://localhost:9001
+  minio:
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fretai}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-fretai-minio}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - fretai-minio:/data
+
 volumes:
   fretai-pgdata:
+  fretai-minio:

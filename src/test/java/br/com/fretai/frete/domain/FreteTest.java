@@ -3,7 +3,7 @@ package br.com.fretai.frete.domain;
 import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.support.Fixtures;
 import br.com.fretai.usuario.domain.Motorista;
-import br.com.fretai.usuario.domain.TipoVeiculo;
+import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +22,7 @@ class FreteTest {
     @BeforeEach
     void setUp() {
         frete = Fixtures.fretePendente();
-        motorista = Fixtures.motorista(TipoVeiculo.UTILITARIO);
+        motorista = Fixtures.motorista(CategoriaVeiculo.UTILITARIO);
     }
 
     @Test

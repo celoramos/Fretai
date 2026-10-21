@@ -1,6 +1,6 @@
 package br.com.fretai.usuario.application.dto;
 
-import br.com.fretai.usuario.domain.TipoVeiculo;
+import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +30,7 @@ public record CadastroMotoristaRequest(
         String telefone,
 
         @NotNull(message = "O tipo de veículo é obrigatório.")
-        TipoVeiculo tipoVeiculo,
+        CategoriaVeiculo tipoVeiculo,
 
         @NotBlank(message = "A placa é obrigatória.")
         @Pattern(regexp = Formatos.PLACA, message = "Placa inválida. Use o formato ABC1234 ou ABC1D23.")

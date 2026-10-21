@@ -1,12 +1,12 @@
 package br.com.fretai.usuario.application.dto;
 
 import br.com.fretai.usuario.domain.Motorista;
-import br.com.fretai.usuario.domain.TipoVeiculo;
+import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import java.time.Instant;
 import java.util.UUID;
 
 public record MotoristaResponse(UUID id, String nome, String email, String telefone,
-                                TipoVeiculo tipoVeiculo, String placa, boolean aceitaFeriado,
+                                CategoriaVeiculo tipoVeiculo, String placa, boolean aceitaFeriado,
                                 Instant criadoEm) {
 
     public static MotoristaResponse de(Motorista motorista) {

@@ -2,7 +2,7 @@ package br.com.fretai.usuario.application;
 
 import br.com.fretai.usuario.application.dto.CadastroClienteRequest;
 import br.com.fretai.usuario.application.dto.CadastroMotoristaRequest;
-import br.com.fretai.usuario.domain.TipoVeiculo;
+import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -87,7 +87,7 @@ class ValidacaoCadastroTest {
     @ValueSource(strings = {"ABC1234", "ABC-1234", "ABC1D23", "abc1d23"})
     void aceitaPlaca(String placa) {
         var motorista = new CadastroMotoristaRequest("11144477735", "Marcos", "m@email.com", "senhaForte1",
-                "11988887777", TipoVeiculo.VAN, placa);
+                "11988887777", CategoriaVeiculo.VAN, placa);
         assertTrue(camposInvalidos(motorista).isEmpty());
     }
 
@@ -95,7 +95,7 @@ class ValidacaoCadastroTest {
     @ValueSource(strings = {"AB1234", "ABCD123", "1234ABC", "ABC12"})
     void rejeitaPlaca(String placa) {
         var motorista = new CadastroMotoristaRequest("11144477735", "Marcos", "m@email.com", "senhaForte1",
-                "11988887777", TipoVeiculo.VAN, placa);
+                "11988887777", CategoriaVeiculo.VAN, placa);
         assertTrue(camposInvalidos(motorista).contains("placa"));
     }
 }

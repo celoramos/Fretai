@@ -1,6 +1,6 @@
 package br.com.fretai.empresa.api;
 
-import br.com.fretai.empresa.domain.Empresa;
+import br.com.fretai.empresa.domain.DadosCnpj;
 import br.com.fretai.empresa.domain.EmpresaGateway;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +17,7 @@ public class EmpresaController {
     }
 
     @GetMapping("/api/empresas/{cnpj}")
-    public Empresa buscar(@PathVariable String cnpj) {
+    public DadosCnpj buscar(@PathVariable String cnpj) {
         return empresaGateway.buscarPorCnpj(cnpj);
     }
 }

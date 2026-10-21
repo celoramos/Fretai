@@ -21,7 +21,7 @@ import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.ClienteRepository;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.MotoristaRepository;
-import br.com.fretai.usuario.domain.TipoVeiculo;
+import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -192,7 +192,7 @@ class FreteServiceTest {
         UUID motoristaId = UUID.randomUUID();
         Frete frete = Fixtures.fretePendente();
         Motorista motorista = new Motorista("11144477735", "Marcos", "m@email.com", "hash",
-                "11988887777", TipoVeiculo.VAN, "ABC1234");
+                "11988887777", CategoriaVeiculo.VAN, "ABC1234");
         when(motoristaRepository.findById(motoristaId)).thenReturn(Optional.of(motorista));
         when(freteRepository.findById(freteId)).thenReturn(Optional.of(frete));
         when(freteRepository.saveAndFlush(frete)).thenReturn(frete);

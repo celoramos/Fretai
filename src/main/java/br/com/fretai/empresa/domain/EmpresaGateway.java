@@ -13,7 +13,7 @@ public interface EmpresaGateway {
      * @throws RecursoNaoEncontradoException se o CNPJ não existir na Receita
      * @throws ServicoExternoIndisponivelException se o provedor não responder
      */
-    Empresa buscarPorCnpj(String cnpj);
+    DadosCnpj buscarPorCnpj(String cnpj);
 
     /**
      * Desde julho de 2026 a Receita emite CNPJ alfanumérico: as 12 primeiras

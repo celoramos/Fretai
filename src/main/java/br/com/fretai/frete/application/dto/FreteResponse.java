@@ -5,7 +5,7 @@ import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.StatusFrete;
 import br.com.fretai.usuario.domain.Motorista;
-import br.com.fretai.usuario.domain.TipoVeiculo;
+import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -40,7 +40,7 @@ public record FreteResponse(
     public record Pessoa(UUID id, String nome) {
     }
 
-    public record MotoristaResumo(UUID id, String nome, TipoVeiculo tipoVeiculo, String placa) {
+    public record MotoristaResumo(UUID id, String nome, CategoriaVeiculo tipoVeiculo, String placa) {
     }
 
     public record EnderecoResponse(String cep, String logradouro, String numero, String complemento,
@@ -61,7 +61,7 @@ public record FreteResponse(
                 frete.getId(),
                 frete.getStatus(),
                 frete.getStatus().getDescricao(),
-                new Pessoa(frete.getCliente().getId(), frete.getCliente().getNome()),
+                frete.getCliente() == null ? null : new Pessoa(frete.getCliente().getId(), frete.getCliente().getNome()),
                 m == null ? null : new MotoristaResumo(m.getId(), m.getNome(), m.getTipoVeiculo(), m.getPlaca()),
                 EnderecoResponse.de(frete.getPontoColeta()),
                 EnderecoResponse.de(frete.getPontoEntrega()),
