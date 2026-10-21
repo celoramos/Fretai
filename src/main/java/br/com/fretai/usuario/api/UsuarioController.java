@@ -4,6 +4,7 @@ import br.com.fretai.usuario.application.UsuarioService;
 import br.com.fretai.usuario.application.dto.AtualizarContatoRequest;
 import br.com.fretai.usuario.application.dto.CadastroClienteRequest;
 import br.com.fretai.usuario.application.dto.CadastroMotoristaRequest;
+import br.com.fretai.usuario.application.dto.ChavePixRequest;
 import br.com.fretai.usuario.application.dto.ClienteResponse;
 import br.com.fretai.usuario.application.dto.MotoristaResponse;
 import br.com.fretai.usuario.application.dto.PreferenciasMotoristaRequest;
@@ -70,6 +71,13 @@ public class UsuarioController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void desativarMotorista(@PathVariable UUID id) {
         usuarioService.desativarMotorista(id);
+    }
+
+    /** Para onde o PSP transfere adiantamento e saldo. */
+    @PutMapping("/api/motoristas/{id}/chave-pix")
+    @PreAuthorize("principal.ehOuAdmin(#id)")
+    public MotoristaResponse definirChavePix(@PathVariable UUID id, @Valid @RequestBody ChavePixRequest request) {
+        return usuarioService.definirChavePix(id, request);
     }
 
     @PatchMapping("/api/motoristas/{id}/preferencias")

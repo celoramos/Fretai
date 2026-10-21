@@ -70,6 +70,21 @@ fretai:
       access-key: ${S3_ACCESS_KEY:}
       secret-key: ${S3_SECRET_KEY:}
       criptografia-servidor: ${S3_CRIPTOGRAFIA:false}
+  pagamento:
+    # Prazo do Pix gerado no aceite.
+    prazo-cobranca: 2d
+    # Depois do canhoto, quanto tempo o recebedor tem para contestar antes de o saldo sair.
+    janela-contestacao: 24h
+    # Com que frequência o job procura saldos prontos para liberar.
+    intervalo-liberacao: 5m
+    fake:
+      # PSP de mentira (desenvolvimento): não é segredo, não vale fora da sua máquina.
+      webhook-token: ${FRETAI_FAKE_WEBHOOK_TOKEN:fake-dev}
+    # Só com o profile "asaas". A URL precisa ser a do sandbox, senão a aplicação não sobe.
+    asaas:
+      url: ${ASAAS_URL:https://api-sandbox.asaas.com/v3}
+      chave: ${ASAAS_CHAVE:}
+      webhook-token: ${ASAAS_WEBHOOK_TOKEN:}
   preco:
     # Alerta de "fretão": R$/km acima de 2× a média de fretes parecidos.
     fator-suspeita: 2.0

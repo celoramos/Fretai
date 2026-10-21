@@ -5,6 +5,7 @@ import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.usuario.application.dto.AtualizarContatoRequest;
 import br.com.fretai.usuario.application.dto.CadastroClienteRequest;
 import br.com.fretai.usuario.application.dto.CadastroMotoristaRequest;
+import br.com.fretai.usuario.application.dto.ChavePixRequest;
 import br.com.fretai.usuario.application.dto.ClienteResponse;
 import br.com.fretai.usuario.application.dto.MotoristaResponse;
 import br.com.fretai.usuario.application.dto.PreferenciasMotoristaRequest;
@@ -90,6 +91,13 @@ public class UsuarioService {
     public MotoristaResponse alterarPreferencias(UUID motoristaId, PreferenciasMotoristaRequest request) {
         Motorista motorista = carregarMotorista(motoristaId);
         motorista.definirAceitaFeriado(request.aceitaFeriado());
+        return MotoristaResponse.de(motorista);
+    }
+
+    @Transactional
+    public MotoristaResponse definirChavePix(UUID motoristaId, ChavePixRequest request) {
+        Motorista motorista = carregarMotorista(motoristaId);
+        motorista.definirChavePix(request.chavePix());
         return MotoristaResponse.de(motorista);
     }
 
