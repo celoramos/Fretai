@@ -41,6 +41,10 @@ public abstract class Usuario {
     @Column(nullable = false)
     private Instant criadoEm;
 
+    /** Desativado não faz login nem aparece em listagens; o histórico continua. */
+    @Column(nullable = false)
+    private boolean ativo = true;
+
     protected Usuario() {
     }
 
@@ -53,7 +57,17 @@ public abstract class Usuario {
         this.criadoEm = Instant.now();
     }
 
+    public void atualizarContato(String nome, String telefone) {
+        this.nome = nome;
+        this.telefone = telefone;
+    }
+
+    public void desativar() {
+        this.ativo = false;
+    }
+
     public UUID getId() {return id;}
+    public boolean isAtivo() {return ativo;}
     public String getCpf() {return cpf;}
     public String getNome() {return nome;}
     public String getEmail() {return email;}

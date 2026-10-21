@@ -57,8 +57,9 @@ class FreteServiceTest {
 
     @BeforeEach
     void setUp() {
-        freteService = new FreteService(freteRepository, clienteRepository, motoristaRepository, enderecoGateway,
-                geocodificacaoGateway, rotaGateway, calendarioService, new BigDecimal("20"));
+        freteService = new FreteService(freteRepository, clienteRepository, motoristaRepository,
+                new PreparacaoFrete(enderecoGateway, geocodificacaoGateway, rotaGateway, calendarioService,
+                        new BigDecimal("20")));
         cliente = new Cliente("52998224725", "Carlos Silva", "carlos@email.com", "hash", "11999998888");
     }
 

@@ -1,29 +1,18 @@
 package br.com.fretai.frete.application;
 
-import br.com.fretai.calendario.application.CalendarioService;
-import br.com.fretai.endereco.domain.Coordenadas;
-import br.com.fretai.endereco.domain.Endereco;
-import br.com.fretai.endereco.domain.EnderecoGateway;
-import br.com.fretai.endereco.domain.GeocodificacaoGateway;
-import br.com.fretai.frete.application.dto.EnderecoRequest;
 import br.com.fretai.frete.application.dto.FreteResponse;
 import br.com.fretai.frete.application.dto.SolicitarFreteRequest;
 import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.frete.domain.StatusFrete;
-import br.com.fretai.rota.domain.Rota;
-import br.com.fretai.rota.domain.RotaGateway;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.ClienteRepository;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.MotoristaRepository;
-import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,25 +29,14 @@ public class FreteService {
     private final FreteRepository freteRepository;
     private final ClienteRepository clienteRepository;
     private final MotoristaRepository motoristaRepository;
-    private final EnderecoGateway enderecoGateway;
-    private final GeocodificacaoGateway geocodificacaoGateway;
-    private final RotaGateway rotaGateway;
-    private final CalendarioService calendarioService;
-    private final BigDecimal adicionalFeriadoPercentual;
+    private final PreparacaoFrete preparacao;
 
     public FreteService(FreteRepository freteRepository, ClienteRepository clienteRepository,
-                        MotoristaRepository motoristaRepository, EnderecoGateway enderecoGateway,
-                        GeocodificacaoGateway geocodificacaoGateway, RotaGateway rotaGateway,
-                        CalendarioService calendarioService,
-                        @Value("${fretai.frete.adicional-feriado-percentual}") BigDecimal adicionalFeriadoPercentual) {
+                        MotoristaRepository motoristaRepository, PreparacaoFrete preparacao) {
         this.freteRepository = freteRepository;
         this.clienteRepository = clienteRepository;
         this.motoristaRepository = motoristaRepository;
-        this.enderecoGateway = enderecoGateway;
-        this.geocodificacaoGateway = geocodificacaoGateway;
-        this.rotaGateway = rotaGateway;
-        this.calendarioService = calendarioService;
-        this.adicionalFeriadoPercentual = adicionalFeriadoPercentual;
+        this.preparacao = preparacao;
     }
 
     @Transactional
@@ -66,18 +44,13 @@ public class FreteService {
         Cliente cliente = clienteRepository.findById(request.clienteId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado."));
 
-        EnderecoFrete coleta = montarEndereco(request.coleta());
-        EnderecoFrete entrega = montarEndereco(request.entrega());
+        EnderecoFrete coleta = preparacao.montarEndereco(request.coleta());
+        EnderecoFrete entrega = preparacao.montarEndereco(request.entrega());
 
         Frete frete = new Frete(cliente, coleta, entrega,
                 request.nomeDestinatario(), request.telefoneDestinatario(),
                 request.descricaoCarga(), request.pesoKg(), request.valor(), request.dataColeta());
-        calcularRota(coleta, entrega).ifPresent(frete::registrarRota);
-        // Se o serviço de feriados cair, o pedido falha (503): melhor que publicar o frete com o preço errado.
-        String nomeFeriado = calendarioService.verificar(request.dataColeta()).nomeFeriado();
-        if (nomeFeriado != null) {
-            frete.registrarFeriado(nomeFeriado, adicionalFeriadoPercentual);
-        }
+        preparacao.completar(frete, request.dataColeta());
         return FreteResponse.de(freteRepository.save(frete));
     }
 
@@ -124,21 +97,5 @@ public class FreteService {
     private Frete carregar(UUID freteId) {
         return freteRepository.findById(freteId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Frete não encontrado."));
-    }
-
-    private EnderecoFrete montarEndereco(EnderecoRequest request) {
-        Endereco base = enderecoGateway.buscarPorCep(request.cep());
-        Coordenadas coordenadas = geocodificacaoGateway.localizar(base, request.numero()).orElse(null);
-        return new EnderecoFrete(base, request.numero(), request.complemento(), request.pontoReferencia(), coordenadas);
-    }
-
-    /** Sem as duas pontas no mapa não há distância; o frete é criado mesmo assim. */
-    private Optional<Rota> calcularRota(EnderecoFrete coleta, EnderecoFrete entrega) {
-        Optional<Coordenadas> origem = coleta.getCoordenadas();
-        Optional<Coordenadas> destino = entrega.getCoordenadas();
-        if (origem.isEmpty() || destino.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(rotaGateway.calcular(origem.get(), destino.get()));
     }
 }

@@ -8,7 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FreteRepository extends JpaRepository<Frete, UUID> {
 
-    // Carrega cliente e motorista na mesma query: evita o problema N+1 ao listar.
-    @EntityGraph(attributePaths = {"cliente", "motorista"})
+    // Carrega as partes na mesma query: evita o problema N+1 ao listar.
+    @EntityGraph(attributePaths = {"cliente", "empresa", "motorista", "veiculo"})
     Page<Frete> findByStatus(StatusFrete status, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"empresa", "motorista", "veiculo"})
+    Page<Frete> findByEmpresaId(UUID empresaId, Pageable pageable);
 }

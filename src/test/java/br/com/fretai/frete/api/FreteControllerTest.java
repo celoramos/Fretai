@@ -2,6 +2,7 @@ package br.com.fretai.frete.api;
 
 import br.com.fretai.endereco.domain.CepNaoEncontradoException;
 import br.com.fretai.frete.application.FreteService;
+import br.com.fretai.frete.application.PublicacaoFreteService;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import java.util.UUID;
@@ -33,6 +34,9 @@ class FreteControllerTest {
 
     @MockitoBean
     private FreteService freteService;
+
+    @MockitoBean
+    private PublicacaoFreteService publicacaoFreteService;
 
     private static final String PEDIDO_VALIDO = """
             {

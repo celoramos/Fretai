@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -76,6 +77,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     ProblemDetail argumentoInvalido(IllegalArgumentException e) {
         return problema(HttpStatus.BAD_REQUEST, "Requisição inválida", e.getMessage());
+    }
+
+    /** ?sort=campoQueNaoExiste: erro de quem chamou, não do servidor. */
+    @ExceptionHandler(PropertyReferenceException.class)
+    ProblemDetail ordenacaoInvalida(PropertyReferenceException e) {
+        return problema(HttpStatus.BAD_REQUEST, "Ordenação inválida",
+                "Não é possível ordenar por \"" + e.getPropertyName() + "\".");
     }
 
     /** Erros de @Valid: devolve a lista campo → mensagem para o front marcar o formulário. */

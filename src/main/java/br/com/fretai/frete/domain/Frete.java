@@ -227,6 +227,35 @@ public class Frete {
         this.complemento = requisitos.complemento();
     }
 
+    /**
+     * A empresa corrige o anúncio. Volta tudo ao estado de recém-publicado
+     * (sem distância, sem feriado): quem chama recalcula com os dados novos.
+     */
+    public void revisar(EnderecoFrete pontoColeta, EnderecoFrete pontoEntrega, DadosCarga carga,
+                        BigDecimal valor, LocalDate dataColeta, RequisitosFrete requisitos) {
+        if (empresa == null) {
+            throw new RegraNegocioException("Só fretes publicados por empresa podem ser editados.");
+        }
+        exigirStatus(StatusFrete.PENDENTE, "O frete só pode ser editado antes de ter motorista.");
+        this.pontoColeta = Objects.requireNonNull(pontoColeta, "Ponto de coleta é obrigatório.");
+        this.pontoEntrega = Objects.requireNonNull(pontoEntrega, "Ponto de entrega é obrigatório.");
+        this.dataColeta = Objects.requireNonNull(dataColeta, "Data da coleta é obrigatória.");
+        this.descricaoCarga = carga.descricao();
+        this.especieCarga = carga.especie();
+        this.tipoCargaAntt = Objects.requireNonNull(carga.tipoCargaAntt(), "Tipo de carga ANTT é obrigatório.");
+        this.pesoKg = carga.pesoKg();
+        this.valor = valor;
+        this.valorACombinar = valor == null;
+        this.adicionalFeriado = BigDecimal.ZERO;
+        this.valorTotal = valor;
+        this.feriado = false;
+        this.nomeFeriado = null;
+        this.domingo = dataColeta.getDayOfWeek() == DayOfWeek.SUNDAY;
+        this.distanciaKm = null;
+        this.distanciaEstimada = null;
+        aplicarRequisitos(requisitos);
+    }
+
     /** O caminhão atende ao que a empresa pediu? Lista vazia de tipos ou carrocerias = qualquer um serve. */
     public boolean aceitaVeiculo(Veiculo veiculo) {
         return (veiculosAceitos.isEmpty() || veiculosAceitos.contains(veiculo.getTipo()))
