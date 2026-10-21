@@ -1,7 +1,6 @@
 package br.com.fretai.pagamento.application;
 
 import br.com.fretai.frete.domain.Autor;
-import br.com.fretai.frete.domain.EventosFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.frete.domain.StatusFrete;
@@ -33,9 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Orquestra o PSP ao longo do frete. O dinheiro nunca passa pelo Fretaí:
@@ -145,28 +142,18 @@ public class PagamentoService {
         }
     }
 
-    /** A carga saiu: o adiantamento vai para o motorista. Falha aqui não desfaz a saída; o job tenta de novo. */
-    @TransactionalEventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void aoIniciarTransporte(EventosFrete.TransporteIniciado evento) {
-        try {
-            vigente(evento.freteId()).ifPresent(this::liberarAdiantamento);
-        } catch (RuntimeException e) {
-            log.error("Falha ao liberar adiantamento do frete {}; o job vai tentar de novo.", evento.freteId(), e);
-        }
+    /** A carga saiu: o adiantamento vai para o motorista. */
+    @Transactional
+    public void liberarAdiantamentoDoFrete(UUID freteId) {
+        vigente(freteId).ifPresent(this::liberarAdiantamento);
     }
 
     /** Cancelado antes da saída: cancela a cobrança (ou devolve, se já foi paga). */
-    @TransactionalEventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void aoCancelar(EventosFrete.FreteCancelado evento) {
-        vigente(evento.freteId()).ifPresent(p -> {
-            try {
-                gateway.estornar(p.getCobrancaId());
-                p.estornar();
-            } catch (RuntimeException e) {
-                log.error("Falha ao estornar o pagamento {} do frete {}", p.getId(), evento.freteId(), e);
-            }
+    @Transactional
+    public void estornarDoFrete(UUID freteId) {
+        vigente(freteId).ifPresent(p -> {
+            gateway.estornar(p.getCobrancaId());
+            p.estornar();
         });
     }
 
@@ -234,6 +221,16 @@ public class PagamentoService {
         freteRepository.saveAndFlush(frete);
         eventos.publishEvent(new EventosPagamento.SaldoLiberado(frete.getId(), pagamento.getValorSaldo()));
         return true;
+    }
+
+    @Transactional(readOnly = true)
+    public List<UUID> adiantamentosPendentes() {
+        return pagamentoRepository.adiantamentosAtrasados().stream().map(Pagamento::getId).toList();
+    }
+
+    @Transactional
+    public void retentarAdiantamento(UUID pagamentoId) {
+        pagamentoRepository.findById(pagamentoId).ifPresent(this::liberarAdiantamento);
     }
 
     @Transactional(readOnly = true)

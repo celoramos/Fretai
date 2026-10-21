@@ -95,6 +95,13 @@ public class FreteController {
         return freteService.buscar(id);
     }
 
+    /** Para o motorista não voltar vazio: fretes que saem perto do destino deste, compatíveis com o caminhão dele. */
+    @GetMapping("/{id}/retorno")
+    public Page<FreteEncontradoResponse> retorno(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem,
+                                                 @PageableDefault(size = 20) Pageable pageable) {
+        return buscaFreteService.sugerirRetorno(id, quem, pageable);
+    }
+
     /** Trilha de auditoria: cada mudança de status, quem fez e quando. */
     @GetMapping("/{id}/eventos")
     public List<EventoFreteResponse> historico(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem) {

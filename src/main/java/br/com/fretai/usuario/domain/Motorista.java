@@ -56,7 +56,27 @@ public class Motorista extends Usuario {
         this.chavePix = limpa;
     }
 
+    /** Onde o motorista costuma estar: base dos avisos de "frete novo perto de você". */
+    private Double baseLatitude;
+    private Double baseLongitude;
+    private Integer raioInteresseKm;
+
+    public void definirBase(double latitude, double longitude, int raioKm) {
+        if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            throw new IllegalArgumentException("Coordenadas fora do intervalo válido.");
+        }
+        if (raioKm < 1 || raioKm > 1000) {
+            throw new IllegalArgumentException("O raio de interesse vai de 1 a 1000 km.");
+        }
+        this.baseLatitude = latitude;
+        this.baseLongitude = longitude;
+        this.raioInteresseKm = raioKm;
+    }
+
     public String getChavePix() {return chavePix;}
+    public Double getBaseLatitude() {return baseLatitude;}
+    public Double getBaseLongitude() {return baseLongitude;}
+    public Integer getRaioInteresseKm() {return raioInteresseKm;}
 
     public void definirAceitaFeriado(boolean aceitaFeriado) {
         this.aceitaFeriado = aceitaFeriado;

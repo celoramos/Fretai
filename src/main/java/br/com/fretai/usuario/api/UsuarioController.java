@@ -2,6 +2,7 @@ package br.com.fretai.usuario.api;
 
 import br.com.fretai.usuario.application.UsuarioService;
 import br.com.fretai.usuario.application.dto.AtualizarContatoRequest;
+import br.com.fretai.usuario.application.dto.BaseMotoristaRequest;
 import br.com.fretai.usuario.application.dto.CadastroClienteRequest;
 import br.com.fretai.usuario.application.dto.CadastroMotoristaRequest;
 import br.com.fretai.usuario.application.dto.ChavePixRequest;
@@ -78,6 +79,13 @@ public class UsuarioController {
     @PreAuthorize("principal.ehOuAdmin(#id)")
     public MotoristaResponse definirChavePix(@PathVariable UUID id, @Valid @RequestBody ChavePixRequest request) {
         return usuarioService.definirChavePix(id, request);
+    }
+
+    /** Base e raio para os avisos de frete novo por perto. */
+    @PutMapping("/api/motoristas/{id}/base")
+    @PreAuthorize("principal.ehOuAdmin(#id)")
+    public MotoristaResponse definirBase(@PathVariable UUID id, @Valid @RequestBody BaseMotoristaRequest request) {
+        return usuarioService.definirBase(id, request);
     }
 
     @PatchMapping("/api/motoristas/{id}/preferencias")

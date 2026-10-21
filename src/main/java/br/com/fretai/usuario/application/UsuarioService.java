@@ -3,6 +3,7 @@ package br.com.fretai.usuario.application;
 import br.com.fretai.shared.exception.ConflitoException;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.usuario.application.dto.AtualizarContatoRequest;
+import br.com.fretai.usuario.application.dto.BaseMotoristaRequest;
 import br.com.fretai.usuario.application.dto.CadastroClienteRequest;
 import br.com.fretai.usuario.application.dto.CadastroMotoristaRequest;
 import br.com.fretai.usuario.application.dto.ChavePixRequest;
@@ -98,6 +99,13 @@ public class UsuarioService {
     public MotoristaResponse definirChavePix(UUID motoristaId, ChavePixRequest request) {
         Motorista motorista = carregarMotorista(motoristaId);
         motorista.definirChavePix(request.chavePix());
+        return MotoristaResponse.de(motorista);
+    }
+
+    @Transactional
+    public MotoristaResponse definirBase(UUID motoristaId, BaseMotoristaRequest request) {
+        Motorista motorista = carregarMotorista(motoristaId);
+        motorista.definirBase(request.latitude(), request.longitude(), request.raioKm());
         return MotoristaResponse.de(motorista);
     }
 

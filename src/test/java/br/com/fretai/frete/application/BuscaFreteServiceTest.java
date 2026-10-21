@@ -14,7 +14,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -34,7 +33,12 @@ class BuscaFreteServiceTest {
     @Mock private BuscaFretes buscaFretes;
     @Mock private FreteRepository freteRepository;
     @Mock private PreparacaoFrete preparacao;
-    @InjectMocks private BuscaFreteService service;
+    private BuscaFreteService service;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        service = new BuscaFreteService(buscaFretes, freteRepository, preparacao, 150);
+    }
 
     private static BuscaFreteRequest pedidoPorCep() {
         return new BuscaFreteRequest(null, null, "13010-000", null, null, null, null, null,

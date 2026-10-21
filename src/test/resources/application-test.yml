@@ -9,3 +9,6 @@ fretai:
   arquivos:
     local:
       diretorio: target/arquivos-teste
+  pagamento:
+    # O job de liberação não roda durante os testes: eles chamam o service direto.
+    intervalo-liberacao: 24h

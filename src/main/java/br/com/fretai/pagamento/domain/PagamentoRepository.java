@@ -21,6 +21,14 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, UUID> {
               AND p.saldoBloqueado = false AND p.saldoLiberavelApos IS NOT NULL AND p.saldoLiberavelApos <= :agora""")
     List<Pagamento> saldosLiberaveis(Instant agora);
 
+    /** Carga já saiu, mas o adiantamento não foi (PSP fora do ar na hora): o job tenta de novo. */
+    @Query("""
+            SELECT p FROM Pagamento p
+            WHERE p.status = br.com.fretai.pagamento.domain.StatusPagamento.RETIDO
+              AND p.frete.status IN (br.com.fretai.frete.domain.StatusFrete.EM_TRANSITO,
+                                     br.com.fretai.frete.domain.StatusFrete.ENTREGUE)""")
+    List<Pagamento> adiantamentosAtrasados();
+
     /** Base do "% em dia": cobranças da empresa que já venceram (pagas ou não), menos as canceladas. */
     @Query("""
             SELECT p FROM Pagamento p

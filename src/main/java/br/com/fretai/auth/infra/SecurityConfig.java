@@ -36,6 +36,8 @@ class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/arquivos/*").permitAll()
                         // Webhook do PSP: autenticado pelo token/assinatura que o gateway confere.
                         .requestMatchers(HttpMethod.POST, "/api/webhooks/pagamentos").permitAll()
+                        // Contestação do recebedor, que não tem conta: autenticada pelo código que ele recebeu.
+                        .requestMatchers(HttpMethod.POST, "/api/canhotos/contestacao").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/error").permitAll()
