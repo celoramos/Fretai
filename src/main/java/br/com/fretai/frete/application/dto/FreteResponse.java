@@ -22,6 +22,7 @@ import java.util.UUID;
  * @param cliente contratante pessoa física (nulo nos fretes de empresa)
  * @param empresa contratante pessoa jurídica (nulo nos fretes de cliente)
  * @param veiculo caminhão escolhido no aceite (só nos fretes de empresa)
+ * @param valorAcordado valor da proposta aceita; é sobre ele que o pagamento é calculado
  */
 public record FreteResponse(
         UUID id,
@@ -54,10 +55,14 @@ public record FreteResponse(
         boolean domingo,
         BigDecimal distanciaKm,
         Boolean distanciaEstimada,
+        BigDecimal valorAcordado,
+        BigDecimal adiantamentoPercentual,
+        LocalDate prazoEntrega,
         String motivoCancelamento,
         Instant criadoEm,
         Instant aceitoEm,
-        Instant concluidoEm) {
+        Instant concluidoEm,
+        Instant pagoEm) {
 
     public record Pessoa(UUID id, String nome) {
     }
@@ -120,9 +125,13 @@ public record FreteResponse(
                 frete.isDomingo(),
                 frete.getDistanciaKm(),
                 frete.getDistanciaEstimada(),
+                frete.getValorAcordado(),
+                frete.getAdiantamentoPercentual(),
+                frete.getPrazoEntrega(),
                 frete.getMotivoCancelamento(),
                 frete.getCriadoEm(),
                 frete.getAceitoEm(),
-                frete.getConcluidoEm());
+                frete.getConcluidoEm(),
+                frete.getPagoEm());
     }
 }

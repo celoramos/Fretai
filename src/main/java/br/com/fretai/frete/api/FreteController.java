@@ -6,6 +6,7 @@ import br.com.fretai.frete.application.PublicacaoFreteService;
 import br.com.fretai.frete.application.dto.AceiteRequest;
 import br.com.fretai.frete.application.dto.BuscaFreteRequest;
 import br.com.fretai.frete.application.dto.CancelamentoRequest;
+import br.com.fretai.frete.application.dto.EventoFreteResponse;
 import br.com.fretai.frete.application.dto.FreteEncontradoResponse;
 import br.com.fretai.frete.application.dto.FreteResponse;
 import br.com.fretai.frete.application.dto.PublicarFreteRequest;
@@ -14,6 +15,7 @@ import br.com.fretai.frete.domain.StatusFrete;
 import br.com.fretai.shared.seguranca.UsuarioLogado;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,8 +60,9 @@ public class FreteController {
     @PostMapping("/empresa/{empresaId}")
     @PreAuthorize("principal.representaOuAdmin(#empresaId)")
     public ResponseEntity<FreteResponse> publicar(@PathVariable UUID empresaId,
-                                                  @Valid @RequestBody PublicarFreteRequest request) {
-        FreteResponse frete = publicacaoFreteService.publicar(empresaId, request);
+                                                  @Valid @RequestBody PublicarFreteRequest request,
+                                                  @AuthenticationPrincipal UsuarioLogado quem) {
+        FreteResponse frete = publicacaoFreteService.publicar(empresaId, request, quem);
         return ResponseEntity.created(URI.create("/api/fretes/" + frete.id())).body(frete);
     }
 
@@ -92,17 +95,23 @@ public class FreteController {
         return freteService.buscar(id);
     }
 
+    /** Trilha de auditoria: cada mudança de status, quem fez e quando. */
+    @GetMapping("/{id}/eventos")
+    public List<EventoFreteResponse> historico(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem) {
+        return freteService.historico(id, quem);
+    }
+
     @GetMapping
     public Page<FreteResponse> listar(
-            @RequestParam(defaultValue = "PENDENTE") StatusFrete status,
+            @RequestParam(defaultValue = "PUBLICADO") String status,
             @PageableDefault(size = 20, sort = "criadoEm", direction = Sort.Direction.DESC) Pageable pageable) {
-        return freteService.listarPorStatus(status, pageable);
+        return freteService.listarPorStatus(StatusFrete.de(status), pageable);
     }
 
     @PostMapping("/{id}/aceite")
     @PreAuthorize("hasRole('MOTORISTA') and #request.motoristaId() == principal.id")
     public FreteResponse aceitar(@PathVariable UUID id, @Valid @RequestBody AceiteRequest request) {
-        return freteService.aceitar(id, request.motoristaId());
+        return freteService.aceitar(id, request.motoristaId(), request.veiculoId());
     }
 
     @PostMapping("/{id}/inicio")

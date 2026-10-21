@@ -77,7 +77,7 @@ class PersistenciaMarketplaceTest {
         assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
                 INSERT INTO frete (id, versao, ponto_coleta_cep, ponto_entrega_cep, descricao_carga, peso_kg,
                                    valor, valor_total, status, criado_em, data_coleta)
-                VALUES (RANDOM_UUID(), 0, '01001000', '20040002', 'x', 1, 1, 1, 'PENDENTE', CURRENT_TIMESTAMP,
+                VALUES (RANDOM_UUID(), 0, '01001000', '20040002', 'x', 1, 1, 1, 'PUBLICADO', CURRENT_TIMESTAMP,
                         CURRENT_DATE)"""));
     }
 }

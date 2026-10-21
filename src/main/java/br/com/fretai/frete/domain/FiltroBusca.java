@@ -18,7 +18,7 @@ public record FiltroBusca(Coordenadas origem, double raioKm, Coordenadas destino
                           OpcaoFiltro complemento) {
 
     /** Só aparece o que ainda está aberto para negociação. */
-    public static final Set<StatusFrete> STATUS_VISIVEIS = Set.of(StatusFrete.PENDENTE);
+    public static final Set<StatusFrete> STATUS_VISIVEIS = Set.of(StatusFrete.PUBLICADO, StatusFrete.PROPOSTA_ENVIADA);
 
     public FiltroBusca {
         Objects.requireNonNull(origem, "A origem é obrigatória.");

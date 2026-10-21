@@ -10,7 +10,12 @@ import br.com.fretai.endereco.domain.GeocodificacaoGateway;
 import br.com.fretai.frete.application.dto.EnderecoRequest;
 import br.com.fretai.frete.application.dto.FreteResponse;
 import br.com.fretai.frete.application.dto.SolicitarFreteRequest;
+import br.com.fretai.frete.domain.EventosFrete;
 import br.com.fretai.frete.domain.Frete;
+import br.com.fretai.frete.domain.PropostaRepository;
+import br.com.fretai.frete.domain.StatusProposta;
+import br.com.fretai.veiculo.domain.VeiculoRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.frete.domain.StatusFrete;
 import br.com.fretai.rota.domain.Rota;
@@ -51,6 +56,9 @@ class FreteServiceTest {
     @Mock private GeocodificacaoGateway geocodificacaoGateway;
     @Mock private RotaGateway rotaGateway;
     @Mock private CalendarioService calendarioService;
+    @Mock private VeiculoRepository veiculoRepository;
+    @Mock private PropostaRepository propostaRepository;
+    @Mock private ApplicationEventPublisher eventos;
 
     private FreteService freteService;
 
@@ -60,8 +68,9 @@ class FreteServiceTest {
     @BeforeEach
     void setUp() {
         freteService = new FreteService(freteRepository, clienteRepository, motoristaRepository,
+                veiculoRepository, propostaRepository,
                 new PreparacaoFrete(enderecoGateway, geocodificacaoGateway, rotaGateway, calendarioService,
-                        new BigDecimal("20")));
+                        new BigDecimal("20")), eventos);
         cliente = new Cliente("52998224725", "Carlos Silva", "carlos@email.com", "hash", "11999998888");
     }
 
@@ -102,7 +111,7 @@ class FreteServiceTest {
     }
 
     @Test
-    @DisplayName("Solicita frete consultando os dois CEPs e salva como PENDENTE")
+    @DisplayName("Solicita frete consultando os dois CEPs e salva como PUBLICADO")
     void solicitaFrete() {
         diaComum();
         when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(cliente));
@@ -114,7 +123,7 @@ class FreteServiceTest {
 
         FreteResponse resposta = freteService.solicitar(pedido("01001000", "20040002"));
 
-        assertEquals(StatusFrete.PENDENTE, resposta.status());
+        assertEquals(StatusFrete.PUBLICADO, resposta.status());
         assertEquals("Carlos Silva", resposta.cliente().nome());
         assertNull(resposta.motorista());
         assertEquals(new BigDecimal("180.00"), resposta.valor());
@@ -160,7 +169,7 @@ class FreteServiceTest {
 
         FreteResponse resposta = freteService.solicitar(pedido("01001000", "20040002"));
 
-        assertEquals(StatusFrete.PENDENTE, resposta.status());
+        assertEquals(StatusFrete.PUBLICADO, resposta.status());
         assertNull(resposta.distanciaKm());
         assertNull(resposta.coleta().latitude());
         verifyNoInteractions(rotaGateway);
@@ -200,11 +209,14 @@ class FreteServiceTest {
         when(freteRepository.findById(freteId)).thenReturn(Optional.of(frete));
         when(freteRepository.saveAndFlush(frete)).thenReturn(frete);
 
-        FreteResponse resposta = freteService.aceitar(freteId, motoristaId);
+        FreteResponse resposta = freteService.aceitar(freteId, motoristaId, null);
 
         assertEquals(StatusFrete.ACEITO, resposta.status());
         assertEquals("Marcos", resposta.motorista().nome());
         verify(freteRepository).saveAndFlush(frete);
+        // O aceite direto também fica registrado como proposta (aceita).
+        verify(propostaRepository).save(argThat(p -> p.getStatus() == StatusProposta.ACEITA));
+        verify(eventos).publishEvent(new EventosFrete.FreteAceito(freteId));
     }
 
     @Test

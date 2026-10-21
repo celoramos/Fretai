@@ -40,12 +40,9 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Um frete e o seu ciclo de vida:
- *
- * <pre>
- *   PENDENTE ──aceitar──▶ ACEITO ──iniciarTransporte──▶ EM_TRANSITO ──concluir──▶ ENTREGUE
- *       └──────────────────┴──────────────cancelar──────────────┴──────────▶ CANCELADO
- * </pre>
+ * Um frete e o seu ciclo de vida. As transições permitidas estão em
+ * {@link MaquinaEstadosFrete}; toda mudança passa por {@link #transicionar},
+ * que confere a transição e grava um {@link EventoFrete} com quem fez e quando.
  *
  * O status só muda pelos métodos de transição (não existe setStatus público),
  * então é impossível um frete pular etapas, venha a chamada de onde vier.
@@ -167,12 +164,23 @@ public class Frete {
     @Column(length = 500)
     private String motivoCancelamento;
 
+    /** Condições da proposta aceita: é sobre isto que o pagamento é calculado. */
+    @Column(precision = 12, scale = 2)
+    private BigDecimal valorAcordado;
+
+    @Column(precision = 5, scale = 2)
+    private BigDecimal adiantamentoPercentual;
+
+    private LocalDate prazoEntrega;
+
     @Column(nullable = false)
     private Instant criadoEm;
     private Instant aceitoEm;
     private Instant concluidoEm;
+    private Instant pagoEm;
 
-    @OneToMany(mappedBy = "frete", cascade = CascadeType.PERSIST)
+    // MERGE também: saveAndFlush faz merge, e sem ele o Hibernate copia o evento novo vazio.
+    @OneToMany(mappedBy = "frete", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @OrderBy("ocorridoEm")
     private List<EventoFrete> eventos = new ArrayList<>();
 
@@ -188,14 +196,15 @@ public class Frete {
      */
     public static Frete publicar(Empresa empresa, EnderecoFrete pontoColeta, EnderecoFrete pontoEntrega,
                                  DadosCarga carga, BigDecimal valor, LocalDate dataColeta,
-                                 RequisitosFrete requisitos) {
+                                 RequisitosFrete requisitos, Autor autor) {
         Objects.requireNonNull(empresa, "Empresa é obrigatória.");
         Objects.requireNonNull(carga, "Dados da carga são obrigatórios.");
         Objects.requireNonNull(requisitos, "Requisitos do frete são obrigatórios.");
         if (!empresa.isAtiva()) {
             throw new RegraNegocioException("Empresa desativada não pode publicar fretes.");
         }
-        Frete frete = new Frete(pontoColeta, pontoEntrega, carga.descricao(), carga.pesoKg(), valor, dataColeta);
+        Frete frete = new Frete(pontoColeta, pontoEntrega, carga.descricao(), carga.pesoKg(), valor, dataColeta,
+                autor);
         frete.empresa = empresa;
         frete.especieCarga = carga.especie();
         frete.tipoCargaAntt = Objects.requireNonNull(carga.tipoCargaAntt(), "Tipo de carga ANTT é obrigatório.");
@@ -206,7 +215,7 @@ public class Frete {
     }
 
     private Frete(EnderecoFrete pontoColeta, EnderecoFrete pontoEntrega, String descricaoCarga,
-                  BigDecimal pesoKg, BigDecimal valor, LocalDate dataColeta) {
+                  BigDecimal pesoKg, BigDecimal valor, LocalDate dataColeta, Autor autor) {
         this.pontoColeta = Objects.requireNonNull(pontoColeta, "Ponto de coleta é obrigatório.");
         this.pontoEntrega = Objects.requireNonNull(pontoEntrega, "Ponto de entrega é obrigatório.");
         this.dataColeta = Objects.requireNonNull(dataColeta, "Data da coleta é obrigatória.");
@@ -216,8 +225,9 @@ public class Frete {
         this.adicionalFeriado = BigDecimal.ZERO;
         this.valorTotal = valor;
         this.domingo = dataColeta.getDayOfWeek() == DayOfWeek.SUNDAY;
-        this.status = StatusFrete.PENDENTE;
+        this.status = StatusFrete.PUBLICADO;
         this.criadoEm = Instant.now();
+        this.eventos.add(new EventoFrete(this, null, StatusFrete.PUBLICADO, autor, null));
     }
 
     private void aplicarRequisitos(RequisitosFrete requisitos) {
@@ -238,7 +248,7 @@ public class Frete {
         if (empresa == null) {
             throw new RegraNegocioException("Só fretes publicados por empresa podem ser editados.");
         }
-        exigirStatus(StatusFrete.PENDENTE, "O frete só pode ser editado antes de ter motorista.");
+        exigirStatus(StatusFrete.PUBLICADO, "O frete só pode ser editado antes de receber propostas.");
         this.pontoColeta = Objects.requireNonNull(pontoColeta, "Ponto de coleta é obrigatório.");
         this.pontoEntrega = Objects.requireNonNull(pontoEntrega, "Ponto de entrega é obrigatório.");
         this.dataColeta = Objects.requireNonNull(dataColeta, "Data da coleta é obrigatória.");
@@ -279,8 +289,9 @@ public class Frete {
                  String nomeDestinatario, String telefoneDestinatario,
                  String descricaoCarga, BigDecimal pesoKg, BigDecimal valor, LocalDate dataColeta) {
         this(pontoColeta, pontoEntrega, descricaoCarga, pesoKg, Objects.requireNonNull(valor, "Valor é obrigatório."),
-                dataColeta);
-        this.cliente = Objects.requireNonNull(cliente, "Cliente solicitante é obrigatório.");
+                dataColeta, new Autor(Objects.requireNonNull(cliente, "Cliente solicitante é obrigatório.").getId(),
+                        Papel.CLIENTE));
+        this.cliente = cliente;
         this.nomeDestinatario = nomeDestinatario;
         this.telefoneDestinatario = telefoneDestinatario;
     }
@@ -294,7 +305,7 @@ public class Frete {
      */
     public void registrarFeriado(String nomeFeriado, BigDecimal percentual) {
         Objects.requireNonNull(nomeFeriado, "Nome do feriado não pode ser nulo.");
-        exigirStatus(StatusFrete.PENDENTE, "O feriado só pode ser registrado enquanto o frete está pendente.");
+        exigirStatus(StatusFrete.PUBLICADO, "O feriado só pode ser registrado antes de o frete receber propostas.");
         this.feriado = true;
         this.nomeFeriado = nomeFeriado;
         // "A combinar": o adicional entra na negociação, não há valor sobre o qual calcular.
@@ -307,51 +318,137 @@ public class Frete {
     /** A distância entra na formação do preço, então só pode mudar antes de um motorista aceitar. */
     public void registrarRota(Rota rota) {
         Objects.requireNonNull(rota, "Rota não pode ser nula.");
-        exigirStatus(StatusFrete.PENDENTE, "A rota só pode ser alterada enquanto o frete está pendente.");
+        exigirStatus(StatusFrete.PUBLICADO, "A rota só pode ser alterada antes de o frete receber propostas.");
         this.distanciaKm = rota.distanciaKm();
         this.distanciaEstimada = rota.estimada();
     }
 
     // ---------- Transições de estado ----------
 
-    public void aceitar(Motorista motorista) {
-        Objects.requireNonNull(motorista, "Motorista não pode ser nulo.");
-        exigirStatus(StatusFrete.PENDENTE, "Apenas fretes pendentes podem receber motorista.");
-        if (!motorista.getTipoVeiculo().suporta(pesoKg)) {
-            throw new RegraNegocioException("O veículo " + motorista.getTipoVeiculo().getDescricao()
-                    + " não suporta uma carga de " + pesoKg + " kg.");
+    /** Primeira proposta tira o frete de PUBLICADO; as seguintes não mudam o status. */
+    public void receberProposta(Autor autor) {
+        if (status == StatusFrete.PROPOSTA_ENVIADA) {
+            return;
         }
-        if (feriado && !motorista.isAceitaFeriado()) {
+        MaquinaEstadosFrete.exigir(status, StatusFrete.PROPOSTA_ENVIADA, "Este frete não está aberto a propostas.");
+        transicionar(StatusFrete.PROPOSTA_ENVIADA, autor, null);
+    }
+
+    /** Todas as propostas foram recusadas ou retiradas: o frete volta à vitrine. */
+    public void reabrir(Autor autor) {
+        MaquinaEstadosFrete.exigir(status, StatusFrete.PUBLICADO, "O frete não pode voltar a ser publicado.");
+        transicionar(StatusFrete.PUBLICADO, autor, "Sem propostas em aberto.");
+    }
+
+    /**
+     * Fecha negócio com uma proposta: o motorista, o caminhão e as condições dela
+     * passam a valer para o frete. As demais propostas abertas são recusadas por
+     * quem chama (o service), que as tem carregadas.
+     *
+     * @param veiculoEscolhido caminhão informado pelo motorista quando ele aceita a proposta da empresa
+     */
+    public void aceitarProposta(Proposta proposta, Veiculo veiculoEscolhido, Autor autor) {
+        // Compara por id: a proposta carregada do banco aponta para um proxy, não para esta instância.
+        Frete daProposta = proposta.getFrete();
+        if (daProposta != this && (id == null || !id.equals(daProposta.getId()))) {
+            throw new IllegalArgumentException("A proposta não é deste frete.");
+        }
+        MaquinaEstadosFrete.exigir(status, StatusFrete.ACEITO, "Este frete não tem proposta a ser aceita.");
+        // Confere tudo antes de mexer em qualquer coisa: se falhar, nada muda.
+        exigirMotoristaApto(proposta.getMotorista(),
+                proposta.getVeiculo() != null ? proposta.getVeiculo() : veiculoEscolhido);
+        proposta.aceitar(veiculoEscolhido);
+
+        this.motorista = proposta.getMotorista();
+        this.veiculo = proposta.getVeiculo();
+        this.valorAcordado = proposta.getValor();
+        this.adiantamentoPercentual = proposta.getAdiantamentoPercentual();
+        this.prazoEntrega = proposta.getPrazoEntrega();
+        this.aceitoEm = Instant.now();
+        transicionar(StatusFrete.ACEITO, autor, "Proposta de R$ " + proposta.getValor() + " aceita.");
+    }
+
+    /**
+     * O motorista topa o valor anunciado, sem negociar. Vira uma proposta dele
+     * já aceita, para que a trilha de auditoria e o histórico de propostas
+     * contem a mesma história.
+     *
+     * @return a proposta criada, para o service gravar
+     */
+    public Proposta aceitarPeloValorAnunciado(Motorista motorista, Veiculo veiculo, Autor autor) {
+        Objects.requireNonNull(motorista, "Motorista não pode ser nulo.");
+        if (valorACombinar) {
+            throw new RegraNegocioException("Este frete está com valor a combinar: envie uma proposta.");
+        }
+        if (status != StatusFrete.PUBLICADO && status != StatusFrete.PROPOSTA_ENVIADA) {
+            throw new IllegalStateException("Este frete não está mais disponível (status atual: " + status + ").");
+        }
+        // Antes de mexer no status: se o motorista não serve, o frete fica como estava.
+        exigirMotoristaApto(motorista, veiculo);
+        receberProposta(autor);
+        Proposta proposta = new Proposta(this, motorista, veiculo, autor, valorTotal, BigDecimal.ZERO, null,
+                "Aceite pelo valor anunciado.");
+        aceitarProposta(proposta, null, autor);
+        return proposta;
+    }
+
+    public void iniciarTransporte(Autor autor) {
+        MaquinaEstadosFrete.exigir(status, StatusFrete.EM_TRANSITO,
+                "Para iniciar o transporte, o frete deve estar aceito por um motorista.");
+        transicionar(StatusFrete.EM_TRANSITO, autor, null);
+    }
+
+    public void concluir(Autor autor) {
+        concluir(autor, null);
+    }
+
+    /** @param observacao ex.: "Canhoto digital recebido" */
+    public void concluir(Autor autor, String observacao) {
+        MaquinaEstadosFrete.exigir(status, StatusFrete.ENTREGUE,
+                "Para concluir a entrega, a carga deve estar em trânsito.");
+        this.concluidoEm = Instant.now();
+        transicionar(StatusFrete.ENTREGUE, autor, observacao);
+    }
+
+    /** O saldo chegou ao motorista: fim do ciclo. */
+    public void registrarPagamento(Autor autor) {
+        MaquinaEstadosFrete.exigir(status, StatusFrete.PAGO, "Só frete entregue pode ser marcado como pago.");
+        this.pagoEm = Instant.now();
+        transicionar(StatusFrete.PAGO, autor, "Saldo liberado ao motorista.");
+    }
+
+    /** Só antes de a carga sair. Depois disso, problema é contestação. */
+    public void cancelar(String motivo, Autor autor) {
+        MaquinaEstadosFrete.exigir(status, StatusFrete.CANCELADO,
+                "Não é possível cancelar: o frete já saiu para entrega, foi concluído ou já está cancelado.");
+        this.motivoCancelamento = motivo;
+        this.concluidoEm = Instant.now();
+        transicionar(StatusFrete.CANCELADO, autor, motivo);
+    }
+
+    private void transicionar(StatusFrete novo, Autor autor, String observacao) {
+        StatusFrete anterior = this.status;
+        this.status = novo;
+        this.eventos.add(new EventoFrete(this, anterior, novo, autor, observacao));
+    }
+
+    private void exigirMotoristaApto(Motorista candidato, Veiculo caminhao) {
+        if (feriado && !candidato.isAceitaFeriado()) {
             throw new RegraNegocioException("Este frete é no feriado (" + nomeFeriado
                     + ") e o motorista não aceita trabalhar em feriados.");
         }
-
-        this.motorista = motorista;
-        this.status = StatusFrete.ACEITO;
-        this.aceitoEm = Instant.now();
-    }
-
-    public void iniciarTransporte() {
-        exigirStatus(StatusFrete.ACEITO, "Para iniciar o transporte, o frete deve estar aceito por um motorista.");
-        this.status = StatusFrete.EM_TRANSITO;
-    }
-
-    public void concluir() {
-        exigirStatus(StatusFrete.EM_TRANSITO, "Para concluir a entrega, a carga deve estar em trânsito.");
-        this.status = StatusFrete.ENTREGUE;
-        this.concluidoEm = Instant.now();
-    }
-
-    public void cancelar(String motivo) {
-        if (status == StatusFrete.ENTREGUE) {
-            throw new IllegalStateException("Não é possível cancelar um frete já entregue.");
+        if (empresa != null) {
+            if (caminhao == null) {
+                throw new RegraNegocioException("Informe com qual veículo o frete será feito.");
+            }
+            if (!caminhao.isAtivo() || !aceitaVeiculo(caminhao)) {
+                throw new RegraNegocioException("O veículo " + caminhao.getPlaca()
+                        + " não atende ao tipo, carroceria ou rastreador exigidos pelo frete.");
+            }
+        } else if (!candidato.getTipoVeiculo().suporta(pesoKg)) {
+            throw new RegraNegocioException("O veículo " + candidato.getTipoVeiculo().getDescricao()
+                    + " não suporta uma carga de " + pesoKg + " kg.");
         }
-        if (status == StatusFrete.CANCELADO) {
-            throw new IllegalStateException("Este frete já se encontra cancelado.");
-        }
-        this.status = StatusFrete.CANCELADO;
-        this.motivoCancelamento = motivo;
-        this.concluidoEm = Instant.now();
     }
 
     private void exigirStatus(StatusFrete esperado, String mensagem) {
@@ -396,4 +493,8 @@ public class Frete {
     public Instant getCriadoEm() {return criadoEm;}
     public Instant getAceitoEm() {return aceitoEm;}
     public Instant getConcluidoEm() {return concluidoEm;}
+    public Instant getPagoEm() {return pagoEm;}
+    public BigDecimal getValorAcordado() {return valorAcordado;}
+    public BigDecimal getAdiantamentoPercentual() {return adiantamentoPercentual;}
+    public LocalDate getPrazoEntrega() {return prazoEntrega;}
 }

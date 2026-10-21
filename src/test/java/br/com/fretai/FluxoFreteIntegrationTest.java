@@ -5,7 +5,9 @@ import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.Endereco;
 import br.com.fretai.endereco.domain.EnderecoGateway;
 import br.com.fretai.endereco.domain.GeocodificacaoGateway;
+import br.com.fretai.frete.domain.Autor;
 import br.com.fretai.frete.domain.Frete;
+import br.com.fretai.shared.seguranca.Papel;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.rota.domain.RotaGateway;
@@ -145,8 +147,12 @@ class FluxoFreteIntegrationTest {
         UUID freteId = UUID.fromString(solicitarFrete(clienteId, Login.como(mvc, "cliente2@email.com")));
         RequestPostProcessor a = Login.como(mvc, "a@email.com");
 
-        // O motorista B abre o app e vê o frete ainda PENDENTE (versão 0)...
-        Frete vistoPeloB = tx.execute(s -> freteRepository.findById(freteId).orElseThrow());
+        // O motorista B abre o app e vê o frete ainda PUBLICADO (versão 0)...
+        Frete vistoPeloB = tx.execute(s -> {
+            Frete f = freteRepository.findById(freteId).orElseThrow();
+            f.getEventos().size(); // o app de B carregou o frete inteiro, histórico incluído
+            return f;
+        });
 
         // ...enquanto isso o motorista A aceita primeiro.
         mvc.perform(post("/api/fretes/{id}/aceite", freteId).with(a).contentType(MediaType.APPLICATION_JSON)
@@ -156,7 +162,7 @@ class FluxoFreteIntegrationTest {
         // B tenta gravar o aceite em cima da versão antiga → conflito, e o frete continua com A.
         assertThrows(ObjectOptimisticLockingFailureException.class, () -> tx.executeWithoutResult(s -> {
             Motorista b = motoristaRepository.findById(motoristaB).orElseThrow();
-            vistoPeloB.aceitar(b);
+            vistoPeloB.aceitarPeloValorAnunciado(b, null, new Autor(b.getId(), Papel.MOTORISTA));
             freteRepository.saveAndFlush(vistoPeloB);
         }));
 
@@ -200,7 +206,7 @@ class FluxoFreteIntegrationTest {
                          "dataColeta": "2099-01-07"}
                         """.formatted(clienteId)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value("PENDENTE"))
+                .andExpect(jsonPath("$.status").value("PUBLICADO"))
                 .andExpect(jsonPath("$.distanciaKm").value(12.4))
                 .andExpect(jsonPath("$.distanciaEstimada").value(true))
                 .andReturn().getResponse().getContentAsString();

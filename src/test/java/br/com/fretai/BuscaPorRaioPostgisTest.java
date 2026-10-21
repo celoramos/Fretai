@@ -4,6 +4,7 @@ import br.com.fretai.empresa.domain.Empresa;
 import br.com.fretai.empresa.domain.EmpresaRepository;
 import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.EnderecoGateway;
+import br.com.fretai.frete.domain.Autor;
 import br.com.fretai.frete.domain.BuscaFretes;
 import br.com.fretai.frete.domain.DadosCarga;
 import br.com.fretai.frete.domain.EnderecoFrete;
@@ -114,6 +115,6 @@ class BuscaPorRaioPostgisTest {
         EnderecoFrete destino = new EnderecoFrete(Fixtures.enderecoRioDeJaneiro(), "1", null, null, RIO);
         return Frete.publicar(empresa, origem, destino,
                 new DadosCarga("Carga", "Diversos", TipoCargaAntt.CARGA_GERAL, new BigDecimal("1000")),
-                valor, Fixtures.DIA_COMUM, new RequisitosFrete(tipos, Set.of(), false, false));
+                valor, Fixtures.DIA_COMUM, new RequisitosFrete(tipos, Set.of(), false, false), Autor.SISTEMA);
     }
 }

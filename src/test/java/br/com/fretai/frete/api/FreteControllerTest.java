@@ -111,7 +111,7 @@ class FreteControllerTest {
     @DisplayName("Aceite concorrente → 409")
     void aceiteConcorrente() throws Exception {
         UUID id = UUID.randomUUID();
-        when(freteService.aceitar(eq(id), any()))
+        when(freteService.aceitar(eq(id), any(), any()))
                 .thenThrow(new ObjectOptimisticLockingFailureException(Frete.class, id));
 
         mvc.perform(post("/api/fretes/{id}/aceite", id).contentType(MediaType.APPLICATION_JSON)

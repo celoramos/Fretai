@@ -6,6 +6,9 @@ import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+import br.com.fretai.shared.seguranca.Papel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Máquina de estados do Frete")
 class FreteTest {
+
+    private static final Autor AUTOR = new Autor(UUID.randomUUID(), Papel.MOTORISTA);
 
     private Frete frete;
     private Motorista motorista;
@@ -26,27 +31,41 @@ class FreteTest {
     }
 
     @Test
-    @DisplayName("Nasce PENDENTE, sem motorista")
+    @DisplayName("Nasce PUBLICADO, sem motorista, com o primeiro evento na trilha")
     void nascePendente() {
-        assertEquals(StatusFrete.PENDENTE, frete.getStatus());
+        assertEquals(StatusFrete.PUBLICADO, frete.getStatus());
         assertNull(frete.getMotorista());
         assertNotNull(frete.getCriadoEm());
+        assertEquals(1, frete.getEventos().size());
+        assertNull(frete.getEventos().get(0).getStatusAnterior());
+        assertEquals(StatusFrete.PUBLICADO, frete.getEventos().get(0).getStatusNovo());
     }
 
     @Test
-    @DisplayName("Percorre o fluxo feliz PENDENTE → ACEITO → EM_TRANSITO → ENTREGUE")
+    @DisplayName("Fluxo feliz: PUBLICADO → PROPOSTA_ENVIADA → ACEITO → EM_TRANSITO → ENTREGUE → PAGO")
     void fluxoCompleto() {
-        frete.aceitar(motorista);
+        frete.aceitarPeloValorAnunciado(motorista, null, AUTOR);
         assertEquals(StatusFrete.ACEITO, frete.getStatus());
         assertSame(motorista, frete.getMotorista());
         assertNotNull(frete.getAceitoEm());
 
-        frete.iniciarTransporte();
+        frete.iniciarTransporte(AUTOR);
         assertEquals(StatusFrete.EM_TRANSITO, frete.getStatus());
 
-        frete.concluir();
+        frete.concluir(AUTOR);
         assertEquals(StatusFrete.ENTREGUE, frete.getStatus());
         assertNotNull(frete.getConcluidoEm());
+
+        frete.registrarPagamento(Autor.SISTEMA);
+        assertEquals(StatusFrete.PAGO, frete.getStatus());
+        assertNotNull(frete.getPagoEm());
+        assertEquals(new BigDecimal("180.00"), frete.getValorAcordado());
+
+        // Cada transição deixou um evento, na ordem.
+        assertEquals(List.of(StatusFrete.PUBLICADO, StatusFrete.PROPOSTA_ENVIADA, StatusFrete.ACEITO,
+                        StatusFrete.EM_TRANSITO, StatusFrete.ENTREGUE, StatusFrete.PAGO),
+                frete.getEventos().stream().map(EventoFrete::getStatusNovo).toList());
+        assertNull(frete.getEventos().get(5).getAutorId(), "pagamento foi o sistema");
     }
 
     @Nested
@@ -55,38 +74,46 @@ class FreteTest {
 
         @Test
         void naoIniciaTransporteSemMotorista() {
-            assertThrows(IllegalStateException.class, frete::iniciarTransporte);
+            assertThrows(IllegalStateException.class, () -> frete.iniciarTransporte(AUTOR));
         }
 
         @Test
         void naoConcluiSemEstarEmTransito() {
-            frete.aceitar(motorista);
-            assertThrows(IllegalStateException.class, frete::concluir);
+            frete.aceitarPeloValorAnunciado(motorista, null, AUTOR);
+            assertThrows(IllegalStateException.class, () -> frete.concluir(AUTOR));
         }
 
         @Test
         void naoAceitaDuasVezes() {
-            frete.aceitar(motorista);
-            assertThrows(IllegalStateException.class, () -> frete.aceitar(motorista));
+            frete.aceitarPeloValorAnunciado(motorista, null, AUTOR);
+            assertThrows(IllegalStateException.class, () -> frete.aceitarPeloValorAnunciado(motorista, null, AUTOR));
         }
 
         @Test
         void naoAceitaMotoristaNulo() {
-            assertThrows(NullPointerException.class, () -> frete.aceitar(null));
+            assertThrows(NullPointerException.class, () -> frete.aceitarPeloValorAnunciado(null, null, AUTOR));
         }
 
         @Test
         void naoCancelaFreteEntregue() {
-            frete.aceitar(motorista);
-            frete.iniciarTransporte();
-            frete.concluir();
-            assertThrows(IllegalStateException.class, () -> frete.cancelar("tarde demais"));
+            frete.aceitarPeloValorAnunciado(motorista, null, AUTOR);
+            frete.iniciarTransporte(AUTOR);
+            frete.concluir(AUTOR);
+            assertThrows(IllegalStateException.class, () -> frete.cancelar("tarde demais", AUTOR));
+        }
+
+        @Test
+        @DisplayName("Depois que a carga saiu, não se cancela mais")
+        void naoCancelaEmTransito() {
+            frete.aceitarPeloValorAnunciado(motorista, null, AUTOR);
+            frete.iniciarTransporte(AUTOR);
+            assertThrows(IllegalStateException.class, () -> frete.cancelar("desisti", AUTOR));
         }
 
         @Test
         void naoCancelaDuasVezes() {
-            frete.cancelar("Cliente desistiu");
-            assertThrows(IllegalStateException.class, () -> frete.cancelar("Outro motivo"));
+            frete.cancelar("Cliente desistiu", AUTOR);
+            assertThrows(IllegalStateException.class, () -> frete.cancelar("Outro motivo", AUTOR));
         }
     }
 
@@ -143,23 +170,23 @@ class FreteTest {
             noFeriado.registrarFeriado("Finados", vintePorCento);
             motorista.definirAceitaFeriado(false);
 
-            RegraNegocioException erro = assertThrows(RegraNegocioException.class, () -> noFeriado.aceitar(motorista));
+            RegraNegocioException erro = assertThrows(RegraNegocioException.class, () -> noFeriado.aceitarPeloValorAnunciado(motorista, null, AUTOR));
             assertTrue(erro.getMessage().contains("Finados"));
-            assertEquals(StatusFrete.PENDENTE, noFeriado.getStatus());
+            assertEquals(StatusFrete.PUBLICADO, noFeriado.getStatus());
         }
 
         @Test
         @DisplayName("Motorista que não aceita feriado continua pegando frete em dia comum")
         void motoristaQueNaoAceitaFeriadoEmDiaComum() {
             motorista.definirAceitaFeriado(false);
-            frete.aceitar(motorista);
+            frete.aceitarPeloValorAnunciado(motorista, null, AUTOR);
             assertEquals(StatusFrete.ACEITO, frete.getStatus());
         }
 
         @Test
         @DisplayName("Depois de aceito, o feriado (e o preço) não muda mais")
         void naoRegistraFeriadoDepoisDeAceito() {
-            frete.aceitar(motorista);
+            frete.aceitarPeloValorAnunciado(motorista, null, AUTOR);
             assertThrows(IllegalStateException.class, () -> frete.registrarFeriado("Finados", vintePorCento));
         }
     }
@@ -167,7 +194,7 @@ class FreteTest {
     @Test
     @DisplayName("Cancelamento guarda o motivo")
     void cancelamentoGuardaMotivo() {
-        frete.cancelar("Cliente desistiu");
+        frete.cancelar("Cliente desistiu", AUTOR);
         assertEquals(StatusFrete.CANCELADO, frete.getStatus());
         assertEquals("Cliente desistiu", frete.getMotivoCancelamento());
         assertNotNull(frete.getConcluidoEm());

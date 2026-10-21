@@ -4,7 +4,9 @@ import br.com.fretai.empresa.domain.Empresa;
 import br.com.fretai.empresa.domain.TipoEmpresa;
 import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.Endereco;
+import br.com.fretai.frete.domain.Autor;
 import br.com.fretai.frete.domain.DadosCarga;
+import br.com.fretai.shared.seguranca.Papel;
 import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.RequisitosFrete;
@@ -45,7 +47,7 @@ public final class Fixtures {
     /** Uma quarta-feira comum: nem feriado nem domingo. */
     public static final LocalDate DIA_COMUM = LocalDate.of(2026, 11, 4);
 
-    /** Frete PENDENTE de SP para o RJ, 12 kg, R$ 180,00, coleta num dia comum. */
+    /** Frete PUBLICADO de cliente, de SP para o RJ, 12 kg, R$ 180,00, coleta num dia comum. */
     public static Frete fretePendente() {
         return fretePendente(DIA_COMUM, new BigDecimal("180.00"));
     }
@@ -95,6 +97,7 @@ public final class Fixtures {
                 new Coordenadas(-23.5503898, -46.633081));
         EnderecoFrete entrega = new EnderecoFrete(enderecoRioDeJaneiro(), "50", null, null,
                 new Coordenadas(-22.9035, -43.1757));
-        return Frete.publicar(empresa, coleta, entrega, cargaCeramica(), valor, DIA_COMUM, requisitosCarretaSider());
+        return Frete.publicar(empresa, coleta, entrega, cargaCeramica(), valor, DIA_COMUM, requisitosCarretaSider(),
+                new Autor(null, Papel.EMPRESA));
     }
 }

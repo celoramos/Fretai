@@ -29,7 +29,7 @@ class ConsultaBuscaFretesTest {
         assertFalse(c.sqlPagina().contains("ponto_entrega_geo"));
         assertFalse(c.sqlContagem().contains("frete_tipo_veiculo"));
         assertEquals(50_000.0, c.parametros().get("raioM"));
-        assertEquals(List.of("PENDENTE"), c.parametros().get("status"));
+        assertEquals(List.of("PROPOSTA_ENVIADA", "PUBLICADO"), c.parametros().get("status"));
     }
 
     @Test
