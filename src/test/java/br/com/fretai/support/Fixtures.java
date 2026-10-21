@@ -7,6 +7,7 @@ import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.TipoVeiculo;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /** Objetos de domínio prontos para os testes, com dados válidos. */
 public final class Fixtures {
@@ -31,11 +32,18 @@ public final class Fixtures {
         return new Endereco("20040-002", "Rua da Assembleia", "Centro", "Rio de Janeiro", "RJ");
     }
 
-    /** Frete PENDENTE de SP para o RJ, 12 kg, R$ 180,00. */
+    /** Uma quarta-feira comum: nem feriado nem domingo. */
+    public static final LocalDate DIA_COMUM = LocalDate.of(2026, 11, 4);
+
+    /** Frete PENDENTE de SP para o RJ, 12 kg, R$ 180,00, coleta num dia comum. */
     public static Frete fretePendente() {
+        return fretePendente(DIA_COMUM, new BigDecimal("180.00"));
+    }
+
+    public static Frete fretePendente(LocalDate dataColeta, BigDecimal valor) {
         EnderecoFrete coleta = new EnderecoFrete(enderecoSaoPaulo(), "100", "Sala 3", "Próximo à Catedral");
         EnderecoFrete entrega = new EnderecoFrete(enderecoRioDeJaneiro(), "50", null, null);
         return new Frete(cliente(), coleta, entrega, "Ana Pereira", "21977776666",
-                "Caixa de peças automotivas", new BigDecimal("12.00"), new BigDecimal("180.00"));
+                "Caixa de peças automotivas", new BigDecimal("12.00"), valor, dataColeta);
     }
 }

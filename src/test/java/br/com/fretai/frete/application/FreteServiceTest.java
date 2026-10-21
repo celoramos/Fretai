@@ -1,5 +1,7 @@
 package br.com.fretai.frete.application;
 
+import br.com.fretai.calendario.application.CalendarioService;
+import br.com.fretai.calendario.application.dto.VerificacaoDataResponse;
 import br.com.fretai.endereco.domain.CepNaoEncontradoException;
 import br.com.fretai.endereco.domain.Endereco;
 import br.com.fretai.endereco.domain.Coordenadas;
@@ -21,13 +23,13 @@ import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.MotoristaRepository;
 import br.com.fretai.usuario.domain.TipoVeiculo;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -46,8 +48,8 @@ class FreteServiceTest {
     @Mock private EnderecoGateway enderecoGateway;
     @Mock private GeocodificacaoGateway geocodificacaoGateway;
     @Mock private RotaGateway rotaGateway;
+    @Mock private CalendarioService calendarioService;
 
-    @InjectMocks
     private FreteService freteService;
 
     private final UUID clienteId = UUID.randomUUID();
@@ -55,19 +57,51 @@ class FreteServiceTest {
 
     @BeforeEach
     void setUp() {
+        freteService = new FreteService(freteRepository, clienteRepository, motoristaRepository, enderecoGateway,
+                geocodificacaoGateway, rotaGateway, calendarioService, new BigDecimal("20"));
         cliente = new Cliente("52998224725", "Carlos Silva", "carlos@email.com", "hash", "11999998888");
     }
 
     private SolicitarFreteRequest pedido(String cepOrigem, String cepDestino) {
+        return pedido(cepOrigem, cepDestino, Fixtures.DIA_COMUM, new BigDecimal("180.00"));
+    }
+
+    private SolicitarFreteRequest pedido(String cepOrigem, String cepDestino, LocalDate dataColeta, BigDecimal valor) {
         return new SolicitarFreteRequest(clienteId,
                 new EnderecoRequest(cepOrigem, "100", "Sala 3", "Próximo à Catedral"),
                 new EnderecoRequest(cepDestino, "50", null, null),
-                "Ana Pereira", "21977776666", "Caixa de peças", new BigDecimal("12"), new BigDecimal("180.00"));
+                "Ana Pereira", "21977776666", "Caixa de peças", new BigDecimal("12"), valor, dataColeta);
+    }
+
+    private void diaComum() {
+        when(calendarioService.verificar(Fixtures.DIA_COMUM))
+                .thenReturn(new VerificacaoDataResponse(Fixtures.DIA_COMUM, false, null, false, true));
+    }
+
+    @Test
+    @DisplayName("Coleta no feriado → grava o feriado e soma 20% ao valor oferecido")
+    void coletaNoFeriado() {
+        LocalDate finados = LocalDate.of(2026, 11, 2);
+        when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(cliente));
+        when(enderecoGateway.buscarPorCep(anyString())).thenReturn(Fixtures.enderecoSaoPaulo());
+        when(geocodificacaoGateway.localizar(any(), any())).thenReturn(Optional.empty());
+        when(calendarioService.verificar(finados))
+                .thenReturn(new VerificacaoDataResponse(finados, true, "Finados", false, false));
+        when(freteRepository.save(any(Frete.class))).thenAnswer(i -> i.getArgument(0));
+
+        FreteResponse resposta = freteService.solicitar(pedido("01001000", "20040002", finados, new BigDecimal("1500.00")));
+
+        assertTrue(resposta.feriado());
+        assertEquals("Finados", resposta.nomeFeriado());
+        assertEquals(new BigDecimal("1500.00"), resposta.valor());
+        assertEquals(new BigDecimal("300.00"), resposta.adicionalFeriado());
+        assertEquals(new BigDecimal("1800.00"), resposta.valorTotal());
     }
 
     @Test
     @DisplayName("Solicita frete consultando os dois CEPs e salva como PENDENTE")
     void solicitaFrete() {
+        diaComum();
         when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(cliente));
         when(enderecoGateway.buscarPorCep("01001000"))
                 .thenReturn(new Endereco("01001-000", "Praça da Sé", "Sé", "São Paulo", "SP"));
@@ -81,6 +115,8 @@ class FreteServiceTest {
         assertEquals("Carlos Silva", resposta.cliente().nome());
         assertNull(resposta.motorista());
         assertEquals(new BigDecimal("180.00"), resposta.valor());
+        assertEquals(new BigDecimal("180.00"), resposta.valorTotal());
+        assertFalse(resposta.feriado());
         assertTrue(resposta.coleta().enderecoCompleto().contains("Praça da Sé, nº 100"));
         assertEquals("Rio de Janeiro", resposta.entrega().cidade());
         verify(freteRepository).save(any(Frete.class));
@@ -89,6 +125,7 @@ class FreteServiceTest {
     @Test
     @DisplayName("Com as duas pontas no mapa, grava coordenadas e distância da rota")
     void registraRota() {
+        diaComum();
         Coordenadas sp = new Coordenadas(-23.5503898, -46.633081);
         Coordenadas rj = new Coordenadas(-22.9035, -43.1756);
         Endereco enderecoSp = Fixtures.enderecoSaoPaulo();
@@ -112,6 +149,7 @@ class FreteServiceTest {
     @Test
     @DisplayName("Endereço fora do mapa → frete criado mesmo assim, sem distância")
     void semGeocodificacao() {
+        diaComum();
         when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(cliente));
         when(enderecoGateway.buscarPorCep(anyString())).thenReturn(Fixtures.enderecoSaoPaulo());
         when(geocodificacaoGateway.localizar(any(), any())).thenReturn(Optional.empty());

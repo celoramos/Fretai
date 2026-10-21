@@ -1,5 +1,6 @@
 package br.com.fretai;
 
+import br.com.fretai.calendario.domain.FeriadoGateway;
 import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.Endereco;
 import br.com.fretai.endereco.domain.EnderecoGateway;
@@ -12,6 +13,7 @@ import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.MotoristaRepository;
 import com.jayway.jsonpath.JsonPath;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +31,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -58,9 +61,12 @@ class FluxoFreteIntegrationTest {
     private GeocodificacaoGateway geocodificacaoGateway;
     @MockitoBean
     private RotaGateway rotaGateway;
+    @MockitoBean
+    private FeriadoGateway feriadoGateway;
 
     @BeforeEach
     void simularServicosExternos() {
+        when(feriadoGateway.nacionaisDoAno(anyInt())).thenReturn(List.of());
         when(enderecoGateway.buscarPorCep(anyString()))
                 .thenReturn(new Endereco("01001-000", "Praça da Sé", "Sé", "São Paulo", "SP"));
         when(geocodificacaoGateway.localizar(any(), any()))
@@ -182,7 +188,8 @@ class FluxoFreteIntegrationTest {
                          "coleta":  {"cep": "01001-000", "numero": "100"},
                          "entrega": {"cep": "20040-002", "numero": "50"},
                          "nomeDestinatario": "Ana Pereira", "telefoneDestinatario": "21977776666",
-                         "descricaoCarga": "Caixa de peças", "pesoKg": 12, "valor": 180.00}
+                         "descricaoCarga": "Caixa de peças", "pesoKg": 12, "valor": 180.00,
+                         "dataColeta": "2099-01-07"}
                         """.formatted(clienteId)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("PENDENTE"))

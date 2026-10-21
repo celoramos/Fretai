@@ -6,11 +6,12 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record MotoristaResponse(UUID id, String nome, String email, String telefone,
-                                TipoVeiculo tipoVeiculo, String placa, Instant criadoEm) {
+                                TipoVeiculo tipoVeiculo, String placa, boolean aceitaFeriado,
+                                Instant criadoEm) {
 
     public static MotoristaResponse de(Motorista motorista) {
         return new MotoristaResponse(motorista.getId(), motorista.getNome(), motorista.getEmail(),
                 motorista.getTelefone(), motorista.getTipoVeiculo(), motorista.getPlaca(),
-                motorista.getCriadoEm());
+                motorista.isAceitaFeriado(), motorista.getCriadoEm());
     }
 }

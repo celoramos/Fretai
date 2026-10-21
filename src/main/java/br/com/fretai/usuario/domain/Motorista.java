@@ -15,6 +15,10 @@ public class Motorista extends Usuario {
     @Column(nullable = false, unique = true, length = 7)
     private String placa;
 
+    /** Trabalhar em feriado é escolha do motorista. Começa ligado: a maioria trabalha todo dia. */
+    @Column(nullable = false)
+    private boolean aceitaFeriado = true;
+
     protected Motorista() {
     }
 
@@ -25,6 +29,11 @@ public class Motorista extends Usuario {
         this.placa = placa;
     }
 
+    public void definirAceitaFeriado(boolean aceitaFeriado) {
+        this.aceitaFeriado = aceitaFeriado;
+    }
+
     public TipoVeiculo getTipoVeiculo() {return tipoVeiculo;}
     public String getPlaca() {return placa;}
+    public boolean isAceitaFeriado() {return aceitaFeriado;}
 }

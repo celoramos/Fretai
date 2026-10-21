@@ -5,8 +5,12 @@ import br.com.fretai.usuario.application.dto.CadastroClienteRequest;
 import br.com.fretai.usuario.application.dto.CadastroMotoristaRequest;
 import br.com.fretai.usuario.application.dto.ClienteResponse;
 import br.com.fretai.usuario.application.dto.MotoristaResponse;
+import br.com.fretai.usuario.application.dto.PreferenciasMotoristaRequest;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -31,5 +35,11 @@ public class UsuarioController {
     @ResponseStatus(HttpStatus.CREATED)
     public MotoristaResponse cadastrarMotorista(@Valid @RequestBody CadastroMotoristaRequest request) {
         return usuarioService.cadastrarMotorista(request);
+    }
+
+    @PatchMapping("/api/motoristas/{id}/preferencias")
+    public MotoristaResponse alterarPreferencias(@PathVariable UUID id,
+                                                 @Valid @RequestBody PreferenciasMotoristaRequest request) {
+        return usuarioService.alterarPreferencias(id, request);
     }
 }

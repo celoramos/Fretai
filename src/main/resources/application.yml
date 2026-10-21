@@ -17,6 +17,9 @@ spring:
     open-in-view: false
 
 fretai:
+  frete:
+    # Percentual somado ao valor oferecido quando a coleta cai em feriado nacional (20 = 20%).
+    adicional-feriado-percentual: 20
   # CEP: ViaCEP primeiro, BrasilAPI de reserva.
   viacep:
     url: https://viacep.com.br

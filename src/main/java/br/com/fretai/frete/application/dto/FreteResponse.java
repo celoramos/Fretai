@@ -8,6 +8,7 @@ import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.TipoVeiculo;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record FreteResponse(
@@ -23,6 +24,12 @@ public record FreteResponse(
         String descricaoCarga,
         BigDecimal pesoKg,
         BigDecimal valor,
+        BigDecimal adicionalFeriado,
+        BigDecimal valorTotal,
+        LocalDate dataColeta,
+        boolean feriado,
+        String nomeFeriado,
+        boolean domingo,
         BigDecimal distanciaKm,
         Boolean distanciaEstimada,
         String motivoCancelamento,
@@ -63,6 +70,12 @@ public record FreteResponse(
                 frete.getDescricaoCarga(),
                 frete.getPesoKg(),
                 frete.getValor(),
+                frete.getAdicionalFeriado(),
+                frete.getValorTotal(),
+                frete.getDataColeta(),
+                frete.isFeriado(),
+                frete.getNomeFeriado(),
+                frete.isDomingo(),
                 frete.getDistanciaKm(),
                 frete.getDistanciaEstimada(),
                 frete.getMotivoCancelamento(),

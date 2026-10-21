@@ -43,7 +43,8 @@ class FreteControllerTest {
               "telefoneDestinatario": "21977776666",
               "descricaoCarga": "Caixa",
               "pesoKg": 12,
-              "valor": 180.00
+              "valor": 180.00,
+              "dataColeta": "2099-01-07"
             }
             """;
 

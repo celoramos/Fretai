@@ -1,16 +1,19 @@
 package br.com.fretai.usuario.application;
 
 import br.com.fretai.shared.exception.ConflitoException;
+import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.usuario.application.dto.CadastroClienteRequest;
 import br.com.fretai.usuario.application.dto.CadastroMotoristaRequest;
 import br.com.fretai.usuario.application.dto.ClienteResponse;
 import br.com.fretai.usuario.application.dto.MotoristaResponse;
+import br.com.fretai.usuario.application.dto.PreferenciasMotoristaRequest;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.ClienteRepository;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.MotoristaRepository;
 import br.com.fretai.usuario.domain.UsuarioRepository;
 import java.util.Locale;
+import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +59,14 @@ public class UsuarioService {
                 passwordEncoder.encode(request.senha()), somenteDigitos(request.telefone()),
                 request.tipoVeiculo(), placa);
         return MotoristaResponse.de(motoristaRepository.save(motorista));
+    }
+
+    @Transactional
+    public MotoristaResponse alterarPreferencias(UUID motoristaId, PreferenciasMotoristaRequest request) {
+        Motorista motorista = motoristaRepository.findById(motoristaId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Motorista não encontrado."));
+        motorista.definirAceitaFeriado(request.aceitaFeriado());
+        return MotoristaResponse.de(motorista);
     }
 
     private void validarUnicidade(String cpf, String email) {

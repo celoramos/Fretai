@@ -1,5 +1,6 @@
 package br.com.fretai.frete.application;
 
+import br.com.fretai.calendario.application.CalendarioService;
 import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.Endereco;
 import br.com.fretai.endereco.domain.EnderecoGateway;
@@ -18,9 +19,11 @@ import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.ClienteRepository;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.MotoristaRepository;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,16 +43,22 @@ public class FreteService {
     private final EnderecoGateway enderecoGateway;
     private final GeocodificacaoGateway geocodificacaoGateway;
     private final RotaGateway rotaGateway;
+    private final CalendarioService calendarioService;
+    private final BigDecimal adicionalFeriadoPercentual;
 
     public FreteService(FreteRepository freteRepository, ClienteRepository clienteRepository,
                         MotoristaRepository motoristaRepository, EnderecoGateway enderecoGateway,
-                        GeocodificacaoGateway geocodificacaoGateway, RotaGateway rotaGateway) {
+                        GeocodificacaoGateway geocodificacaoGateway, RotaGateway rotaGateway,
+                        CalendarioService calendarioService,
+                        @Value("${fretai.frete.adicional-feriado-percentual}") BigDecimal adicionalFeriadoPercentual) {
         this.freteRepository = freteRepository;
         this.clienteRepository = clienteRepository;
         this.motoristaRepository = motoristaRepository;
         this.enderecoGateway = enderecoGateway;
         this.geocodificacaoGateway = geocodificacaoGateway;
         this.rotaGateway = rotaGateway;
+        this.calendarioService = calendarioService;
+        this.adicionalFeriadoPercentual = adicionalFeriadoPercentual;
     }
 
     @Transactional
@@ -62,8 +71,13 @@ public class FreteService {
 
         Frete frete = new Frete(cliente, coleta, entrega,
                 request.nomeDestinatario(), request.telefoneDestinatario(),
-                request.descricaoCarga(), request.pesoKg(), request.valor());
+                request.descricaoCarga(), request.pesoKg(), request.valor(), request.dataColeta());
         calcularRota(coleta, entrega).ifPresent(frete::registrarRota);
+        // Se o serviço de feriados cair, o pedido falha (503): melhor que publicar o frete com o preço errado.
+        String nomeFeriado = calendarioService.verificar(request.dataColeta()).nomeFeriado();
+        if (nomeFeriado != null) {
+            frete.registrarFeriado(nomeFeriado, adicionalFeriadoPercentual);
+        }
         return FreteResponse.de(freteRepository.save(frete));
     }
 

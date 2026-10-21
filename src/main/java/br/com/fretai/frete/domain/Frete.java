@@ -17,7 +17,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Version;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -69,8 +71,30 @@ public class Frete {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal pesoKg;
 
+    /** O que o cliente ofereceu. */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal valor;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal adicionalFeriado;
+
+    /** valor + adicionalFeriado: é o que o cliente paga. */
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal valorTotal;
+
+    @Column(nullable = false)
+    private LocalDate dataColeta;
+
+    /** Feriado nacional não impede o frete: só gera adicional e exige motorista que aceite feriado. */
+    @Column(nullable = false)
+    private boolean feriado;
+
+    @Column(length = 100)
+    private String nomeFeriado;
+
+    /** Só informativo: domingo não gera adicional. */
+    @Column(nullable = false)
+    private boolean domingo;
 
     /** Nula quando não foi possível localizar a coleta ou a entrega no mapa. */
     @Column(precision = 8, scale = 1)
@@ -94,17 +118,37 @@ public class Frete {
 
     public Frete(Cliente cliente, EnderecoFrete pontoColeta, EnderecoFrete pontoEntrega,
                  String nomeDestinatario, String telefoneDestinatario,
-                 String descricaoCarga, BigDecimal pesoKg, BigDecimal valor) {
+                 String descricaoCarga, BigDecimal pesoKg, BigDecimal valor, LocalDate dataColeta) {
         this.cliente = Objects.requireNonNull(cliente, "Cliente solicitante é obrigatório.");
         this.pontoColeta = Objects.requireNonNull(pontoColeta, "Ponto de coleta é obrigatório.");
         this.pontoEntrega = Objects.requireNonNull(pontoEntrega, "Ponto de entrega é obrigatório.");
+        this.dataColeta = Objects.requireNonNull(dataColeta, "Data da coleta é obrigatória.");
         this.nomeDestinatario = nomeDestinatario;
         this.telefoneDestinatario = telefoneDestinatario;
         this.descricaoCarga = descricaoCarga;
         this.pesoKg = pesoKg;
         this.valor = valor;
+        this.adicionalFeriado = BigDecimal.ZERO;
+        this.valorTotal = valor;
+        this.domingo = dataColeta.getDayOfWeek() == DayOfWeek.SUNDAY;
         this.status = StatusFrete.PENDENTE;
         this.criadoEm = Instant.now();
+    }
+
+    /**
+     * Quem sabe o calendário é o serviço; aqui só se aplica a consequência.
+     * Como mexe no preço, também só vale antes de um motorista aceitar.
+     *
+     * @param nomeFeriado nome do feriado nacional da data de coleta
+     * @param percentual  adicional sobre o valor oferecido (20 = 20%)
+     */
+    public void registrarFeriado(String nomeFeriado, BigDecimal percentual) {
+        Objects.requireNonNull(nomeFeriado, "Nome do feriado não pode ser nulo.");
+        exigirStatus(StatusFrete.PENDENTE, "O feriado só pode ser registrado enquanto o frete está pendente.");
+        this.feriado = true;
+        this.nomeFeriado = nomeFeriado;
+        this.adicionalFeriado = AdicionalFeriado.calcular(valor, percentual);
+        this.valorTotal = valor.add(adicionalFeriado);
     }
 
     /** A distância entra na formação do preço, então só pode mudar antes de um motorista aceitar. */
@@ -123,6 +167,10 @@ public class Frete {
         if (!motorista.getTipoVeiculo().suporta(pesoKg)) {
             throw new RegraNegocioException("O veículo " + motorista.getTipoVeiculo().getDescricao()
                     + " não suporta uma carga de " + pesoKg + " kg.");
+        }
+        if (feriado && !motorista.isAceitaFeriado()) {
+            throw new RegraNegocioException("Este frete é no feriado (" + nomeFeriado
+                    + ") e o motorista não aceita trabalhar em feriados.");
         }
 
         this.motorista = motorista;
@@ -171,6 +219,12 @@ public class Frete {
     public String getDescricaoCarga() {return descricaoCarga;}
     public BigDecimal getPesoKg() {return pesoKg;}
     public BigDecimal getValor() {return valor;}
+    public BigDecimal getAdicionalFeriado() {return adicionalFeriado;}
+    public BigDecimal getValorTotal() {return valorTotal;}
+    public LocalDate getDataColeta() {return dataColeta;}
+    public boolean isFeriado() {return feriado;}
+    public String getNomeFeriado() {return nomeFeriado;}
+    public boolean isDomingo() {return domingo;}
     public BigDecimal getDistanciaKm() {return distanciaKm;}
     public Boolean getDistanciaEstimada() {return distanciaEstimada;}
     public StatusFrete getStatus() {return status;}
