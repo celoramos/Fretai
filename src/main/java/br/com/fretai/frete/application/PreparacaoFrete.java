@@ -9,6 +9,7 @@ import br.com.fretai.frete.application.dto.EnderecoRequest;
 import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.rota.domain.RotaGateway;
+import br.com.fretai.shared.exception.RegraNegocioException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -44,6 +45,17 @@ public class PreparacaoFrete {
                 ? new Coordenadas(request.latitude(), request.longitude())
                 : geocodificacaoGateway.localizar(base, request.numero()).orElse(null);
         return new EnderecoFrete(base, request.numero(), request.complemento(), request.pontoReferencia(), coordenadas);
+    }
+
+    /**
+     * Ponto no mapa de um CEP, para buscas. Aqui a coordenada é obrigatória: sem
+     * ela não há como medir raio.
+     */
+    public Coordenadas localizarCep(String cep) {
+        Endereco endereco = enderecoGateway.buscarPorCep(cep);
+        return geocodificacaoGateway.localizar(endereco, null)
+                .orElseThrow(() -> new RegraNegocioException("Não foi possível localizar o CEP " + cep
+                        + " no mapa. Informe latitude e longitude."));
     }
 
     /** Distância (se as duas pontas estão no mapa) e adicional de feriado. */

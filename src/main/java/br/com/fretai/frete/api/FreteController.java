@@ -1,9 +1,12 @@
 package br.com.fretai.frete.api;
 
+import br.com.fretai.frete.application.BuscaFreteService;
 import br.com.fretai.frete.application.FreteService;
 import br.com.fretai.frete.application.PublicacaoFreteService;
 import br.com.fretai.frete.application.dto.AceiteRequest;
+import br.com.fretai.frete.application.dto.BuscaFreteRequest;
 import br.com.fretai.frete.application.dto.CancelamentoRequest;
+import br.com.fretai.frete.application.dto.FreteEncontradoResponse;
 import br.com.fretai.frete.application.dto.FreteResponse;
 import br.com.fretai.frete.application.dto.PublicarFreteRequest;
 import br.com.fretai.frete.application.dto.SolicitarFreteRequest;
@@ -34,10 +37,13 @@ public class FreteController {
 
     private final FreteService freteService;
     private final PublicacaoFreteService publicacaoFreteService;
+    private final BuscaFreteService buscaFreteService;
 
-    public FreteController(FreteService freteService, PublicacaoFreteService publicacaoFreteService) {
+    public FreteController(FreteService freteService, PublicacaoFreteService publicacaoFreteService,
+                           BuscaFreteService buscaFreteService) {
         this.freteService = freteService;
         this.publicacaoFreteService = publicacaoFreteService;
+        this.buscaFreteService = buscaFreteService;
     }
 
     /** Frete pontual de cliente pessoa física. */
@@ -69,6 +75,16 @@ public class FreteController {
     public FreteResponse revisar(@PathVariable UUID id, @Valid @RequestBody PublicarFreteRequest request,
                                  @AuthenticationPrincipal UsuarioLogado quem) {
         return publicacaoFreteService.revisar(id, request, quem);
+    }
+
+    /**
+     * Fretes abertos perto de um ponto, do mais perto para o mais longe.
+     * Ex.: /api/fretes/busca?origemCep=13010-000&raioKm=200&tipoVeiculo=CARRETA&exigeRastreador=NAO
+     */
+    @GetMapping("/busca")
+    public Page<FreteEncontradoResponse> buscarPorRaio(@Valid BuscaFreteRequest filtro,
+                                                       @PageableDefault(size = 20) Pageable pageable) {
+        return buscaFreteService.buscar(filtro, pageable);
     }
 
     @GetMapping("/{id}")

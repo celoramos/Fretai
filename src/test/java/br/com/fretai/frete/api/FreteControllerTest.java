@@ -1,6 +1,7 @@
 package br.com.fretai.frete.api;
 
 import br.com.fretai.endereco.domain.CepNaoEncontradoException;
+import br.com.fretai.frete.application.BuscaFreteService;
 import br.com.fretai.frete.application.FreteService;
 import br.com.fretai.frete.application.PublicacaoFreteService;
 import br.com.fretai.frete.domain.Frete;
@@ -41,6 +42,9 @@ class FreteControllerTest {
 
     @MockitoBean
     private PublicacaoFreteService publicacaoFreteService;
+
+    @MockitoBean
+    private BuscaFreteService buscaFreteService;
 
     private static final String PEDIDO_VALIDO = """
             {
@@ -114,6 +118,18 @@ class FreteControllerTest {
                         .content("{\"motoristaId\": \"%s\"}".formatted(UUID.randomUUID())))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.title").value("Alteração concorrente"));
+    }
+
+    @Test
+    @DisplayName("Busca sem origem ou com raio fora de 1–1000 km → 400")
+    void buscaInvalida() throws Exception {
+        mvc.perform(get("/api/fretes/busca").param("raioKm", "100"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erros.origemInformada").exists());
+        mvc.perform(get("/api/fretes/busca").param("origemCep", "13010-000").param("raioKm", "5000"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erros.raioKm").exists());
+        verifyNoInteractions(buscaFreteService);
     }
 
     @Test
