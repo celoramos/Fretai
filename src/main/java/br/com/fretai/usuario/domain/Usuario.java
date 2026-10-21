@@ -1,5 +1,7 @@
 package br.com.fretai.usuario.domain;
 
+import br.com.fretai.shared.seguranca.Papel;
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +11,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import java.time.Instant;
 import java.util.UUID;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Dados comuns a toda pessoa na plataforma. Cliente e Motorista herdam daqui,
@@ -75,4 +78,16 @@ public abstract class Usuario {
     public Instant getCriadoEm() {return criadoEm;}
 
     // Sem getter de senha: o hash só é lido por quem valida login (Fase 2).
+
+    /** O hash nunca sai da entidade: quem valida o login passa a senha digitada para cá. */
+    public boolean confereSenha(String senhaDigitada, PasswordEncoder encoder) {
+        return senhaDigitada != null && encoder.matches(senhaDigitada, senhaHash);
+    }
+
+    public abstract Papel getPapel();
+
+    /** O que vai no access token. Quem representa uma empresa sobrescreve para incluir a empresa. */
+    public UsuarioLogado comoUsuarioLogado() {
+        return new UsuarioLogado(id, getPapel(), null);
+    }
 }

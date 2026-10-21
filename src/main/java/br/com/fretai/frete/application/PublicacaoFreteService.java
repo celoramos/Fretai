@@ -7,6 +7,7 @@ import br.com.fretai.frete.application.dto.PublicarFreteRequest;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,9 +42,10 @@ public class PublicacaoFreteService {
     }
 
     @Transactional
-    public FreteResponse revisar(UUID freteId, PublicarFreteRequest request) {
+    public FreteResponse revisar(UUID freteId, PublicarFreteRequest request, UsuarioLogado quem) {
         Frete frete = freteRepository.findById(freteId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Frete não encontrado."));
+        FreteService.exigir(quem.isAdmin() || frete.ehContratante(quem), "Só a empresa que publicou edita o frete.");
 
         frete.revisar(preparacao.montarEndereco(request.coleta()), preparacao.montarEndereco(request.entrega()),
                 request.carga(), request.valor(), request.dataColeta(), request.requisitos());

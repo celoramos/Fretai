@@ -3,6 +3,8 @@ package br.com.fretai.frete.domain;
 import br.com.fretai.empresa.domain.Empresa;
 import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.shared.exception.RegraNegocioException;
+import br.com.fretai.shared.seguranca.Papel;
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.veiculo.domain.TipoCarroceria;
@@ -254,6 +256,16 @@ public class Frete {
         this.distanciaKm = null;
         this.distanciaEstimada = null;
         aplicarRequisitos(requisitos);
+    }
+
+    /** Quem contratou: o cliente pessoa física ou alguém que representa a empresa. */
+    public boolean ehContratante(UsuarioLogado usuario) {
+        return (cliente != null && cliente.getId().equals(usuario.id()))
+                || (empresa != null && usuario.papel() == Papel.EMPRESA && empresa.getId().equals(usuario.empresaId()));
+    }
+
+    public boolean ehMotoristaDoFrete(UsuarioLogado usuario) {
+        return motorista != null && motorista.getId().equals(usuario.id());
     }
 
     /** O caminhão atende ao que a empresa pediu? Lista vazia de tipos ou carrocerias = qualquer um serve. */

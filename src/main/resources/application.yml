@@ -18,6 +18,10 @@ spring:
     properties:
       # Listas de fretes carregam veículos/carrocerias aceitos em lotes, não um SELECT por frete.
       hibernate.default_batch_fetch_size: 50
+  jackson:
+    deserialization:
+      # Jackson 3 recusa por padrão booleano omitido no JSON; aqui, omitido = false.
+      fail-on-null-for-primitives: false
   data:
     web:
       pageable:
@@ -29,6 +33,20 @@ spring:
     locations: classpath:db/migration,classpath:db/vendor/{vendor}
 
 fretai:
+  jwt:
+    # Pelo menos 32 bytes. Sem ele, um segredo aleatório é gerado a cada subida.
+    segredo: ${FRETAI_JWT_SEGREDO:}
+    validade-acesso: 15m
+    validade-refresh: 30d
+  login:
+    # Depois de 5 senhas erradas para o mesmo e-mail e IP, espera até 15 minutos.
+    maximo-falhas: 5
+    janela: 15m
+  # Primeiro administrador; sem as três variáveis, nenhum é criado.
+  admin:
+    email: ${FRETAI_ADMIN_EMAIL:}
+    senha: ${FRETAI_ADMIN_SENHA:}
+    cpf: ${FRETAI_ADMIN_CPF:}
   frete:
     # Percentual somado ao valor oferecido quando a coleta cai em feriado nacional (20 = 20%).
     adicional-feriado-percentual: 20

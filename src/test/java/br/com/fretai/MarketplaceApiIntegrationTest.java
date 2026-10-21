@@ -8,6 +8,7 @@ import br.com.fretai.endereco.domain.EnderecoGateway;
 import br.com.fretai.endereco.domain.GeocodificacaoGateway;
 import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.rota.domain.RotaGateway;
+import br.com.fretai.support.Login;
 import com.jayway.jsonpath.JsonPath;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -66,8 +68,9 @@ class MarketplaceApiIntegrationTest {
     @DisplayName("Empresa: cadastra, busca por id, consulta CNPJ na Receita, edita e desativa")
     void crudEmpresa() throws Exception {
         String id = cadastrarEmpresa("10101010000177", "AGENCIADOR", "12312312387", "agencia@email.com");
+        RequestPostProcessor agencia = Login.como(mvc, "agencia@email.com");
 
-        mvc.perform(get("/api/empresas/{id}", id))
+        mvc.perform(get("/api/empresas/{id}", id).with(agencia))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tipo").value("AGENCIADOR"))
                 .andExpect(jsonPath("$.razaoSocial").value("Transportes Teste Ltda"));
@@ -77,13 +80,13 @@ class MarketplaceApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.situacaoCadastral").value("ATIVA"));
 
-        mvc.perform(put("/api/empresas/{id}", id).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/api/empresas/{id}", id).with(agencia).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nomeFantasia\": \"Agência Rápida\", \"telefone\": \"11 3333-0000\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nomeFantasia").value("Agência Rápida"));
 
-        mvc.perform(delete("/api/empresas/{id}", id)).andExpect(status().isNoContent());
-        mvc.perform(get("/api/empresas/{id}", id)).andExpect(status().isNotFound());
+        mvc.perform(delete("/api/empresas/{id}", id).with(agencia)).andExpect(status().isNoContent());
+        mvc.perform(get("/api/empresas/{id}", id).with(agencia)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -97,28 +100,32 @@ class MarketplaceApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("Veículo: cadastra, lista, edita, exclui; de outro motorista é 404")
+    @DisplayName("Veículo: cadastra, lista, edita, exclui; a frota de outro motorista é 403")
     void crudVeiculo() throws Exception {
         String motoristaId = cadastrarMotorista("45645645600", "caminhoneiro@email.com", "CAM1A11");
         String outroMotorista = cadastrarMotorista("56756756710", "outro@email.com", "OUT1A11");
+        RequestPostProcessor dono = Login.como(mvc, "caminhoneiro@email.com");
+        RequestPostProcessor outro = Login.como(mvc, "outro@email.com");
 
-        String veiculoId = JsonPath.read(mvc.perform(post("/api/motoristas/{id}/veiculos", motoristaId)
+        String veiculoId = JsonPath.read(mvc.perform(post("/api/motoristas/{id}/veiculos", motoristaId).with(dono)
                                 .contentType(MediaType.APPLICATION_JSON).content(veiculoJson("BIT2B22", 7)))
                         .andExpect(status().isCreated())
                         .andExpect(jsonPath("$.tipo").value("BITREM"))
                         .andReturn().getResponse().getContentAsString(), "$.id");
 
-        mvc.perform(get("/api/motoristas/{id}/veiculos", motoristaId))
+        mvc.perform(get("/api/motoristas/{id}/veiculos", motoristaId).with(dono))
                 .andExpect(jsonPath("$.length()").value(1));
-        mvc.perform(put("/api/motoristas/{m}/veiculos/{v}", motoristaId, veiculoId)
+        mvc.perform(put("/api/motoristas/{m}/veiculos/{v}", motoristaId, veiculoId).with(dono)
                         .contentType(MediaType.APPLICATION_JSON).content(veiculoJson("BIT2B22", 9)))
                 .andExpect(jsonPath("$.numeroEixos").value(9));
-        mvc.perform(get("/api/motoristas/{m}/veiculos/{v}", outroMotorista, veiculoId))
+        mvc.perform(get("/api/motoristas/{m}/veiculos/{v}", outroMotorista, veiculoId).with(outro))
                 .andExpect(status().isNotFound());
+        mvc.perform(get("/api/motoristas/{id}/veiculos", motoristaId).with(outro))
+                .andExpect(status().isForbidden());
 
-        mvc.perform(delete("/api/motoristas/{m}/veiculos/{v}", motoristaId, veiculoId))
+        mvc.perform(delete("/api/motoristas/{m}/veiculos/{v}", motoristaId, veiculoId).with(dono))
                 .andExpect(status().isNoContent());
-        mvc.perform(get("/api/motoristas/{id}/veiculos", motoristaId))
+        mvc.perform(get("/api/motoristas/{id}/veiculos", motoristaId).with(dono))
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
@@ -126,8 +133,9 @@ class MarketplaceApiIntegrationTest {
     @DisplayName("Frete de empresa: publica, lista paginado, edita; valor e 'a combinar' são exclusivos")
     void freteDeEmpresa() throws Exception {
         String empresaId = cadastrarEmpresa("30303030000138", "EMBARCADOR", "67867867821", "embarcador@email.com");
+        RequestPostProcessor embarcador = Login.como(mvc, "embarcador@email.com");
 
-        String freteId = JsonPath.read(mvc.perform(post("/api/fretes/empresa/{id}", empresaId)
+        String freteId = JsonPath.read(mvc.perform(post("/api/fretes/empresa/{id}", empresaId).with(embarcador)
                                 .contentType(MediaType.APPLICATION_JSON).content(freteJson("8500.00", false)))
                         .andExpect(status().isCreated())
                         .andExpect(jsonPath("$.empresa.id").value(empresaId))
@@ -138,18 +146,18 @@ class MarketplaceApiIntegrationTest {
                         .andExpect(jsonPath("$.distanciaKm").value(430.0))
                         .andReturn().getResponse().getContentAsString(), "$.id");
 
-        mvc.perform(get("/api/fretes/empresa/{id}", empresaId).param("size", "1").param("sort", "criadoEm,desc"))
+        mvc.perform(get("/api/fretes/empresa/{id}", empresaId).with(embarcador).param("size", "1").param("sort", "criadoEm,desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(freteId))
                 .andExpect(jsonPath("$.page.size").value(1));
 
-        mvc.perform(put("/api/fretes/{id}", freteId).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/api/fretes/{id}", freteId).with(embarcador).contentType(MediaType.APPLICATION_JSON)
                         .content(freteJson(null, true)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.valorACombinar").value(true))
                 .andExpect(jsonPath("$.valor").doesNotExist());
 
-        mvc.perform(post("/api/fretes/empresa/{id}", empresaId).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/fretes/empresa/{id}", empresaId).with(embarcador).contentType(MediaType.APPLICATION_JSON)
                         .content(freteJson("8500.00", true)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.erros.valorCoerente").exists());
@@ -158,7 +166,8 @@ class MarketplaceApiIntegrationTest {
     @Test
     @DisplayName("Ordenar por campo inexistente → 400, não 500")
     void ordenacaoInvalida() throws Exception {
-        mvc.perform(get("/api/empresas").param("sort", "naoExiste"))
+        mvc.perform(get("/api/empresas").param("sort", "naoExiste")
+                        .with(empresaLogada("40404040000113", "78978978932", "ordem@email.com")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Ordenação inválida"));
     }
@@ -179,6 +188,11 @@ class MarketplaceApiIntegrationTest {
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         return JsonPath.read(corpo, "$.id");
+    }
+
+    private RequestPostProcessor empresaLogada(String cnpj, String cpf, String email) throws Exception {
+        cadastrarEmpresa(cnpj, "EMBARCADOR", cpf, email);
+        return Login.como(mvc, email);
     }
 
     private String cadastrarMotorista(String cpf, String email, String placa) throws Exception {

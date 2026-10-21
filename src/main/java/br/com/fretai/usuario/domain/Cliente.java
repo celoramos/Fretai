@@ -1,5 +1,6 @@
 package br.com.fretai.usuario.domain;
 
+import br.com.fretai.shared.seguranca.Papel;
 import jakarta.persistence.Entity;
 
 /**
@@ -14,5 +15,10 @@ public class Cliente extends Usuario {
 
     public Cliente(String cpf, String nome, String email, String senhaHash, String telefone) {
         super(cpf, nome, email, senhaHash, telefone);
+    }
+
+    @Override
+    public Papel getPapel() {
+        return Papel.CLIENTE;
     }
 }

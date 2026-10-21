@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,11 +67,13 @@ public class EmpresaController {
     }
 
     @PutMapping("/api/empresas/" + ROTA_ID)
+    @PreAuthorize("principal.representaOuAdmin(#id)")
     public EmpresaResponse atualizar(@PathVariable UUID id, @Valid @RequestBody AtualizarEmpresaRequest request) {
         return empresaService.atualizar(id, request);
     }
 
     @DeleteMapping("/api/empresas/" + ROTA_ID)
+    @PreAuthorize("principal.representaOuAdmin(#id)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void desativar(@PathVariable UUID id) {
         empresaService.desativar(id);

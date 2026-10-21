@@ -6,7 +6,9 @@ import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.frete.domain.StatusFrete;
+import br.com.fretai.shared.exception.AcessoNegadoException;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.ClienteRepository;
 import br.com.fretai.usuario.domain.Motorista;
@@ -72,18 +74,28 @@ public class FreteService {
     }
 
     @Transactional
-    public FreteResponse iniciarTransporte(UUID freteId) {
-        return transicionar(freteId, Frete::iniciarTransporte);
+    public FreteResponse iniciarTransporte(UUID freteId, UsuarioLogado quem) {
+        return transicionar(freteId, frete -> {
+            exigir(quem.isAdmin() || frete.ehMotoristaDoFrete(quem), "Só o motorista do frete inicia o transporte.");
+            frete.iniciarTransporte();
+        });
     }
 
     @Transactional
-    public FreteResponse concluirEntrega(UUID freteId) {
-        return transicionar(freteId, Frete::concluir);
+    public FreteResponse concluirEntrega(UUID freteId, UsuarioLogado quem) {
+        return transicionar(freteId, frete -> {
+            exigir(quem.isAdmin() || frete.ehMotoristaDoFrete(quem), "Só o motorista do frete conclui a entrega.");
+            frete.concluir();
+        });
     }
 
     @Transactional
-    public FreteResponse cancelar(UUID freteId, String motivo) {
-        return transicionar(freteId, frete -> frete.cancelar(motivo));
+    public FreteResponse cancelar(UUID freteId, String motivo, UsuarioLogado quem) {
+        return transicionar(freteId, frete -> {
+            exigir(quem.isAdmin() || frete.ehContratante(quem) || frete.ehMotoristaDoFrete(quem),
+                    "Só quem contratou ou o motorista do frete pode cancelar.");
+            frete.cancelar(motivo);
+        });
     }
 
     private FreteResponse transicionar(UUID freteId, Consumer<Frete> transicao) {
@@ -92,6 +104,12 @@ public class FreteService {
         // saveAndFlush força o UPDATE agora: se outro request alterou o frete
         // no meio do caminho, o @Version estoura aqui e vira 409.
         return FreteResponse.de(freteRepository.saveAndFlush(frete));
+    }
+
+    static void exigir(boolean permitido, String mensagem) {
+        if (!permitido) {
+            throw new AcessoNegadoException(mensagem);
+        }
     }
 
     private Frete carregar(UUID freteId) {

@@ -1,6 +1,9 @@
 package br.com.fretai.shared.api;
 
+import br.com.fretai.shared.exception.AcessoNegadoException;
 import br.com.fretai.shared.exception.ConflitoException;
+import br.com.fretai.shared.exception.CredenciaisInvalidasException;
+import br.com.fretai.shared.exception.MuitasTentativasException;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.shared.exception.ServicoExternoIndisponivelException;
@@ -16,6 +19,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +39,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     ProblemDetail naoEncontrado(RecursoNaoEncontradoException e) {
         return problema(HttpStatus.NOT_FOUND, "Recurso não encontrado", e.getMessage());
+    }
+
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    ResponseEntity<ProblemDetail> credenciaisInvalidas(CredenciaisInvalidasException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).header(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
+                .body(problema(HttpStatus.UNAUTHORIZED, "Não autenticado", e.getMessage()));
+    }
+
+    /** Recurso de outra pessoa: checagem de dono no service ou @PreAuthorize no controller. */
+    @ExceptionHandler({AcessoNegadoException.class, AccessDeniedException.class})
+    ProblemDetail acessoNegado(RuntimeException e) {
+        String detalhe = e instanceof AcessoNegadoException ? e.getMessage()
+                : "Seu usuário não tem permissão para este recurso.";
+        return problema(HttpStatus.FORBIDDEN, "Acesso negado", detalhe);
+    }
+
+    @ExceptionHandler(MuitasTentativasException.class)
+    ResponseEntity<ProblemDetail> muitasTentativas(MuitasTentativasException e) {
+        long segundos = Math.max(1, e.getEsperar().toSeconds());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(segundos))
+                .body(problema(HttpStatus.TOO_MANY_REQUESTS, "Muitas tentativas", e.getMessage()));
     }
 
     @ExceptionHandler(ConflitoException.class)

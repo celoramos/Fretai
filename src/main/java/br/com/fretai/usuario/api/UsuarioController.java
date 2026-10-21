@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -46,6 +47,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/api/motoristas")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPRESA')")
     public Page<MotoristaResponse> listarMotoristas(
             @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
         return usuarioService.listarMotoristas(pageable);
@@ -57,18 +59,21 @@ public class UsuarioController {
     }
 
     @PutMapping("/api/motoristas/{id}")
+    @PreAuthorize("principal.ehOuAdmin(#id)")
     public MotoristaResponse atualizarMotorista(@PathVariable UUID id,
                                                 @Valid @RequestBody AtualizarContatoRequest request) {
         return usuarioService.atualizarMotorista(id, request);
     }
 
     @DeleteMapping("/api/motoristas/{id}")
+    @PreAuthorize("principal.ehOuAdmin(#id)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void desativarMotorista(@PathVariable UUID id) {
         usuarioService.desativarMotorista(id);
     }
 
     @PatchMapping("/api/motoristas/{id}/preferencias")
+    @PreAuthorize("principal.ehOuAdmin(#id)")
     public MotoristaResponse alterarPreferencias(@PathVariable UUID id,
                                                  @Valid @RequestBody PreferenciasMotoristaRequest request) {
         return usuarioService.alterarPreferencias(id, request);

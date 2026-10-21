@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -26,6 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Camada HTTP isolada: validação de entrada e tradução de exceção → status. */
 @WebMvcTest(FreteController.class)
+// Filtros de segurança desligados: aqui só interessa validação e tradução de erro. Login e permissões
+// são testados de ponta a ponta nos testes de integração.
+@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("API de fretes: validação e erros HTTP")
 class FreteControllerTest {
 
@@ -91,7 +95,7 @@ class FreteControllerTest {
     @DisplayName("Transição inválida → 409")
     void transicaoInvalida() throws Exception {
         UUID id = UUID.randomUUID();
-        when(freteService.concluirEntrega(id))
+        when(freteService.concluirEntrega(eq(id), any()))
                 .thenThrow(new IllegalStateException("Para concluir a entrega, a carga deve estar em trânsito."));
 
         mvc.perform(post("/api/fretes/{id}/conclusao", id))

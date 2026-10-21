@@ -1,0 +1,23 @@
+# Modelo de configuração. NÃO coloque segredos neste arquivo nem no application.yml:
+# todos os valores sensíveis vêm de variáveis de ambiente. Copie este arquivo para
+# fora do repositório (ou use as variáveis direto) e preencha.
+#
+# Para rodar com ele:  java -jar fretai.jar --spring.config.additional-location=file:./application-local.yml
+
+spring:
+  datasource:
+    url: ${DB_URL}                 # jdbc:postgresql://host:5432/fretai
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+fretai:
+  jwt:
+    # 32+ bytes aleatórios. Gere com: openssl rand -base64 48
+    segredo: ${FRETAI_JWT_SEGREDO}
+  admin:
+    # Primeiro administrador, criado na subida se ainda não existir.
+    email: ${FRETAI_ADMIN_EMAIL}
+    senha: ${FRETAI_ADMIN_SENHA}   # mínimo 12 caracteres
+    cpf: ${FRETAI_ADMIN_CPF}
+  graphhopper:
+    chave: ${GRAPHHOPPER_CHAVE}    # opcional: sem ela a distância é estimada

@@ -8,6 +8,7 @@ import br.com.fretai.frete.application.dto.FreteResponse;
 import br.com.fretai.frete.application.dto.PublicarFreteRequest;
 import br.com.fretai.frete.application.dto.SolicitarFreteRequest;
 import br.com.fretai.frete.domain.StatusFrete;
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.UUID;
@@ -16,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +42,7 @@ public class FreteController {
 
     /** Frete pontual de cliente pessoa física. */
     @PostMapping
+    @PreAuthorize("hasRole('CLIENTE') and #request.clienteId() == principal.id")
     public ResponseEntity<FreteResponse> solicitar(@Valid @RequestBody SolicitarFreteRequest request) {
         FreteResponse frete = freteService.solicitar(request);
         return ResponseEntity.created(URI.create("/api/fretes/" + frete.id())).body(frete);
@@ -46,6 +50,7 @@ public class FreteController {
 
     /** Frete de empresa no marketplace. */
     @PostMapping("/empresa/{empresaId}")
+    @PreAuthorize("principal.representaOuAdmin(#empresaId)")
     public ResponseEntity<FreteResponse> publicar(@PathVariable UUID empresaId,
                                                   @Valid @RequestBody PublicarFreteRequest request) {
         FreteResponse frete = publicacaoFreteService.publicar(empresaId, request);
@@ -53,6 +58,7 @@ public class FreteController {
     }
 
     @GetMapping("/empresa/{empresaId}")
+    @PreAuthorize("principal.representaOuAdmin(#empresaId)")
     public Page<FreteResponse> listarDaEmpresa(
             @PathVariable UUID empresaId,
             @PageableDefault(size = 20, sort = "criadoEm", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -60,8 +66,9 @@ public class FreteController {
     }
 
     @PutMapping("/{id}")
-    public FreteResponse revisar(@PathVariable UUID id, @Valid @RequestBody PublicarFreteRequest request) {
-        return publicacaoFreteService.revisar(id, request);
+    public FreteResponse revisar(@PathVariable UUID id, @Valid @RequestBody PublicarFreteRequest request,
+                                 @AuthenticationPrincipal UsuarioLogado quem) {
+        return publicacaoFreteService.revisar(id, request, quem);
     }
 
     @GetMapping("/{id}")
@@ -77,22 +84,24 @@ public class FreteController {
     }
 
     @PostMapping("/{id}/aceite")
+    @PreAuthorize("hasRole('MOTORISTA') and #request.motoristaId() == principal.id")
     public FreteResponse aceitar(@PathVariable UUID id, @Valid @RequestBody AceiteRequest request) {
         return freteService.aceitar(id, request.motoristaId());
     }
 
     @PostMapping("/{id}/inicio")
-    public FreteResponse iniciarTransporte(@PathVariable UUID id) {
-        return freteService.iniciarTransporte(id);
+    public FreteResponse iniciarTransporte(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem) {
+        return freteService.iniciarTransporte(id, quem);
     }
 
     @PostMapping("/{id}/conclusao")
-    public FreteResponse concluirEntrega(@PathVariable UUID id) {
-        return freteService.concluirEntrega(id);
+    public FreteResponse concluirEntrega(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem) {
+        return freteService.concluirEntrega(id, quem);
     }
 
     @PostMapping("/{id}/cancelamento")
-    public FreteResponse cancelar(@PathVariable UUID id, @Valid @RequestBody CancelamentoRequest request) {
-        return freteService.cancelar(id, request.motivo());
+    public FreteResponse cancelar(@PathVariable UUID id, @Valid @RequestBody CancelamentoRequest request,
+                                  @AuthenticationPrincipal UsuarioLogado quem) {
+        return freteService.cancelar(id, request.motivo(), quem);
     }
 }

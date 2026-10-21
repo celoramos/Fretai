@@ -1,5 +1,7 @@
 package br.com.fretai.empresa.domain;
 
+import br.com.fretai.shared.seguranca.Papel;
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import br.com.fretai.usuario.domain.Usuario;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,6 +26,16 @@ public class UsuarioEmpresa extends Usuario {
     public UsuarioEmpresa(String cpf, String nome, String email, String senhaHash, String telefone, Empresa empresa) {
         super(cpf, nome, email, senhaHash, telefone);
         this.empresa = Objects.requireNonNull(empresa, "Empresa é obrigatória.");
+    }
+
+    @Override
+    public Papel getPapel() {
+        return Papel.EMPRESA;
+    }
+
+    @Override
+    public UsuarioLogado comoUsuarioLogado() {
+        return new UsuarioLogado(getId(), getPapel(), empresa.getId());
     }
 
     public Empresa getEmpresa() {return empresa;}

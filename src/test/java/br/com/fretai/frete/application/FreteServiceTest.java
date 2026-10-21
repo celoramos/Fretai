@@ -16,6 +16,8 @@ import br.com.fretai.frete.domain.StatusFrete;
 import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.rota.domain.RotaGateway;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
+import br.com.fretai.shared.seguranca.Papel;
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import br.com.fretai.support.Fixtures;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.ClienteRepository;
@@ -211,6 +213,7 @@ class FreteServiceTest {
         UUID freteId = UUID.randomUUID();
         when(freteRepository.findById(freteId)).thenReturn(Optional.empty());
 
-        assertThrows(RecursoNaoEncontradoException.class, () -> freteService.iniciarTransporte(freteId));
+        assertThrows(RecursoNaoEncontradoException.class, () -> freteService.iniciarTransporte(freteId,
+                new UsuarioLogado(UUID.randomUUID(), Papel.MOTORISTA, null)));
     }
 }

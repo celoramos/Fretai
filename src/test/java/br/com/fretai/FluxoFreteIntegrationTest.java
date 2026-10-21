@@ -9,6 +9,7 @@ import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.rota.domain.RotaGateway;
+import br.com.fretai.support.Login;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.MotoristaRepository;
 import com.jayway.jsonpath.JsonPath;
@@ -27,6 +28,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,33 +81,38 @@ class FluxoFreteIntegrationTest {
     void fluxoCompleto() throws Exception {
         String clienteId = cadastrarCliente("52998224725", "carlos@email.com");
         String motoristaId = cadastrarMotorista("11144477735", "marcos@email.com", "ABC1D23");
-        String freteId = solicitarFrete(clienteId);
+        RequestPostProcessor cliente = Login.como(mvc, "carlos@email.com");
+        RequestPostProcessor motorista = Login.como(mvc, "marcos@email.com");
+        String freteId = solicitarFrete(clienteId, cliente);
 
-        mvc.perform(get("/api/fretes").param("status", "PENDENTE"))
+        mvc.perform(get("/api/fretes").param("status", "PENDENTE").with(motorista))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(freteId));
 
         // Relido do banco: coordenadas e distância passaram pela migration V2.
-        mvc.perform(get("/api/fretes/{id}", freteId))
+        mvc.perform(get("/api/fretes/{id}", freteId).with(motorista))
                 .andExpect(jsonPath("$.distanciaKm").value(12.4))
                 .andExpect(jsonPath("$.coleta.latitude").value(-23.5503898));
 
-        mvc.perform(post("/api/fretes/{id}/aceite", freteId).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/fretes/{id}/aceite", freteId).with(motorista).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"motoristaId\": \"%s\"}".formatted(motoristaId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ACEITO"))
                 .andExpect(jsonPath("$.motorista.placa").value("ABC1D23"));
 
-        mvc.perform(post("/api/fretes/{id}/inicio", freteId))
+        // Quem inicia o transporte é o motorista, não o cliente.
+        mvc.perform(post("/api/fretes/{id}/inicio", freteId).with(cliente))
+                .andExpect(status().isForbidden());
+        mvc.perform(post("/api/fretes/{id}/inicio", freteId).with(motorista))
                 .andExpect(jsonPath("$.status").value("EM_TRANSITO"));
 
-        mvc.perform(post("/api/fretes/{id}/conclusao", freteId))
+        mvc.perform(post("/api/fretes/{id}/conclusao", freteId).with(motorista))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ENTREGUE"))
                 .andExpect(jsonPath("$.concluidoEm").exists());
 
         // Concluir de novo não é permitido
-        mvc.perform(post("/api/fretes/{id}/conclusao", freteId))
+        mvc.perform(post("/api/fretes/{id}/conclusao", freteId).with(motorista))
                 .andExpect(status().isConflict());
     }
 
@@ -135,13 +142,14 @@ class FluxoFreteIntegrationTest {
         String clienteId = cadastrarCliente("71428793860", "cliente2@email.com");
         UUID motoristaA = UUID.fromString(cadastrarMotorista("26676451034", "a@email.com", "AAA1111"));
         UUID motoristaB = UUID.fromString(cadastrarMotorista("87748248800", "b@email.com", "BBB2222"));
-        UUID freteId = UUID.fromString(solicitarFrete(clienteId));
+        UUID freteId = UUID.fromString(solicitarFrete(clienteId, Login.como(mvc, "cliente2@email.com")));
+        RequestPostProcessor a = Login.como(mvc, "a@email.com");
 
         // O motorista B abre o app e vê o frete ainda PENDENTE (versão 0)...
         Frete vistoPeloB = tx.execute(s -> freteRepository.findById(freteId).orElseThrow());
 
         // ...enquanto isso o motorista A aceita primeiro.
-        mvc.perform(post("/api/fretes/{id}/aceite", freteId).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/fretes/{id}/aceite", freteId).with(a).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"motoristaId\": \"%s\"}".formatted(motoristaA)))
                 .andExpect(status().isOk());
 
@@ -152,7 +160,7 @@ class FluxoFreteIntegrationTest {
             freteRepository.saveAndFlush(vistoPeloB);
         }));
 
-        mvc.perform(get("/api/fretes/{id}", freteId))
+        mvc.perform(get("/api/fretes/{id}", freteId).with(a))
                 .andExpect(jsonPath("$.motorista.id").value(motoristaA.toString()));
     }
 
@@ -182,8 +190,8 @@ class FluxoFreteIntegrationTest {
         return JsonPath.read(corpo, "$.id");
     }
 
-    private String solicitarFrete(String clienteId) throws Exception {
-        String corpo = mvc.perform(post("/api/fretes").contentType(MediaType.APPLICATION_JSON).content("""
+    private String solicitarFrete(String clienteId, RequestPostProcessor cliente) throws Exception {
+        String corpo = mvc.perform(post("/api/fretes").with(cliente).contentType(MediaType.APPLICATION_JSON).content("""
                         {"clienteId": "%s",
                          "coleta":  {"cep": "01001-000", "numero": "100"},
                          "entrega": {"cep": "20040-002", "numero": "50"},

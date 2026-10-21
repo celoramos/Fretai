@@ -1,5 +1,6 @@
 package br.com.fretai.usuario.domain;
 
+import br.com.fretai.shared.seguranca.Papel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,6 +28,11 @@ public class Motorista extends Usuario {
         super(cpf, nome, email, senhaHash, telefone);
         this.tipoVeiculo = tipoVeiculo;
         this.placa = placa;
+    }
+
+    @Override
+    public Papel getPapel() {
+        return Papel.MOTORISTA;
     }
 
     public void definirAceitaFeriado(boolean aceitaFeriado) {
