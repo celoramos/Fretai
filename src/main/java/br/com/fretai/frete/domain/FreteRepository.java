@@ -2,6 +2,7 @@ package br.com.fretai.frete.domain;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,12 @@ public interface FreteRepository extends JpaRepository<Frete, UUID> {
 
     @EntityGraph(attributePaths = {"empresa", "motorista", "veiculo"})
     Page<Frete> findByEmpresaId(UUID empresaId, Pageable pageable);
+
+    long countByEmpresaId(UUID empresaId);
+
+    long countByEmpresaIdAndStatusIn(UUID empresaId, Collection<StatusFrete> status);
+
+    long countByMotoristaIdAndStatusIn(UUID motoristaId, Collection<StatusFrete> status);
 
     /**
      * Base do alerta de "fretão": quanto se paga por km em fretes parecidos
