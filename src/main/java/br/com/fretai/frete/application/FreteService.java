@@ -103,8 +103,10 @@ public class FreteService {
                 .filter(v -> v.pertenceA(motoristaId))
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Veículo não encontrado."));
         Autor autor = new Autor(motoristaId, motorista.getPapel());
-        FreteResponse aceito = transicionar(freteId, frete -> propostaRepository.save(
-                frete.aceitarPeloValorAnunciado(motorista, veiculo, autor)));
+        FreteResponse aceito = transicionar(freteId, frete -> {
+            propostaRepository.save(frete.aceitarPeloValorAnunciado(motorista, veiculo, autor));
+            preparacao.reavaliarPreco(frete);
+        });
         eventos.publishEvent(new EventosFrete.FreteAceito(freteId));
         return aceito;
     }

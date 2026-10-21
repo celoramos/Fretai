@@ -18,8 +18,12 @@ public final class Login {
     }
 
     public static RequestPostProcessor como(MockMvc mvc, String email) throws Exception {
+        return como(mvc, email, SENHA);
+    }
+
+    public static RequestPostProcessor como(MockMvc mvc, String email, String senha) throws Exception {
         String corpo = mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\": \"%s\", \"senha\": \"%s\"}".formatted(email, SENHA)))
+                        .content("{\"email\": \"%s\", \"senha\": \"%s\"}".formatted(email, senha)))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         String token = JsonPath.read(corpo, "$.accessToken");

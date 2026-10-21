@@ -13,7 +13,7 @@ import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
 import br.com.fretai.frete.domain.OpcaoFiltro;
 import br.com.fretai.frete.domain.RequisitosFrete;
-import br.com.fretai.frete.domain.TipoCargaAntt;
+import br.com.fretai.precificacao.domain.TipoCargaAntt;
 import br.com.fretai.support.Fixtures;
 import br.com.fretai.support.Postgis;
 import br.com.fretai.veiculo.domain.TipoVeiculo;

@@ -1,4 +1,4 @@
-package br.com.fretai.frete.domain;
+package br.com.fretai.precificacao.domain;
 
 /**
  * Tipos de carga usados nas tabelas de piso mínimo de frete da ANTT

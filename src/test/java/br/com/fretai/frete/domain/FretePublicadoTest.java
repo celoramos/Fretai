@@ -1,5 +1,6 @@
 package br.com.fretai.frete.domain;
 
+import br.com.fretai.precificacao.domain.TipoCargaAntt;
 import br.com.fretai.empresa.domain.Empresa;
 import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.support.Fixtures;

@@ -44,15 +44,17 @@ public class PropostaService {
     private final FreteRepository freteRepository;
     private final MotoristaRepository motoristaRepository;
     private final VeiculoRepository veiculoRepository;
+    private final PreparacaoFrete preparacao;
     private final ApplicationEventPublisher eventos;
 
     public PropostaService(PropostaRepository propostaRepository, FreteRepository freteRepository,
                            MotoristaRepository motoristaRepository, VeiculoRepository veiculoRepository,
-                           ApplicationEventPublisher eventos) {
+                           PreparacaoFrete preparacao, ApplicationEventPublisher eventos) {
         this.propostaRepository = propostaRepository;
         this.freteRepository = freteRepository;
         this.motoristaRepository = motoristaRepository;
         this.veiculoRepository = veiculoRepository;
+        this.preparacao = preparacao;
         this.eventos = eventos;
     }
 
@@ -119,6 +121,7 @@ public class PropostaService {
         Veiculo veiculo = veiculoId == null ? null : carregarVeiculo(veiculoId, proposta.getMotorista().getId());
 
         frete.aceitarProposta(proposta, veiculo, Autor.de(quem));
+        preparacao.reavaliarPreco(frete);
         propostaRepository.findByFreteIdAndStatus(frete.getId(), StatusProposta.ENVIADA)
                 .forEach(Proposta::encerrarPorOutraAceita);
         freteRepository.saveAndFlush(frete);

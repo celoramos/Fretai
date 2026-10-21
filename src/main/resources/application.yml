@@ -47,6 +47,14 @@ fretai:
     email: ${FRETAI_ADMIN_EMAIL:}
     senha: ${FRETAI_ADMIN_SENHA:}
     cpf: ${FRETAI_ADMIN_CPF:}
+  preco:
+    # Alerta de "fretão": R$/km acima de 2× a média de fretes parecidos.
+    fator-suspeita: 2.0
+    # Com menos fretes parecidos que isto, não há média confiável e o alerta não dispara.
+    amostra-minima: 5
+    # Parecidos = mesma UF de origem e de destino, distância até 30% diferente, publicados nos últimos 180 dias.
+    janela-media: 180d
+    tolerancia-distancia: 0.3
   frete:
     # Percentual somado ao valor oferecido quando a coleta cai em feriado nacional (20 = 20%).
     adicional-feriado-percentual: 20

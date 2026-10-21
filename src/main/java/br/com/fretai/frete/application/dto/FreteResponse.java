@@ -6,7 +6,7 @@ import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.StatusFrete;
-import br.com.fretai.frete.domain.TipoCargaAntt;
+import br.com.fretai.precificacao.domain.TipoCargaAntt;
 import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.veiculo.domain.TipoCarroceria;
@@ -58,6 +58,7 @@ public record FreteResponse(
         BigDecimal valorAcordado,
         BigDecimal adiantamentoPercentual,
         LocalDate prazoEntrega,
+        Preco preco,
         String motivoCancelamento,
         Instant criadoEm,
         Instant aceitoEm,
@@ -65,6 +66,17 @@ public record FreteResponse(
         Instant pagoEm) {
 
     public record Pessoa(UUID id, String nome) {
+    }
+
+    /**
+     * Piso ANTT e alertas, calculados na publicação e refeitos no aceite.
+     *
+     * @param pisoMinimo            nulo sem tipo de carga ANTT, sem distância ou sem coeficiente cadastrado
+     * @param coeficientesDeExemplo true = a tabela ainda não tem os números oficiais da ANTT
+     * @param acimaDaMedia          possível golpe do "fretão": R$/km muito acima de fretes parecidos
+     */
+    public record Preco(BigDecimal pisoMinimo, Integer eixosConsiderados, Boolean coeficientesDeExemplo,
+                        boolean abaixoDoPiso, boolean acimaDaMedia, BigDecimal mediaRotaPorKm) {
     }
 
     public record EmpresaResumo(UUID id, String razaoSocial, String nomeFantasia, TipoEmpresa tipo) {
@@ -128,6 +140,8 @@ public record FreteResponse(
                 frete.getValorAcordado(),
                 frete.getAdiantamentoPercentual(),
                 frete.getPrazoEntrega(),
+                new Preco(frete.getPisoMinimo(), frete.getPisoEixos(), frete.getPisoExemplo(),
+                        frete.isAlertaAbaixoPiso(), frete.isAlertaAcimaMedia(), frete.getMediaRotaPorKm()),
                 frete.getMotivoCancelamento(),
                 frete.getCriadoEm(),
                 frete.getAceitoEm(),

@@ -1,5 +1,6 @@
 package br.com.fretai.frete.domain;
 
+import br.com.fretai.precificacao.domain.TipoCargaAntt;
 import java.math.BigDecimal;
 
 /**

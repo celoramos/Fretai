@@ -10,7 +10,7 @@ import br.com.fretai.shared.seguranca.Papel;
 import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.RequisitosFrete;
-import br.com.fretai.frete.domain.TipoCargaAntt;
+import br.com.fretai.precificacao.domain.TipoCargaAntt;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.usuario.domain.CategoriaVeiculo;

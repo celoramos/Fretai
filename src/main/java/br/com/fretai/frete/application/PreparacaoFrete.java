@@ -28,15 +28,18 @@ public class PreparacaoFrete {
     private final RotaGateway rotaGateway;
     private final CalendarioService calendarioService;
     private final BigDecimal adicionalFeriadoPercentual;
+    private final AvaliacaoPrecoFrete avaliacaoPreco;
 
     public PreparacaoFrete(EnderecoGateway enderecoGateway, GeocodificacaoGateway geocodificacaoGateway,
                            RotaGateway rotaGateway, CalendarioService calendarioService,
-                           @Value("${fretai.frete.adicional-feriado-percentual}") BigDecimal adicionalFeriadoPercentual) {
+                           @Value("${fretai.frete.adicional-feriado-percentual}") BigDecimal adicionalFeriadoPercentual,
+                           AvaliacaoPrecoFrete avaliacaoPreco) {
         this.enderecoGateway = enderecoGateway;
         this.geocodificacaoGateway = geocodificacaoGateway;
         this.rotaGateway = rotaGateway;
         this.calendarioService = calendarioService;
         this.adicionalFeriadoPercentual = adicionalFeriadoPercentual;
+        this.avaliacaoPreco = avaliacaoPreco;
     }
 
     public EnderecoFrete montarEndereco(EnderecoRequest request) {
@@ -58,7 +61,12 @@ public class PreparacaoFrete {
                         + " no mapa. Informe latitude e longitude."));
     }
 
-    /** Distância (se as duas pontas estão no mapa) e adicional de feriado. */
+    /** Refaz piso e alertas com o caminhão e o valor do aceite. */
+    public void reavaliarPreco(Frete frete) {
+        avaliacaoPreco.avaliar(frete);
+    }
+
+    /** Distância (se as duas pontas estão no mapa), adicional de feriado e avaliação do preço. */
     public void completar(Frete frete, LocalDate dataColeta) {
         Optional<Coordenadas> origem = frete.getPontoColeta().getCoordenadas();
         Optional<Coordenadas> destino = frete.getPontoEntrega().getCoordenadas();
@@ -70,5 +78,6 @@ public class PreparacaoFrete {
         if (nomeFeriado != null) {
             frete.registrarFeriado(nomeFeriado, adicionalFeriadoPercentual);
         }
+        avaliacaoPreco.avaliar(frete);
     }
 }

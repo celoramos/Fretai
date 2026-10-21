@@ -2,7 +2,7 @@ package br.com.fretai.frete.application.dto;
 
 import br.com.fretai.frete.domain.DadosCarga;
 import br.com.fretai.frete.domain.RequisitosFrete;
-import br.com.fretai.frete.domain.TipoCargaAntt;
+import br.com.fretai.precificacao.domain.TipoCargaAntt;
 import br.com.fretai.veiculo.domain.TipoCarroceria;
 import br.com.fretai.veiculo.domain.TipoVeiculo;
 import com.fasterxml.jackson.annotation.JsonIgnore;

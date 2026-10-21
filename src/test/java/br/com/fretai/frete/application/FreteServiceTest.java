@@ -59,6 +59,7 @@ class FreteServiceTest {
     @Mock private VeiculoRepository veiculoRepository;
     @Mock private PropostaRepository propostaRepository;
     @Mock private ApplicationEventPublisher eventos;
+    @Mock private AvaliacaoPrecoFrete avaliacaoPreco;
 
     private FreteService freteService;
 
@@ -70,7 +71,7 @@ class FreteServiceTest {
         freteService = new FreteService(freteRepository, clienteRepository, motoristaRepository,
                 veiculoRepository, propostaRepository,
                 new PreparacaoFrete(enderecoGateway, geocodificacaoGateway, rotaGateway, calendarioService,
-                        new BigDecimal("20")), eventos);
+                        new BigDecimal("20"), avaliacaoPreco), eventos);
         cliente = new Cliente("52998224725", "Carlos Silva", "carlos@email.com", "hash", "11999998888");
     }
 

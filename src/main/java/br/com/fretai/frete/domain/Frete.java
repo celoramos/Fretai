@@ -1,5 +1,8 @@
 package br.com.fretai.frete.domain;
 
+import br.com.fretai.precificacao.domain.AvaliacaoPreco;
+import br.com.fretai.precificacao.domain.PisoMinimo;
+import br.com.fretai.precificacao.domain.TipoCargaAntt;
 import br.com.fretai.empresa.domain.Empresa;
 import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.shared.exception.RegraNegocioException;
@@ -173,6 +176,18 @@ public class Frete {
 
     private LocalDate prazoEntrega;
 
+    /** Foto da avaliação de preço (piso ANTT e alertas) feita na publicação e refeita no aceite. */
+    @Column(precision = 12, scale = 2)
+    private BigDecimal pisoMinimo;
+    private Integer pisoEixos;
+    private Boolean pisoExemplo;
+    @Column(nullable = false)
+    private boolean alertaAbaixoPiso;
+    @Column(nullable = false)
+    private boolean alertaAcimaMedia;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal mediaRotaPorKm;
+
     @Column(nullable = false)
     private Instant criadoEm;
     private Instant aceitoEm;
@@ -266,6 +281,32 @@ public class Frete {
         this.distanciaKm = null;
         this.distanciaEstimada = null;
         aplicarRequisitos(requisitos);
+    }
+
+    public void registrarAvaliacaoPreco(AvaliacaoPreco avaliacao) {
+        PisoMinimo piso = avaliacao.piso();
+        this.pisoMinimo = piso == null ? null : piso.valor();
+        this.pisoEixos = piso == null ? null : piso.numeroEixos();
+        this.pisoExemplo = piso == null ? null : piso.coeficientesDeExemplo();
+        this.alertaAbaixoPiso = avaliacao.abaixoDoPiso();
+        this.alertaAcimaMedia = avaliacao.acimaDaMedia();
+        this.mediaRotaPorKm = avaliacao.mediaPorKm();
+    }
+
+    /**
+     * Eixos para o piso: os do caminhão escolhido; antes do aceite, o menor entre
+     * os tipos aceitos, que dá o piso mais baixo possível (o anúncio não pode ficar abaixo nem dele).
+     */
+    public int eixosParaPiso() {
+        if (veiculo != null) {
+            return veiculo.getNumeroEixos();
+        }
+        return veiculosAceitos.stream().mapToInt(TipoVeiculo::getEixosTipicos).min().orElse(Veiculo.EIXOS_MINIMO);
+    }
+
+    /** O que está em jogo: o valor acordado depois do aceite; antes, o anunciado (com adicional de feriado). */
+    public BigDecimal valorEmAvaliacao() {
+        return valorAcordado != null ? valorAcordado : valorTotal;
     }
 
     /** Quem contratou: o cliente pessoa física ou alguém que representa a empresa. */
@@ -497,4 +538,10 @@ public class Frete {
     public BigDecimal getValorAcordado() {return valorAcordado;}
     public BigDecimal getAdiantamentoPercentual() {return adiantamentoPercentual;}
     public LocalDate getPrazoEntrega() {return prazoEntrega;}
+    public BigDecimal getPisoMinimo() {return pisoMinimo;}
+    public Integer getPisoEixos() {return pisoEixos;}
+    public Boolean getPisoExemplo() {return pisoExemplo;}
+    public boolean isAlertaAbaixoPiso() {return alertaAbaixoPiso;}
+    public boolean isAlertaAcimaMedia() {return alertaAcimaMedia;}
+    public BigDecimal getMediaRotaPorKm() {return mediaRotaPorKm;}
 }
