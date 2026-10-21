@@ -65,11 +65,19 @@ fretai:
       url-base: ${FRETAI_URL_PUBLICA:http://localhost:8080}
     s3:
       endpoint: ${S3_ENDPOINT:http://localhost:9000}
+      # Endereço que vai nos links assinados; só muda quando a API fala com o S3 por uma rede interna.
+      endpoint-publico: ${S3_ENDPOINT_PUBLICO:${S3_ENDPOINT:http://localhost:9000}}
       regiao: ${S3_REGIAO:us-east-1}
       bucket: ${S3_BUCKET:fretai-documentos}
       access-key: ${S3_ACCESS_KEY:}
       secret-key: ${S3_SECRET_KEY:}
       criptografia-servidor: ${S3_CRIPTOGRAFIA:false}
+  # Notificações. Desligado = vão para o log (LogNotificador).
+  whatsapp:
+    habilitado: ${WHATSAPP_HABILITADO:false}
+    url: ${WHATSAPP_URL:https://graph.facebook.com/v21.0}
+    token: ${WHATSAPP_TOKEN:}
+    phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID:}
   retorno:
     # Sugestões de frete de volta: saindo a até 150 km do destino do motorista.
     raio-km: 150
@@ -80,9 +88,9 @@ fretai:
     # Prazo do Pix gerado no aceite.
     prazo-cobranca: 2d
     # Depois do canhoto, quanto tempo o recebedor tem para contestar antes de o saldo sair.
-    janela-contestacao: 24h
+    janela-contestacao: ${FRETAI_JANELA_CONTESTACAO:24h}
     # Com que frequência o job procura saldos prontos para liberar.
-    intervalo-liberacao: 5m
+    intervalo-liberacao: ${FRETAI_INTERVALO_LIBERACAO:5m}
     fake:
       # PSP de mentira (desenvolvimento): não é segredo, não vale fora da sua máquina.
       webhook-token: ${FRETAI_FAKE_WEBHOOK_TOKEN:fake-dev}

@@ -38,6 +38,7 @@ class S3ArmazenamentoArquivos implements ArmazenamentoArquivos {
     private final boolean criptografar;
 
     S3ArmazenamentoArquivos(@Value("${fretai.arquivos.s3.endpoint}") URI endpoint,
+                            @Value("${fretai.arquivos.s3.endpoint-publico}") URI endpointPublico,
                             @Value("${fretai.arquivos.s3.regiao}") String regiao,
                             @Value("${fretai.arquivos.s3.bucket}") String bucket,
                             @Value("${fretai.arquivos.s3.access-key}") String accessKey,
@@ -53,7 +54,7 @@ class S3ArmazenamentoArquivos implements ArmazenamentoArquivos {
                 .httpClientBuilder(UrlConnectionHttpClient.builder())
                 .build();
         this.presigner = S3Presigner.builder()
-                .endpointOverride(endpoint)
+                .endpointOverride(endpointPublico)
                 .region(Region.of(regiao))
                 .credentialsProvider(credenciais)
                 .serviceConfiguration(config)

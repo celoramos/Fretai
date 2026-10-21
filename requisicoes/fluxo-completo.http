@@ -1,0 +1,211 @@
+### Fretaí — fluxo completo, de ponta a ponta
+#
+# Formato: cliente HTTP do IntelliJ (os blocos "> {% %}" guardam ids e tokens
+# entre uma chamada e outra). Rode as requisições em ordem, de cima para baixo.
+#
+# Antes de começar:
+#   1. Suba tudo com a janela de contestação curta, para ver o saldo sair sem esperar 24 h:
+#        FRETAI_JANELA_CONTESTACAO=1m FRETAI_INTERVALO_LIBERACAO=20s docker compose up --build
+#   2. Troque @cnpj por um CNPJ ATIVO de verdade: a consulta à Receita (BrasilAPI) é real.
+#      Os CPFs abaixo são fictícios, mas com dígito verificador válido.
+#   3. O PSP é o falso (FakeGatewayPagamento): nenhum dinheiro de verdade circula.
+
+@base = http://localhost:8080
+@cnpj = 00000000000000
+@webhookToken = fake-dev
+
+### 1. Empresa (embarcador) se cadastra. A razão social vem da Receita.
+POST {{base}}/api/empresas
+Content-Type: application/json
+
+{
+  "cnpj": "{{cnpj}}",
+  "tipo": "EMBARCADOR",
+  "telefone": "(11) 3333-4444",
+  "responsavel": {
+    "cpf": "123.123.123-87",
+    "nome": "Carla Embarcadora",
+    "email": "carla@embarcadora.dev",
+    "senha": "senhaForte1",
+    "telefone": "(11) 99999-8888"
+  }
+}
+
+> {% client.global.set("empresaId", response.body.id); %}
+
+### 2. Login da empresa
+POST {{base}}/api/auth/login
+Content-Type: application/json
+
+{"email": "carla@embarcadora.dev", "senha": "senhaForte1"}
+
+> {% client.global.set("tokenEmpresa", response.body.accessToken); %}
+
+### 3. Empresa publica o frete: Campinas → Rio, carreta sider com rastreador.
+#      A resposta traz o piso ANTT (de EXEMPLO até a tabela oficial ser carregada) e os alertas de preço.
+POST {{base}}/api/fretes/empresa/{{empresaId}}
+Authorization: Bearer {{tokenEmpresa}}
+Content-Type: application/json
+
+{
+  "coleta":  {"cep": "13010-000", "numero": "100", "latitude": -22.9056, "longitude": -47.0608},
+  "entrega": {"cep": "20040-002", "numero": "50",  "latitude": -22.9035, "longitude": -43.1757},
+  "descricaoCarga": "22 paletes de piso cerâmico",
+  "especieCarga": "Cerâmica",
+  "tipoCargaAntt": "CARGA_GERAL",
+  "pesoKg": 28000,
+  "valor": 7500.00,
+  "dataColeta": "2099-03-10",
+  "veiculosAceitos": ["CARRETA", "CARRETA_LS"],
+  "carroceriasAceitas": ["SIDER"],
+  "exigeRastreador": true
+}
+
+> {% client.global.set("freteId", response.body.id); %}
+
+### 4. Caminhoneiro se cadastra
+POST {{base}}/api/motoristas
+Content-Type: application/json
+
+{
+  "cpf": "234.234.234-98",
+  "nome": "João Estradeiro",
+  "email": "joao@estrada.dev",
+  "senha": "senhaForte1",
+  "telefone": "(11) 98888-7777",
+  "tipoVeiculo": "CAMINHAO",
+  "placa": "JOA1A23"
+}
+
+> {% client.global.set("motoristaId", response.body.id); %}
+
+### 5. Login do motorista
+POST {{base}}/api/auth/login
+Content-Type: application/json
+
+{"email": "joao@estrada.dev", "senha": "senhaForte1"}
+
+> {% client.global.set("tokenMotorista", response.body.accessToken); %}
+
+### 6. Motorista cadastra o caminhão
+POST {{base}}/api/motoristas/{{motoristaId}}/veiculos
+Authorization: Bearer {{tokenMotorista}}
+Content-Type: application/json
+
+{"placa": "XYZ1A23", "rntrc": "12345678", "tipo": "CARRETA", "carroceria": "SIDER", "numeroEixos": 5, "rastreador": true}
+
+> {% client.global.set("veiculoId", response.body.id); %}
+
+### 7. Chave Pix (para onde o PSP manda adiantamento e saldo)
+PUT {{base}}/api/motoristas/{{motoristaId}}/chave-pix
+Authorization: Bearer {{tokenMotorista}}
+Content-Type: application/json
+
+{"chavePix": "joao@estrada.dev"}
+
+### 8. Motorista busca fretes num raio de 100 km de onde está (São Paulo)
+GET {{base}}/api/fretes/busca?origemLat=-23.5505&origemLng=-46.6333&raioKm=100&tipoVeiculo=CARRETA&carroceria=SIDER&exigeRastreador=AMBOS
+Authorization: Bearer {{tokenMotorista}}
+
+### 9. Antes de propor, o motorista olha o perfil da empresa (notas, fretes, % de saldos pagos em dia)
+GET {{base}}/api/empresas/{{empresaId}}/perfil
+Authorization: Bearer {{tokenMotorista}}
+
+### 10. Motorista faz uma proposta: R$ 7.800, 40% de adiantamento na saída
+POST {{base}}/api/fretes/{{freteId}}/propostas
+Authorization: Bearer {{tokenMotorista}}
+Content-Type: application/json
+
+{"veiculoId": "{{veiculoId}}", "valor": 7800.00, "adiantamentoPercentual": 40, "prazoEntrega": "2099-03-12"}
+
+> {% client.global.set("propostaId", response.body.id); %}
+
+### 11. Empresa vê as propostas e o perfil do motorista
+GET {{base}}/api/fretes/{{freteId}}/propostas
+Authorization: Bearer {{tokenEmpresa}}
+
+### 12. Empresa aceita
+POST {{base}}/api/propostas/{{propostaId}}/aceite
+Authorization: Bearer {{tokenEmpresa}}
+
+### 13. Depois do aceite, a empresa já pode abrir os documentos do motorista (veja /api/fretes/{id}/documentos).
+#       Frete de retorno para o motorista não voltar vazio:
+GET {{base}}/api/fretes/{{freteId}}/retorno
+Authorization: Bearer {{tokenMotorista}}
+
+### 14. Empresa gera a cobrança Pix (copia-e-cola e QR Code na resposta)
+POST {{base}}/api/fretes/{{freteId}}/pagamento
+Authorization: Bearer {{tokenEmpresa}}
+
+> {% client.global.set("cobrancaId", response.body.cobrancaId); %}
+
+### 15. O PSP avisa que o Pix caiu (aqui simulado). Pode repetir: o webhook é idempotente.
+POST {{base}}/api/webhooks/pagamentos
+X-Webhook-Token: {{webhookToken}}
+Content-Type: application/json
+
+{"idEvento": "evt-demo-1", "tipo": "PAGAMENTO_CONFIRMADO", "cobrancaId": "{{cobrancaId}}"}
+
+### 16. Pagamento RETIDO: o motorista sabe que o dinheiro existe antes de carregar
+GET {{base}}/api/fretes/{{freteId}}/pagamento
+Authorization: Bearer {{tokenMotorista}}
+
+### 17. Carga saiu: o adiantamento (40%) é liberado na chave Pix
+POST {{base}}/api/fretes/{{freteId}}/inicio
+Authorization: Bearer {{tokenMotorista}}
+
+### 18. Canhoto digital: foto, assinatura do recebedor e GPS a até 500 m do destino
+POST {{base}}/api/fretes/{{freteId}}/canhoto
+Authorization: Bearer {{tokenMotorista}}
+Content-Type: multipart/form-data; boundary=canhoto
+
+--canhoto
+Content-Disposition: form-data; name="nomeRecebedor"
+
+Joana Recebedora
+--canhoto
+Content-Disposition: form-data; name="latitude"
+
+-22.9030
+--canhoto
+Content-Disposition: form-data; name="longitude"
+
+-43.1755
+--canhoto
+Content-Disposition: form-data; name="foto"; filename="foto.png"
+Content-Type: image/png
+
+< ./arquivos/foto.png
+--canhoto
+Content-Disposition: form-data; name="assinatura"; filename="assinatura.png"
+Content-Type: image/png
+
+< ./arquivos/assinatura.png
+--canhoto--
+
+### 19. Saldo agendado para depois da janela de contestação (1 min nesta demo).
+#       Espere o job rodar (20 s) e consulte de novo: status LIBERADO.
+GET {{base}}/api/fretes/{{freteId}}/pagamento
+Authorization: Bearer {{tokenEmpresa}}
+
+### 20. Frete PAGO, com a trilha de auditoria completa
+GET {{base}}/api/fretes/{{freteId}}/eventos
+Authorization: Bearer {{tokenEmpresa}}
+
+### 21. Empresa avalia o motorista
+POST {{base}}/api/fretes/{{freteId}}/avaliacoes
+Authorization: Bearer {{tokenEmpresa}}
+Content-Type: application/json
+
+{"nota": 5, "comentario": "Pontual e cuidadoso com a carga."}
+
+### 22. Motorista avalia a empresa
+POST {{base}}/api/fretes/{{freteId}}/avaliacoes
+Authorization: Bearer {{tokenMotorista}}
+Content-Type: application/json
+
+{"nota": 5, "comentario": "Pagou certinho, saldo caiu na hora."}
+
+### 23. Perfil da empresa atualizado
+GET {{base}}/api/empresas/{{empresaId}}/perfil
+Authorization: Bearer {{tokenMotorista}}

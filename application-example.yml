@@ -31,3 +31,23 @@ fretai:
       criptografia-servidor: true  # SSE-S3 (AES-256) no S3 da AWS
   graphhopper:
     chave: ${GRAPHHOPPER_CHAVE}    # opcional: sem ela a distância é estimada
+  pagamento:
+    # Só com o profile "asaas" (SPRING_PROFILES_ACTIVE=asaas). A URL precisa ser a do sandbox.
+    asaas:
+      url: https://api-sandbox.asaas.com/v3
+      chave: ${ASAAS_CHAVE}
+      webhook-token: ${ASAAS_WEBHOOK_TOKEN}
+  whatsapp:
+    habilitado: true
+    url: https://graph.facebook.com/v21.0
+    token: ${WHATSAPP_TOKEN}
+    phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID}
+    # Um template aprovado no WhatsApp Manager por tipo de aviso.
+    templates:
+      FRETE_PERTO: fretai_frete_perto
+      PROPOSTA_RECEBIDA: fretai_proposta
+      FRETE_ACEITO: fretai_aceite
+      FRETES_DE_RETORNO: fretai_retorno
+      PAGAMENTO_RETIDO: fretai_pagamento_retido
+      SALDO_LIBERADO: fretai_saldo_liberado
+      ENTREGA_REGISTRADA: fretai_entrega
