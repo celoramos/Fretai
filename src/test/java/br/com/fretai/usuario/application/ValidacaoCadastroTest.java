@@ -87,7 +87,7 @@ class ValidacaoCadastroTest {
     @ValueSource(strings = {"ABC1234", "ABC-1234", "ABC1D23", "abc1d23"})
     void aceitaPlaca(String placa) {
         var motorista = new CadastroMotoristaRequest("11144477735", "Marcos", "m@email.com", "senhaForte1",
-                "11988887777", CategoriaVeiculo.VAN, placa);
+                "11988887777", CategoriaVeiculo.VAN, placa, null);
         assertTrue(camposInvalidos(motorista).isEmpty());
     }
 
@@ -95,7 +95,30 @@ class ValidacaoCadastroTest {
     @ValueSource(strings = {"AB1234", "ABCD123", "1234ABC", "ABC12"})
     void rejeitaPlaca(String placa) {
         var motorista = new CadastroMotoristaRequest("11144477735", "Marcos", "m@email.com", "senhaForte1",
-                "11988887777", CategoriaVeiculo.VAN, placa);
+                "11988887777", CategoriaVeiculo.VAN, placa, null);
         assertTrue(camposInvalidos(motorista).contains("placa"));
+    }
+
+    private static CadastroMotoristaRequest motoristaCom(String senha, String credencialGoogle) {
+        return new CadastroMotoristaRequest("11144477735", "Marcos", "m@email.com", senha,
+                "11988887777", CategoriaVeiculo.VAN, "ABC1D23", credencialGoogle);
+    }
+
+    @Test
+    @DisplayName("Cadastro com Google dispensa a senha")
+    void googleSemSenha() {
+        assertTrue(camposInvalidos(motoristaCom(null, "id-token-do-google")).isEmpty());
+    }
+
+    @Test
+    @DisplayName("Sem senha e sem Google, o cadastro é recusado")
+    void nemSenhaNemGoogle() {
+        assertTrue(camposInvalidos(motoristaCom(null, null)).contains("senhaOuGoogle"));
+    }
+
+    @Test
+    @DisplayName("Senha e Google juntos são recusados: a conta nasce de um jeito só")
+    void senhaEGoogle() {
+        assertTrue(camposInvalidos(motoristaCom("senhaForte1", "id-token-do-google")).contains("senhaOuGoogle"));
     }
 }

@@ -13,6 +13,7 @@ import br.com.fretai.empresa.domain.UsuarioEmpresaRepository;
 import br.com.fretai.shared.exception.ConflitoException;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.shared.exception.RegraNegocioException;
+import br.com.fretai.shared.seguranca.IdentidadeGoogle;
 import br.com.fretai.usuario.application.UsuarioService;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -52,7 +53,8 @@ public class EmpresaService {
         }
         ResponsavelRequest r = request.responsavel();
         String cpf = UsuarioService.somenteDigitos(r.cpf());
-        String email = UsuarioService.normalizarEmail(r.email());
+        IdentidadeGoogle google = r.credencialGoogle() != null ? usuarioService.googleParaCadastro(r.credencialGoogle()) : null;
+        String email = google != null ? google.email() : UsuarioService.normalizarEmail(r.email());
         usuarioService.validarUnicidade(cpf, email);
 
         DadosCnpj receita = empresaGateway.buscarPorCnpj(cnpj);
@@ -64,8 +66,12 @@ public class EmpresaService {
         Empresa empresa = empresaRepository.save(new Empresa(cnpj, receita.razaoSocial(), nomeFantasia,
                 request.tipo(), UsuarioService.somenteDigitos(request.telefone())));
 
-        usuarioEmpresaRepository.save(new UsuarioEmpresa(cpf, r.nome().trim(), email,
-                passwordEncoder.encode(r.senha()), UsuarioService.somenteDigitos(r.telefone()), empresa));
+        UsuarioEmpresa responsavel = new UsuarioEmpresa(cpf, r.nome().trim(), email,
+                google != null ? null : passwordEncoder.encode(r.senha()), UsuarioService.somenteDigitos(r.telefone()), empresa);
+        if (google != null) {
+            responsavel.vincularGoogle(google.sub());
+        }
+        usuarioEmpresaRepository.save(responsavel);
         return EmpresaResponse.de(empresa);
     }
 

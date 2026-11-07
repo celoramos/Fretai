@@ -2,6 +2,8 @@ package br.com.fretai.usuario.application;
 
 import br.com.fretai.shared.exception.ConflitoException;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
+import br.com.fretai.shared.seguranca.IdentidadeGoogle;
+import br.com.fretai.shared.seguranca.VerificadorGoogle;
 import br.com.fretai.usuario.application.dto.AtualizarContatoRequest;
 import br.com.fretai.usuario.application.dto.BaseMotoristaRequest;
 import br.com.fretai.usuario.application.dto.CadastroClienteRequest;
@@ -30,13 +32,16 @@ public class UsuarioService {
     private final ClienteRepository clienteRepository;
     private final MotoristaRepository motoristaRepository;
     private final PasswordEncoder passwordEncoder;
+    private final VerificadorGoogle verificadorGoogle;
 
     public UsuarioService(UsuarioRepository usuarioRepository, ClienteRepository clienteRepository,
-                          MotoristaRepository motoristaRepository, PasswordEncoder passwordEncoder) {
+                          MotoristaRepository motoristaRepository, PasswordEncoder passwordEncoder,
+                          VerificadorGoogle verificadorGoogle) {
         this.usuarioRepository = usuarioRepository;
         this.clienteRepository = clienteRepository;
         this.motoristaRepository = motoristaRepository;
         this.passwordEncoder = passwordEncoder;
+        this.verificadorGoogle = verificadorGoogle;
     }
 
     @Transactional
@@ -53,7 +58,8 @@ public class UsuarioService {
     @Transactional
     public MotoristaResponse cadastrarMotorista(CadastroMotoristaRequest request) {
         String cpf = somenteDigitos(request.cpf());
-        String email = normalizarEmail(request.email());
+        IdentidadeGoogle google = request.credencialGoogle() != null ? googleParaCadastro(request.credencialGoogle()) : null;
+        String email = google != null ? google.email() : normalizarEmail(request.email());
         String placa = request.placa().replace("-", "").toUpperCase(Locale.ROOT);
         validarUnicidade(cpf, email);
         if (motoristaRepository.existsByPlaca(placa)) {
@@ -61,9 +67,26 @@ public class UsuarioService {
         }
 
         Motorista motorista = new Motorista(cpf, request.nome().trim(), email,
-                passwordEncoder.encode(request.senha()), somenteDigitos(request.telefone()),
+                google != null ? null : passwordEncoder.encode(request.senha()), somenteDigitos(request.telefone()),
                 request.tipoVeiculo(), placa);
+        if (google != null) {
+            motorista.vincularGoogle(google.sub());
+        }
         return MotoristaResponse.de(motoristaRepository.save(motorista));
+    }
+
+    /**
+     * Confere a credencial do Google para um cadastro novo. O e-mail da conta passa a ser o do
+     * Google, que já foi verificado por ele.
+     *
+     * @throws ConflitoException essa conta Google já está ligada a outro cadastro
+     */
+    public IdentidadeGoogle googleParaCadastro(String credencial) {
+        IdentidadeGoogle google = verificadorGoogle.verificar(credencial);
+        if (usuarioRepository.findByGoogleSub(google.sub()).isPresent()) {
+            throw new ConflitoException("Essa conta Google já está ligada a outro cadastro. Entre com ela.");
+        }
+        return google;
     }
 
     @Transactional(readOnly = true)

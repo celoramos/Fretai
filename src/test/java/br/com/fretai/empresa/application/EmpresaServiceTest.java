@@ -48,7 +48,7 @@ class EmpresaServiceTest {
     private static CadastroEmpresaRequest pedido() {
         return new CadastroEmpresaRequest("11.222.333/0001-81", TipoEmpresa.EMBARCADOR, "(11) 3333-4444", null,
                 new ResponsavelRequest("529.982.247-25", "Carla Lima", "Carla@Empresa.com", "senhaForte1",
-                        "11999998888"));
+                        "11999998888", null));
     }
 
     private static DadosCnpj receita(String situacao) {

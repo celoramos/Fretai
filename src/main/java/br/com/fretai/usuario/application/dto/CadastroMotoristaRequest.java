@@ -1,6 +1,7 @@
 package br.com.fretai.usuario.application.dto;
 
 import br.com.fretai.usuario.domain.CategoriaVeiculo;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +22,6 @@ public record CadastroMotoristaRequest(
         @Email(message = "Formato de e-mail inválido.")
         String email,
 
-        @NotBlank(message = "A senha é obrigatória.")
         @Size(min = 8, max = 72, message = "A senha deve ter entre 8 e 72 caracteres.")
         String senha,
 
@@ -34,5 +34,13 @@ public record CadastroMotoristaRequest(
 
         @NotBlank(message = "A placa é obrigatória.")
         @Pattern(regexp = Formatos.PLACA, message = "Placa inválida. Use o formato ABC1234 ou ABC1D23.")
-        String placa) {
+        String placa,
+
+        /** ID token do botão do Google. Com ele a conta nasce sem senha e o e-mail vem do Google. */
+        String credencialGoogle) {
+
+    @AssertTrue(message = "Crie uma senha ou entre com o Google.")
+    public boolean isSenhaOuGoogle() {
+        return (senha != null && !senha.isBlank()) != (credencialGoogle != null && !credencialGoogle.isBlank());
+    }
 }

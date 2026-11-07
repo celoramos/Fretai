@@ -1,6 +1,7 @@
 package br.com.fretai.empresa.application.dto;
 
 import br.com.fretai.usuario.application.dto.Formatos;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -21,11 +22,18 @@ public record ResponsavelRequest(
         @Email(message = "Formato de e-mail inválido.")
         String email,
 
-        @NotBlank(message = "A senha é obrigatória.")
         @Size(min = 8, max = 72, message = "A senha deve ter entre 8 e 72 caracteres.")
         String senha,
 
         @NotBlank(message = "O telefone é obrigatório.")
         @Pattern(regexp = Formatos.TELEFONE, message = "Telefone inválido. Use DDD + número.")
-        String telefone) {
+        String telefone,
+
+        /** ID token do botão do Google. Com ele a conta nasce sem senha e o e-mail vem do Google. */
+        String credencialGoogle) {
+
+    @AssertTrue(message = "Crie uma senha ou entre com o Google.")
+    public boolean isSenhaOuGoogle() {
+        return (senha != null && !senha.isBlank()) != (credencialGoogle != null && !credencialGoogle.isBlank());
+    }
 }
