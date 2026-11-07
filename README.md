@@ -54,6 +54,7 @@ Nada de segredo no código: tudo sensível vem de variável de ambiente. O model
 |---|---|---|
 | `DB_URL`, `DB_USER`, `DB_PASSWORD` | banco | valores do `docker-compose.yml` |
 | `FRETAI_JWT_SEGREDO` | assinatura dos tokens (32+ bytes) | segredo aleatório a cada subida |
+| `FRETAI_GOOGLE_CLIENT_ID` | login e cadastro com Google (ID do cliente OAuth, tipo Aplicativo da Web) | `/api/auth/google` responde 422 |
 | `FRETAI_ADMIN_EMAIL`, `_SENHA`, `_CPF` | primeiro administrador | nenhum administrador |
 | `FRETAI_ARQUIVOS_PROVEDOR` | `local` ou `s3` | `local` |
 | `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_BUCKET` | S3/MinIO | — |

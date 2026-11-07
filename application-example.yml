@@ -14,6 +14,9 @@ fretai:
   jwt:
     # 32+ bytes aleatórios. Gere com: openssl rand -base64 48
     segredo: ${FRETAI_JWT_SEGREDO}
+  google:
+    # ID do cliente OAuth (Aplicativo da Web), o mesmo do VITE_GOOGLE_CLIENT_ID do front.
+    client-id: ${FRETAI_GOOGLE_CLIENT_ID}
   admin:
     # Primeiro administrador, criado na subida se ainda não existir.
     email: ${FRETAI_ADMIN_EMAIL}
