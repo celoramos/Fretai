@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { EventoFrete, Problema, StatusFrete } from '../api/tipos'
-import { dataHora, MARCOS, STATUS_FRETE, type Tom } from '../formato'
+import { dataHora, MARCOS, quilometros, STATUS_FRETE, type Tom } from '../formato'
 
 export function Etiqueta({ tom, children }: { tom: Tom; children: ReactNode }) {
   return <span className={`etiqueta etiqueta--${tom}`}>{children}</span>
@@ -9,6 +9,11 @@ export function Etiqueta({ tom, children }: { tom: Tom; children: ReactNode }) {
 export function StatusFreteEtiqueta({ status, visao }: { status: StatusFrete; visao: 'motorista' | 'empresa' }) {
   const s = STATUS_FRETE[status]
   return <Etiqueta tom={s.tom}>{s[visao]}</Etiqueta>
+}
+
+/** Distância no marco de asfalto da linha de rota, para listas. */
+export function Km({ km }: { km: number }) {
+  return <span className="km">{quilometros(km)}</span>
 }
 
 /** Placa: os caracteres em mono num contorno fino. O leitor de tela soletra letra por letra. */

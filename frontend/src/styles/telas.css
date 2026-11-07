@@ -118,11 +118,42 @@
   display: grid;
   align-content: end;
   gap: var(--esp-8);
-  padding: var(--esp-12) var(--esp-6) var(--esp-8);
+  padding: var(--esp-8) var(--esp-6);
 }
 .entrar__titulo { font-size: var(--tam-display); max-width: 14ch; }
-.entrar__passos { display: grid; gap: var(--esp-3); max-width: 46ch; }
-.entrar__passos li { display: grid; grid-template-columns: 9ch minmax(0, 1fr); gap: var(--esp-3); align-items: baseline; color: var(--cor-texto-secundario); }
+/* O caminho do dinheiro desenhado como a própria pista: asfalto vertical com o tracejado, e cada
+   etapa é uma faixa de parada atravessando a pista. É a assinatura explicando o produto. */
+.entrar__passos {
+  position: relative;
+  display: grid;
+  gap: var(--esp-6);
+  max-width: 46ch;
+  padding: var(--esp-2) 0 var(--esp-2) calc(var(--esp-6) + var(--esp-4));
+}
+.entrar__passos::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: var(--esp-6);
+  border-radius: var(--raio-campo);
+  background-color: var(--cor-asfalto);
+  box-shadow: inset 0 0 0 var(--borda) var(--cor-acostamento);
+  background-image: repeating-linear-gradient(180deg, var(--cor-faixa) 0 var(--faixa-traco), transparent var(--faixa-traco) calc(var(--faixa-traco) * 2));
+  background-size: var(--faixa-espessura) calc(100% - var(--esp-4));
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.entrar__passos li { display: grid; gap: var(--esp-1); color: var(--cor-texto-secundario); }
+/* Faixa de parada: sem top/bottom, o absoluto fica na altura do próprio item. */
+.entrar__passos li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: var(--esp-6);
+  height: var(--borda-forte);
+  margin-top: calc(var(--tam-detalhe) * var(--altura-texto) / 2 - var(--borda));
+  background: var(--cor-fundo);
+}
 .entrar__km { font-family: var(--fonte-mono); font-size: var(--tam-detalhe); color: var(--cor-texto); }
 .entrar__form-area { display: grid; place-items: center; padding: var(--esp-8) var(--esp-6); }
 .formulario { width: 100%; max-width: var(--largura-formulario); display: grid; gap: var(--esp-4); }

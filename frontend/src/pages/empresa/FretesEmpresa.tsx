@@ -3,8 +3,8 @@ import { api } from '../../api/cliente'
 import type { Frete, Pagina, StatusFrete } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { useTitulo } from '../../useTitulo'
-import { ErroCarga, Esqueleto, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
-import { dataCurta, quilometros, reais } from '../../formato'
+import { ErroCarga, Esqueleto, Km, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
+import { dataCurta, reais } from '../../formato'
 import { useSessao } from '../../sessao'
 
 /** Filtros agrupam o que pede a mesma atitude de quem está no escritório. */
@@ -73,10 +73,12 @@ export function FretesEmpresa() {
                 return (
                   <tr key={f.id}>
                     <td>
-                      <Link to={`/empresa/fretes/${f.id}`} className="tabela__rota">
-                        {f.coleta.cidade}/{f.coleta.uf} → {f.entrega.cidade}/{f.entrega.uf}
-                      </Link>
-                      {f.distanciaKm != null && <span className="tabela__sub">{quilometros(f.distanciaKm)}</span>}
+                      <div className="tabela__rota-cel">
+                        <Link to={`/empresa/fretes/${f.id}`} className="tabela__rota">
+                          {f.coleta.cidade}/{f.coleta.uf} → {f.entrega.cidade}/{f.entrega.uf}
+                        </Link>
+                        {f.distanciaKm != null && <Km km={f.distanciaKm} />}
+                      </div>
                     </td>
                     <td>{dataCurta(f.dataColeta)}</td>
                     <td className="tabela__num">{valor != null && !(f.valorACombinar && !f.valorAcordado) ? `R$ ${reais(valor)}` : 'A combinar'}</td>

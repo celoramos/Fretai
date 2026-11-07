@@ -3,7 +3,7 @@ import { api } from '../../api/cliente'
 import type { Frete, Pagina, Proposta } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { useTitulo } from '../../useTitulo'
-import { Etiqueta, ErroCarga, Esqueleto, StatusFreteEtiqueta, Vazio } from '../../components/ui'
+import { Etiqueta, ErroCarga, Esqueleto, Km, StatusFreteEtiqueta, Vazio } from '../../components/ui'
 import { dataCurta, reais, STATUS_PROPOSTA } from '../../formato'
 
 const ABAS = [
@@ -70,6 +70,7 @@ function Lista({ itens, fretes, aba }: { itens: Proposta[]; fretes: Record<strin
               <span className="linha-frete__valor">R$&nbsp;{reais(p.valor)}</span>
               <span className="linha-frete__meta">
                 {aba === 'propostas' ? <Etiqueta tom={STATUS_PROPOSTA[p.status].tom}>{STATUS_PROPOSTA[p.status].rotulo}</Etiqueta> : f && <StatusFreteEtiqueta status={f.status} visao="motorista" />}
+                {f?.distanciaKm != null && <Km km={f.distanciaKm} />}
                 {f && <span>coleta {dataCurta(f.dataColeta)}</span>}
               </span>
             </Link>

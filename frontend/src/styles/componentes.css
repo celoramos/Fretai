@@ -118,6 +118,20 @@
   font-size: var(--tam-detalhe);
   white-space: nowrap;
 }
+/* Km em miniatura: o mesmo marco da linha de rota, para listas onde a linha inteira não cabe. */
+.km {
+  display: inline-block;
+  padding: 0 var(--esp-2);
+  border-radius: var(--raio-campo);
+  background: var(--cor-asfalto);
+  box-shadow: inset 0 0 0 var(--borda) var(--cor-acostamento);
+  color: var(--cor-faixa);
+  font-family: var(--fonte-placa);
+  font-weight: var(--peso-placa);
+  font-size: var(--tam-legenda);
+  line-height: var(--altura-texto);
+  white-space: nowrap;
+}
 .rota--grande .rota__cidade { font-size: var(--tam-secao); }
 .rota--grande .rota__pista { height: var(--esp-8); }
 .rota--grande .rota__marco { font-size: var(--tam-corpo); }
@@ -352,6 +366,7 @@
 .tabela .tabela__num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tabela__rota { display: block; font-family: var(--fonte-placa); font-weight: var(--peso-placa); font-size: var(--tam-corpo); color: var(--cor-texto); text-decoration: none; }
 .tabela__sub { color: var(--cor-texto-secundario); }
+.tabela__rota-cel { display: grid; justify-items: start; gap: var(--esp-1); }
 .tabela__motorista { display: inline-flex; align-items: center; gap: var(--esp-2); }
 
 /* ---------- frete na lista (motorista) ----------

@@ -17,7 +17,7 @@ Campos dos DTOs da API (`src/api/tipos.ts`), rótulos de status da seção 6 do 
 
 ## Rota tomada
 
-**Folha** (tomada, substitui "Placa"): a linha de rota, uma faixa de asfalto com tracejado amarelo e o km no meio, continua como assinatura, e agora é a única coisa amarela da tela. Ela aparece em todo frete e no ícone. O resto é tipografia e espaço:
+**Folha** (tomada, substitui "Placa"): a linha de rota, uma faixa de asfalto com tracejado amarelo e o km no meio, continua como assinatura, e agora é a única coisa amarela da tela. Ela aparece inteira no card e no detalhe de cada frete. Nas listas aparece em miniatura, só o marco de km sobre asfalto. No login, vira a pista vertical que explica o caminho do dinheiro (km 0, saída, entrega). Também está no ícone. O resto é tipografia e espaço:
 
 - a ação principal é tinta cheia;
 - estado é ponto e palavra;
