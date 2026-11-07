@@ -24,6 +24,8 @@ Campos dos DTOs da API (`src/api/tipos.ts`), rótulos de status da seção 6 do 
 - seções se separam por uma linha fina;
 - placa, marcos e etiquetas perderam o desenho e ficaram só com o conteúdo.
 
+Movimento (Motion, motion.dev): só onde conta algo. A pista abre da origem ao destino e o km aparece no meio do caminho. No login, a pista desce e as etapas entram em ordem. O indicador do que está escolhido desliza até a nova escolha, as listas chegam em cascata e o medidor enche na ordem do dinheiro. Nada fica em loop e nenhum número "conta". Com movimento reduzido no sistema, tudo aparece pronto. Os valores estão em `src/movimento.ts`.
+
 Não tomadas:
 - **Placa** (a anterior): sinalização como moldura, com placa Mercosul desenhada, marcos de km em asfalto, etiquetas e avisos com fundo colorido e cards. O dono do produto achou carregado.
 - **Só tipografia:** a rota também viraria uma linha fina com o km. Foi descartada porque o dono do produto pediu para manter a linha de rota como está.
