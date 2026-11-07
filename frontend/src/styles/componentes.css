@@ -286,6 +286,8 @@
   overflow: hidden;
 }
 .segmentado__opcao {
+  position: relative;
+  isolation: isolate;
   min-height: var(--alvo);
   border: 0;
   background: transparent;
@@ -296,11 +298,14 @@
 .segmentado__opcao + .segmentado__opcao { border-left: var(--borda) solid var(--cor-borda-campo); }
 .segmentado__opcao:hover { background: var(--cor-linha); }
 .segmentado__opcao:active { background: var(--cor-borda-campo); }
-.segmentado__opcao[aria-pressed="true"] { background: var(--cor-texto); color: var(--cor-fundo); }
+.segmentado__opcao[aria-pressed="true"] { color: var(--cor-fundo); }
+.segmentado__opcao, .filtro, .abas__aba { transition: color var(--dur-media) var(--curva); }
 .segmentado__opcao:focus-visible { outline-offset: calc(var(--foco-largura) * -1); }
 
 .filtros { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
 .filtro {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   gap: var(--esp-2);
@@ -315,11 +320,12 @@
 }
 .filtro:hover { border-color: var(--cor-borda-campo); color: var(--cor-texto); }
 .filtro:active { background: var(--cor-linha); }
-.filtro[aria-pressed="true"] { background: var(--cor-texto); color: var(--cor-fundo); border-color: var(--cor-texto); }
+.filtro[aria-pressed="true"] { color: var(--cor-fundo); border-color: var(--cor-texto); }
 .filtro__n { font-variant-numeric: tabular-nums; font-size: var(--tam-detalhe); }
 
 .abas { display: flex; gap: var(--esp-1); border-bottom: var(--borda) solid var(--cor-linha); overflow-x: auto; }
 .abas__aba {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--esp-2);
@@ -337,7 +343,14 @@
 .abas__aba:active { color: var(--cor-texto); border-bottom-color: var(--cor-borda-campo); }
 /* A barra rola na horizontal e corta o que passa da borda: o anel entra no botão. */
 .abas__aba:focus-visible { outline-offset: calc(var(--foco-largura) * -1); }
-.abas__aba[aria-selected="true"] { color: var(--cor-texto); border-bottom-color: var(--cor-texto); }
+.abas__aba[aria-selected="true"] { color: var(--cor-texto); }
+
+/* Indicador do escolhido (Indicador, em components/ui.tsx): um só elemento por grupo, que o Motion leva de uma opção
+   à outra. Fica atrás do texto (z-index -1 dentro de um pai com isolation). */
+.indicador { position: absolute; z-index: -1; pointer-events: none; background: var(--cor-texto); }
+.indicador--fundo { inset: calc(var(--borda) * -1); border-radius: inherit; }
+.indicador--linha { left: 0; right: 0; bottom: calc(var(--borda-forte) * -1); height: var(--borda-forte); z-index: 0; }
+.indicador--linha-topo { left: 0; right: 0; top: calc(var(--borda-forte) * -1); height: var(--borda-forte); z-index: 0; }
 .abas__n { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); font-variant-numeric: tabular-nums; }
 
 /* ---------- listas e fichas ---------- */

@@ -3,7 +3,7 @@ import { api } from '../../api/cliente'
 import type { Frete, Pagina, Proposta } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { useTitulo } from '../../useTitulo'
-import { Etiqueta, ErroCarga, Esqueleto, Km, StatusFreteEtiqueta, Vazio } from '../../components/ui'
+import { Etiqueta, ErroCarga, Esqueleto, Indicador, Km, StatusFreteEtiqueta, Vazio } from '../../components/ui'
 import { dataCurta, reais, STATUS_PROPOSTA } from '../../formato'
 
 const ABAS = [
@@ -37,6 +37,7 @@ export function MeusFretes() {
         {ABAS.map((a) => (
           <button key={a.id} type="button" role="tab" id={`aba-${a.id}`} aria-selected={aba === a.id} aria-controls="painel-meus" className="abas__aba"
             onClick={() => setParams({ aba: a.id })}>
+            {aba === a.id && <Indicador id="aba-meus" forma="linha" />}
             {a.rotulo}
           </button>
         ))}

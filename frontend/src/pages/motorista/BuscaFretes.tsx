@@ -5,7 +5,7 @@ import type { FreteEncontrado, Pagina, PerfilEmpresa } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { CardFrete } from '../../components/CardFrete'
 import { useTitulo } from '../../useTitulo'
-import { ErroCarga, Esqueleto, Vazio } from '../../components/ui'
+import { ErroCarga, Esqueleto, Indicador, Vazio } from '../../components/ui'
 
 const RAIOS = [50, 100, 200]
 
@@ -37,6 +37,7 @@ export function BuscaFretes() {
       <div className="segmentado" role="group" aria-label="Raio da busca">
         {RAIOS.map((r) => (
           <button key={r} type="button" className="segmentado__opcao" aria-pressed={raio === r} onClick={() => trocar({ raio: String(r) })}>
+            {raio === r && <Indicador id="raio" forma="fundo" />}
             {r}&nbsp;km
           </button>
         ))}

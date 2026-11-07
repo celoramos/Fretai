@@ -6,7 +6,7 @@ import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
 import { RotaLinha } from '../../components/RotaLinha'
-import { Aviso, Etiqueta, ErroCarga, Esqueleto, Marcos, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
+import { Aviso, Etiqueta, ErroCarga, Esqueleto, Indicador, Marcos, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
 import { carroceria, dataCurta, dataHora, PAPEL, reais, STATUS_FRETE, STATUS_PROPOSTA, veiculo } from '../../formato'
 
 const ABAS = [
@@ -65,6 +65,7 @@ export function DetalheFreteEmpresa() {
         {ABAS.map((a) => (
           <button key={a.id} type="button" role="tab" id={`aba-${a.id}`} aria-selected={aba === a.id} aria-controls="painel-frete" className="abas__aba"
             onClick={() => setParams({ aba: a.id })}>
+            {aba === a.id && <Indicador id="aba-frete" forma="linha" />}
             {a.rotulo}
             {a.id === 'propostas' && abertas > 0 && <span className="abas__n">{abertas}</span>}
           </button>

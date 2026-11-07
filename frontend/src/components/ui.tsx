@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
+import { motion } from 'motion/react'
 import type { EventoFrete, Problema, StatusFrete } from '../api/tipos'
 import { dataHora, MARCOS, quilometros, STATUS_FRETE, type Tom } from '../formato'
+import { transicao } from '../movimento'
 
 export function Etiqueta({ tom, children }: { tom: Tom; children: ReactNode }) {
   return <span className={`etiqueta etiqueta--${tom}`}>{children}</span>
@@ -105,4 +107,13 @@ export function Esqueleto({ linhas = 3 }: { linhas?: number }) {
       ))}
     </div>
   )
+}
+
+/**
+ * Marca do que está escolhido (aba, filtro, raio, item da navegação). Com o mesmo layoutId,
+ * o Motion leva a marca da escolha antiga até a nova em vez de trocar de lugar num salto.
+ * forma: "linha" é o sublinhado das abas e da navegação; "fundo" é o preenchimento de filtro e segmentado.
+ */
+export function Indicador({ id, forma }: { id: string; forma: 'linha' | 'linha-topo' | 'fundo' }) {
+  return <motion.span layoutId={id} className={`indicador indicador--${forma}`} transition={transicao} aria-hidden="true" />
 }

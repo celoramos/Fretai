@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { MODO_DEMO } from '../api/cliente'
 import { useSessao } from '../sessao'
+import { Indicador } from './ui'
 
 function Marca() {
   return (
@@ -63,8 +64,12 @@ export function LayoutMotorista() {
       </main>
       {/* Navegação no alcance do polegar. Carteira e Perfil entram quando as telas existirem. */}
       <nav className="nav-inferior" aria-label="Principal">
-        <NavLink to="/motorista" end className="nav-inferior__item">Fretes</NavLink>
-        <NavLink to="/motorista/meus-fretes" className="nav-inferior__item">Meus fretes</NavLink>
+        <NavLink to="/motorista" end className="nav-inferior__item">
+          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}Fretes</>}
+        </NavLink>
+        <NavLink to="/motorista/meus-fretes" className="nav-inferior__item">
+          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}Meus fretes</>}
+        </NavLink>
       </nav>
     </div>
   )

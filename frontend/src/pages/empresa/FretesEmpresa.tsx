@@ -3,7 +3,7 @@ import { api } from '../../api/cliente'
 import type { Frete, Pagina, StatusFrete } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { useTitulo } from '../../useTitulo'
-import { ErroCarga, Esqueleto, Km, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
+import { ErroCarga, Esqueleto, Indicador, Km, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
 import { dataCurta, reais } from '../../formato'
 import { useSessao } from '../../sessao'
 
@@ -41,6 +41,7 @@ export function FretesEmpresa() {
         {FILTROS.map((f) => (
           <button key={f.id} type="button" className="filtro" aria-pressed={filtro.id === f.id}
             onClick={() => setParams(f.id === 'todos' ? {} : { filtro: f.id })}>
+            {filtro.id === f.id && <Indicador id="filtro" forma="fundo" />}
             {f.rotulo}
             {estado.fase === 'pronto' && <span className="filtro__n">{contagem(f.status)}</span>}
           </button>
