@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { MODO_DEMO } from '../api/cliente'
 import { useSessao } from '../sessao'
 import { Indicador } from './ui'
+import { Marca } from './Marca'
 
 /** Troca de tela: a página nova sobe 4 px e aparece. Sem saída animada, para não atrasar a navegação. */
 function Pagina() {
@@ -11,18 +12,6 @@ function Pagina() {
     <motion.div key={pathname} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>
       <Outlet />
     </motion.div>
-  )
-}
-
-function Marca() {
-  return (
-    <span className="marca">
-      <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
-        <rect width="32" height="32" rx="6" fill="var(--cor-asfalto)" />
-        <path d="M4 16h5M13.5 16h5M23 16h5" stroke="var(--cor-faixa)" strokeWidth="3" strokeLinecap="round" />
-      </svg>
-      Fretaí
-    </span>
   )
 }
 
