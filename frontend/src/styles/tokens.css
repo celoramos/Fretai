@@ -86,7 +86,14 @@
   --raio-campo: 4px;
   --raio-sheet: 12px;
 
-  /* Sem sombra e sem caixa: a hierarquia é feita por tamanho, peso e espaço. Abstenção. */
+  /* Sem sombra e sem caixa no app: a hierarquia é feita por tamanho, peso e espaço. Abstenção. */
+  /* Departure (2026-11-07), por enquanto só na página pública (src/styles/inicio.css): o dono do
+     produto pediu um site atraente e fácil, na linha de iFood, Uber e 99. Lá cada assunto vive num
+     cartão arredondado e a ação principal é pílula, que se acha com o polegar. */
+  --raio-cartao: 16px;
+  --raio-pilula: 999px;
+  /* Sombra curta e uma longa, da cor do texto: o cartão sai do fundo claro sem borda. */
+  --sombra-cartao: 0 1px 2px rgb(28 31 36 / 0.06), 0 8px 24px rgb(28 31 36 / 0.08);
 
   /* Alvo: 48 no app do motorista (luva, mão suja), 40 é o piso no desktop da empresa. */
   --alvo-motorista: 48px;
@@ -112,6 +119,8 @@
   /* Quebras de layout: media query não lê var(), então os números se repetem lá: 900px (duas colunas)
      e 1024px (escala de desktop). Mudar aqui exige mudar lá. */
   --largura-coluna-celular: 560px;
+  /* Cartão de proteção na página pública: cabe título de 4 palavras em duas linhas; 4 por linha em 1120. */
+  --largura-cartao-min: 240px;
 }
 
 :root[data-tema="escuro"] {
@@ -133,6 +142,8 @@
   --cor-asfalto: #0A0C0F;
   --cor-acostamento: #4A5160;
   --cor-neutro-medidor: #2A2F3A;
+  /* No escuro sombra não aparece: o cartão se separa pela superfície mais clara e um contorno. */
+  --sombra-cartao: 0 0 0 var(--borda) var(--cor-linha);
 }
 
 @media (min-width: 1024px) {

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { Papel } from './api/tipos'
 import { LayoutEmpresa, LayoutMotorista } from './components/Layouts'
@@ -9,6 +10,9 @@ import { FreteMotorista } from './pages/motorista/FreteMotorista'
 import { MeusFretes } from './pages/motorista/MeusFretes'
 import { NaoEncontrada } from './pages/NaoEncontrada'
 import { useSessao } from './sessao'
+
+/* A página pública carrega à parte: o GSAP e o CSS dela não entram no app logado. */
+const Inicio = lazy(() => import('./pages/Inicio').then((m) => ({ default: m.Inicio })))
 
 const INICIO: Partial<Record<Papel, string>> = { MOTORISTA: '/motorista', EMPRESA: '/empresa' }
 
@@ -23,7 +27,7 @@ export function App() {
   const { tokens } = useSessao()
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={tokens ? (INICIO[tokens.papel] ?? '/entrar') : '/entrar'} replace />} />
+      <Route path="/" element={tokens ? <Navigate to={INICIO[tokens.papel] ?? '/entrar'} replace /> : <Suspense fallback={null}><Inicio /></Suspense>} />
       <Route path="/entrar" element={<Entrar />} />
       <Route path="/motorista" element={<Protegida papel="MOTORISTA"><LayoutMotorista /></Protegida>}>
         <Route index element={<BuscaFretes />} />

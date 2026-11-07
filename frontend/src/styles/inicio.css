@@ -1,0 +1,170 @@
+/* Página pública. Só var(--...) daqui para baixo. Carrega junto com a rota (src/pages/Inicio.tsx),
+   então o app logado não paga por ela. Raio de cartão, pílula e sombra são a Departure registrada
+   em tokens.css: aqui o conteúdo vive em cartões, como nos apps de entrega e corrida. */
+
+.inicio { --alvo: var(--alvo-motorista); min-height: 100dvh; background: var(--cor-fundo); }
+
+.inicio__pilula { border-radius: var(--raio-pilula); padding: 0 var(--esp-6); }
+
+/* ---------- topo ---------- */
+.inicio__topo {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-6);
+  max-width: var(--largura-conteudo);
+  margin: 0 auto;
+  padding: var(--esp-3) var(--esp-6);
+  background: var(--cor-fundo);
+}
+.inicio__atalhos { display: none; gap: var(--esp-6); margin-left: auto; }
+.inicio__atalhos a { color: var(--cor-texto-secundario); font-weight: var(--peso-medio); text-decoration: none; }
+.inicio__atalhos a:hover { color: var(--cor-texto); }
+.inicio__topo > .botao { margin-left: auto; }
+
+/* ---------- abertura ---------- */
+.inicio__abertura {
+  display: grid;
+  gap: var(--esp-8);
+  max-width: var(--largura-conteudo);
+  margin: 0 auto;
+  padding: var(--esp-8) var(--esp-6) var(--esp-12);
+}
+.inicio__chamada { display: grid; gap: var(--esp-6); align-content: center; }
+.inicio__publico { justify-self: start; border-radius: var(--raio-pilula); }
+.inicio__publico .segmentado__opcao { padding: 0 var(--esp-6); border-radius: var(--raio-pilula); }
+.inicio__publico .segmentado__opcao + .segmentado__opcao { border-left: 0; }
+.inicio__texto { display: grid; gap: var(--esp-4); justify-items: start; }
+.inicio__titulo {
+  font-family: var(--fonte-placa);
+  font-size: var(--tam-display);
+  line-height: var(--altura-titulo);
+  max-width: 16ch;
+  text-wrap: balance;
+}
+.inicio__sub { font-size: var(--tam-bloco); color: var(--cor-texto-secundario); max-width: 52ch; text-wrap: pretty; }
+.inicio__acao { margin-top: var(--esp-2); }
+
+.inicio__cartao {
+  display: grid;
+  gap: var(--esp-4);
+  align-content: start;
+  padding: var(--esp-6);
+  background: var(--cor-superficie);
+  border-radius: var(--raio-cartao);
+  box-shadow: var(--sombra-cartao);
+}
+.inicio__exemplo { align-self: center; }
+.inicio__rotulo { font-size: var(--tam-legenda); color: var(--cor-texto-secundario); text-transform: uppercase; letter-spacing: 0.08em; }
+.inicio__dinheiro { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-3); }
+.inicio__porkm { color: var(--cor-texto-secundario); font-variant-numeric: tabular-nums; }
+.inicio__nota { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+
+/* ---------- seções ---------- */
+.inicio__secao {
+  display: grid;
+  gap: var(--esp-6);
+  max-width: var(--largura-conteudo);
+  margin: 0 auto;
+  padding: var(--esp-12) var(--esp-6);
+  scroll-margin-top: var(--esp-12);
+}
+.inicio__h2 { font-family: var(--fonte-placa); font-size: var(--tam-titulo); line-height: var(--altura-titulo); text-wrap: balance; }
+.inicio__secao > .inicio__sub { margin-top: calc(var(--esp-4) * -1); }
+.inicio__h3 { font-size: var(--tam-bloco); line-height: var(--altura-titulo); text-wrap: balance; }
+
+/* A estrada: mesma pista do login, mais larga, e desenhada pela rolagem (GSAP, --trajeto). Sem JS ou
+   com movimento reduzido, --trajeto não existe e a pista aparece inteira. */
+.estrada__etapas {
+  position: relative;
+  display: grid;
+  gap: var(--esp-12);
+  padding: var(--esp-4) 0 var(--esp-4) calc(var(--esp-12) + var(--esp-6));
+}
+.estrada__etapas::before {
+  content: "";
+  clip-path: inset(0 0 var(--trajeto, 0%) 0);
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: var(--esp-12);
+  border-radius: var(--raio-campo);
+  background-color: var(--cor-asfalto);
+  box-shadow: inset 0 0 0 var(--borda) var(--cor-acostamento);
+  background-image: repeating-linear-gradient(180deg, var(--cor-faixa) 0 var(--faixa-traco), transparent var(--faixa-traco) calc(var(--faixa-traco) * 2));
+  background-size: var(--faixa-espessura) calc(100% - var(--esp-4));
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.estrada__etapa { position: relative; display: grid; gap: var(--esp-1); max-width: 52ch; color: var(--cor-texto-secundario); }
+/* Faixa de parada atravessando a pista, na altura do marco. */
+.estrada__etapa::before {
+  content: "";
+  position: absolute;
+  left: calc((var(--esp-12) + var(--esp-6)) * -1);
+  width: var(--esp-12);
+  height: var(--borda-forte);
+  top: calc(var(--tam-detalhe) * var(--altura-texto) / 2);
+  background: var(--cor-fundo);
+}
+.estrada__marco { font-family: var(--fonte-mono); font-size: var(--tam-detalhe); color: var(--cor-texto); }
+.estrada__titulo { font-size: var(--tam-secao); color: var(--cor-texto); }
+
+/* ---------- proteções ---------- */
+.inicio__protecoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--largura-cartao-min)), 1fr));
+  gap: var(--esp-4);
+  list-style: none;
+  padding: 0;
+}
+.inicio__protecoes p { color: var(--cor-texto-secundario); }
+.inicio__protecoes .inicio__alerta { color: var(--cor-alerta); font-weight: var(--peso-medio); }
+.inicio__protecoes .inicio__trava { color: var(--cor-texto); font-size: var(--tam-detalhe); font-weight: var(--peso-medio); }
+
+/* ---------- dúvidas ---------- */
+.inicio__duvidas { display: grid; max-width: 72ch; }
+.inicio__duvida { border-bottom: var(--borda) solid var(--cor-linha); }
+.inicio__duvida summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-4);
+  min-height: var(--alvo);
+  padding: var(--esp-3) 0;
+  font-weight: var(--peso-forte);
+  font-size: var(--tam-bloco);
+  cursor: pointer;
+  list-style: none;
+}
+.inicio__duvida summary::-webkit-details-marker { display: none; }
+.inicio__duvida summary::after { content: "+"; font-family: var(--fonte-mono); color: var(--cor-texto-secundario); }
+.inicio__duvida[open] summary::after { content: "−"; }
+.inicio__duvida p { padding-bottom: var(--esp-4); color: var(--cor-texto-secundario); max-width: 64ch; text-wrap: pretty; }
+
+/* ---------- rodapé ---------- */
+.inicio__rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-4) var(--esp-6);
+  max-width: var(--largura-conteudo);
+  margin: 0 auto;
+  padding: var(--esp-8) var(--esp-6);
+  border-top: var(--borda) solid var(--cor-linha);
+  color: var(--cor-texto-secundario);
+}
+.inicio__rodape > .botao { margin-left: auto; }
+
+/* 900px: mesma quebra de duas colunas do resto do app (tokens.css, --largura-coluna-celular). */
+@media (min-width: 900px) {
+  .inicio__atalhos { display: flex; }
+  .inicio__topo > .botao { margin-left: 0; }
+  .inicio__abertura { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--esp-12); padding-top: var(--esp-12); }
+  /* Estrada: título à esquerda, pista à direita, para a coluna larga não ficar vazia. */
+  .estrada { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); grid-template-rows: auto 1fr; column-gap: var(--esp-12); align-items: start; }
+  .estrada > .inicio__h2, .estrada > .inicio__sub { grid-column: 1; }
+  .estrada > .inicio__sub { margin-top: 0; }
+  .estrada__etapas { grid-column: 2; grid-row: 1 / span 2; }
+}
