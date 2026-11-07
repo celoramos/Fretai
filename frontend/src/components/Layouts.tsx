@@ -1,7 +1,18 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { motion } from 'motion/react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { MODO_DEMO } from '../api/cliente'
 import { useSessao } from '../sessao'
 import { Indicador } from './ui'
+
+/** Troca de tela: a página nova sobe 4 px e aparece. Sem saída animada, para não atrasar a navegação. */
+function Pagina() {
+  const { pathname } = useLocation()
+  return (
+    <motion.div key={pathname} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>
+      <Outlet />
+    </motion.div>
+  )
+}
 
 function Marca() {
   return (
@@ -60,7 +71,7 @@ export function LayoutMotorista() {
         </div>
       </header>
       <main className="app-motorista__conteudo" id="conteudo">
-        <Outlet />
+        <Pagina />
       </main>
       {/* Navegação no alcance do polegar. Carteira e Perfil entram quando as telas existirem. */}
       <nav className="nav-inferior" aria-label="Principal">
@@ -92,7 +103,7 @@ export function LayoutEmpresa() {
         </div>
       </header>
       <main className="app-empresa__conteudo" id="conteudo">
-        <Outlet />
+        <Pagina />
       </main>
     </div>
   )
