@@ -1,0 +1,381 @@
+/* Componentes compartilhados. Só var(--...) daqui para baixo. */
+
+:root { --alvo: var(--alvo-empresa); }
+.app-motorista { --alvo: var(--alvo-motorista); }
+
+/* ---------- botão ---------- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+  min-height: var(--alvo);
+  padding: 0 var(--esp-4);
+  border: var(--borda) solid transparent;
+  border-radius: var(--raio-campo);
+  font-weight: var(--peso-forte);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--dur-curta) var(--curva), border-color var(--dur-curta) var(--curva);
+}
+.botao:disabled { cursor: not-allowed; opacity: var(--opac-desabilitado); }
+.botao--largo { width: 100%; }
+.botao--icone { padding: 0; width: var(--alvo); }
+
+/* Primário: tinta cheia, que se inverte no escuro sem regra extra (texto e fundo trocam com o tema).
+   Hover ganha um anel por dentro; pressionado cai para o tom secundário. */
+.botao--primario { background: var(--cor-texto); color: var(--cor-fundo); border-color: var(--cor-texto); }
+.botao--primario:hover:not(:disabled) { box-shadow: inset 0 0 0 var(--borda) var(--cor-fundo); }
+.botao--primario:active:not(:disabled) { background: var(--cor-texto-secundario); border-color: var(--cor-texto-secundario); }
+
+.botao--secundario { background: transparent; color: var(--cor-texto); border-color: var(--cor-borda-campo); }
+.botao--secundario:hover:not(:disabled) { border-color: var(--cor-texto); }
+.botao--secundario:active:not(:disabled) { background: var(--cor-linha); }
+
+.botao--fantasma { background: transparent; color: var(--cor-texto); }
+.botao--fantasma:hover:not(:disabled) { background: var(--cor-linha); }
+.botao--fantasma:active:not(:disabled) { background: var(--cor-linha); }
+
+.botao--perigo { background: var(--cor-perigo); color: var(--cor-superficie); border-color: var(--cor-perigo); }
+.botao--perigo:hover:not(:disabled) { border-color: var(--cor-texto); }
+.botao--perigo:active:not(:disabled) { background: transparent; color: var(--cor-perigo); }
+
+/* ---------- campo ---------- */
+.campo { display: grid; gap: var(--esp-1); }
+.campo__rotulo { font-size: var(--tam-detalhe); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); }
+.campo__entrada {
+  width: 100%;
+  min-height: var(--alvo);
+  padding: 0 var(--esp-3);
+  border: var(--borda) solid var(--cor-borda-campo);
+  border-radius: var(--raio-campo);
+  background: var(--cor-superficie);
+}
+.campo__entrada:hover { border-color: var(--cor-texto); }
+.campo__entrada[aria-invalid="true"] { border-color: var(--cor-perigo); border-width: var(--borda-forte); }
+.campo__entrada--numero { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); font-variant-numeric: tabular-nums; }
+.campo__erro { color: var(--cor-perigo); font-size: var(--tam-detalhe); font-weight: var(--peso-medio); }
+.campo__ajuda { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.campo__ajuda--numeros { font-variant-numeric: tabular-nums; }
+
+.faixa-deslizante { width: 100%; min-height: var(--alvo); accent-color: var(--cor-texto); }
+
+/* ---------- etiquetas de status ----------
+   Só a palavra, na cor do estado e em peso médio: sem fundo, sem ponto. */
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--tam-detalhe);
+  font-weight: var(--peso-medio);
+  white-space: nowrap;
+}
+.etiqueta--info { color: var(--cor-info); }
+.etiqueta--faixa { color: var(--cor-texto); }
+.etiqueta--garantido { color: var(--cor-garantido); }
+.etiqueta--perigo { color: var(--cor-perigo); }
+.etiqueta--alerta { color: var(--cor-alerta); }
+.etiqueta--neutro { color: var(--cor-texto-secundario); }
+
+/* ---------- linha de rota (assinatura) ---------- */
+.rota {
+  display: grid;
+  /* As pontas dividem o resto por igual e quebram em espaço; a pista nunca fica menor que o marco de km. */
+  grid-template-columns: minmax(0, 1fr) minmax(calc(var(--esp-12) * 2), 1.2fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--esp-3);
+}
+.rota__ponta { display: grid; min-width: 0; }
+.rota__ponta--destino { text-align: right; }
+.rota__cidade {
+  font-family: var(--fonte-placa);
+  font-weight: var(--peso-placa);
+  font-size: var(--tam-bloco);
+  line-height: var(--altura-titulo);
+  overflow-wrap: break-word;
+}
+.rota__uf { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.rota__pista {
+  position: relative;
+  height: var(--esp-6);
+  border-radius: var(--raio-campo);
+  background-color: var(--cor-asfalto);
+  box-shadow: inset 0 0 0 var(--borda) var(--cor-acostamento);
+  background-image: repeating-linear-gradient(90deg, var(--cor-faixa) 0 var(--faixa-traco), transparent var(--faixa-traco) calc(var(--faixa-traco) * 2));
+  background-size: calc(100% - var(--esp-4)) var(--faixa-espessura);
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.rota__marco {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  padding: 0 var(--esp-3);  /* com 8 sobrava um pedaço de traço colado ao número */
+  border-radius: var(--raio-campo);
+  background: var(--cor-asfalto);
+  color: var(--cor-faixa);
+  font-family: var(--fonte-placa);
+  font-weight: var(--peso-placa);
+  font-size: var(--tam-detalhe);
+  white-space: nowrap;
+}
+.rota--grande .rota__cidade { font-size: var(--tam-secao); }
+.rota--grande .rota__pista { height: var(--esp-8); }
+.rota--grande .rota__marco { font-size: var(--tam-corpo); }
+
+/* ---------- dinheiro ---------- */
+.valor {
+  font-family: var(--fonte-placa);
+  font-weight: var(--peso-placa);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--altura-titulo);
+  white-space: nowrap;
+}
+.valor--grande { font-size: var(--tam-titulo); }
+.valor__moeda { font-size: var(--proporcao-moeda); color: var(--cor-texto-secundario); margin-right: var(--esp-1); }
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  color: var(--cor-garantido);
+  font-size: var(--tam-detalhe);
+  font-weight: var(--peso-forte);
+}
+
+.chip-piso {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--esp-1);
+  color: var(--cor-texto-secundario);
+  font-size: var(--tam-detalhe);
+}
+.chip-piso__valor { color: var(--cor-texto); font-weight: var(--peso-forte); font-variant-numeric: tabular-nums; }
+.chip-piso__exemplo { color: var(--cor-texto-secundario); font-size: var(--tam-legenda); }
+.chip-piso--abaixo, .chip-piso--abaixo .chip-piso__valor { color: var(--cor-alerta); }
+
+/* ---------- medidor de garantia ---------- */
+.medidor { display: grid; gap: var(--esp-2); }
+.medidor__legenda { font-weight: var(--peso-forte); }
+.medidor__legenda--garantido { color: var(--cor-garantido); }
+.medidor__legenda--pendente { color: var(--cor-alerta); }
+.medidor__legenda--neutro { color: var(--cor-texto-secundario); }
+.medidor__trechos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-1); }
+.medidor__trecho { display: grid; gap: var(--esp-1); }
+.medidor__barra {
+  height: var(--esp-1);
+  border-radius: var(--raio-campo);
+  background: var(--cor-neutro-medidor);
+  transition: background-color var(--dur-media) var(--curva);
+}
+.medidor__trecho--cheio .medidor__barra { background: var(--cor-garantido); }
+.medidor__trecho--bloqueado .medidor__barra { background: var(--cor-alerta); }
+.medidor__nome { font-size: var(--tam-legenda); color: var(--cor-texto-secundario); }
+.medidor__valor { font-variant-numeric: tabular-nums; font-weight: var(--peso-forte); }
+
+/* ---------- marcos de quilômetro ---------- */
+.marcos { display: grid; position: relative; }
+.marco { display: flex; gap: var(--esp-3); align-items: flex-start; position: relative; }
+/* Marco: um ponto na linha. Passado cheio, atual cheio com anel, futuro só contorno. */
+.marco__placa {
+  flex: none;
+  width: var(--esp-3);
+  height: var(--esp-3);
+  margin-top: var(--esp-1);
+  border: var(--borda-forte) solid var(--cor-borda-campo);
+  border-radius: 50%;
+  background: var(--cor-fundo);
+  position: relative;
+  z-index: 1;
+}
+.marco--passado .marco__placa { background: var(--cor-texto); border-color: var(--cor-texto); }
+.marco--atual .marco__placa { background: var(--cor-texto); border-color: var(--cor-texto); box-shadow: 0 0 0 var(--borda-forte) var(--cor-fundo), 0 0 0 var(--foco-largura) var(--cor-texto); }
+.marco__texto { display: grid; min-width: 0; }
+.marco__rotulo { font-weight: var(--peso-medio); }
+.marco--futuro .marco__rotulo { color: var(--cor-texto-secundario); font-weight: var(--peso-normal); }
+.marco__quando { font-size: var(--tam-legenda); color: var(--cor-texto-secundario); font-variant-numeric: tabular-nums; }
+
+/* Vertical: uma linha fina desce pela esquerda, os pontos ficam sobre ela. */
+.marcos--vertical { gap: var(--esp-4); }
+.marcos--vertical::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--esp-3) / 2 - var(--borda));
+  top: var(--esp-2);
+  bottom: var(--esp-2);
+  width: var(--borda-forte);
+  background: var(--cor-linha);
+}
+/* Horizontal: a estrada corre sob os marcos. */
+.marcos--horizontal { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--esp-2); }
+.marcos--horizontal::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(var(--esp-1) + var(--esp-3) / 2 - var(--borda));
+  height: var(--borda-forte);
+  background: var(--cor-linha);
+}
+.marcos--horizontal .marco { flex-direction: column; gap: var(--esp-2); }
+
+/* ---------- placa ----------
+   Só os caracteres em mono, num contorno fino: lê como placa sem desenhar a placa. */
+.placa {
+  display: inline-block;
+  padding: 0 var(--esp-1);
+  border: var(--borda) solid var(--cor-borda-campo);
+  border-radius: var(--raio-campo);
+  font-family: var(--fonte-mono);
+  font-size: var(--tam-detalhe);
+  line-height: var(--altura-texto);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ---------- aviso ---------- */
+/* Aviso: o título leva a cor do estado e o texto segue na tinta normal. Sem faixa lateral nem caixa. */
+.aviso { display: grid; gap: var(--esp-1); }
+.aviso .botao { justify-self: start; margin-top: var(--esp-2); }
+.aviso__titulo { font-weight: var(--peso-forte); }
+.aviso__texto { color: var(--cor-texto); }
+.aviso--info { color: var(--cor-info); }
+.aviso--alerta { color: var(--cor-alerta); }
+.aviso--perigo { color: var(--cor-perigo); }
+.aviso--garantido { color: var(--cor-garantido); }
+
+/* ---------- vazio e esqueleto ---------- */
+.vazio { display: grid; justify-items: center; gap: var(--esp-2); padding: var(--esp-8) var(--esp-4); text-align: center; }
+.vazio__titulo { font-weight: var(--peso-forte); font-size: var(--tam-bloco); text-wrap: balance; }
+.vazio__texto { color: var(--cor-texto-secundario); max-width: 40ch; }
+.vazio .botao { margin-top: var(--esp-2); }
+
+.esqueleto {
+  display: grid;
+  gap: var(--esp-3);
+  padding: var(--esp-6) 0;
+  border-top: var(--borda) solid var(--cor-linha);
+}
+.esqueleto__linha { height: var(--esp-4); border-radius: var(--raio-campo); background: var(--cor-linha); animation: pulso var(--dur-pulso) ease-in-out infinite alternate; }
+.esqueleto__linha:nth-child(2n) { width: 70%; }
+.esqueleto__linha:first-child { height: var(--esp-6); }
+@keyframes pulso { to { opacity: var(--opac-pulso); } }
+
+/* ---------- seletores ---------- */
+.segmentado {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  border: var(--borda) solid var(--cor-borda-campo);
+  border-radius: var(--raio-campo);
+  overflow: hidden;
+}
+.segmentado__opcao {
+  min-height: var(--alvo);
+  border: 0;
+  background: transparent;
+  font-weight: var(--peso-medio);
+  font-size: var(--tam-corpo);
+  cursor: pointer;
+}
+.segmentado__opcao + .segmentado__opcao { border-left: var(--borda) solid var(--cor-borda-campo); }
+.segmentado__opcao:hover { background: var(--cor-linha); }
+.segmentado__opcao:active { background: var(--cor-borda-campo); }
+.segmentado__opcao[aria-pressed="true"] { background: var(--cor-texto); color: var(--cor-fundo); }
+.segmentado__opcao:focus-visible { outline-offset: calc(var(--foco-largura) * -1); }
+
+.filtros { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
+.filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: var(--alvo);
+  padding: 0 var(--esp-3);
+  border: var(--borda) solid var(--cor-linha);
+  border-radius: var(--raio-campo);
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-medio);
+  cursor: pointer;
+}
+.filtro:hover { border-color: var(--cor-borda-campo); color: var(--cor-texto); }
+.filtro:active { background: var(--cor-linha); }
+.filtro[aria-pressed="true"] { background: var(--cor-texto); color: var(--cor-fundo); border-color: var(--cor-texto); }
+.filtro__n { font-variant-numeric: tabular-nums; font-size: var(--tam-detalhe); }
+
+.abas { display: flex; gap: var(--esp-1); border-bottom: var(--borda) solid var(--cor-linha); overflow-x: auto; }
+.abas__aba {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: var(--alvo);
+  padding: 0 var(--esp-4);
+  border: 0;
+  border-bottom: var(--borda-forte) solid transparent;
+  background: none;
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-medio);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.abas__aba:hover { color: var(--cor-texto); border-bottom-color: var(--cor-linha); }
+.abas__aba:active { color: var(--cor-texto); border-bottom-color: var(--cor-borda-campo); }
+/* A barra rola na horizontal e corta o que passa da borda: o anel entra no botão. */
+.abas__aba:focus-visible { outline-offset: calc(var(--foco-largura) * -1); }
+.abas__aba[aria-selected="true"] { color: var(--cor-texto); border-bottom-color: var(--cor-texto); }
+.abas__n { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); font-variant-numeric: tabular-nums; }
+
+/* ---------- listas e fichas ---------- */
+.ficha { display: grid; gap: var(--esp-2); }
+.ficha > div { display: grid; grid-template-columns: minmax(0, 10ch) minmax(0, 1fr); gap: var(--esp-3); }
+.ficha dt { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.ficha dd { overflow-wrap: anywhere; }
+.ficha--compacta { gap: var(--esp-1); font-size: var(--tam-detalhe); }
+.ficha--compacta > div { grid-template-columns: minmax(0, 12ch) minmax(0, 1fr); }
+
+.detalhe { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+
+.voltar { display: inline-flex; align-items: center; min-height: var(--alvo); color: var(--cor-texto-secundario); text-decoration: none; }
+.voltar:hover { color: var(--cor-texto); }
+.voltar::before { content: "←"; margin-right: var(--esp-2); }
+
+.lista-linhas { display: grid; }
+.lista-linhas > li + li { border-top: var(--borda) solid var(--cor-linha); }
+
+.tabela-rolagem { overflow-x: auto; }
+.tabela { width: 100%; border-collapse: collapse; font-size: var(--tam-detalhe); }
+.tabela th { text-align: left; font-weight: var(--peso-medio); color: var(--cor-texto-secundario); padding: var(--esp-3) var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); white-space: nowrap; }
+.tabela td { padding: var(--esp-3) var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); vertical-align: middle; }
+.tabela tr:last-child td { border-bottom: 0; }
+.tabela th:first-child, .tabela td:first-child { padding-left: 0; }
+.tabela th:last-child, .tabela td:last-child { padding-right: 0; }
+.tabela tbody tr:hover .tabela__rota { text-decoration: underline; }
+.tabela .tabela__num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tabela__rota { display: block; font-family: var(--fonte-placa); font-weight: var(--peso-placa); font-size: var(--tam-corpo); color: var(--cor-texto); text-decoration: none; }
+.tabela__sub { color: var(--cor-texto-secundario); }
+.tabela__motorista { display: inline-flex; align-items: center; gap: var(--esp-2); }
+
+/* ---------- frete na lista (motorista) ----------
+   Sem caixa: cada frete é um trecho entre linhas finas, como a lista de "Meus fretes". */
+.card-frete {
+  position: relative;
+  display: grid;
+  gap: var(--esp-3);
+  padding: var(--esp-6) 0;
+  border-top: var(--borda) solid var(--cor-linha);
+}
+.card-frete:hover .rota__cidade { text-decoration: underline; }
+/* O link cobre o frete inteiro; o anel de foco aparece em volta dele, não num ponto invisível. */
+.card-frete__link { position: absolute; inset: 0; z-index: 1; }
+.card-frete__perto { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.card-frete__dinheiro { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-2) var(--esp-3); }
+.card-frete__porkm { color: var(--cor-texto-secundario); font-variant-numeric: tabular-nums; font-weight: var(--peso-medio); }
+.card-frete__combinar { font-family: var(--fonte-placa); font-weight: var(--peso-placa); font-size: var(--tam-secao); }
+.card-frete__fretao { color: var(--cor-alerta); font-weight: var(--peso-forte); font-size: var(--tam-detalhe); }
+/* Separados por vão, não por "·": ao quebrar linha, um ponto solto no começo vira ruído. */
+.card-frete__requisitos { display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-4); font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.card-frete__agenciador { color: var(--cor-alerta); font-weight: var(--peso-forte); }
+
+.reputacao { display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-3); font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.reputacao__nome { color: var(--cor-texto); font-weight: var(--peso-medio); min-width: 0; overflow-wrap: anywhere; }
+.reputacao__emdia { color: var(--cor-texto); }
+.reputacao__emdia--baixo { color: var(--cor-alerta); }

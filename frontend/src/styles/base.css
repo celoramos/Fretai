@@ -1,0 +1,56 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: var(--fonte-texto);
+  font-size: 100%;
+  line-height: var(--altura-texto);
+  -webkit-text-size-adjust: 100%;
+}
+
+body { margin: 0; min-height: 100dvh; }
+
+h1, h2, h3, p, dl, dd, ol, ul, figure, blockquote { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+
+h1, h2, h3 {
+  font-family: var(--fonte-placa);
+  font-weight: var(--peso-placa);
+  line-height: var(--altura-titulo);
+  text-wrap: balance;
+}
+p { text-wrap: pretty; }
+
+a { color: var(--cor-info); text-underline-offset: 0.2em; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button, a, [role="tab"], select, input[type="range"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Foco global, só para teclado. O anel fica afastado do controle: contrasta com a superfície e com o botão. */
+:focus { outline: none; }
+:focus-visible {
+  outline: var(--foco-largura) solid var(--cor-foco);
+  outline-offset: var(--foco-recuo);
+}
+
+code { font-family: var(--fonte-mono); font-weight: var(--peso-medio); }
+
+/* 1px e clip: a técnica que leitores de tela leem e o layout ignora. Fato de plataforma, não escala. */
+.visualmente-oculto {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pagina-solta {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--esp-6);
+}

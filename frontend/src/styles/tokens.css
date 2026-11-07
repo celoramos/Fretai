@@ -1,0 +1,152 @@
+/*
+ * Fretaí: tokens de tema. Fonte: docs/briefing-design-figma.md, seção 4, reduzida a "folha":
+ * tinta sobre fundo, uma cor de estado por vez, e o amarelo só na linha de rota.
+ * Fora deste arquivo nenhuma regra digita cor, tamanho, raio ou duração; tudo passa por var(--...).
+ *
+ * Contrastes calculados pela fórmula WCAG 2.x (luminância relativa), nos pares que a árvore renderiza.
+ * Estado é texto colorido direto sobre fundo ou superfície, sem fundo tingido:
+ *   claro  texto/fundo 15.81 · texto-sec/fundo 5.87 · garantido/fundo 5.15 · alerta/fundo 4.96
+ *          perigo/fundo 5.22 · perigo/superfície 5.46 · info/fundo 6.09 · borda-campo/superfície 3.25
+ *   escuro texto/fundo 15.76 · texto-sec/fundo 7.61 · garantido/fundo 7.62 · alerta/fundo 7.66
+ *          perigo/fundo 6.47 · perigo/superfície 5.74 · info/fundo 7.29 · borda-campo/superfície 3.30
+ *   ambos  botão primário (fundo sobre texto) 15.8 · faixa/asfalto 8.55 no claro, 12.46 no escuro
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Cores, modo claro: padrão da empresa (escritório, várias abas). */
+  /* Fundo quase neutro: o creme de antes lia como papel, e a folha não quer textura. */
+  --cor-fundo: #FAFAF8;
+  --cor-superficie: #FFFFFF;      /* só campo, barra fixa e folha de negociação: nada de card */
+  --cor-linha: #E6E4DF;           /* só divisória decorativa; contorno de controle usa --cor-borda-campo */
+  --cor-borda-campo: #8A8F98;
+  --cor-texto: #1C1F24;
+  --cor-texto-secundario: #5B6270;
+  /* Amarelo de sinalização: só o tracejado e o km da linha de rota (e o foco no escuro).
+     A ação principal saiu dele e foi para a tinta, para a rota ser a única coisa amarela da tela. */
+  --cor-faixa: #FFC629;
+  /* Ajuste ao briefing: #007A51 em vez de #00875A, que não passava sobre fundo verde. Os fundos
+     tingidos (garantido, alerta, perigo, info, faixa) saíram: estado agora é só a cor do texto. */
+  --cor-garantido: #007A51;
+  --cor-alerta: #C2410C;
+  --cor-perigo: #C92A2A;
+  --cor-info: #1F5FAD;
+  /* Asfalto: a pista da linha de rota. Sobre o papel claro o amarelo sozinho dá 1.43; pintado sobre
+     asfalto dá 8.55. É o que faz a assinatura funcionar no claro. No escuro o asfalto muda (abaixo). */
+  --cor-asfalto: #2A2F38;
+  --cor-foco: #1F5FAD;
+  --cor-neutro-medidor: #E6E4DF;
+  /* Acostamento: borda da pista. No claro o asfalto já se separa do fundo (12.86), então some. */
+  --cor-acostamento: transparent;
+  /* QR do Pix: leitor de câmera precisa de branco, em qualquer tema. Platform fact. */
+  --cor-qr-fundo: #FFFFFF;
+
+  --borda: 1px;
+  --borda-forte: 2px;
+  --foco-largura: 3px;
+  --foco-recuo: 2px;
+  /* Tracejado da faixa de pista: traço e vão iguais, como na pista real (proporção, não medida). */
+  --faixa-traco: 14px;
+  --faixa-espessura: 3px;
+
+  /* Tipo: a família das placas de rodovia (Barlow) para tudo; mono para placa, CEP e código Pix. */
+  --fonte-placa: "Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
+  --fonte-texto: "Barlow", system-ui, sans-serif;
+  --fonte-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Escala do briefing, mobile primeiro; o desktop sobe na media query abaixo. */
+  --tam-display: 2.5rem;    /* 40 */
+  --tam-titulo: 1.75rem;    /* 28, H1 */
+  --tam-secao: 1.375rem;    /* 22, H2 */
+  --tam-bloco: 1.125rem;    /* 18, H3 */
+  --tam-corpo: 1rem;        /* 16 */
+  --tam-detalhe: 0.875rem;  /* 14 */
+  --tam-legenda: 0.75rem;   /* 12 */
+
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-forte: 600;
+  --peso-placa: 700;
+
+  --altura-texto: 1.45;
+  --altura-titulo: 1.1;
+
+  /* Grade de 4 px, e só os degraus que o briefing lista. */
+  --esp-1: 4px;
+  --esp-2: 8px;
+  --esp-3: 12px;
+  --esp-4: 16px;
+  --esp-6: 24px;
+  --esp-8: 32px;
+  --esp-12: 48px;
+
+  /* Raio: só campo e botão (4) e a folha de negociação (12). O raio de card saiu com os cards:
+     o conteúdo se separa por espaço e por uma linha fina, não por caixa. */
+  --raio-campo: 4px;
+  --raio-sheet: 12px;
+
+  /* Sem sombra e sem caixa: a hierarquia é feita por tamanho, peso e espaço. Abstenção. */
+
+  /* Alvo: 48 no app do motorista (luva, mão suja), 40 é o piso no desktop da empresa. */
+  --alvo-motorista: 48px;
+  --alvo-empresa: 40px;
+
+  --dur-curta: 150ms;
+  --dur-media: 250ms;       /* o medidor de garantia "enche" nessa duração */
+  --curva: cubic-bezier(0.2, 0, 0, 1);
+
+  --dur-pulso: 1200ms;      /* esqueleto: lento de propósito, é espera e não evento */
+  --opac-desabilitado: 0.55;
+  --opac-pulso: 0.5;
+  /* "R$" em 55% do número: lê como unidade, não como parte do valor (briefing, seção 4). */
+  --proporcao-moeda: 0.55em;
+
+  --largura-conteudo: 1120px;
+  --largura-formulario: 380px;
+  --largura-proposta: 280px;  /* coluna do comparador: cabe placa + "Aceitar por R$ 00.000" sem quebrar */
+  --largura-pagamento: 720px;
+  /* Quebras de layout: media query não lê var(), então os números se repetem lá: 900px (duas colunas)
+     e 1024px (escala de desktop). Mudar aqui exige mudar lá. */
+  --largura-coluna-celular: 560px;
+}
+
+:root[data-tema="escuro"] {
+  color-scheme: dark;
+  /* Padrão do motorista: cabine, noite, bateria. */
+  --cor-fundo: #14171C;
+  --cor-superficie: #1E222A;
+  --cor-linha: #2A2F3A;
+  --cor-borda-campo: #6B7280;
+  --cor-texto: #F2F0EA;
+  --cor-texto-secundario: #A3A9B5;
+  --cor-garantido: #2FBF84;
+  --cor-alerta: #FB8C4B;
+  --cor-perigo: #FF6B6B;
+  --cor-info: #6EA8F0;
+  --cor-foco: #FFC629;      /* 10.14 sobre a superfície escura */
+  /* Asfalto à noite: mais escuro que o fundo, com acostamento #4A5160 (2.26 sobre o fundo) marcando
+     a borda da pista; o tracejado sobre ele fica em 12.46. */
+  --cor-asfalto: #0A0C0F;
+  --cor-acostamento: #4A5160;
+  --cor-neutro-medidor: #2A2F3A;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --tam-display: 3.5rem;   /* 56 */
+    --tam-titulo: 2.25rem;   /* 36 */
+    --tam-secao: 1.75rem;    /* 28 */
+    --tam-bloco: 1.375rem;   /* 22 */
+  }
+}
+
+/* Um bloco só, na raiz: nada animado escapa dele. Quase zero em vez de zero, para transitionend disparar. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
