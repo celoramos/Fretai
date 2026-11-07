@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../../api/cliente'
 import type { Frete, Pagina, Proposta } from '../../api/tipos'
@@ -5,6 +6,7 @@ import { useRecurso } from '../../api/useRecurso'
 import { useTitulo } from '../../useTitulo'
 import { Etiqueta, ErroCarga, Esqueleto, Indicador, Km, StatusFreteEtiqueta, Vazio } from '../../components/ui'
 import { dataCurta, reais, STATUS_PROPOSTA } from '../../formato'
+import { item, lista } from '../../movimento'
 
 const ABAS = [
   { id: 'andamento', rotulo: 'Em andamento' },
@@ -61,11 +63,11 @@ function Lista({ itens, fretes, aba }: { itens: Proposta[]; fretes: Record<strin
     return <Vazio titulo={textos[aba]} acao={<Link to="/motorista" className="botao botao--primario">Procurar fretes</Link>} />
   }
   return (
-    <ul className="lista-linhas">
+    <motion.ul key={aba} className="lista-linhas" variants={lista} initial="oculta" animate="visivel">
       {itens.map((p) => {
         const f = fretes[p.freteId]
         return (
-          <li key={p.id}>
+          <motion.li key={p.id} variants={item}>
             <Link to={`/motorista/fretes/${p.freteId}`} className="linha-frete">
               <span className="linha-frete__rota">{f ? `${f.coleta.cidade}/${f.coleta.uf} → ${f.entrega.cidade}/${f.entrega.uf}` : 'Frete'}</span>
               <span className="linha-frete__valor">R$&nbsp;{reais(p.valor)}</span>
@@ -75,9 +77,9 @@ function Lista({ itens, fretes, aba }: { itens: Proposta[]; fretes: Record<strin
                 {f && <span>coleta {dataCurta(f.dataColeta)}</span>}
               </span>
             </Link>
-          </li>
+          </motion.li>
         )
       })}
-    </ul>
+    </motion.ul>
   )
 }

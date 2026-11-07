@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { motion } from 'motion/react'
 import { useSearchParams } from 'react-router-dom'
 import { api, MODO_DEMO } from '../../api/cliente'
 import type { FreteEncontrado, Pagina, PerfilEmpresa } from '../../api/tipos'
@@ -6,6 +7,7 @@ import { useRecurso } from '../../api/useRecurso'
 import { CardFrete } from '../../components/CardFrete'
 import { useTitulo } from '../../useTitulo'
 import { ErroCarga, Esqueleto, Indicador, Vazio } from '../../components/ui'
+import { lista } from '../../movimento'
 
 const RAIOS = [50, 100, 200]
 
@@ -120,11 +122,11 @@ function Resultados({ raio, cep, lat, lng, aoAumentar }: { raio: number; cep: st
   return (
     <>
       <p className="busca__contagem" aria-live="polite">{achados.length === 1 ? '1 frete' : `${achados.length} fretes`} em até {raio}&nbsp;km, do mais perto ao mais longe</p>
-      <div className="lista-cards">
+      <motion.div className="lista-cards" variants={lista} initial="oculta" animate="visivel">
         {achados.map((a) => (
           <CardFrete key={a.frete.id} frete={a.frete} distanciaOrigemKm={a.distanciaOrigemKm} perfil={a.frete.empresa ? perfis[a.frete.empresa.id] : undefined} />
         ))}
-      </div>
+      </motion.div>
     </>
   )
 }

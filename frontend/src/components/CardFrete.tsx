@@ -1,14 +1,16 @@
+import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import type { Frete, PerfilEmpresa } from '../api/tipos'
 import { dataCurta, porKm, quilometros, veiculo } from '../formato'
 import { ChipPiso, Valor } from './Dinheiro'
 import { RotaLinha } from './RotaLinha'
+import { item } from '../movimento'
 
 /** Em 2 segundos: de onde, para onde, quanto, e se a empresa é séria. */
 export function CardFrete({ frete, distanciaOrigemKm, perfil }: { frete: Frete; distanciaOrigemKm: number; perfil?: PerfilEmpresa }) {
   const valor = frete.valorTotal ?? frete.valor
   return (
-    <article className="card-frete">
+    <motion.article className="card-frete" variants={item}>
       <Link to={`/motorista/fretes/${frete.id}`} className="card-frete__link">
         <span className="visualmente-oculto">Ver frete de {frete.coleta.cidade} para {frete.entrega.cidade}</span>
       </Link>
@@ -40,7 +42,7 @@ export function CardFrete({ frete, distanciaOrigemKm, perfil }: { frete: Frete; 
       </ul>
 
       <Reputacao nome={frete.empresa?.nomeFantasia ?? frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'Cliente'} perfil={perfil} />
-    </article>
+    </motion.article>
   )
 }
 

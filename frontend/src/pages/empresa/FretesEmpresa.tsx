@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../../api/cliente'
 import type { Frete, Pagina, StatusFrete } from '../../api/tipos'
@@ -6,6 +7,7 @@ import { useTitulo } from '../../useTitulo'
 import { ErroCarga, Esqueleto, Indicador, Km, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
 import { dataCurta, reais } from '../../formato'
 import { useSessao } from '../../sessao'
+import { transicao } from '../../movimento'
 
 /** Filtros agrupam o que pede a mesma atitude de quem está no escritório. */
 const FILTROS: { id: string; rotulo: string; status: StatusFrete[] | null }[] = [
@@ -69,10 +71,11 @@ export function FretesEmpresa() {
               </tr>
             </thead>
             <tbody>
+              <AnimatePresence initial={false}>
               {visiveis.map((f) => {
                 const valor = f.valorAcordado ?? f.valorTotal ?? f.valor
                 return (
-                  <tr key={f.id}>
+                  <motion.tr key={f.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transicao}>
                     <td>
                       <div className="tabela__rota-cel">
                         <Link to={`/empresa/fretes/${f.id}`} className="tabela__rota">
@@ -85,9 +88,10 @@ export function FretesEmpresa() {
                     <td className="tabela__num">{valor != null && !(f.valorACombinar && !f.valorAcordado) ? `R$ ${reais(valor)}` : 'A combinar'}</td>
                     <td><StatusFreteEtiqueta status={f.status} visao="empresa" /></td>
                     <td>{f.motorista ? <span className="tabela__motorista">{f.motorista.nome}{f.motorista.placa && <Placa placa={f.motorista.placa} />}</span> : <span className="tabela__sub">—</span>}</td>
-                  </tr>
+                  </motion.tr>
                 )
               })}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>
