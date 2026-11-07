@@ -10,6 +10,8 @@ import './styles/componentes.css'
 import './styles/telas.css'
 
 import { StrictMode } from 'react'
+import { MotionConfig } from 'motion/react'
+import { transicao } from './movimento'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { App } from './App'
@@ -19,7 +21,10 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <ProvedorSessao>
-        <App />
+        {/* reducedMotion="user": com movimento reduzido no sistema, o Motion corta deslocamento e escala e mantém só opacidade. */}
+        <MotionConfig reducedMotion="user" transition={transicao}>
+          <App />
+        </MotionConfig>
       </ProvedorSessao>
     </BrowserRouter>
   </StrictMode>,

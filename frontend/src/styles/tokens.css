@@ -94,6 +94,9 @@
 
   --dur-curta: 150ms;
   --dur-media: 250ms;       /* o medidor de garantia "enche" nessa duração */
+  /* A pista abrindo da origem ao destino: lenta o bastante para ler como estrada, e só uma vez. */
+  --dur-rota: 600ms;
+  /* O Motion (JS) espelha --dur-media, --dur-rota e --curva em src/movimento.ts. */
   --curva: cubic-bezier(0.2, 0, 0, 1);
 
   --dur-pulso: 1200ms;      /* esqueleto: lento de propósito, é espera e não evento */
