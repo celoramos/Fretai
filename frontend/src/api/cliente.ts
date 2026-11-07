@@ -41,7 +41,10 @@ async function transportar(metodo: Metodo, caminho: string, corpo?: unknown, tok
 async function lerProblema(resposta: Response): Promise<Problema> {
   try {
     const corpo = await resposta.json()
-    return { title: corpo.title ?? 'Erro', detail: corpo.detail ?? '', status: resposta.status, erros: corpo.erros }
+    return {
+      title: corpo.title ?? 'Erro', detail: corpo.detail ?? '', status: resposta.status, erros: corpo.erros,
+      codigo: corpo.codigo, email: corpo.email, nome: corpo.nome,
+    }
   } catch {
     return {
       title: 'Sem resposta da API',
@@ -92,6 +95,13 @@ export async function api<T>(metodo: Metodo, caminho: string, corpo?: unknown): 
 
 export async function entrar(email: string, senha: string): Promise<Tokens> {
   const tokens = await api<Tokens>('POST', '/api/auth/login', { email, senha })
+  gravarSessao(tokens)
+  return tokens
+}
+
+/** Entrar com a credencial do botão do Google. Sem conta, a API responde 404 com codigo CADASTRO_NECESSARIO. */
+export async function entrarComGoogle(credencial: string): Promise<Tokens> {
+  const tokens = await api<Tokens>('POST', '/api/auth/google', { credencial })
   gravarSessao(tokens)
   return tokens
 }

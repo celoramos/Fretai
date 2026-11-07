@@ -87,7 +87,7 @@
   --raio-sheet: 12px;
 
   /* Sem sombra e sem caixa no app: a hierarquia é feita por tamanho, peso e espaço. Abstenção. */
-  /* Departure (2026-11-07), por enquanto só na página pública (src/styles/inicio.css): o dono do
+  /* Departure (2026-11-07), só nas telas públicas (início, entrar, cadastro): o dono do
      produto pediu um site atraente e fácil, na linha de iFood, Uber e 99. Lá cada assunto vive num
      cartão arredondado e a ação principal é pílula, que se acha com o polegar. */
   --raio-cartao: 16px;

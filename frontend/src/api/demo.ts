@@ -167,6 +167,36 @@ function ev(de: StatusFrete | null, para: StatusFrete, papel: EventoFrete['autor
   return { de, para, autorId: null, autorPapel: papel, observacao, ocorridoEm: iso(quando) }
 }
 
+// ---------- contas (login e cadastro) ----------
+
+/**
+ * Contas da demonstração. O cadastro acrescenta aqui; toda conta nova vê os dados do motorista ou da
+ * empresa de exemplo. As novas ficam no localStorage para sobreviver a um F5 (o resto do demo não precisa).
+ */
+type ContaDemo = { senha: string | null; papel: 'MOTORISTA' | 'EMPRESA' }
+const CHAVE_CONTAS = 'fretai.demo.contas'
+const contas: Record<string, ContaDemo> = {
+  'motorista@demo.fretai': { senha: 'demo123', papel: 'MOTORISTA' },
+  'empresa@demo.fretai': { senha: 'demo123', papel: 'EMPRESA' },
+  ...(JSON.parse(localStorage.getItem(CHAVE_CONTAS) ?? '{}') as Record<string, ContaDemo>),
+}
+function guardarConta(email: string, conta: ContaDemo) {
+  contas[email] = conta
+  const novas = JSON.parse(localStorage.getItem(CHAVE_CONTAS) ?? '{}') as Record<string, ContaDemo>
+  localStorage.setItem(CHAVE_CONTAS, JSON.stringify({ ...novas, [email]: conta }))
+}
+// O botão do Google da demonstração (components/BotaoGoogle.tsx) manda esta mesma credencial.
+const CREDENCIAL_GOOGLE_DEMO = 'demo-google'
+const GOOGLE_DEMO = { email: 'voce@gmail.com', nome: 'Você (Google de demonstração)' }
+
+function tokensDe(papel: 'MOTORISTA' | 'EMPRESA'): Tokens {
+  const motorista = papel === 'MOTORISTA'
+  return {
+    accessToken: motorista ? 'demo-motorista' : 'demo-empresa', refreshToken: 'demo-refresh', tokenType: 'Bearer',
+    expiresIn: 900, usuarioId: motorista ? M1 : U_EMPRESA, papel, empresaId: motorista ? null : E1,
+  }
+}
+
 // ---------- roteamento ----------
 
 const json = (corpo: unknown, status = 200) =>
@@ -188,15 +218,33 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
 
   if (metodo === 'POST' && p === '/api/auth/login') {
     const email = String(b.email ?? '').toLowerCase()
-    if (b.senha !== 'demo123' || !['motorista@demo.fretai', 'empresa@demo.fretai'].includes(email)) {
+    const conta = contas[email]
+    if (!conta || conta.senha === null || b.senha !== conta.senha) {
       return problema(401, 'Login inválido', 'E-mail ou senha incorretos.')
     }
-    const motorista = email.startsWith('motorista')
-    const tokens: Tokens = {
-      accessToken: motorista ? 'demo-motorista' : 'demo-empresa', refreshToken: 'demo-refresh', tokenType: 'Bearer',
-      expiresIn: 900, usuarioId: motorista ? M1 : U_EMPRESA, papel: motorista ? 'MOTORISTA' : 'EMPRESA', empresaId: motorista ? null : E1,
+    return json(tokensDe(conta.papel))
+  }
+  // Google simulado: o botão da demonstração manda esta credencial, que vale por "voce@gmail.com".
+  if (metodo === 'POST' && p === '/api/auth/google') {
+    if (b.credencial !== CREDENCIAL_GOOGLE_DEMO) return problema(401, 'Login inválido', 'Não deu para confirmar sua conta Google. Tente de novo.')
+    const conta = contas[GOOGLE_DEMO.email]
+    if (!conta) {
+      return json({ title: 'Conta não encontrada', detail: 'Ainda não existe conta com esse Google. Complete o cadastro para continuar.',
+        status: 404, codigo: 'CADASTRO_NECESSARIO', email: GOOGLE_DEMO.email, nome: GOOGLE_DEMO.nome }, 404)
     }
-    return json(tokens)
+    return json(tokensDe(conta.papel))
+  }
+  if (metodo === 'POST' && (p === '/api/motoristas' || p === '/api/empresas')) {
+    const motorista = p === '/api/motoristas'
+    const pessoa = (motorista ? b : b.responsavel ?? {}) as Record<string, unknown>
+    const google = pessoa.credencialGoogle === CREDENCIAL_GOOGLE_DEMO
+    const email = google ? GOOGLE_DEMO.email : String(pessoa.email ?? '').toLowerCase()
+    if (contas[email]) return problema(409, 'Conflito', 'Já existe uma conta com esse e-mail.')
+    guardarConta(email, { senha: google ? null : String(pessoa.senha ?? ''), papel: motorista ? 'MOTORISTA' : 'EMPRESA' })
+    return json({ id: motorista ? M1 : E1, email }, 201)
+  }
+  if (metodo === 'GET' && (m = p.match(/^\/api\/empresas\/([0-9./-]{14,18})$/))) {
+    return json({ cnpj: m[1].replace(/\D/g, ''), razaoSocial: 'Transportes Exemplo Ltda', nomeFantasia: 'Exemplo Cargas', situacaoCadastral: 'ATIVA' })
   }
   if (p === '/api/auth/logout') return new Response(null, { status: 204 })
   if (!token) return problema(401, 'Não autenticado', 'Faça login de novo.')

@@ -190,4 +190,38 @@ export interface Problema {
   detail: string
   status: number
   erros?: Record<string, string>
+  /** CADASTRO_NECESSARIO: entrou com Google, mas ainda não tem conta. Vem com o e-mail e o nome do Google. */
+  codigo?: string
+  email?: string
+  nome?: string | null
+}
+
+/** Categorias de veículo do cadastro de motorista (enum CategoriaVeiculo da API). */
+export type CategoriaVeiculo = 'MOTO' | 'CARRO' | 'UTILITARIO' | 'VAN' | 'CAMINHAO'
+
+export interface CadastroMotorista {
+  cpf: string
+  nome: string
+  email: string
+  senha?: string
+  telefone: string
+  tipoVeiculo: CategoriaVeiculo
+  placa: string
+  credencialGoogle?: string
+}
+
+export interface CadastroEmpresa {
+  cnpj: string
+  tipo: TipoEmpresa
+  telefone: string
+  nomeFantasia?: string
+  responsavel: { cpf: string; nome: string; email: string; senha?: string; telefone: string; credencialGoogle?: string }
+}
+
+/** Consulta à Receita (GET /api/empresas/{cnpj}): o cadastro mostra a razão social antes de enviar. */
+export interface DadosCnpj {
+  cnpj: string
+  razaoSocial: string
+  nomeFantasia: string | null
+  situacaoCadastral: string
 }

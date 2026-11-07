@@ -1,11 +1,14 @@
 import { motion, useReducedMotion, type Variants } from 'motion/react'
 import { CURVA, DUR_ROTA, item } from '../movimento'
 import { useRef, useState, type FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { ErroApi, MODO_DEMO } from '../api/cliente'
 import type { Problema } from '../api/tipos'
 import { useTitulo } from '../useTitulo'
 import { Aviso } from '../components/ui'
+import { BotaoGoogle } from '../components/BotaoGoogle'
+import { GOOGLE_DISPONIVEL } from '../google'
+import { Marca } from '../components/Marca'
 import { useSessao } from '../sessao'
 
 /* A pista do login desce no tempo da rota, e cada etapa aparece quando a pista chega nela. */
@@ -17,7 +20,7 @@ const passos: Variants = {
 export function Entrar() {
   const reduzido = useReducedMotion()
   useTitulo('Entrar')
-  const { tokens, entrar } = useSessao()
+  const { tokens, entrar, entrarComGoogle } = useSessao()
   const navegar = useNavigate()
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
@@ -46,6 +49,25 @@ export function Entrar() {
     }
   }
 
+  /* Google: com conta, entra; sem conta, vai para o cadastro já com e-mail e nome do Google. */
+  async function comGoogle(credencial: string) {
+    setProblema(null)
+    setEnviando(true)
+    try {
+      const t = await entrarComGoogle(credencial)
+      navegar(t.papel === 'MOTORISTA' ? '/motorista' : '/empresa')
+    } catch (erro) {
+      const p = erro instanceof ErroApi ? erro.problema : { title: 'Erro', detail: String(erro), status: 0 }
+      if (p.codigo === 'CADASTRO_NECESSARIO') {
+        navegar('/cadastro', { state: { google: { credencial, email: p.email, nome: p.nome } } })
+        return
+      }
+      setProblema(p)
+    } finally {
+      setEnviando(false)
+    }
+  }
+
   const erroEmail = problema?.erros?.email
   const erroSenha = problema?.erros?.senha
 
@@ -63,7 +85,14 @@ export function Entrar() {
 
       <section className="entrar__form-area">
         <form className="formulario" onSubmit={enviar} noValidate aria-describedby={problema && !erroEmail && !erroSenha ? 'erro-login' : undefined}>
+          <Link to="/" className="entrar__marca" aria-label="Fretaí, página inicial"><Marca /></Link>
           <h2 className="formulario__titulo">Entrar</h2>
+          {GOOGLE_DISPONIVEL && (
+            <>
+              <BotaoGoogle texto="signin_with" aoReceber={comGoogle} />
+              <p className="formulario__ou"><span>ou com e-mail</span></p>
+            </>
+          )}
 
           <div className="campo">
             <label htmlFor="email" className="campo__rotulo">E-mail</label>
@@ -91,9 +120,11 @@ export function Entrar() {
             )}
           </div>
 
-          <button type="submit" className="botao botao--primario botao--largo" disabled={enviando}>
+          <button type="submit" className="botao botao--primario botao--largo botao--pilula" disabled={enviando}>
             {enviando ? 'Entrando…' : 'Entrar'}
           </button>
+
+          <p className="formulario__troca">Ainda não tem conta? <Link to="/cadastro">Criar conta</Link></p>
 
           {MODO_DEMO && (
             <div className="entrar__demo">

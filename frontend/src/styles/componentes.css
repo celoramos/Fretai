@@ -21,6 +21,12 @@
 .botao:disabled { cursor: not-allowed; opacity: var(--opac-desabilitado); }
 .botao--largo { width: 100%; }
 .botao--icone { padding: 0; width: var(--alvo); }
+/* Pílula: a ação principal das telas públicas (início, entrar, cadastro). Departure em tokens.css. */
+.botao--pilula { border-radius: var(--raio-pilula); }
+/* Botão do Google da demonstração. O oficial (Google Identity Services) desenha o próprio botão. */
+.botao--google { width: 100%; border-radius: var(--raio-pilula); }
+.botao--google__demo { font-size: var(--tam-legenda); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+.google-oficial { min-height: var(--alvo); display: grid; justify-items: center; }
 
 /* Primário: tinta cheia, que se inverte no escuro sem regra extra (texto e fundo trocam com o tema).
    Hover ganha um anel por dentro; pressionado cai para o tom secundário. */

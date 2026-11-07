@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
-import { entrar as entrarApi, lerSessao, sair as sairApi } from './api/cliente'
+import { entrar as entrarApi, entrarComGoogle as entrarComGoogleApi, lerSessao, sair as sairApi } from './api/cliente'
 import type { Tokens } from './api/tipos'
 
 type Tema = 'claro' | 'escuro'
@@ -7,6 +7,7 @@ type Tema = 'claro' | 'escuro'
 interface Sessao {
   tokens: Tokens | null
   entrar: (email: string, senha: string) => Promise<Tokens>
+  entrarComGoogle: (credencial: string) => Promise<Tokens>
   sair: () => Promise<void>
   tema: Tema
   alternarTema: () => void
@@ -39,6 +40,12 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
     return novos
   }, [])
 
+  const entrarComGoogle = useCallback(async (credencial: string) => {
+    const novos = await entrarComGoogleApi(credencial)
+    setTokens(novos)
+    return novos
+  }, [])
+
   const sair = useCallback(async () => {
     await sairApi()
     setTokens(null)
@@ -50,7 +57,7 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
     setEscolhaTema(proximo)
   }, [tema])
 
-  return <Contexto.Provider value={{ tokens, entrar, sair, tema, alternarTema }}>{children}</Contexto.Provider>
+  return <Contexto.Provider value={{ tokens, entrar, entrarComGoogle, sair, tema, alternarTema }}>{children}</Contexto.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

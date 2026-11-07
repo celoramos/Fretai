@@ -4,6 +4,7 @@ import type { Papel } from './api/tipos'
 import { LayoutEmpresa, LayoutMotorista } from './components/Layouts'
 import { DetalheFreteEmpresa } from './pages/empresa/DetalheFreteEmpresa'
 import { FretesEmpresa } from './pages/empresa/FretesEmpresa'
+import { Cadastro } from './pages/Cadastro'
 import { Entrar } from './pages/Entrar'
 import { BuscaFretes } from './pages/motorista/BuscaFretes'
 import { FreteMotorista } from './pages/motorista/FreteMotorista'
@@ -29,6 +30,7 @@ export function App() {
     <Routes>
       <Route path="/" element={tokens ? <Navigate to={INICIO[tokens.papel] ?? '/entrar'} replace /> : <Suspense fallback={null}><Inicio /></Suspense>} />
       <Route path="/entrar" element={<Entrar />} />
+      <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/motorista" element={<Protegida papel="MOTORISTA"><LayoutMotorista /></Protegida>}>
         <Route index element={<BuscaFretes />} />
         <Route path="meus-fretes" element={<MeusFretes />} />
