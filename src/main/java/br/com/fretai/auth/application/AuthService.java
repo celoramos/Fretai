@@ -5,8 +5,11 @@ import br.com.fretai.auth.application.dto.TokensResponse;
 import br.com.fretai.auth.domain.EmissorToken;
 import br.com.fretai.auth.domain.RefreshToken;
 import br.com.fretai.auth.domain.RefreshTokenRepository;
+import br.com.fretai.shared.exception.CadastroNecessarioException;
 import br.com.fretai.shared.exception.CredenciaisInvalidasException;
+import br.com.fretai.shared.seguranca.IdentidadeGoogle;
 import br.com.fretai.shared.seguranca.UsuarioLogado;
+import br.com.fretai.shared.seguranca.VerificadorGoogle;
 import br.com.fretai.usuario.domain.Usuario;
 import br.com.fretai.usuario.domain.UsuarioRepository;
 import java.nio.charset.StandardCharsets;
@@ -38,18 +41,21 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EmissorToken emissorToken;
     private final LimitadorTentativas limitador;
+    private final VerificadorGoogle verificadorGoogle;
     private final Duration validadeRefresh;
     /** Hash de mentira: e-mail inexistente também paga o custo do BCrypt, e o tempo de resposta não entrega quem tem conta. */
     private final String hashFalso;
 
     public AuthService(UsuarioRepository usuarioRepository, RefreshTokenRepository refreshTokenRepository,
                        PasswordEncoder passwordEncoder, EmissorToken emissorToken, LimitadorTentativas limitador,
+                       VerificadorGoogle verificadorGoogle,
                        @Value("${fretai.jwt.validade-refresh:30d}") Duration validadeRefresh) {
         this.usuarioRepository = usuarioRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emissorToken = emissorToken;
         this.limitador = limitador;
+        this.verificadorGoogle = verificadorGoogle;
         this.validadeRefresh = validadeRefresh;
         this.hashFalso = passwordEncoder.encode("senha-que-ninguem-usa");
     }
@@ -68,7 +74,8 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email).orElse(null);
         // Exatamente um BCrypt em qualquer caminho: o tempo de resposta não diz se o e-mail existe.
         boolean senhaConfere;
-        if (usuario != null) {
+        // Conta só com Google também paga o BCrypt falso, para não revelar que existe.
+        if (usuario != null && usuario.temSenha()) {
             senhaConfere = usuario.confereSenha(request.senha(), passwordEncoder);
         } else {
             passwordEncoder.matches(request.senha(), hashFalso);
@@ -79,6 +86,25 @@ public class AuthService {
             throw new CredenciaisInvalidasException(CREDENCIAIS_INVALIDAS);
         }
         limitador.registrarSucesso(chave);
+        return emitir(usuario.comoUsuarioLogado());
+    }
+
+    /**
+     * Entra com a conta Google. Acha a conta pelo sub do Google e, na primeira vez, pelo e-mail
+     * (que o Google já verificou), e liga as duas. Sem conta, pede o cadastro.
+     *
+     * @throws CadastroNecessarioException ninguém com esse Google nem esse e-mail
+     */
+    @Transactional
+    public TokensResponse entrarComGoogle(String credencial) {
+        IdentidadeGoogle google = verificadorGoogle.verificar(credencial);
+        Usuario usuario = usuarioRepository.findByGoogleSub(google.sub())
+                .or(() -> usuarioRepository.findByEmailIgnoreCase(google.email()))
+                .orElseThrow(() -> new CadastroNecessarioException(google.email(), google.nome()));
+        if (!usuario.isAtivo()) {
+            throw new CredenciaisInvalidasException("Esta conta está desativada.");
+        }
+        usuario.vincularGoogle(google.sub());
         return emitir(usuario.comoUsuarioLogado());
     }
 

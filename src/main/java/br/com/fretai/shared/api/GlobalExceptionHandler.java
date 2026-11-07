@@ -1,6 +1,7 @@
 package br.com.fretai.shared.api;
 
 import br.com.fretai.shared.exception.AcessoNegadoException;
+import br.com.fretai.shared.exception.CadastroNecessarioException;
 import br.com.fretai.shared.exception.ConflitoException;
 import br.com.fretai.shared.exception.CredenciaisInvalidasException;
 import br.com.fretai.shared.exception.MuitasTentativasException;
@@ -39,6 +40,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     ProblemDetail naoEncontrado(RecursoNaoEncontradoException e) {
         return problema(HttpStatus.NOT_FOUND, "Recurso não encontrado", e.getMessage());
+    }
+
+    @ExceptionHandler(CadastroNecessarioException.class)
+    ProblemDetail cadastroNecessario(CadastroNecessarioException e) {
+        ProblemDetail problema = problema(HttpStatus.NOT_FOUND, "Conta não encontrada", e.getMessage());
+        problema.setProperty("codigo", "CADASTRO_NECESSARIO");
+        problema.setProperty("email", e.getEmail());
+        problema.setProperty("nome", e.getNome());
+        return problema;
     }
 
     @ExceptionHandler(CredenciaisInvalidasException.class)

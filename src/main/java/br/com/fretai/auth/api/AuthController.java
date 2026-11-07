@@ -1,6 +1,7 @@
 package br.com.fretai.auth.api;
 
 import br.com.fretai.auth.application.AuthService;
+import br.com.fretai.auth.application.dto.GoogleLoginRequest;
 import br.com.fretai.auth.application.dto.LoginRequest;
 import br.com.fretai.auth.application.dto.RefreshRequest;
 import br.com.fretai.auth.application.dto.TokensResponse;
@@ -30,6 +31,12 @@ public class AuthController {
     @PostMapping("/login")
     public TokensResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
         return authService.login(request, http.getRemoteAddr());
+    }
+
+    /** Entrar com Google. 404 com e-mail e nome quando a pessoa ainda não tem conta. */
+    @PostMapping("/google")
+    public TokensResponse entrarComGoogle(@Valid @RequestBody GoogleLoginRequest request) {
+        return authService.entrarComGoogle(request.credencial());
     }
 
     @PostMapping("/refresh")

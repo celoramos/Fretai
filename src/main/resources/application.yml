@@ -43,6 +43,9 @@ fretai:
     segredo: ${FRETAI_JWT_SEGREDO:}
     validade-acesso: 15m
     validade-refresh: 30d
+  google:
+    # Client ID OAuth (tipo "Aplicativo da Web") do Google Cloud. Sem ele, entrar com Google responde 422.
+    client-id: ${FRETAI_GOOGLE_CLIENT_ID:}
   login:
     # Depois de 5 senhas erradas para o mesmo e-mail e IP, espera até 15 minutos.
     maximo-falhas: 5

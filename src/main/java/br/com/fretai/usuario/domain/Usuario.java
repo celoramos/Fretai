@@ -35,8 +35,13 @@ public abstract class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 100)
+    /** Nulo em conta criada só com o Google. */
+    @Column(length = 100)
     private String senhaHash;
+
+    /** Identificador fixo da conta Google ligada a este usuário; nulo sem Google. */
+    @Column(unique = true)
+    private String googleSub;
 
     @Column(nullable = false, length = 20)
     private String telefone;
@@ -81,7 +86,19 @@ public abstract class Usuario {
 
     /** O hash nunca sai da entidade: quem valida o login passa a senha digitada para cá. */
     public boolean confereSenha(String senhaDigitada, PasswordEncoder encoder) {
-        return senhaDigitada != null && encoder.matches(senhaDigitada, senhaHash);
+        return senhaDigitada != null && senhaHash != null && encoder.matches(senhaDigitada, senhaHash);
+    }
+
+    public boolean temSenha() {
+        return senhaHash != null;
+    }
+
+    /** Liga a conta Google. Uma conta Fretaí aceita uma conta Google só, e não troca por outra. */
+    public void vincularGoogle(String sub) {
+        if (googleSub != null && !googleSub.equals(sub)) {
+            throw new IllegalStateException("Esta conta já está ligada a outra conta Google.");
+        }
+        this.googleSub = sub;
     }
 
     public abstract Papel getPapel();
