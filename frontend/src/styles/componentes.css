@@ -182,8 +182,10 @@
   background: var(--cor-neutro-medidor);
   transition: background-color var(--dur-media) var(--curva);
 }
-.medidor__trecho--cheio .medidor__barra { background: var(--cor-garantido); }
-.medidor__trecho--bloqueado .medidor__barra { background: var(--cor-alerta); }
+/* O enchimento é um filho que cresce da esquerda (scaleX, no Motion); a barra fica como trilho. */
+.medidor__barra { overflow: hidden; }
+.medidor__enchimento { display: block; height: 100%; transform-origin: left center; background: var(--cor-garantido); }
+.medidor__trecho--bloqueado .medidor__enchimento { background: var(--cor-alerta); }
 .medidor__nome { font-size: var(--tam-legenda); color: var(--cor-texto-secundario); }
 .medidor__valor { font-variant-numeric: tabular-nums; font-weight: var(--peso-forte); }
 

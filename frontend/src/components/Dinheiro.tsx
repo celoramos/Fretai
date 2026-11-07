@@ -1,3 +1,5 @@
+import { motion } from 'motion/react'
+import { DUR_MEDIA, transicao } from '../movimento'
 import type { Pagamento, Preco } from '../api/tipos'
 import { reais, STATUS_PAGAMENTO } from '../formato'
 
@@ -59,7 +61,11 @@ export function MedidorGarantia({ pagamento }: { pagamento: Pagamento | null }) 
           const estado = bloqueado ? 'bloqueado' : i < cheio ? 'cheio' : 'vazio'
           return (
             <li key={t.nome} className={`medidor__trecho medidor__trecho--${estado}`}>
-              <span className="medidor__barra" />
+              <span className="medidor__barra">
+                {estado !== 'vazio' && (
+                  <motion.span className="medidor__enchimento" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ ...transicao, delay: i * DUR_MEDIA }} />
+                )}
+              </span>
               <span className="medidor__nome">{t.nome}</span>
               {t.valor != null && <span className="medidor__valor">R$&nbsp;{reais(t.valor)}</span>}
             </li>
