@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "demo": "vite --mode demo",
+    "quadro": "node design/gerar-quadro.cjs",
     "build:demo": "tsc -b && vite build --mode demo"
   },
   "dependencies": {
