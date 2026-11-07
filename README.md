@@ -303,4 +303,4 @@ Os testes que precisam de PostGIS de verdade (`PostgresSchemaTest`, `BuscaPorRai
 - **Contestação procedente:** o saldo fica bloqueado; o acerto (estorno parcial, etc.) ainda é manual.
 - `CategoriaVeiculo.suporta(pesoKg)` (fluxo de pessoa física) ainda aceita qualquer peso.
 - Limite de tentativas de login em memória: com mais de uma instância, trocar por Redis.
-- Interface web/app: não há frontend neste repositório.
+- Interface web: o front em [`frontend/`](frontend/README.md) cobre login, busca e andamento do motorista, e fretes e propostas da empresa. Cadastros, publicação, canhoto, carteira e admin ainda não têm tela.
