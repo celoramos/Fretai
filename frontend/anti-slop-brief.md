@@ -39,6 +39,11 @@ Vizinho testado: um marketplace de frete sem garantia (vitrine de cargas), na me
 | Tabela de fretes com status | Sim, é o padrão da categoria | Mantida: a Carla compara muitos fretes, e a tabela serve a isso. |
 | Azul de link | Sim | Mantido: é a placa azul de informação do briefing. |
 
+## Aprovado
+
+- 2026-11-07: o dono do produto aprovou a paleta dos dois temas, do jeito que está em `src/styles/tokens.css`: fundo, superfície, linha, texto, estados, asfalto e faixa. Trocar uma cor pede nova aprovação. O layout das páginas ainda vai mudar.
+- O quadro visual (tokens, componentes e telas nos dois temas) sai de `npm run quadro`, em `design/fretai-design.html`. Ele usa o CSS do app e o HTML do modo demo guardado em `design/capturas/`.
+
 ## Desvios do briefing, registrados
 
 - `cor/garantido` no claro mudou de `#00875A` para `#007A51`. Motivo: o tom original não passava sobre fundo verde, e o novo continua com o mesmo matiz.
