@@ -1,3 +1,5 @@
+import { motion, useReducedMotion, type Variants } from 'motion/react'
+import { CURVA, DUR_ROTA, item } from '../movimento'
 import { useRef, useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ErroApi, MODO_DEMO } from '../api/cliente'
@@ -6,7 +8,14 @@ import { useTitulo } from '../useTitulo'
 import { Aviso } from '../components/ui'
 import { useSessao } from '../sessao'
 
+/* A pista do login desce no tempo da rota, e cada etapa aparece quando a pista chega nela. */
+const passos: Variants = {
+  oculta: { '--trajeto': '100%' },
+  visivel: { '--trajeto': '0%', transition: { duration: DUR_ROTA, ease: CURVA, delayChildren: DUR_ROTA / 4, staggerChildren: DUR_ROTA / 4 } },
+}
+
 export function Entrar() {
+  const reduzido = useReducedMotion()
   useTitulo('Entrar')
   const { tokens, entrar } = useSessao()
   const navegar = useNavigate()
@@ -44,11 +53,12 @@ export function Entrar() {
     <main className="entrar">
       <section className="entrar__painel" aria-labelledby="entrar-titulo">
         <h1 id="entrar-titulo" className="entrar__titulo">Frete com pagamento garantido antes de carregar.</h1>
-        <ol className="entrar__passos">
-          <li><span className="entrar__km">km 0</span>A empresa paga por Pix no aceite. O dinheiro fica guardado.</li>
-          <li><span className="entrar__km">saída</span>O adiantamento cai quando você sai com a carga.</li>
-          <li><span className="entrar__km">entrega</span>O saldo cai com o canhoto: foto, assinatura e GPS no destino.</li>
-        </ol>
+        {/* --trajeto: quanto da pista ainda está coberto. O Motion leva de 100% a 0%, de cima para baixo. */}
+        <motion.ol className="entrar__passos" variants={passos} initial={reduzido ? false : 'oculta'} animate="visivel">
+          <motion.li variants={item}><span className="entrar__km">km 0</span>A empresa paga por Pix no aceite. O dinheiro fica guardado.</motion.li>
+          <motion.li variants={item}><span className="entrar__km">saída</span>O adiantamento cai quando você sai com a carga.</motion.li>
+          <motion.li variants={item}><span className="entrar__km">entrega</span>O saldo cai com o canhoto: foto, assinatura e GPS no destino.</motion.li>
+        </motion.ol>
       </section>
 
       <section className="entrar__form-area">

@@ -132,6 +132,8 @@
 }
 .entrar__passos::before {
   content: "";
+  /* Sem JS a pista aparece inteira: --trajeto só existe enquanto o Motion anima. */
+  clip-path: inset(0 0 var(--trajeto, 0%) 0);
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: var(--esp-6);
