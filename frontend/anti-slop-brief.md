@@ -30,6 +30,16 @@ Não tomadas:
 - **Placa** (a anterior): sinalização como moldura, com placa Mercosul desenhada, marcos de km em asfalto, etiquetas e avisos com fundo colorido e cards. O dono do produto achou carregado.
 - **Só tipografia:** a rota também viraria uma linha fina com o km. Foi descartada porque o dono do produto pediu para manter a linha de rota como está.
 
+## Página pública (2026-11-07)
+
+Pedido do dono do produto: um site atraente e fácil de entender, simples mas com informação suficiente, com os apps de entrega e corrida (iFood, Uber, 99) como referência e as mesmas cores. Isso muda a raiz 3 só na página pública: lá o conteúdo vive em cartões arredondados, a ação principal é pílula e há sombra no claro (Departure em `tokens.css`). O app logado continua na Folha até o redesenho das telas.
+
+Das referências vieram padrões, não a cara: a escolha de público no topo ("Sou motorista" / "Tenho carga"), a ação grande logo abaixo do título, o produto mostrado funcionando ao lado (um frete e um pagamento de exemplo, marcados "Exemplo") e as dúvidas em lista que abre. A assinatura continua a pista: em "Como o dinheiro anda" ela se desenha conforme a rolagem (GSAP, ScrollTrigger), parando em km 0, saída e entrega.
+
+Logo: provisório em `src/components/Marca.tsx` até o dono do produto mandar o definitivo.
+
+Colisão, testada contra a página de uma vitrine de fretes: foto de caminhão na abertura, números de tração ("+ de 500 mil motoristas"), três cartões com ícone e azul. Respostas: sem foto, a abertura é um frete de exemplo; nenhum número de tração, porque não existe nenhum; os cartões são quatro, um por proteção do inventário, cada um mostrando o pedaço real da interface no lugar de ícone.
+
 ## Teste de colisão
 
 Vizinho testado: um marketplace de frete sem garantia (vitrine de cargas), na mesma categoria do Fretebras.
