@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../../api/cliente'
-import type { Frete, Pagina, StatusFrete } from '../../api/tipos'
+import type { Frete, Pagamento, Pagina, StatusFrete } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { useTitulo } from '../../useTitulo'
 import { ErroCarga, Esqueleto, Indicador, Km, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
@@ -24,12 +24,16 @@ export function FretesEmpresa() {
   const [params, setParams] = useSearchParams()
   const filtro = FILTROS.find((f) => f.id === params.get('filtro')) ?? FILTROS[0]
 
-  const [estado, recarregar] = useRecurso(
-    () => api<Pagina<Frete>>('GET', `/api/fretes/empresa/${tokens?.empresaId}?size=100&sort=criadoEm,desc`),
-    [tokens?.empresaId],
-  )
+  const [estado, recarregar] = useRecurso(async () => {
+    const pagina = await api<Pagina<Frete>>('GET', `/api/fretes/empresa/${tokens?.empresaId}?size=100&sort=criadoEm,desc`)
+    // Frete aceito pode estar esperando o Pix da empresa: só para esses a cobrança é consultada.
+    const aceitos = pagina.content.filter((f) => f.status === 'ACEITO')
+    const cobrancas = await Promise.all(aceitos.map((f) => api<Pagamento>('GET', `/api/fretes/${f.id}/pagamento`).catch(() => null)))
+    const semPix = new Set(aceitos.filter((_, i) => !cobrancas[i] || cobrancas[i]!.status === 'PENDENTE').map((f) => f.id))
+    return { fretes: pagina.content, semPix }
+  }, [tokens?.empresaId])
 
-  const todos = estado.fase === 'pronto' ? estado.dados.content : []
+  const todos = estado.fase === 'pronto' ? estado.dados.fretes : []
   const visiveis = filtro.status ? todos.filter((f) => filtro.status!.includes(f.status)) : todos
   const contagem = (st: StatusFrete[] | null) => (st ? todos.filter((f) => st.includes(f.status)).length : todos.length)
 
@@ -39,6 +43,8 @@ export function FretesEmpresa() {
         <h1 className="titulo-pagina">Fretes</h1>
         <Link to="/empresa/fretes/novo" className="botao botao--primario">Publicar frete</Link>
       </div>
+
+      {estado.fase === 'pronto' && <PrecisaDeVoce fretes={todos} semPix={estado.dados.semPix} />}
 
       <div className="filtros" role="group" aria-label="Filtrar por situação">
         {FILTROS.map((f) => (
@@ -100,5 +106,44 @@ export function FretesEmpresa() {
         </div>
       )}
     </div>
+  )
+}
+
+type Pendencia = { chave: string; para: string; acao: string; rota: string; por: string }
+
+/**
+ * O que está parado esperando a empresa, do mais urgente para o menos: Pix (o motorista não carrega sem
+ * ele), propostas (o motorista espera resposta) e entregas para conferir (o prazo de contestar corre).
+ * Cada linha leva direto à aba que resolve. Sem pendência, o bloco não aparece.
+ */
+function PrecisaDeVoce({ fretes, semPix }: { fretes: Frete[]; semPix: Set<string> }) {
+  const rota = (f: Frete) => `${f.coleta.cidade} → ${f.entrega.cidade}`
+  const pendencias: Pendencia[] = [
+    ...fretes.filter((f) => semPix.has(f.id)).map((f) => ({
+      chave: `pix-${f.id}`, para: `/empresa/fretes/${f.id}?aba=pagamento`, acao: 'Pagar o Pix', rota: rota(f), por: 'O motorista só carrega com o pagamento garantido.',
+    })),
+    ...fretes.filter((f) => f.status === 'PROPOSTA_ENVIADA').map((f) => ({
+      chave: `prop-${f.id}`, para: `/empresa/fretes/${f.id}`, acao: 'Responder propostas', rota: rota(f), por: 'Motoristas esperando resposta.',
+    })),
+    ...fretes.filter((f) => f.status === 'ENTREGUE').map((f) => ({
+      chave: `ent-${f.id}`, para: `/empresa/fretes/${f.id}?aba=entrega`, acao: 'Conferir a entrega', rota: rota(f), por: 'Dá para contestar só até o fim do prazo.',
+    })),
+  ]
+  if (pendencias.length === 0) return null
+  return (
+    <section className="cartao precisa" aria-labelledby="precisa-titulo">
+      <h2 id="precisa-titulo" className="bloco__titulo">Precisa de você <span className="abas__n">{pendencias.length}</span></h2>
+      <ul className="precisa__lista">
+        {pendencias.map((p) => (
+          <li key={p.chave}>
+            <Link to={p.para} className="precisa__item">
+              <span className="precisa__acao">{p.acao}</span>
+              <span className="precisa__rota">{p.rota}</span>
+              <span className="precisa__por">{p.por}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }

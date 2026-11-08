@@ -286,6 +286,31 @@
 .app-empresa__conteudo { max-width: var(--largura-conteudo); margin: 0 auto; padding: var(--esp-6); }
 
 .titulo-pagina { font-size: var(--tam-titulo); }
+
+/* Precisa de você: cada pendência é uma linha que leva à aba que resolve. A ação vem primeiro, em peso
+   forte; a rota e o porquê, depois. Em telas largas, ação e rota dividem a linha. */
+.precisa { display: grid; gap: var(--esp-2); }
+.precisa__lista { display: grid; }
+.precisa__lista > li + li { border-top: var(--borda) solid var(--cor-linha); }
+.precisa__item {
+  display: grid;
+  gap: var(--esp-1);
+  padding: var(--esp-3) var(--esp-2);
+  margin: 0 calc(var(--esp-2) * -1);
+  border-radius: var(--raio-controle);
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+.precisa__item:hover { background: var(--cor-linha); }
+.precisa__item:active { background: var(--cor-borda-campo); }
+.precisa__acao { font-weight: var(--peso-forte); }
+.precisa__item:hover .precisa__acao { text-decoration: underline; }
+.precisa__rota { font-family: var(--fonte-placa); font-weight: var(--peso-placa); }
+.precisa__por { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+
+@media (min-width: 900px) {
+  .precisa__item { grid-template-columns: var(--largura-acao) minmax(0, 1fr) auto; align-items: baseline; gap: var(--esp-4); }
+}
 .fretes-e { display: grid; gap: var(--esp-4); }
 .reserva-tabela { min-height: 50dvh; }
 
