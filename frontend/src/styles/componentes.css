@@ -242,9 +242,10 @@
 .marco--futuro .marco__rotulo { color: var(--cor-texto-secundario); font-weight: var(--peso-normal); }
 .marco__quando { font-size: var(--tam-legenda); color: var(--cor-texto-secundario); font-variant-numeric: tabular-nums; }
 
-/* Vertical: uma linha fina desce pela esquerda, os pontos ficam sobre ela. */
-.marcos--vertical { gap: var(--esp-4); }
-.marcos--vertical::before {
+/* Vertical: uma linha fina desce pela esquerda, os pontos ficam sobre ela. O horizontal também começa
+   assim: seis marcos lado a lado não cabem numa coluna de celular, e os rótulos se atropelavam. */
+.marcos--vertical, .marcos--horizontal { gap: var(--esp-4); }
+.marcos--vertical::before, .marcos--horizontal::before {
   content: "";
   position: absolute;
   left: calc(var(--esp-3) / 2 - var(--borda));
@@ -253,17 +254,18 @@
   width: var(--borda-forte);
   background: var(--cor-linha);
 }
-/* Horizontal: a estrada corre sob os marcos. */
-.marcos--horizontal { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--esp-2); }
-.marcos--horizontal::before {
-  content: "";
-  position: absolute;
-  left: 0; right: 0;
-  top: calc(var(--esp-1) + var(--esp-3) / 2 - var(--borda));
-  height: var(--borda-forte);
-  background: var(--cor-linha);
+/* Horizontal, a partir de 900px (a quebra de duas colunas, tokens.css): a estrada corre sob os marcos. */
+@media (min-width: 900px) {
+  .marcos--horizontal { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--esp-2); }
+  .marcos--horizontal::before {
+    left: 0; right: 0;
+    top: calc(var(--esp-1) + var(--esp-3) / 2 - var(--borda));
+    bottom: auto;
+    width: auto;
+    height: var(--borda-forte);
+  }
+  .marcos--horizontal .marco { flex-direction: column; gap: var(--esp-2); }
 }
-.marcos--horizontal .marco { flex-direction: column; gap: var(--esp-2); }
 
 /* ---------- placa ----------
    Só os caracteres em mono, num contorno fino: lê como placa sem desenhar a placa. */
