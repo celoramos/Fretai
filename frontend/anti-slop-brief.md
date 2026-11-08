@@ -73,7 +73,8 @@ Vizinho testado: um marketplace de frete sem garantia (vitrine de cargas), na me
 - A ação principal saiu do amarelo e foi para a tinta. Motivo: o amarelo fica só na rota.
 - A linha de rota usa asfalto escuro sob o tracejado. Motivo: amarelo sobre fundo claro não tem contraste.
 - No tema escuro o asfalto vai para `#0A0C0F`, com acostamento `#4A5160` marcando a borda.
-- A empresa usa navegação no topo, não lateral. Motivo: só existe uma seção por enquanto.
+- A empresa usa navegação no topo, não lateral. Motivo: são três seções (Fretes, Pagamentos, Empresa), e a tabela de fretes precisa da largura inteira.
+- O status `ACEITO`, para quem contratou, diz "Fechado com o motorista", não "Motorista a caminho da coleta". Motivo: no aceite o Pix ainda pode estar por pagar, e sem ele o motorista não sai.
 
 ## Telas do fluxo inteiro (2026-11-08)
 
@@ -100,6 +101,18 @@ Três decisões que valem para todas:
 - extrato e pagamentos mostram centavos, porque ali a soma tem de bater com as linhas; o resto do app continua com o valor redondo;
 - ação sem volta na API (verificar documento, decidir contestação) pede confirmação, e o botão diz o que move ("Liberar o saldo").
 
+## O cliente pessoa física e a recusa de documento (2026-11-08)
+
+O cliente pessoa física pede um frete avulso: uma mudança, uma entrega. Decisões:
+
+- entrada secundária, como pede o briefing: uma linha abaixo da ação da empresa na página inicial e um botão abaixo dos dois perfis no cadastro;
+- uma coluna de cartões, um por frete, com o próximo passo escrito no fim de cada um; o que espera pelo cliente vem primeiro, e a barra fica sem navegação, porque é um lugar só;
+- alvo de toque de 48 px, o do motorista: quem pede frete avulso está no celular;
+- o formulário pede o que o motorista precisa para decidir e quem recebe (é quem assina o canhoto); sem tipo de caminhão nem carga ANTT, que quem faz uma mudança não sabe;
+- o detalhe do frete é o mesmo da empresa, com o resumo do pedido e o adicional de feriado escrito, porque ele entra no valor sem o cliente digitar.
+
+Recusar documento: o motivo é o passo deliberado, e sem motivo não se recusa. O motorista lê o motivo junto do documento; quem contratou não vê o arquivo recusado.
+
 ## Fora deste corte
 
-O app do cliente pessoa física e recusar documento, que a API ainda não tem. A navegação mostra só o que existe.
+A tela de dados do cliente, porque a API ainda não lê nem edita o cadastro dele. A navegação mostra só o que existe.

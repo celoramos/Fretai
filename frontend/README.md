@@ -10,7 +10,7 @@ npm run demo   # sem backend: dados de exemplo em memória
 npm run dev    # com a API em http://localhost:8080 (docker compose up na raiz)
 ```
 
-No modo demo a senha é `demo123`, com `motorista@demo.fretai`, `empresa@demo.fretai` ou `admin@demo.fretai`. A tela de login tem botões que preenchem esses dados.
+No modo demo a senha é `demo123`, com `motorista@demo.fretai`, `empresa@demo.fretai`, `cliente@demo.fretai` ou `admin@demo.fretai`. A tela de login tem botões que preenchem esses dados.
 
 No modo demo também dá para testar o Google: o botão "Entrar com Google (demonstração)" simula a conta `voce@gmail.com`. As contas criadas no demo ficam no `localStorage` do navegador.
 
@@ -29,7 +29,7 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 | Tela | Endpoints |
 |---|---|
 | Entrar (e-mail e senha, ou Google) | `POST /api/auth/login`, `/google`, `/refresh`, `/logout` |
-| Criar conta (motorista ou empresa, com senha ou com Google) | `POST /api/motoristas`, `POST /api/empresas`, `GET /api/empresas/{cnpj}` |
+| Criar conta (motorista, empresa ou cliente pessoa física, com senha ou com Google) | `POST /api/motoristas`, `POST /api/empresas`, `POST /api/clientes`, `GET /api/empresas/{cnpj}` |
 | Motorista · Fretes perto de você (CEP ou GPS, raio 50/100/200 km) | `GET /api/fretes/busca`, `GET /api/empresas/{id}/perfil` |
 | Motorista · Frete (detalhe, aceitar, proposta, retirar a proposta, andamento, iniciar viagem, cancelar, fretes de volta, avaliar a empresa) | `GET /api/fretes/{id}`, `/eventos`, `/pagamento`, `/retorno`, `POST /aceite`, `/propostas`, `/inicio`, `/cancelamento`, `POST /api/propostas/{id}/retirada`, `GET`/`POST /api/fretes/{id}/avaliacoes`, `GET /api/motoristas/{id}/veiculos` |
 | Motorista · Registrar entrega (foto, assinatura, GPS) | `POST /api/fretes/{id}/canhoto` (multipart) |
@@ -39,11 +39,13 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 | Motorista · Perfil (chave Pix, caminhões, base dos avisos, feriado, contato) | `GET`/`PUT /api/motoristas/{id}`, `PUT /chave-pix`, `PUT /base`, `PATCH /preferencias`, `POST`/`DELETE /api/motoristas/{id}/veiculos`, `GET /api/motoristas/{id}/perfil` |
 | Empresa · Fretes (precisa de você, filtros por situação) | `GET /api/fretes/empresa/{empresaId}`, `GET /api/fretes/{id}/pagamento` |
 | Empresa · Publicar e editar frete (editar só antes da primeira proposta) | `POST /api/fretes/empresa/{empresaId}`, `PUT /api/fretes/{id}`, `GET /api/calendario/verificacao` |
-| Empresa · Frete (comparador de propostas, Pix, entrega com canhoto e contestação, avaliar o motorista, histórico, cancelar) | `GET /api/fretes/{id}/propostas`, `POST /api/propostas/{id}/aceite`, `/recusa`, `POST /api/fretes/{id}/pagamento`, `GET /api/fretes/{id}/canhoto`, `POST /canhoto/contestacao`, `/avaliacoes`, `/cancelamento`, `GET /api/motoristas/{id}/perfil` |
-| Documentos do motorista (enviar CNH, CRLV e comprovantes; a empresa abre por link temporário; o motorista vê quem abriu) | `POST`/`GET /api/fretes/{id}/documentos` (multipart), `POST /api/documentos/{id}/link`, `GET /api/documentos/{id}/acessos` |
+| Empresa e cliente · Frete (comparador de propostas, Pix, entrega com canhoto e contestação, avaliar o motorista, histórico, cancelar; no do cliente, o resumo do pedido) | `GET /api/fretes/{id}/propostas`, `POST /api/propostas/{id}/aceite`, `/recusa`, `POST /api/fretes/{id}/pagamento`, `GET /api/fretes/{id}/canhoto`, `POST /canhoto/contestacao`, `/avaliacoes`, `/cancelamento`, `GET /api/motoristas/{id}/perfil` |
+| Documentos do motorista (enviar CNH, CRLV e comprovantes; quem contratou abre por link temporário; o motorista vê quem abriu e o motivo de uma recusa) | `POST`/`GET /api/fretes/{id}/documentos` (multipart), `POST /api/documentos/{id}/link`, `GET /api/documentos/{id}/acessos` |
+| Cliente · Seus fretes (um cartão por frete, com o próximo passo) | `GET /api/fretes/cliente/{clienteId}`, `GET /api/fretes/{id}/propostas`, `GET /api/fretes/{id}/pagamento` |
+| Cliente · Pedir frete (de onde, para onde, quem recebe, quando, o quê, por quanto) | `POST /api/fretes`, `GET /api/calendario/verificacao` |
 | Empresa · Pagamentos (Pix pagos, em garantia, a pagar, devolvidos, e o repasse de cada frete) | `GET /api/fretes/empresa/{empresaId}`, `GET /api/fretes/{id}/pagamento` |
 | Empresa · Dados da empresa (como o motorista vê, nome fantasia e telefone, cadastro da Receita) | `GET`/`PUT /api/empresas/{id}`, `GET /api/empresas/{id}/perfil` |
-| Administrador · Documentos para verificar | `GET /api/documentos/pendentes`, `POST /api/documentos/{id}/link`, `POST /api/documentos/{id}/verificacao`, `GET /api/motoristas/{id}/perfil` |
+| Administrador · Documentos para verificar (verificar ou recusar com motivo) | `GET /api/documentos/pendentes`, `POST /api/documentos/{id}/link`, `POST /api/documentos/{id}/verificacao`, `POST /api/documentos/{id}/recusa`, `GET /api/motoristas/{id}/perfil` |
 | Administrador · Contestações (decidir com a prova da entrega ao lado) | `GET /api/canhotos/contestacoes`, `GET /api/fretes/{id}`, `/pagamento`, `POST /api/fretes/{id}/canhoto/resolucao` |
 | Administrador · Piso ANTT (CCD e CC por carga e eixos) | `GET /api/piso-antt`, `PUT /api/piso-antt/{tipoCarga}/{eixos}` |
 | Contestar entrega (pública, com o código do recebedor) | `POST /api/canhotos/contestacao` |
@@ -51,7 +53,7 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 
 Formulário preenchido pergunta antes de sair, seja por link do app, voltar do navegador ou fechar a aba.
 
-Ainda não implementado: o app do cliente pessoa física (a API aceita `POST /api/fretes` dele, mas não há tela) e recusar documento (a API só tem verificar).
+Ainda não implementado: a tela de dados do cliente pessoa física, porque a API ainda não lê nem edita o cadastro dele.
 
 ## Design
 
