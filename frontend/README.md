@@ -31,12 +31,18 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 | Entrar (e-mail e senha, ou Google) | `POST /api/auth/login`, `/google`, `/refresh`, `/logout` |
 | Criar conta (motorista ou empresa, com senha ou com Google) | `POST /api/motoristas`, `POST /api/empresas`, `GET /api/empresas/{cnpj}` |
 | Motorista · Fretes perto de você (CEP ou GPS, raio 50/100/200 km) | `GET /api/fretes/busca`, `GET /api/empresas/{id}/perfil` |
-| Motorista · Frete (detalhe, aceitar, proposta, andamento, iniciar viagem) | `GET /api/fretes/{id}`, `/eventos`, `/pagamento`, `POST /aceite`, `/propostas`, `/inicio`, `GET /api/motoristas/{id}/veiculos` |
-| Motorista · Meus fretes | `GET /api/propostas/minhas` |
-| Empresa · Fretes (filtros por situação) | `GET /api/fretes/empresa/{empresaId}` |
-| Empresa · Frete (comparador de propostas, Pix, histórico) | `GET /api/fretes/{id}/propostas`, `POST /api/propostas/{id}/aceite`, `/recusa`, `POST /api/fretes/{id}/pagamento`, `GET /api/motoristas/{id}/perfil` |
+| Motorista · Frete (detalhe, aceitar, proposta, retirar a proposta, andamento, iniciar viagem, cancelar, fretes de volta, avaliar a empresa) | `GET /api/fretes/{id}`, `/eventos`, `/pagamento`, `/retorno`, `POST /aceite`, `/propostas`, `/inicio`, `/cancelamento`, `POST /api/propostas/{id}/retirada`, `GET`/`POST /api/fretes/{id}/avaliacoes`, `GET /api/motoristas/{id}/veiculos` |
+| Motorista · Registrar entrega (foto, assinatura, GPS) | `POST /api/fretes/{id}/canhoto` (multipart) |
+| Motorista · Meus fretes (com o resumo do dinheiro) | `GET /api/propostas/minhas`, `GET /api/fretes/{id}/pagamento` |
+| Motorista · Calculadora ("esse frete paga a viagem?") | `POST /api/calculadora/frete` |
+| Motorista · Perfil (chave Pix, caminhões, base dos avisos, feriado, contato) | `GET`/`PUT /api/motoristas/{id}`, `PUT /chave-pix`, `PUT /base`, `PATCH /preferencias`, `POST`/`DELETE /api/motoristas/{id}/veiculos`, `GET /api/motoristas/{id}/perfil` |
+| Empresa · Fretes (precisa de você, filtros por situação) | `GET /api/fretes/empresa/{empresaId}`, `GET /api/fretes/{id}/pagamento` |
+| Empresa · Publicar frete | `POST /api/fretes/empresa/{empresaId}`, `GET /api/calendario/verificacao` |
+| Empresa · Frete (comparador de propostas, Pix, entrega com canhoto e contestação, avaliar o motorista, histórico, cancelar) | `GET /api/fretes/{id}/propostas`, `POST /api/propostas/{id}/aceite`, `/recusa`, `POST /api/fretes/{id}/pagamento`, `GET /api/fretes/{id}/canhoto`, `POST /canhoto/contestacao`, `/avaliacoes`, `/cancelamento`, `GET /api/motoristas/{id}/perfil` |
+| Contestar entrega (pública, com o código do recebedor) | `POST /api/canhotos/contestacao` |
+| Privacidade e termos de uso | nenhum |
 
-Ainda não implementado: publicar frete, carteira, perfil, canhoto digital, calculadora, avaliação, admin e contestação pública.
+Ainda não implementado: envio de documentos (CNH, CRLV) e o link para a empresa abrir, edição de frete publicado, dados da empresa, extrato completo de pagamentos e as telas do administrador (verificar documentos, resolver contestação, piso ANTT).
 
 ## Design
 
