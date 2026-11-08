@@ -229,7 +229,7 @@ function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | nul
             <input id="adiantamento" type="range" min={0} max={100} step={10} value={adiantamento} onChange={(e) => setAdiantamento(Number(e.target.value))} className="faixa-deslizante" />
             {valido && (
               <p className="campo__ajuda campo__ajuda--numeros">
-                R$&nbsp;{reais((numero * adiantamento) / 100)} na saída e Rna saída · R$&nbsp;nbsp;{reais(numero - (numero * adiantamento) / 100)} na entrega
+                RR$&nbsp;{reais((numero * adiantamento) / 100)} na saída e Rna saída · R$&nbsp;nbsp;{reais(numero - (numero * adiantamento) / 100)} na entreganbsp;{reais((numero * adiantamento) / 100)} na saída · RR$&nbsp;{reais((numero * adiantamento) / 100)} na saída e Rna saída · R$&nbsp;nbsp;{reais(numero - (numero * adiantamento) / 100)} na entreganbsp;{reais(numero - (numero * adiantamento) / 100)} na entrega
               </p>
             )}
           </div>
