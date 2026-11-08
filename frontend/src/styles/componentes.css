@@ -45,7 +45,8 @@
 .botao--perigo:active:not(:disabled) { background: transparent; color: var(--cor-perigo); }
 
 /* ---------- campo ---------- */
-.campo { display: grid; gap: var(--esp-1); }
+/* align-content: start: lado a lado com um campo que tem ajuda embaixo, o controle não desce para o meio da linha. */
+.campo { display: grid; gap: var(--esp-1); align-content: start; }
 .campo__rotulo { font-size: var(--tam-detalhe); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); }
 .campo__entrada {
   width: 100%;

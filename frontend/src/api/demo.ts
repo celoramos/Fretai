@@ -5,10 +5,11 @@
  */
 import type {
   Avaliacao,
-  Endereco,
   Canhoto,
+  Endereco,
   EventoFrete,
   Frete,
+  Motorista,
   Pagamento,
   PerfilEmpresa,
   PerfilMotorista,
@@ -217,6 +218,44 @@ function contestar(c: Canhoto, motivo: string): Response | null {
 // ---------- avaliações ----------
 
 const avaliacoes: Avaliacao[] = []
+
+// ---------- perfil do motorista ----------
+
+const motoristaDemo: Motorista = {
+  id: M1, nome: 'João Batista Ferreira', email: 'motorista@demo.fretai', telefone: '(19) 99876-5432', tipoVeiculo: 'CAMINHAO',
+  placa: 'ABC1D23', aceitaFeriado: true, temChavePix: true, criadoEm: '2025-06-01T12:00:00Z',
+}
+const TELEFONE = /^(\+?55)?\s?\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/
+const PLACA = /^[A-Za-z]{3}-?\d[A-Za-z0-9]\d{2}$/
+const invalido = (erros: Record<string, string>) => json({ title: 'Dados inválidos', detail: 'Confira os campos marcados.', status: 400, erros }, 400)
+
+/** A mesma conta da API (precificacao): diesel pelo consumo, mais pedágio e outros; piso com o coeficiente de exemplo. */
+function calcular(b: Record<string, unknown>) {
+  const km = Number(b.distanciaKm)
+  const consumo = Number(b.consumoKmPorLitro)
+  const diesel = Number(b.precoDieselLitro)
+  const erros: Record<string, string> = {}
+  if (!(km > 0)) erros.distanciaKm = 'A distância deve ser maior que zero.'
+  if (!(consumo > 0)) erros.consumoKmPorLitro = 'O consumo deve ser maior que zero.'
+  if (!(diesel > 0)) erros.precoDieselLitro = 'O preço do diesel deve ser maior que zero.'
+  if (Object.keys(erros).length) return { erros }
+  const litros = Math.round((km / consumo) * 100) / 100
+  const combustivel = Math.round(litros * diesel * 100) / 100
+  const pedagio = Number(b.pedagio ?? 0)
+  const outros = Number(b.outrosCustos ?? 0)
+  const total = Math.round((combustivel + pedagio + outros) * 100) / 100
+  const eixos = b.numeroEixos == null ? null : Number(b.numeroEixos)
+  const piso = b.tipoCargaAntt && eixos
+    ? { valor: Math.round(km * (1.2 + eixos * 1.05) + 480), tipoCarga: String(b.tipoCargaAntt), numeroEixos: eixos, distanciaKm: km, fonte: 'Exemplo', coeficientesDeExemplo: true }
+    : null
+  const oferecido = b.valorOferecido == null ? null : Number(b.valorOferecido)
+  return {
+    resultado: {
+      custo: { distanciaKm: km, litros, combustivel, pedagio, outros, total }, piso, valorOferecido: oferecido,
+      margem: oferecido == null ? null : Math.round((oferecido - total) * 100) / 100, abaixoDoPiso: piso != null && oferecido != null && oferecido < piso.valor,
+    },
+  }
+}
 
 // ---------- publicar frete ----------
 
@@ -539,6 +578,57 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     return json(pr)
   }
   if (metodo === 'GET' && p === '/api/propostas/minhas') return json(pagina(propostas.filter((x) => x.motorista.id === M1)))
+  if (metodo === 'POST' && p === '/api/calculadora/frete') {
+    const { erros, resultado } = calcular(b)
+    return erros ? invalido(erros) : json(resultado)
+  }
+  if ((m = p.match(/^\/api\/motoristas\/([^/]+)(\/chave-pix|\/base|\/preferencias)?$/)) && m[1] === M1) {
+    if (metodo === 'GET' && !m[2]) return json(motoristaDemo)
+    if (metodo === 'PUT' && !m[2]) {
+      const erros: Record<string, string> = {}
+      const nome = String(b.nome ?? '').trim()
+      if (nome.length < 2) erros.nome = 'O nome deve ter entre 2 e 100 caracteres.'
+      if (!TELEFONE.test(String(b.telefone ?? ''))) erros.telefone = 'Telefone inválido. Use DDD + número.'
+      if (Object.keys(erros).length) return invalido(erros)
+      Object.assign(motoristaDemo, { nome, telefone: String(b.telefone) })
+      perfisMotorista[M1].nome = nome
+      return json(motoristaDemo)
+    }
+    if (metodo === 'PUT' && m[2] === '/chave-pix') {
+      if (!String(b.chavePix ?? '').trim()) return invalido({ chavePix: 'Informe a chave Pix.' })
+      motoristaDemo.temChavePix = true
+      return json(motoristaDemo)
+    }
+    if (metodo === 'PUT' && m[2] === '/base') {
+      const raio = Number(b.raioKm)
+      if (!(raio >= 1 && raio <= 1000)) return invalido({ raioKm: 'O raio vai de 1 a 1000 km.' })
+      return json(motoristaDemo)
+    }
+    if (metodo === 'PATCH' && m[2] === '/preferencias') {
+      motoristaDemo.aceitaFeriado = Boolean(b.aceitaFeriado)
+      return json(motoristaDemo)
+    }
+  }
+  if (metodo === 'POST' && (m = p.match(/^\/api\/motoristas\/([^/]+)\/veiculos$/))) {
+    const placa = String(b.placa ?? '').toUpperCase().replace('-', '')
+    const erros: Record<string, string> = {}
+    if (!PLACA.test(placa)) erros.placa = 'Placa inválida. Use o formato ABC1234 ou ABC1D23.'
+    else if (veiculos.some((v) => v.placa === placa)) erros.placa = 'Já existe um veículo com essa placa.'
+    if (!/^\d{8,9}$/.test(String(b.rntrc ?? ''))) erros.rntrc = 'RNTRC inválido. Deve ter 8 ou 9 dígitos.'
+    if (Object.keys(erros).length) return invalido(erros)
+    const novo: Veiculo = {
+      id: `v${veiculos.length + 1}`, motoristaId: m[1], placa, rntrc: String(b.rntrc), tipo: String(b.tipo), carroceria: String(b.carroceria),
+      numeroEixos: Number(b.numeroEixos), rastreador: Boolean(b.rastreador), criadoEm: iso(0),
+    }
+    veiculos.push(novo)
+    return json(novo, 201)
+  }
+  if (metodo === 'DELETE' && (m = p.match(/^\/api\/motoristas\/([^/]+)\/veiculos\/([^/]+)$/))) {
+    const i = veiculos.findIndex((v) => v.id === m![2] && v.motoristaId === m![1])
+    if (i < 0) return problema(404, 'Veículo não encontrado', 'Esse caminhão não existe.')
+    veiculos.splice(i, 1)
+    return new Response(null, { status: 204 })
+  }
   if (metodo === 'GET' && (m = p.match(/^\/api\/empresas\/([^/]+)\/perfil$/))) return json(perfisEmpresa[m[1]])
   if (metodo === 'GET' && (m = p.match(/^\/api\/motoristas\/([^/]+)\/perfil$/))) return json(perfisMotorista[m[1]])
   if (metodo === 'GET' && (m = p.match(/^\/api\/motoristas\/([^/]+)\/veiculos$/))) return json(veiculos.filter((v) => v.motoristaId === m![1]))

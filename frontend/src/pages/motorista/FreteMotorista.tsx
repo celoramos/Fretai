@@ -67,6 +67,12 @@ export function FreteMotorista() {
           </div>
         )}
         <ChipPiso preco={frete.preco} valor={valor} />
+        {frete.distanciaKm != null && (
+          <Link className="frete-m__conta" to={`/motorista/calculadora?${new URLSearchParams(Object.entries({
+            km: String(frete.distanciaKm), valor: valor != null ? String(valor) : '', carga: frete.tipoCargaAntt ?? '',
+            eixos: frete.preco?.eixosConsiderados != null ? String(frete.preco.eixosConsiderados) : '',
+          }).filter(([, v]) => v))}`}>Esse frete paga a viagem? Fazer a conta</Link>
+        )}
         {frete.preco?.acimaDaMedia && (
           <Aviso tom="alerta" titulo="Valor muito acima da média desta rota.">
             Golpe comum: valor alto para atrair motorista. Confira a empresa antes de carregar.

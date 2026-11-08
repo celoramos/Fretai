@@ -117,6 +117,33 @@
 .negociar__erro { color: var(--cor-perigo); font-weight: var(--peso-forte); }
 .negociar__erro:empty { display: none; }
 
+/* ---------- perfil e calculadora do motorista ----------
+   Uma coluna de cartões, como o resto do app do motorista. */
+.perfil, .calculadora { display: grid; gap: var(--esp-4); }
+.perfil__cabeca, .calculadora__cabeca { display: grid; gap: var(--esp-1); }
+.perfil__reputacao { display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-3); color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.perfil__ok { font-weight: var(--peso-medio); }
+.perfil__form { display: grid; gap: var(--esp-3); }
+.perfil__botoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
+.perfil__acao { justify-self: start; }
+.perfil__estado:empty { display: none; }
+.perfil__caminhoes { display: grid; }
+/* Caminhão e o botão de remover na mesma linha; a confirmação, mais longa, desce para a linha de baixo. */
+.perfil__caminhao { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-2); padding: var(--esp-2) 0; border-bottom: var(--borda) solid var(--cor-linha); }
+.perfil__caminhao:first-child { padding-top: 0; }
+.perfil__caminhao-dados { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); flex: 1 1 0%; min-width: 0; }
+.perfil__caminhao-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); }
+.perfil__novo { padding-top: var(--esp-2); }
+.perfil__feriado { display: grid; gap: var(--esp-1); padding-top: var(--esp-3); border-top: var(--borda) solid var(--cor-linha); }
+
+.calculadora__form, .calculadora__resultado { display: grid; gap: var(--esp-4); }
+.calculadora__area { scroll-margin-top: var(--esp-4); }
+.calculadora__margem { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-3); font-weight: var(--peso-forte); }
+/* Falta é texto de perigo; sobra fica na tinta: verde é só para dinheiro garantido ou liberado. */
+.calculadora__margem--falta, .calculadora__margem--falta .valor { color: var(--cor-perigo); }
+.calculadora__total, .calculadora__piso { font-weight: var(--peso-forte); font-variant-numeric: tabular-nums; }
+.frete-m__conta { justify-self: start; display: inline-flex; align-items: center; min-height: var(--alvo); color: var(--cor-info); font-weight: var(--peso-medio); }
+
 /* ---------- registrar entrega ----------
    Uma coluna, uma parte do canhoto por cartão. O botão de enviar fica no fim, largo, para o polegar. */
 .entrega { display: grid; gap: var(--esp-4); }

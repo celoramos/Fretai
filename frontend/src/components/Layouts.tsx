@@ -44,14 +44,17 @@ function BotaoSair() {
 }
 
 /** Ícones da barra inferior, no traço do botão de tema. O rótulo vem sempre junto: ícone sozinho não diz. */
-function IconeNav({ tipo }: { tipo: 'buscar' | 'meus' }) {
+const ICONES = {
+  buscar: <><circle cx="8.5" cy="8.5" r="5" /><path d="M12.2 12.2 17 17" /></>,
+  meus: <><rect x="4" y="3" width="12" height="14" rx="2" /><path d="M7.5 7.5h5M7.5 10.5h5M7.5 13.5h3" /></>,
+  conta: <><rect x="4" y="2.5" width="12" height="15" rx="2" /><path d="M7 6h6M7 10h.01M10 10h.01M13 10h.01M7 13.5h.01M10 13.5h.01M13 13.5h.01" /></>,
+  perfil: <><circle cx="10" cy="7" r="3.2" /><path d="M3.8 17c.9-3.2 3.3-5 6.2-5s5.3 1.8 6.2 5" /></>,
+}
+
+function IconeNav({ tipo }: { tipo: keyof typeof ICONES }) {
   return (
     <svg className="nav-inferior__icone" viewBox="0 0 20 20" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      {tipo === 'buscar' ? (
-        <><circle cx="8.5" cy="8.5" r="5" /><path d="M12.2 12.2 17 17" /></>
-      ) : (
-        <><rect x="4" y="3" width="12" height="14" rx="2" /><path d="M7.5 7.5h5M7.5 10.5h5M7.5 13.5h3" /></>
-      )}
+      {ICONES[tipo]}
     </svg>
   )
 }
@@ -75,13 +78,19 @@ export function LayoutMotorista() {
       <main className="app-motorista__conteudo" id="conteudo">
         <Pagina />
       </main>
-      {/* Navegação no alcance do polegar. Carteira e Perfil entram quando as telas existirem. */}
+      {/* Navegação no alcance do polegar: os quatro lugares a que o motorista volta. */}
       <nav className="nav-inferior" aria-label="Principal">
         <NavLink to="/motorista" end className="nav-inferior__item">
           {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="buscar" />Fretes</>}
         </NavLink>
         <NavLink to="/motorista/meus-fretes" className="nav-inferior__item">
           {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="meus" />Meus fretes</>}
+        </NavLink>
+        <NavLink to="/motorista/calculadora" className="nav-inferior__item">
+          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="conta" />Calculadora</>}
+        </NavLink>
+        <NavLink to="/motorista/perfil" className="nav-inferior__item">
+          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="perfil" />Perfil</>}
         </NavLink>
       </nav>
     </div>
