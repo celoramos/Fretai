@@ -1,10 +1,10 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { Papel } from './api/tipos'
-import { LayoutAdmin, LayoutEmpresa, LayoutMotorista } from './components/Layouts'
+import { LayoutAdmin, LayoutCliente, LayoutEmpresa, LayoutMotorista } from './components/Layouts'
 import { INICIO } from './inicio'
 import { DadosEmpresa } from './pages/empresa/DadosEmpresa'
-import { DetalheFreteEmpresa } from './pages/empresa/DetalheFreteEmpresa'
+import { DetalheFrete } from './pages/contratante/DetalheFrete'
 import { FretesEmpresa } from './pages/empresa/FretesEmpresa'
 import { PagamentosEmpresa } from './pages/empresa/PagamentosEmpresa'
 import { EditarFrete, PublicarFrete } from './pages/empresa/PublicarFrete'
@@ -27,6 +27,10 @@ const Privacidade = lazy(() => import('./pages/Legal').then((m) => ({ default: m
 const Termos = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Termos })))
 const Contestar = lazy(() => import('./pages/Contestar').then((m) => ({ default: m.Contestar })))
 
+/* O cliente pessoa física é a entrada secundária: as telas dele também vêm à parte. */
+const FretesCliente = lazy(() => import('./pages/cliente/FretesCliente').then((m) => ({ default: m.FretesCliente })))
+const PedirFrete = lazy(() => import('./pages/cliente/PedirFrete').then((m) => ({ default: m.PedirFrete })))
+
 /* As filas do administrador também: só quem é admin baixa esse código. */
 const DocumentosAdmin = lazy(() => import('./pages/admin/DocumentosAdmin').then((m) => ({ default: m.DocumentosAdmin })))
 const ContestacoesAdmin = lazy(() => import('./pages/admin/ContestacoesAdmin').then((m) => ({ default: m.ContestacoesAdmin })))
@@ -35,7 +39,7 @@ const PisoAntt = lazy(() => import('./pages/admin/PisoAntt').then((m) => ({ defa
 function Protegida({ papel, children }: { papel: Papel; children: React.ReactNode }) {
   const { tokens } = useSessao()
   if (!tokens) return <Navigate to="/entrar" replace />
-  if (tokens.papel !== papel) return <Navigate to={INICIO[tokens.papel] ?? '/entrar'} replace />
+  if (tokens.papel !== papel) return <Navigate to={INICIO[tokens.papel]} replace />
   return children
 }
 
@@ -43,7 +47,7 @@ export function App() {
   const { tokens } = useSessao()
   return (
     <Routes>
-      <Route path="/" element={tokens ? <Navigate to={INICIO[tokens.papel] ?? '/entrar'} replace /> : <Suspense fallback={null}><Inicio /></Suspense>} />
+      <Route path="/" element={tokens ? <Navigate to={INICIO[tokens.papel]} replace /> : <Suspense fallback={null}><Inicio /></Suspense>} />
       <Route path="/entrar" element={<Entrar />} />
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/privacidade" element={<Suspense fallback={null}><Privacidade /></Suspense>} />
@@ -61,10 +65,15 @@ export function App() {
       <Route path="/empresa" element={<Protegida papel="EMPRESA"><LayoutEmpresa /></Protegida>}>
         <Route index element={<FretesEmpresa />} />
         <Route path="fretes/novo" element={<PublicarFrete />} />
-        <Route path="fretes/:id" element={<DetalheFreteEmpresa />} />
+        <Route path="fretes/:id" element={<DetalheFrete />} />
         <Route path="fretes/:id/editar" element={<EditarFrete />} />
         <Route path="pagamentos" element={<PagamentosEmpresa />} />
         <Route path="dados" element={<DadosEmpresa />} />
+      </Route>
+      <Route path="/cliente" element={<Protegida papel="CLIENTE"><LayoutCliente /></Protegida>}>
+        <Route index element={<Suspense fallback={null}><FretesCliente /></Suspense>} />
+        <Route path="fretes/novo" element={<Suspense fallback={null}><PedirFrete /></Suspense>} />
+        <Route path="fretes/:id" element={<DetalheFrete />} />
       </Route>
       <Route path="/admin" element={<Protegida papel="ADMIN"><LayoutAdmin /></Protegida>}>
         <Route index element={<Suspense fallback={null}><DocumentosAdmin /></Suspense>} />

@@ -1,7 +1,8 @@
 /* Componentes compartilhados. Só var(--...) daqui para baixo. */
 
 :root { --alvo: var(--alvo-empresa); }
-.app-motorista { --alvo: var(--alvo-motorista); }
+/* O cliente pessoa física pede o frete pelo celular: o alvo do motorista, na largura do escritório. */
+.app-motorista, .app-cliente { --alvo: var(--alvo-motorista); }
 
 /* ---------- botão ---------- */
 .botao {

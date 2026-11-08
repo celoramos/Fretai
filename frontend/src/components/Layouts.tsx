@@ -111,14 +111,14 @@ export function LayoutMotorista() {
 }
 
 /** Escritório: largura de mesa e a navegação em cima. A empresa e o administrador trabalham assim. */
-function LayoutEscritorio({ links }: { links: ReactNode }) {
+function LayoutEscritorio({ links, classe }: { links?: ReactNode; classe?: string }) {
   return (
-    <div className="app-empresa">
+    <div className={classe ? `app-empresa ${classe}` : 'app-empresa'}>
       <FaixaDemo />
       <header className="topo topo--empresa">
         <div className="topo__miolo">
           <Marca />
-          <nav aria-label="Principal" className="topo__nav">{links}</nav>
+          {links && <nav aria-label="Principal" className="topo__nav">{links}</nav>}
           <div className="topo__acoes">
             <BotaoTema />
             <BotaoSair />
@@ -140,6 +140,14 @@ export function LayoutEmpresa() {
       <LinkTopo para="/empresa/dados">Empresa</LinkTopo>
     </>} />
   )
+}
+
+/**
+ * Cliente pessoa física: um lugar só, os fretes que pediu, então a barra fica sem navegação. Cada tela
+ * tem o caminho de volta. O alvo de toque é o do celular, onde quem pede um frete avulso está.
+ */
+export function LayoutCliente() {
+  return <LayoutEscritorio classe="app-cliente" />
 }
 
 /** As três filas do administrador, na ordem do que trava dinheiro: documento, contestação, piso. */

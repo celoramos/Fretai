@@ -7,11 +7,11 @@ import { prepararFoto } from '../foto'
 import { dataHora } from '../formato'
 import { Aviso } from './ui'
 
-/** A API mostra os documentos do motorista à empresa só depois do aceite (Documento.podeSerVistoPor). */
-const EMPRESA_VE: StatusFrete[] = ['ACEITO', 'EM_TRANSITO', 'ENTREGUE', 'PAGO']
+/** A API mostra os documentos do motorista a quem contratou só depois do aceite (Documento.podeSerVistoPor). */
+const CONTRATANTE_VE: StatusFrete[] = ['ACEITO', 'EM_TRANSITO', 'ENTREGUE', 'PAGO']
 
 /*
- * Documentos do motorista para um frete. Quem manda é o motorista; quem abre é a empresa, por um link
+ * Documentos do motorista para um frete. Quem manda é o motorista; quem abre é quem contratou, por um link
  * que vence em minutos, e cada abertura fica registrada para o motorista ver. É a promessa da página
  * inicial ("fica registrado quem abriu") virando tela.
  */
@@ -78,9 +78,9 @@ export function DocumentosDoMotorista({ freteId, motoristaId }: { freteId: strin
   )
 }
 
-/** A empresa vê os documentos do motorista que aceitou e abre um por vez. Cada "Abrir" gera um link novo. */
-export function DocumentosParaEmpresa({ freteId, status, nomes }: { freteId: string; status: StatusFrete; nomes: Record<string, string> }) {
-  const visivel = EMPRESA_VE.includes(status)
+/** Quem contratou vê os documentos do motorista que aceitou e abre um por vez. Cada "Abrir" gera um link novo. */
+export function DocumentosParaContratante({ freteId, status, nomes }: { freteId: string; status: StatusFrete; nomes: Record<string, string> }) {
+  const visivel = CONTRATANTE_VE.includes(status)
   const [estado] = useRecurso(() => (visivel ? api<Documento[]>('GET', `/api/fretes/${freteId}/documentos`) : Promise.resolve([])), [freteId, visivel])
   const [abrindo, setAbrindo] = useState<string | null>(null)
   const [problema, setProblema] = useState<Problema | null>(null)

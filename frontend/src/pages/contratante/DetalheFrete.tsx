@@ -5,13 +5,13 @@ import type { EventoFrete, Frete, Pagamento, PerfilMotorista, Problema, Proposta
 import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { Avaliar } from '../../components/Avaliar'
 import { CancelarFrete } from '../../components/CancelarFrete'
-import { DocumentosParaEmpresa } from '../../components/Documentos'
+import { DocumentosParaContratante } from '../../components/Documentos'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
 import { PainelEntrega } from './PainelEntrega'
 import { RotaLinha } from '../../components/RotaLinha'
 import { Aviso, Etiqueta, ErroCarga, Esqueleto, Indicador, Marcos, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
-import { carroceria, dataCurta, dataHora, PAPEL, reais, STATUS_FRETE, STATUS_PROPOSTA, veiculo } from '../../formato'
+import { carroceria, dataCurta, dataHora, PAPEL, reais, STATUS_FRETE, STATUS_PROPOSTA, telefone, veiculo } from '../../formato'
 
 const ABAS = [
   { id: 'propostas', rotulo: 'Propostas' },
@@ -22,7 +22,12 @@ const ABAS = [
 ] as const
 type Aba = (typeof ABAS)[number]['id']
 
-export function DetalheFreteEmpresa() {
+/*
+ * Um frete visto por quem contratou: a empresa ou o cliente pessoa física. As duas veem o mesmo (propostas,
+ * Pix, canhoto, documentos, histórico); o que muda vem do próprio frete: para onde voltar, se dá para editar
+ * (só o anúncio de empresa, como na API) e o resumo do pedido, que o cliente digitou uma vez só.
+ */
+export function DetalheFrete() {
   const { id = '' } = useParams()
   const [params, setParams] = useSearchParams()
   const aba = (params.get('aba') as Aba | null) ?? 'propostas'
@@ -48,10 +53,11 @@ export function DetalheFreteEmpresa() {
   const valor = frete.valorAcordado ?? frete.valorTotal ?? frete.valor
   const garantido = pagamento != null && ['RETIDO', 'ADIANTAMENTO_LIBERADO', 'LIBERADO'].includes(pagamento.status)
   const abertas = propostas.filter((p) => p.status === 'ENVIADA').length
+  const doCliente = frete.cliente != null
 
   return (
     <div className="detalhe-e">
-      <Link to="/empresa" className="voltar">Todos os fretes</Link>
+      <Link to={doCliente ? '/cliente' : '/empresa'} className="voltar">{doCliente ? 'Seus fretes' : 'Todos os fretes'}</Link>
       {(vindo?.publicado || vindo?.editado) && (
         <div aria-live="polite">
           {vindo.publicado
@@ -64,8 +70,8 @@ export function DetalheFreteEmpresa() {
           <StatusFreteEtiqueta status={frete.status} visao="contratante" />
           {garantido && <SeloGarantido />}
           <span className="detalhe">Coleta {dataCurta(frete.dataColeta)}</span>
-          {/* Só antes da primeira proposta: é o que a API aceita (Frete.revisar). */}
-          {frete.status === 'PUBLICADO' && (
+          {/* Só anúncio de empresa, e só antes da primeira proposta: é o que a API aceita (Frete.revisar). */}
+          {frete.empresa && frete.status === 'PUBLICADO' && (
             <Link to={`/empresa/fretes/${frete.id}/editar`} className="botao botao--secundario detalhe-e__editar">Editar frete</Link>
           )}
         </div>
@@ -77,6 +83,7 @@ export function DetalheFreteEmpresa() {
             <ChipPiso preco={frete.preco} valor={valor} />
           </div>
         </div>
+        {doCliente && <Pedido frete={frete} />}
         <Marcos status={frete.status} eventos={eventos} visao="contratante" orientacao="horizontal" motivoCancelamento={frete.motivoCancelamento} />
       </header>
 
@@ -103,7 +110,7 @@ export function DetalheFreteEmpresa() {
         )}
         {aba === 'documentos' && (
           <section className="cartao bloco" aria-label="Documentos dos motoristas">
-            <DocumentosParaEmpresa freteId={frete.id} status={frete.status}
+            <DocumentosParaContratante freteId={frete.id} status={frete.status}
               nomes={Object.fromEntries([...propostas.map((p) => [p.motorista.id, p.motorista.nome]), ...(frete.motorista ? [[frete.motorista.id, frete.motorista.nome]] : [])])} />
           </section>
         )}
@@ -112,6 +119,27 @@ export function DetalheFreteEmpresa() {
 
       <CancelarFrete frete={frete} pago={garantido} aoCancelar={recarregar} />
     </div>
+  )
+}
+
+/**
+ * O pedido do cliente de volta, para conferir sem abrir nada: o que vai, quem recebe e o adicional de feriado,
+ * que entrou no valor sem o cliente digitar.
+ */
+function Pedido({ frete }: { frete: Frete }) {
+  return (
+    <dl className="ficha ficha--compacta">
+      <div><dt>O que vai</dt><dd>{frete.descricaoCarga}{frete.pesoKg != null && `, ${reais(frete.pesoKg)} kg`}</dd></div>
+      {frete.nomeDestinatario && (
+        <div><dt>Quem recebe</dt><dd>{frete.nomeDestinatario}{frete.telefoneDestinatario && ` · ${telefone(frete.telefoneDestinatario)}`}</dd></div>
+      )}
+      {frete.adicionalFeriado != null && frete.valor != null && (
+        <div>
+          <dt>Feriado</dt>
+          <dd>{frete.nomeFeriado ?? 'Coleta em feriado'}: R$&nbsp;{reais(frete.valor)} mais R$&nbsp;{reais(frete.adicionalFeriado)} de adicional</dd>
+        </div>
+      )}
+    </dl>
   )
 }
 

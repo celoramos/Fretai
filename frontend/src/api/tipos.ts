@@ -199,6 +199,15 @@ export interface Problema {
 /** Categorias de veículo do cadastro de motorista (enum CategoriaVeiculo da API). */
 export type CategoriaVeiculo = 'MOTO' | 'CARRO' | 'UTILITARIO' | 'VAN' | 'CAMINHAO'
 
+export interface CadastroCliente {
+  cpf: string
+  nome: string
+  email: string
+  senha?: string
+  telefone: string
+  credencialGoogle?: string
+}
+
 export interface CadastroMotorista {
   cpf: string
   nome: string
@@ -227,6 +236,19 @@ export interface DadosCnpj {
 }
 
 /** Corpo de POST /api/fretes/empresa/{empresaId} (PublicarFreteRequest). A API resolve cidade e coordenadas pelo CEP. */
+/** Frete pontual de cliente pessoa física (SolicitarFreteRequest): sem tipo de caminhão nem carga ANTT. */
+export interface SolicitarFrete {
+  clienteId: string
+  coleta: EnderecoPedido
+  entrega: EnderecoPedido
+  nomeDestinatario: string
+  telefoneDestinatario: string
+  descricaoCarga: string
+  pesoKg: number
+  valor: number
+  dataColeta: string
+}
+
 export interface EnderecoPedido {
   cep: string
   numero: string | null

@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api, comoProblema } from '../../api/cliente'
-import type { Endereco, EnderecoPedido, Frete, Problema, PublicarFrete as Pedido, VerificacaoData } from '../../api/tipos'
+import type { Frete, Problema, PublicarFrete as Pedido, VerificacaoData } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
+import { CamposPonta } from '../../components/CamposPonta'
 import { SairSemSalvar } from '../../components/SairSemSalvar'
 import { Aviso, Campo, ErroCarga, Esqueleto } from '../../components/ui'
-import { CARGAS_ANTT, CARROCERIAS, dataCurta, lerReais, paraDigitar, TIPOS_CAMINHAO } from '../../formato'
+import { CARGAS_ANTT, CARROCERIAS, dataCurta, hoje, lerReais, paraDigitar, TIPOS_CAMINHAO } from '../../formato'
+import { enderecoDe, PONTA_VAZIA, pontaDe, type Ponta } from '../../ponta'
 import { useSessao } from '../../sessao'
 import { useTitulo } from '../../useTitulo'
-
-type Ponta = { cep: string; numero: string; complemento: string; pontoReferencia: string }
-const PONTA_VAZIA: Ponta = { cep: '', numero: '', complemento: '', pontoReferencia: '' }
 
 /** O formulário inteiro num objeto só: é o que se compara com o começo para saber se há algo a perder. */
 interface Rascunho {
@@ -34,8 +33,6 @@ const RASCUNHO_VAZIO: Rascunho = {
   veiculos: [], carrocerias: [], rastreador: false, complemento: false, aCombinar: false, valor: '',
 }
 
-const pontaDe = (e: Endereco): Ponta => ({ cep: e.cep, numero: e.numero ?? '', complemento: e.complemento ?? '', pontoReferencia: e.pontoReferencia ?? '' })
-
 /** O frete publicado de volta no formulário, no formato em que a empresa digitaria. */
 function rascunhoDe(f: Frete): Rascunho {
   return {
@@ -49,22 +46,9 @@ function rascunhoDe(f: Frete): Rascunho {
 // A ordem em que os caminhões foram marcados não muda o frete: a comparação ordena as listas.
 const assinatura = (r: Rascunho) => JSON.stringify({ ...r, veiculos: [...r.veiculos].sort(), carrocerias: [...r.carrocerias].sort() })
 
-/** Hoje no fuso de quem está publicando: a API recusa coleta no passado. */
-const hoje = () => {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
 /** Campos que mostram o próprio erro. Os nomes são os da validação da API (PublicarFreteRequest). */
 const CAMPOS_DESENHADOS = new Set(['coleta', 'coleta.cep', 'entrega', 'entrega.cep', 'dataColeta', 'descricaoCarga', 'especieCarga',
   'pesoKg', 'tipoCargaAntt', 'valor', 'valorCoerente'])
-
-const enderecoDe = (p: Ponta): EnderecoPedido => ({
-  cep: p.cep.trim(),
-  numero: p.numero.trim() || null,
-  complemento: p.complemento.trim() || null,
-  pontoReferencia: p.pontoReferencia.trim() || null,
-})
 
 function pedidoDe(r: Rascunho): Pedido {
   const valor = r.aCombinar ? null : lerReais(r.valor)
@@ -215,8 +199,8 @@ function FormularioFrete({ inicial, enviar, rotuloEnviar, rotuloEnviando, cancel
         <fieldset className="publicar__grupo cartao">
           <legend className="publicar__legenda">De onde para onde</legend>
           <div className="publicar__pontas">
-            <CamposPonta id="coleta" titulo="Coleta" exemploCep="13069-380" ponta={r.coleta} mudar={muda('coleta')} erroCep={erro('coleta.cep', 'coleta')} />
-            <CamposPonta id="entrega" titulo="Entrega" exemploCep="20931-000" ponta={r.entrega} mudar={muda('entrega')} erroCep={erro('entrega.cep', 'entrega')} />
+            <CamposPonta id="coleta" titulo="Coleta" exemploCep="13069-380" exemploComplemento="Doca 3" ponta={r.coleta} mudar={muda('coleta')} erroCep={erro('coleta.cep', 'coleta')} />
+            <CamposPonta id="entrega" titulo="Entrega" exemploCep="20931-000" exemploComplemento="Doca 3" ponta={r.entrega} mudar={muda('entrega')} erroCep={erro('entrega.cep', 'entrega')} />
           </div>
           <p className="campo__ajuda">A cidade e a distância saem do CEP. Motoristas perto da coleta recebem o aviso.</p>
         </fieldset>
@@ -312,31 +296,6 @@ function FormularioFrete({ inicial, enviar, rotuloEnviar, rotuloEnviando, cancel
       </form>
       <SairSemSalvar alterado={alterado && !enviando} />
     </>
-  )
-}
-
-function CamposPonta({ id, titulo, exemploCep, ponta, mudar, erroCep }: { id: string; titulo: string; exemploCep: string; ponta: Ponta; mudar: (p: Ponta) => void; erroCep?: string }) {
-  const muda = (campo: keyof Ponta) => (e: { target: { value: string } }) => mudar({ ...ponta, [campo]: e.target.value })
-  return (
-    <div className="publicar__ponta">
-      <p className="publicar__ponta-titulo">{titulo}</p>
-      <Campo id={`${id}-cep`} rotulo="CEP" erro={erroCep}>
-        <input id={`${id}-cep`} className="campo__entrada campo__entrada--cep" inputMode="numeric" autoComplete="off" spellCheck={false}
-          maxLength={9} placeholder={exemploCep} value={ponta.cep} onChange={muda('cep')}
-          aria-invalid={erroCep ? true : undefined} aria-describedby={erroCep ? `${id}-cep-erro` : undefined} />
-      </Campo>
-      <div className="publicar__linha publicar__linha--numero">
-        <Campo id={`${id}-numero`} rotulo="Número">
-          <input id={`${id}-numero`} className="campo__entrada" maxLength={20} autoComplete="off" value={ponta.numero} onChange={muda('numero')} />
-        </Campo>
-        <Campo id={`${id}-complemento`} rotulo="Complemento">
-          <input id={`${id}-complemento`} className="campo__entrada" maxLength={255} autoComplete="off" placeholder="Doca 3" value={ponta.complemento} onChange={muda('complemento')} />
-        </Campo>
-      </div>
-      <Campo id={`${id}-referencia`} rotulo="Ponto de referência">
-        <input id={`${id}-referencia`} className="campo__entrada" maxLength={255} autoComplete="off" value={ponta.pontoReferencia} onChange={muda('pontoReferencia')} />
-      </Campo>
-    </div>
   )
 }
 

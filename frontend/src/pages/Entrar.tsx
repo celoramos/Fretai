@@ -38,7 +38,7 @@ export function Entrar() {
     setEnviando(true)
     try {
       const t = await entrar(email.trim(), senha)
-      navegar(INICIO[t.papel] ?? '/')
+      navegar(INICIO[t.papel])
     } catch (erro) {
       const p = comoProblema(erro)
       setProblema(p)
@@ -56,7 +56,7 @@ export function Entrar() {
     setEnviando(true)
     try {
       const t = await entrarComGoogle(credencial)
-      navegar(INICIO[t.papel] ?? '/')
+      navegar(INICIO[t.papel])
     } catch (erro) {
       const p = comoProblema(erro)
       if (p.codigo === 'CADASTRO_NECESSARIO') {
@@ -136,6 +136,9 @@ export function Entrar() {
                 </button>
                 <button type="button" className="botao botao--secundario" onClick={() => { setEmail('empresa@demo.fretai'); setSenha('demo123') }}>
                   Preencher empresa
+                </button>
+                <button type="button" className="botao botao--secundario" onClick={() => { setEmail('cliente@demo.fretai'); setSenha('demo123') }}>
+                  Preencher cliente
                 </button>
                 <button type="button" className="botao botao--secundario" onClick={() => { setEmail('admin@demo.fretai'); setSenha('demo123') }}>
                   Preencher administrador

@@ -121,6 +121,9 @@ export function Inicio() {
                 <h1 id="inicio-titulo" className="inicio__titulo">{chamada.titulo}</h1>
                 <p className="inicio__sub">{chamada.texto}</p>
                 <Link to="/entrar" className="botao botao--primario inicio__pilula inicio__acao">{chamada.acao}</Link>
+                {publico === 'empresa' && (
+                  <p className="inicio__avulso">Pessoa física com um frete avulso, como uma mudança? <Link to="/cadastro?perfil=cliente">Peça por aqui</Link>.</p>
+                )}
               </motion.div>
             </AnimatePresence>
           </div>

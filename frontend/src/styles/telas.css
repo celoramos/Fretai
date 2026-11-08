@@ -272,6 +272,8 @@
 .cadastro__google { color: var(--cor-texto-secundario); }
 .cadastro__google strong { color: var(--cor-texto); }
 .campo__entrada--placa { font-family: var(--fonte-mono); text-transform: uppercase; }
+/* Pessoa física: entrada secundária, abaixo dos dois perfis grandes. */
+.cadastro__avulso { display: grid; gap: var(--esp-2); justify-items: start; margin-top: var(--esp-2); color: var(--cor-texto-secundario); }
 .cadastro__aceite { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
 .cadastro__aceite a { color: var(--cor-texto); }
 
@@ -391,6 +393,13 @@
 
 /* ---------- publicar frete ----------
    Coluna de leitura (a largura do pagamento), um cartão por assunto, na ordem em que a empresa pensa. */
+/* Cliente pessoa física: uma coluna de cartões, na largura dos formulários. O próximo passo fecha cada cartão;
+   o que espera pelo cliente vem em peso forte, como "Precisa de você" na empresa. */
+.fretes-c { display: grid; gap: var(--esp-4); max-width: var(--largura-pagamento); }
+.fretes-c__topo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-3); }
+.fretes-c__fim { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-1) var(--esp-4); }
+.fretes-c__passo { color: var(--cor-texto-secundario); padding-top: var(--esp-3); border-top: var(--borda) solid var(--cor-linha); }
+.fretes-c__passo--seu { color: var(--cor-texto); font-weight: var(--peso-forte); }
 .fretes-e__cabeca { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-3); }
 .publicar { display: grid; gap: var(--esp-4); max-width: var(--largura-pagamento); }
 .publicar__form { display: grid; gap: var(--esp-4); }

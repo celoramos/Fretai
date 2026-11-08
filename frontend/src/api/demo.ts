@@ -31,6 +31,7 @@ const M2 = 'a1000000-0000-0000-0000-000000000002'
 const M3 = 'a1000000-0000-0000-0000-000000000003'
 const U_EMPRESA = 'b1000000-0000-0000-0000-000000000001'
 const U_ADMIN = 'c1000000-0000-0000-0000-000000000001'
+const U_CLIENTE = 'd1000000-0000-0000-0000-000000000001'
 
 const dia = (d: number) => new Date(Date.now() + d * 86_400_000)
 const iso = (d: number) => dia(d).toISOString()
@@ -43,6 +44,17 @@ function endereco(cidade: string, uf: string, cep: string, logradouro: string, l
     latitude: lat, longitude: lng,
   }
 }
+
+/** Endereço de casa, para os fretes do cliente pessoa física (o de cima é de galpão). */
+function casa(cidade: string, uf: string, cep: string, logradouro: string, numero: string, complemento: string | null, bairro: string, lat: number, lng: number): Endereco {
+  return {
+    cep, logradouro, numero, complemento, bairro, cidade, uf, pontoReferencia: null,
+    enderecoCompleto: `${logradouro}, ${numero}${complemento ? `, ${complemento}` : ''} - ${bairro}, ${cidade}/${uf}`,
+    latitude: lat, longitude: lng,
+  }
+}
+
+const clientes = { [U_CLIENTE]: { id: U_CLIENTE, nome: 'Paula Andrade' } }
 
 const empresas = {
   [E1]: { id: E1, razaoSocial: 'Cerâmica Paulista Ltda', nomeFantasia: 'Cerâmica Paulista', tipo: 'EMBARCADOR' as const },
@@ -67,6 +79,9 @@ const veiculos: Veiculo[] = [
   { id: 'v2', motoristaId: M1, placa: 'FRT2E45', rntrc: '045821937', tipo: 'TRUCK', carroceria: 'BAU', numeroEixos: 3, rastreador: false, criadoEm: iso(-120) },
   { id: 'v3', motoristaId: M2, placa: 'QWE4R56', rntrc: '051234880', tipo: 'CARRETA_LS', carroceria: 'SIDER', numeroEixos: 6, rastreador: true, criadoEm: iso(-200) },
   { id: 'v4', motoristaId: M3, placa: 'RTY7U89', rntrc: '060011422', tipo: 'CARRETA', carroceria: 'SIDER', numeroEixos: 5, rastreador: false, criadoEm: iso(-30) },
+  // Veículos pequenos: são eles que pegam a mudança e a entrega avulsa do cliente pessoa física.
+  { id: 'v5', motoristaId: M3, placa: 'MUD5A12', rntrc: '060011422', tipo: 'VUC', carroceria: 'BAU', numeroEixos: 2, rastreador: false, criadoEm: iso(-20) },
+  { id: 'v6', motoristaId: M2, placa: 'TRE3Q44', rntrc: '051234880', tipo: 'TRES_QUARTOS', carroceria: 'BAU', numeroEixos: 2, rastreador: false, criadoEm: iso(-90) },
 ]
 const resumoVeiculo = (id: string) => {
   const v = veiculos.find((x) => x.id === id)!
@@ -104,6 +119,17 @@ const joinville = endereco('Joinville', 'SC', '89219-000', 'Rua Dona Francisca',
 const araucaria = endereco('Araucária', 'PR', '83707-000', 'Rod. do Xisto, km 18', -25.59, -49.4)
 
 const exemplo = { coeficientesDeExemplo: true, eixosConsiderados: 5 }
+
+const cambui = casa('Campinas', 'SP', '13025-320', 'Rua Coronel Quirino', '850', 'Apto 42', 'Cambuí', -22.896, -47.055)
+const vergueiro = casa('Sorocaba', 'SP', '18035-400', 'Rua Padre Luiz', '311', null, 'Jardim Vergueiro', -23.49, -47.47)
+const perdizes = casa('São Paulo', 'SP', '05014-000', 'Rua Monte Alegre', '1200', 'Apto 81', 'Perdizes', -23.536, -46.677)
+const anhangabau = casa('Jundiaí', 'SP', '13208-090', 'Rua do Retiro', '47', 'Casa 2', 'Anhangabaú', -23.18, -46.89)
+
+/** Frete pontual do cliente: qualquer veículo, sem carga ANTT e sem piso, como o da API. */
+function freteCliente(parcial: Partial<Frete> & Pick<Frete, 'id' | 'coleta' | 'entrega'>): Frete {
+  return frete({ empresa: null, cliente: clientes[U_CLIENTE], especieCarga: null, tipoCargaAntt: null, veiculosAceitos: [], carroceriasAceitas: [],
+    exigeRastreador: false, preco: null, ...parcial })
+}
 
 const fretes: Frete[] = [
   frete({ id: 'f1', coleta: campinas, entrega: rio, valor: 4850, valorTotal: 4850, distanciaKm: 430, status: 'PROPOSTA_ENVIADA',
@@ -147,10 +173,22 @@ const fretes: Frete[] = [
     motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'CARRETA_LS', placa: 'QWE4R56' }, veiculo: resumoVeiculo('v3'),
     criadoEm: iso(-4), aceitoEm: iso(-3.5), concluidoEm: iso(-1.2), dataColeta: data(-2),
     preco: { ...exemplo, pisoMinimo: 1640, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 12.1 } }),
+  // Os três fretes da cliente demo, um em cada momento em que ela tem de agir: propostas, Pix e entrega.
+  freteCliente({ id: 'f12', coleta: cambui, entrega: vergueiro, status: 'PROPOSTA_ENVIADA', valor: 900, valorTotal: 900, distanciaKm: 92,
+    distanciaEstimada: true, descricaoCarga: 'Mudança: geladeira, fogão, sofá e 15 caixas', pesoKg: 450, dataColeta: data(4),
+    nomeDestinatario: 'Paula Andrade', telefoneDestinatario: '15988776655', criadoEm: iso(-0.6) }),
+  freteCliente({ id: 'f13', coleta: perdizes, entrega: cambui, status: 'ACEITO', valor: 750, valorTotal: 750, valorAcordado: 750,
+    adiantamentoPercentual: 30, distanciaKm: 98, distanciaEstimada: true, descricaoCarga: 'Piano vertical', pesoKg: 280, dataColeta: data(2),
+    nomeDestinatario: 'Paula Andrade', telefoneDestinatario: '19988776655', prazoEntrega: data(2), criadoEm: iso(-2), aceitoEm: iso(-0.1),
+    motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'TRES_QUARTOS', placa: 'TRE3Q44' }, veiculo: resumoVeiculo('v6') }),
+  freteCliente({ id: 'f14', coleta: cambui, entrega: anhangabau, status: 'ENTREGUE', valor: 380, valorTotal: 380, valorAcordado: 380,
+    adiantamentoPercentual: 30, distanciaKm: 42, distanciaEstimada: true, descricaoCarga: 'Máquina de lavar e 6 caixas', pesoKg: 120,
+    dataColeta: data(-1), nomeDestinatario: 'Lúcia Andrade', telefoneDestinatario: '11977665544', criadoEm: iso(-5), aceitoEm: iso(-4.5),
+    concluidoEm: iso(-0.3), motorista: { id: M3, nome: 'Ana Paula Siqueira', tipoVeiculo: 'VUC', placa: 'MUD5A12' }, veiculo: resumoVeiculo('v5') }),
 ]
 
 /** Distância da base do motorista demo (Campinas) até a coleta de cada frete aberto. */
-const distanciaDaBase: Record<string, number> = { f1: 6, f3: 1290, f4: 84, f5: 52, f10: 148 }
+const distanciaDaBase: Record<string, number> = { f1: 6, f3: 1290, f4: 84, f5: 52, f10: 148, f12: 4 }
 
 const propostas: Proposta[] = [
   proposta('p1', 'f1', M1, 'v1', 4850, 40, -0.5),
@@ -159,6 +197,10 @@ const propostas: Proposta[] = [
   { ...proposta('p4', 'f2', M1, 'v1', 5100, 40, -2.2), status: 'ACEITA', respondidaEm: iso(-2) },
   { ...proposta('p5', 'f6', M1, 'v1', 2900, 50, -0.4), status: 'ACEITA', respondidaEm: iso(-0.2) },
   { ...proposta('p6', 'f8', M1, 'v1', 2300, 40, -2.6), status: 'ACEITA', respondidaEm: iso(-2.5) },
+  proposta('p7', 'f12', M3, 'v5', 850, 30, -0.4, 'Levo um ajudante para carregar. A geladeira vai em pé.'),
+  proposta('p8', 'f12', M2, 'v6', 980, 0, -0.2),
+  { ...proposta('p9', 'f13', M2, 'v6', 750, 30, -1.5), status: 'ACEITA', respondidaEm: iso(-0.1) },
+  { ...proposta('p10', 'f14', M3, 'v5', 380, 30, -4.8), status: 'ACEITA', respondidaEm: iso(-4.5) },
 ]
 
 function proposta(id: string, freteId: string, motoristaId: string, veiculoId: string, valor: number, adiant: number, quando: number, obs: string | null = null): Proposta {
@@ -176,6 +218,7 @@ const pagamentos: Pagamento[] = [
   { ...pagamento('f7', 5450, 30, 'LIBERADO'), pagoEm: iso(-11), adiantamentoLiberadoEm: iso(-10) },
   { ...pagamento('f8', 2300, 40, 'ADIANTAMENTO_LIBERADO'), saldoLiberavelApos: iso(0.8) },
   { ...pagamento('f11', 3100, 30, 'ADIANTAMENTO_LIBERADO'), pagoEm: iso(-3.4), adiantamentoLiberadoEm: iso(-3), saldoLiberavelApos: iso(-0.2), saldoBloqueado: true },
+  { ...pagamento('f14', 380, 30, 'ADIANTAMENTO_LIBERADO'), pagoEm: iso(-4.4), adiantamentoLiberadoEm: iso(-1), saldoLiberavelApos: iso(0.7) },
 ]
 
 function pagamento(freteId: string, total: number, adiant: number, status: Pagamento['status']): Pagamento {
@@ -193,6 +236,10 @@ const eventos: Record<string, EventoFrete[]> = {
   f2: [ev(null, 'PUBLICADO', 'EMPRESA', -3), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -2.2), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -2), ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -1, 'Saída da coleta às 6h10.')],
   f6: [ev(null, 'PUBLICADO', 'EMPRESA', -1), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -0.4), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -0.2)],
   f7: [ev(null, 'PUBLICADO', 'EMPRESA', -12), ev('PUBLICADO', 'ACEITO', 'EMPRESA', -11), ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -10), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -8), ev('ENTREGUE', 'PAGO', null, -7)],
+  f12: [ev(null, 'PUBLICADO', 'CLIENTE', -0.6), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -0.4)],
+  f13: [ev(null, 'PUBLICADO', 'CLIENTE', -2), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -1.5), ev('PROPOSTA_ENVIADA', 'ACEITO', 'CLIENTE', -0.1)],
+  f14: [ev(null, 'PUBLICADO', 'CLIENTE', -5), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -4.8), ev('PROPOSTA_ENVIADA', 'ACEITO', 'CLIENTE', -4.5),
+    ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -1), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -0.3, 'Canhoto digital: recebido por Lúcia Andrade.')],
   f8: [ev(null, 'PUBLICADO', 'EMPRESA', -3), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -2.6), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -2.5),
     ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -1), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -0.2, 'Canhoto digital: recebido por Carlos Mendes.')],
 }
@@ -221,6 +268,11 @@ const canhotos: Record<string, Canhoto> = {
     distanciaDestinoKm: 0.06, localConferido: true, registradoEm: iso(-1.2), contestacaoAte: iso(-0.2), contestado: true,
     motivoContestacao: 'Duas caixas chegaram amassadas e a quantidade não bate com a nota.', resolucao: null,
     fotoUrl: FOTO_EXEMPLO, assinaturaUrl: ASSINATURA_EXEMPLO,
+  },
+  f14: {
+    id: 'c-f14', freteId: 'f14', nomeRecebedor: 'Lúcia Andrade', latitude: anhangabau.latitude! + 0.0004, longitude: anhangabau.longitude!,
+    distanciaDestinoKm: 0.04, localConferido: true, registradoEm: iso(-0.3), contestacaoAte: iso(0.7), contestado: false,
+    motivoContestacao: null, resolucao: null, fotoUrl: FOTO_EXEMPLO, assinaturaUrl: ASSINATURA_EXEMPLO,
   },
 }
 
@@ -290,13 +342,16 @@ const documentos: (Documento & { url: string })[] = [
   { id: 'd6', motoristaId: M3, freteId: 'f1', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 61_000, verificado: false, verificadoEm: null, criadoEm: iso(-0.1), url: DOC_EXEMPLO('CRLV') },
   { id: 'd7', motoristaId: M1, freteId: 'f2', tipo: 'COMPROVANTE', contentType: 'image/png', tamanhoBytes: 233_000, verificado: false, verificadoEm: null, criadoEm: iso(-1.8), url: DOC_EXEMPLO('Comprovante de residência') },
 ]
-/** A regra da API (Documento.podeSerVistoPor): admin vê tudo, o motorista vê os dele, a empresa só os do motorista aceito. */
-const EMPRESA_VE: StatusFrete[] = ['ACEITO', 'EM_TRANSITO', 'ENTREGUE', 'PAGO']
+/** A regra da API (Documento.podeSerVistoPor): admin vê tudo, o motorista vê os dele, quem contratou só os do motorista aceito. */
+const CONTRATANTE_VE: StatusFrete[] = ['ACEITO', 'EM_TRANSITO', 'ENTREGUE', 'PAGO']
+/** O frete é de quem tem este token? A empresa demo é a E1; a cliente demo, a U_CLIENTE. */
+const contratou = (f: Frete, token: string | undefined) =>
+  token === 'demo-empresa' ? f.empresa?.id === E1 : token === 'demo-cliente' ? f.cliente?.id === U_CLIENTE : false
 function podeVer(doc: Documento, token: string | undefined) {
   if (token === 'demo-admin') return true
   if (token === 'demo-motorista') return doc.motoristaId === M1
   const f = fretes.find((x) => x.id === doc.freteId)
-  return f != null && f.motorista?.id === doc.motoristaId && EMPRESA_VE.includes(f.status)
+  return f != null && contratou(f, token) && f.motorista?.id === doc.motoristaId && CONTRATANTE_VE.includes(f.status)
 }
 const acessos: Record<string, AcessoDocumento[]> = {
   // A empresa abriu a CNH do frete aceito (f8): no f1 ela ainda não pode ver nada.
@@ -399,17 +454,56 @@ function publicar(b: Record<string, unknown>): Frete {
   return novo
 }
 
+// ---------- pedir frete (cliente pessoa física) ----------
+
+/** As mesmas mensagens de SolicitarFreteRequest. */
+function errosDoPedido(b: Record<string, unknown>) {
+  const erros: Record<string, string> = {}
+  const cep = (x: unknown) => /^\d{5}-?\d{3}$/.test(String((x as Record<string, unknown> | undefined)?.cep ?? ''))
+  if (!cep(b.coleta)) erros['coleta.cep'] = 'CEP inválido. Use 00000-000 ou 00000000.'
+  if (!cep(b.entrega)) erros['entrega.cep'] = 'CEP inválido. Use 00000-000 ou 00000000.'
+  if (!String(b.nomeDestinatario ?? '').trim()) erros.nomeDestinatario = 'O nome do destinatário é obrigatório.'
+  if (!String(b.telefoneDestinatario ?? '').trim()) erros.telefoneDestinatario = 'O telefone do destinatário é obrigatório.'
+  if (!String(b.descricaoCarga ?? '').trim()) erros.descricaoCarga = 'A descrição da carga é obrigatória.'
+  if (!(Number(b.pesoKg) > 0)) erros.pesoKg = 'O peso deve ser maior que zero.'
+  else if (Number(b.pesoKg) > 50000) erros.pesoKg = 'Peso acima do limite da plataforma (50 t).'
+  if (!(Number(b.valor) > 0)) erros.valor = 'O valor deve ser maior que zero.'
+  if (!b.dataColeta) erros.dataColeta = 'A data da coleta é obrigatória.'
+  else if (String(b.dataColeta) < data(0)) erros.dataColeta = 'A data da coleta não pode estar no passado.'
+  return erros
+}
+/** Feriado na coleta soma 20% ao valor, o adicional-feriado-percentual da API. */
+function pedir(b: Record<string, unknown>): Frete {
+  const coleta = enderecoDoCep(b.coleta as Record<string, unknown>)
+  const entrega = enderecoDoCep(b.entrega as Record<string, unknown>)
+  const reta = Math.hypot((coleta.latitude! - entrega.latitude!) * 111, (coleta.longitude! - entrega.longitude!) * 102)
+  const valor = Number(b.valor)
+  const dia = verificarData(String(b.dataColeta))
+  const adicionalFeriado = dia.feriado ? Math.round(valor * 20) / 100 : null
+  const novo = freteCliente({
+    id: `f${fretes.length + 1}`, status: 'PUBLICADO', criadoEm: iso(0), coleta, entrega, dataColeta: String(b.dataColeta),
+    nomeDestinatario: String(b.nomeDestinatario).trim(), telefoneDestinatario: String(b.telefoneDestinatario).trim(),
+    descricaoCarga: String(b.descricaoCarga).trim(), pesoKg: Number(b.pesoKg), valor, adicionalFeriado,
+    valorTotal: valor + (adicionalFeriado ?? 0), feriado: dia.feriado, nomeFeriado: dia.nomeFeriado, domingo: dia.domingo,
+    distanciaKm: Math.max(5, Math.round(reta * 1.25)), distanciaEstimada: true,
+  })
+  fretes.push(novo)
+  eventos[novo.id] = [ev(null, 'PUBLICADO', 'CLIENTE', 0)]
+  return novo
+}
+
 // ---------- contas (login e cadastro) ----------
 
 /**
  * Contas da demonstração. O cadastro acrescenta aqui; toda conta nova vê os dados do motorista ou da
  * empresa de exemplo. As novas ficam no localStorage para sobreviver a um F5 (o resto do demo não precisa).
  */
-type ContaDemo = { senha: string | null; papel: 'MOTORISTA' | 'EMPRESA' | 'ADMIN' }
+type ContaDemo = { senha: string | null; papel: 'MOTORISTA' | 'EMPRESA' | 'CLIENTE' | 'ADMIN' }
 const CHAVE_CONTAS = 'fretai.demo.contas'
 const contas: Record<string, ContaDemo> = {
   'motorista@demo.fretai': { senha: 'demo123', papel: 'MOTORISTA' },
   'empresa@demo.fretai': { senha: 'demo123', papel: 'EMPRESA' },
+  'cliente@demo.fretai': { senha: 'demo123', papel: 'CLIENTE' },
   'admin@demo.fretai': { senha: 'demo123', papel: 'ADMIN' },
   ...(JSON.parse(localStorage.getItem(CHAVE_CONTAS) ?? '{}') as Record<string, ContaDemo>),
 }
@@ -423,7 +517,7 @@ const CREDENCIAL_GOOGLE_DEMO = 'demo-google'
 const GOOGLE_DEMO = { email: 'voce@gmail.com', nome: 'Você (Google de demonstração)' }
 
 function tokensDe(papel: ContaDemo['papel']): Tokens {
-  const usuario = { MOTORISTA: M1, EMPRESA: U_EMPRESA, ADMIN: U_ADMIN }[papel]
+  const usuario = { MOTORISTA: M1, EMPRESA: U_EMPRESA, CLIENTE: U_CLIENTE, ADMIN: U_ADMIN }[papel]
   return {
     accessToken: `demo-${papel.toLowerCase()}`, refreshToken: 'demo-refresh', tokenType: 'Bearer',
     expiresIn: 900, usuarioId: usuario, papel, empresaId: papel === 'EMPRESA' ? E1 : null,
@@ -478,14 +572,14 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     }
     return json(tokensDe(conta.papel))
   }
-  if (metodo === 'POST' && (p === '/api/motoristas' || p === '/api/empresas')) {
-    const motorista = p === '/api/motoristas'
-    const pessoa = (motorista ? b : b.responsavel ?? {}) as Record<string, unknown>
+  if (metodo === 'POST' && (p === '/api/motoristas' || p === '/api/empresas' || p === '/api/clientes')) {
+    const papel = p === '/api/motoristas' ? 'MOTORISTA' : p === '/api/clientes' ? 'CLIENTE' : 'EMPRESA'
+    const pessoa = (papel === 'EMPRESA' ? b.responsavel ?? {} : b) as Record<string, unknown>
     const google = pessoa.credencialGoogle === CREDENCIAL_GOOGLE_DEMO
     const email = google ? GOOGLE_DEMO.email : String(pessoa.email ?? '').toLowerCase()
     if (contas[email]) return problema(409, 'Conflito', 'Já existe uma conta com esse e-mail.')
-    guardarConta(email, { senha: google ? null : String(pessoa.senha ?? ''), papel: motorista ? 'MOTORISTA' : 'EMPRESA' })
-    return json({ id: motorista ? M1 : E1, email }, 201)
+    guardarConta(email, { senha: google ? null : String(pessoa.senha ?? ''), papel })
+    return json({ id: { MOTORISTA: M1, CLIENTE: U_CLIENTE, EMPRESA: E1 }[papel], email }, 201)
   }
   if (metodo === 'GET' && (m = p.match(/^\/api\/empresas\/([0-9./-]{14,18})$/))) {
     return json({ cnpj: m[1].replace(/\D/g, ''), razaoSocial: 'Transportes Exemplo Ltda', nomeFantasia: 'Exemplo Cargas', situacaoCadastral: 'ATIVA' })
@@ -515,6 +609,16 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
   }
   if (metodo === 'GET' && (m = p.match(/^\/api\/fretes\/empresa\/([^/]+)$/))) {
     return json(pagina(fretes.filter((f) => f.empresa?.id === m![1]).sort((a, z) => z.criadoEm.localeCompare(a.criadoEm))))
+  }
+  if (metodo === 'GET' && (m = p.match(/^\/api\/fretes\/cliente\/([^/]+)$/))) {
+    if (token !== 'demo-admin' && !(token === 'demo-cliente' && m[1] === U_CLIENTE)) return problema(403, 'Acesso negado', 'Você não tem permissão para esta ação.')
+    return json(pagina(fretes.filter((f) => f.cliente?.id === m![1]).sort((a, z) => z.criadoEm.localeCompare(a.criadoEm))))
+  }
+  if (metodo === 'POST' && p === '/api/fretes') {
+    if (token !== 'demo-cliente' || b.clienteId !== U_CLIENTE) return problema(403, 'Acesso negado', 'Você não tem permissão para esta ação.')
+    const erros = errosDoPedido(b)
+    if (Object.keys(erros).length) return invalido(erros)
+    return json(pedir(b), 201)
   }
   if (metodo === 'POST' && (m = p.match(/^\/api\/fretes\/([^/]+)\/canhoto\/contestacao$/))) {
     const c = canhotos[m[1]]
@@ -551,8 +655,8 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       const nota = Number(b.nota)
       if (!(nota >= 1 && nota <= 5)) return json({ title: 'Dados inválidos', detail: 'A nota vai de 1 a 5.', status: 400, erros: { nota: 'A nota vai de 1 a 5.' } }, 400)
       const nova: Avaliacao = {
-        id: `av${avaliacoes.length + 1}`, freteId: f.id, lado, avaliadoTipo: lado === 'MOTORISTA' ? 'EMPRESA' : 'MOTORISTA',
-        avaliadoId: lado === 'MOTORISTA' ? (f.empresa?.id ?? '') : (f.motorista?.id ?? ''), nota,
+        id: `av${avaliacoes.length + 1}`, freteId: f.id, lado, avaliadoTipo: lado === 'MOTORISTA' ? (f.empresa ? 'EMPRESA' : 'CLIENTE') : 'MOTORISTA',
+        avaliadoId: lado === 'MOTORISTA' ? (f.empresa?.id ?? f.cliente?.id ?? '') : (f.motorista?.id ?? ''), nota,
         comentario: (b.comentario as string | null) ?? null, criadaEm: iso(0),
       }
       avaliacoes.push(nova)
@@ -643,7 +747,7 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       }
       const motivo = String(b.motivo ?? '').trim()
       if (!motivo) return json({ title: 'Dados inválidos', detail: 'Informe o motivo do cancelamento.', status: 400, erros: { motivo: 'Informe o motivo do cancelamento.' } }, 400)
-      ;(eventos[f.id] ??= []).push(ev(f.status, 'CANCELADO', token === 'demo-motorista' ? 'MOTORISTA' : 'EMPRESA', 0, motivo))
+      ;(eventos[f.id] ??= []).push(ev(f.status, 'CANCELADO', token === 'demo-motorista' ? 'MOTORISTA' : token === 'demo-cliente' ? 'CLIENTE' : 'EMPRESA', 0, motivo))
       Object.assign(f, { status: 'CANCELADO', motivoCancelamento: motivo, concluidoEm: iso(0) })
       const pg = pagamentos.find((x) => x.freteId === f.id)
       if (pg && pg.status !== 'PENDENTE') { pg.status = 'ESTORNADO'; pg.estornadoEm = iso(0) }
@@ -660,7 +764,7 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     const f = fretes.find((x) => x.id === pr.freteId)!
     pr.status = 'ACEITA'
     for (const outra of propostas) if (outra.freteId === f.id && outra.status === 'ENVIADA') { outra.status = 'RECUSADA'; outra.respondidaEm = iso(0) }
-    registrar(f.id, f.status, 'ACEITO', 'EMPRESA')
+    registrar(f.id, f.status, 'ACEITO', f.cliente ? 'CLIENTE' : 'EMPRESA')
     Object.assign(f, {
       status: 'ACEITO', aceitoEm: iso(0), valorAcordado: pr.valor, adiantamentoPercentual: pr.adiantamentoPercentual,
       prazoEntrega: pr.prazoEntrega, veiculo: pr.veiculo,
@@ -691,8 +795,8 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     }
     if (metodo === 'POST' && m[2] === 'link') {
       if (!podeVer(doc, token)) return problema(403, 'Acesso negado', 'A empresa só vê os documentos do motorista depois de aceitar a proposta dele.')
-      const papel = token === 'demo-motorista' ? 'MOTORISTA' : token === 'demo-admin' ? 'ADMIN' : 'EMPRESA'
-      ;(acessos[doc.id] ??= []).push({ usuarioId: { MOTORISTA: M1, ADMIN: U_ADMIN, EMPRESA: U_EMPRESA }[papel], papel, origem: '127.0.0.1', acessadoEm: iso(0) })
+      const papel = token === 'demo-motorista' ? 'MOTORISTA' : token === 'demo-admin' ? 'ADMIN' : token === 'demo-cliente' ? 'CLIENTE' : 'EMPRESA'
+      ;(acessos[doc.id] ??= []).push({ usuarioId: { MOTORISTA: M1, ADMIN: U_ADMIN, CLIENTE: U_CLIENTE, EMPRESA: U_EMPRESA }[papel], papel, origem: '127.0.0.1', acessadoEm: iso(0) })
       return json({ url: doc.url, expiraEm: iso(10 / 1440) })
     }
   }

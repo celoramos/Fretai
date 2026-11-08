@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState, type FormEvent, type InputHTMLAttributes } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { api, comoProblema } from '../api/cliente'
-import type { CadastroEmpresa, CadastroMotorista, CategoriaVeiculo, DadosCnpj, Problema, TipoEmpresa } from '../api/tipos'
+import type { CadastroCliente, CadastroEmpresa, CadastroMotorista, CategoriaVeiculo, DadosCnpj, Problema, TipoEmpresa } from '../api/tipos'
 import { BotaoGoogle } from '../components/BotaoGoogle'
 import { GOOGLE_DISPONIVEL } from '../google'
+import { INICIO } from '../inicio'
 import { Marca } from '../components/Marca'
 import { Aviso } from '../components/ui'
 import { transicao } from '../movimento'
 import { useSessao } from '../sessao'
 import { useTitulo } from '../useTitulo'
 
-type Perfil = 'MOTORISTA' | 'EMPRESA'
+type Perfil = 'MOTORISTA' | 'EMPRESA' | 'CLIENTE'
 /** O que o login com Google devolve quando a pessoa ainda não tem conta (Entrar.tsx manda pelo state). */
 interface ContaGoogle { credencial: string; email: string; nome: string | null }
 
@@ -30,8 +31,10 @@ export function Cadastro() {
   const { tokens, entrar, entrarComGoogle } = useSessao()
   const navegar = useNavigate()
   const estado = useLocation().state as { google?: ContaGoogle } | null
+  const [params] = useSearchParams()
   const [google, setGoogle] = useState<ContaGoogle | null>(estado?.google ?? null)
-  const [perfil, setPerfil] = useState<Perfil | null>(null)
+  // O link "frete avulso" da página inicial já chega com o perfil de cliente escolhido.
+  const [perfil, setPerfil] = useState<Perfil | null>(params.get('perfil') === 'cliente' ? 'CLIENTE' : null)
   const [campos, setCampos] = useState<Record<string, string>>(() => ({ nome: estado?.google?.nome ?? '', tipoVeiculo: 'CAMINHAO', tipo: 'EMBARCADOR' }))
   const [empresaReceita, setEmpresaReceita] = useState<DadosCnpj | null>(null)
   const [enviando, setEnviando] = useState(false)
@@ -63,7 +66,7 @@ export function Cadastro() {
     try {
       // Quem já tem conta com esse Google entra direto; quem não tem segue o cadastro com os dados dele.
       const t = await entrarComGoogle(credencial)
-      navegar(t.papel === 'MOTORISTA' ? '/motorista' : '/empresa')
+      navegar(INICIO[t.papel])
     } catch (erro) {
       const p = comoProblema(erro)
       if (p.codigo === 'CADASTRO_NECESSARIO' && p.email) {
@@ -96,6 +99,11 @@ export function Cadastro() {
           tipoVeiculo: campos.tipoVeiculo as CategoriaVeiculo, placa: (campos.placa ?? '').trim().toUpperCase(), ...acesso,
         }
         await api('POST', '/api/motoristas', corpo)
+      } else if (perfil === 'CLIENTE') {
+        const corpo: CadastroCliente = {
+          cpf: digitos(campos.cpf ?? ''), nome: (campos.nome ?? '').trim(), email, telefone: digitos(campos.telefone ?? ''), ...acesso,
+        }
+        await api('POST', '/api/clientes', corpo)
       } else {
         const corpo: CadastroEmpresa = {
           cnpj: digitos(campos.cnpj ?? ''), tipo: campos.tipo as TipoEmpresa, telefone: digitos(campos.telefone ?? ''),
@@ -105,7 +113,7 @@ export function Cadastro() {
         await api('POST', '/api/empresas', corpo)
       }
       const t = google ? await entrarComGoogle(google.credencial) : await entrar(email, campos.senha ?? '')
-      navegar(t.papel === 'MOTORISTA' ? '/motorista' : '/empresa')
+      navegar(INICIO[t.papel])
     } catch (erro) {
       setProblema(comoProblema(erro))
     } finally {
@@ -144,6 +152,11 @@ export function Cadastro() {
                   <span>Publico fretes, escolho o motorista e acompanho a entrega.</span>
                 </button>
               </div>
+              {/* Entrada secundária, como pede o briefing: o foco é o marketplace de empresas. */}
+              <div className="cadastro__avulso">
+                <p>Pessoa física com um frete avulso, como uma mudança?</p>
+                <button type="button" className="botao botao--secundario" onClick={() => setPerfil('CLIENTE')}>Pedir como pessoa física</button>
+              </div>
               <div aria-live="polite" id="erro-cadastro" tabIndex={-1}>
                 {erroGeral && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}
               </div>
@@ -155,7 +168,10 @@ export function Cadastro() {
               <button type="button" className="botao botao--fantasma cadastro__voltar" onClick={() => { setPerfil(null); setProblema(null) }}>
                 ← Trocar perfil
               </button>
-              <h1 id="dados-titulo" className="formulario__titulo">{perfil === 'MOTORISTA' ? 'Seus dados de motorista' : 'Dados da empresa'}</h1>
+              <h1 id="dados-titulo" className="formulario__titulo">{perfil === 'MOTORISTA' ? 'Seus dados de motorista' : perfil === 'CLIENTE' ? 'Seus dados' : 'Dados da empresa'}</h1>
+              {perfil === 'CLIENTE' && (
+                <p className="cadastro__google">Com a conta você pede o frete, escolhe o motorista pelas propostas e paga por Pix. O dinheiro fica guardado até a entrega.</p>
+              )}
 
               {perfil === 'EMPRESA' && (
                 <fieldset className="cadastro__grupo">
@@ -183,7 +199,7 @@ export function Cadastro() {
                 {perfil === 'EMPRESA' && <legend>Quem vai entrar pela empresa</legend>}
                 <Campo nome="nome" rotulo="Nome completo" erro={erro('nome')} value={campos.nome ?? ''} onChange={muda('nome')} autoComplete="name" />
                 <Campo nome="cpf" rotulo="CPF" erro={erro('cpf')} value={campos.cpf ?? ''} onChange={muda('cpf')} inputMode="numeric" autoComplete="off" placeholder="000.000.000-00" />
-                {perfil === 'MOTORISTA'
+                {perfil !== 'EMPRESA'
                   ? <Campo nome="telefone" rotulo="Celular com DDD" erro={erro('telefone')} value={campos.telefone ?? ''} onChange={muda('telefone')} inputMode="tel" autoComplete="tel" placeholder="(11) 98888-7777" />
                   : <Campo nome="telefoneResponsavel" rotulo="Celular com DDD" erro={erro('telefoneResponsavel')} value={campos.telefoneResponsavel ?? ''} onChange={muda('telefoneResponsavel')} inputMode="tel" autoComplete="tel" placeholder="(11) 98888-7777" />}
                 {google ? (

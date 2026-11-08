@@ -44,6 +44,9 @@
 }
 .inicio__sub { font-size: var(--tam-bloco); color: var(--cor-texto-secundario); max-width: 52ch; text-wrap: pretty; }
 .inicio__acao { margin-top: var(--esp-2); }
+/* Entrada secundária do cliente pessoa física: uma linha de texto, abaixo da ação da empresa. */
+.inicio__avulso { color: var(--cor-texto-secundario); }
+.inicio__avulso a { color: var(--cor-texto); font-weight: var(--peso-forte); }
 
 .inicio__cartao {
   display: grid;
