@@ -451,3 +451,30 @@
 .cancelar__titulo { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); }
 .cancelar .campo { justify-self: stretch; }
 .cancelar__botoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
+
+/* ---------- avaliação ----------
+   Cinco estrelas na cor do texto: o amarelo é só da rota. Cada estrela é um alvo de toque inteiro. */
+.avaliar { display: grid; gap: var(--esp-3); justify-items: start; }
+.avaliar .campo { justify-self: stretch; }
+.avaliar__notas { display: grid; gap: var(--esp-2); min-width: 0; margin: 0; padding: 0; border: 0; }
+.avaliar__notas > legend { padding: 0; margin-bottom: var(--esp-2); }
+.avaliar__titulo { font-weight: var(--peso-forte); }
+.avaliar__estrelas { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1); }
+.avaliar__estrela {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--alvo);
+  height: var(--alvo);
+  border-radius: var(--raio-pilula);
+  font-size: var(--tam-secao);
+  cursor: pointer;
+}
+.avaliar__estrela:hover { background: var(--cor-linha); }
+.avaliar__estrela:active { background: var(--cor-borda-campo); }
+.avaliar__estrela:has(:focus-visible) { outline: var(--foco-largura) solid var(--cor-foco); outline-offset: var(--foco-recuo); }
+.estrela { color: var(--cor-borda-campo); line-height: 1; }
+.estrela--cheia { color: var(--cor-texto); }
+.avaliar__significado { margin-left: var(--esp-2); color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.avaliar--feita .avaliar__estrelas { font-size: var(--tam-bloco); }
+.avaliar__comentario { color: var(--cor-texto-secundario); }

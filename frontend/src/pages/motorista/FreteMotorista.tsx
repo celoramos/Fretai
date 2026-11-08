@@ -4,6 +4,7 @@ import { api, ErroApi } from '../../api/cliente'
 import type { EventoFrete, Frete, Pagamento, PerfilEmpresa, Problema, Veiculo } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { Reputacao } from '../../components/CardFrete'
+import { Avaliar } from '../../components/Avaliar'
 import { CancelarFrete } from '../../components/CancelarFrete'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
@@ -75,6 +76,13 @@ export function FreteMotorista() {
           <MedidorGarantia pagamento={pagamento} />
           <Acoes frete={frete} pagamento={pagamento} aoMudar={recarregar} />
           <Marcos status={frete.status} eventos={eventos} visao="motorista" orientacao="vertical" motivoCancelamento={frete.motivoCancelamento} />
+        </section>
+      )}
+
+      {meu && (frete.status === 'ENTREGUE' || frete.status === 'PAGO') && (
+        <section className="bloco cartao" aria-labelledby="avaliacao">
+          <h2 id="avaliacao" className="bloco__titulo">Avaliação</h2>
+          <Avaliar freteId={frete.id} lado="MOTORISTA" nomeAvaliado={frete.empresa?.nomeFantasia ?? frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'o cliente'} />
         </section>
       )}
 

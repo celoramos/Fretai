@@ -4,6 +4,7 @@
  * Os números são de exemplo, coerentes com o briefing (rotas reais, valores plausíveis).
  */
 import type {
+  Avaliacao,
   Endereco,
   Canhoto,
   EventoFrete,
@@ -204,6 +205,10 @@ function contestar(c: Canhoto, motivo: string): Response | null {
   return null
 }
 
+// ---------- avaliações ----------
+
+const avaliacoes: Avaliacao[] = []
+
 // ---------- publicar frete ----------
 
 /** Feriados nacionais de data fixa (a API consulta a BrasilAPI; aqui basta para a demonstração). */
@@ -392,6 +397,21 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     const sub = m[2]
     if (metodo === 'GET' && !sub) return json(f)
     if (metodo === 'GET' && sub === '/eventos') return json(eventos[f.id] ?? [])
+    if (sub === '/avaliacoes') {
+      if (metodo === 'GET') return json(avaliacoes.filter((a) => a.freteId === f.id))
+      if (f.status !== 'ENTREGUE' && f.status !== 'PAGO') return problema(422, 'Ainda não', 'Só é possível avaliar depois da entrega.')
+      const lado = token === 'demo-motorista' ? 'MOTORISTA' : 'CONTRATANTE'
+      if (avaliacoes.some((a) => a.freteId === f.id && a.lado === lado)) return problema(409, 'Já avaliado', 'Este frete já foi avaliado por você.')
+      const nota = Number(b.nota)
+      if (!(nota >= 1 && nota <= 5)) return json({ title: 'Dados inválidos', detail: 'A nota vai de 1 a 5.', status: 400, erros: { nota: 'A nota vai de 1 a 5.' } }, 400)
+      const nova: Avaliacao = {
+        id: `av${avaliacoes.length + 1}`, freteId: f.id, lado, avaliadoTipo: lado === 'MOTORISTA' ? 'EMPRESA' : 'MOTORISTA',
+        avaliadoId: lado === 'MOTORISTA' ? (f.empresa?.id ?? '') : (f.motorista?.id ?? ''), nota,
+        comentario: (b.comentario as string | null) ?? null, criadaEm: iso(0),
+      }
+      avaliacoes.push(nova)
+      return json(nova, 201)
+    }
     if (metodo === 'GET' && sub === '/canhoto') {
       return canhotos[f.id] ? json(canhotos[f.id]) : problema(404, 'Sem canhoto', 'Este frete ainda não tem canhoto.')
     }

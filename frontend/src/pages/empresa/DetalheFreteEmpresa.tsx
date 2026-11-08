@@ -3,6 +3,7 @@ import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { api, ErroApi } from '../../api/cliente'
 import type { EventoFrete, Frete, Pagamento, PerfilMotorista, Problema, Proposta } from '../../api/tipos'
 import { ouNulo, useRecurso } from '../../api/useRecurso'
+import { Avaliar } from '../../components/Avaliar'
 import { CancelarFrete } from '../../components/CancelarFrete'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
@@ -86,6 +87,12 @@ export function DetalheFreteEmpresa() {
         {aba === 'propostas' && <Comparador frete={frete} propostas={propostas} aoMudar={recarregar} />}
         {aba === 'pagamento' && <PainelPagamento frete={frete} pagamento={pagamento} aoMudar={recarregar} />}
         {aba === 'entrega' && <PainelEntrega frete={frete} aoMudar={recarregar} />}
+        {aba === 'entrega' && (frete.status === 'ENTREGUE' || frete.status === 'PAGO') && frete.motorista && (
+          <section className="bloco cartao" aria-labelledby="avaliacao-motorista">
+            <h2 id="avaliacao-motorista" className="bloco__titulo">Avaliação do motorista</h2>
+            <Avaliar freteId={frete.id} lado="CONTRATANTE" nomeAvaliado={frete.motorista.nome} />
+          </section>
+        )}
         {aba === 'historico' && <Historico eventos={eventos} />}
       </div>
 
