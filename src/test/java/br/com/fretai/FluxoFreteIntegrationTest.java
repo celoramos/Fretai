@@ -170,6 +170,29 @@ class FluxoFreteIntegrationTest {
                 .andExpect(jsonPath("$.motorista.id").value(motoristaA.toString()));
     }
 
+    @Test
+    @DisplayName("Cliente lista os próprios fretes; outro cliente não vê a lista dele")
+    void listaDoCliente() throws Exception {
+        String clienteId = cadastrarCliente("98765432100", "lista@email.com");
+        String outroId = cadastrarCliente("24681357928", "outro.cliente@email.com");
+        RequestPostProcessor cliente = Login.como(mvc, "lista@email.com");
+        RequestPostProcessor outro = Login.como(mvc, "outro.cliente@email.com");
+        String freteId = solicitarFrete(clienteId, cliente);
+
+        mvc.perform(get("/api/fretes/cliente/{id}", clienteId).with(cliente))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(freteId))
+                .andExpect(jsonPath("$.content[0].cliente.id").value(clienteId))
+                .andExpect(jsonPath("$.content[0].nomeDestinatario").value("Ana Pereira"));
+
+        mvc.perform(get("/api/fretes/cliente/{id}", clienteId).with(outro))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/api/fretes/cliente/{id}", outroId).with(outro))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(0));
+    }
+
     // ---------- auxiliares ----------
 
     private static String clienteJson(String cpf, String email) {

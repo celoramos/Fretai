@@ -79,6 +79,12 @@ public class FreteService {
         return FreteResponse.de(carregar(freteId));
     }
 
+    /** Os fretes que um cliente pediu; quem pode ver a lista o controller já conferiu. */
+    @Transactional(readOnly = true)
+    public Page<FreteResponse> listarDoCliente(UUID clienteId, Pageable pageable) {
+        return freteRepository.findByClienteId(clienteId, pageable).map(FreteResponse::de);
+    }
+
     @Transactional(readOnly = true)
     public Page<FreteResponse> listarPorStatus(StatusFrete status, Pageable pageable) {
         return freteRepository.findByStatus(status, pageable).map(FreteResponse::de);

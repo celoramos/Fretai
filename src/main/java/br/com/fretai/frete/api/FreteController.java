@@ -74,6 +74,15 @@ public class FreteController {
         return publicacaoFreteService.listarDaEmpresa(empresaId, pageable);
     }
 
+    /** Os fretes do cliente pessoa física: só ele (ou um administrador) vê a lista. */
+    @GetMapping("/cliente/{clienteId}")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN') and principal.ehOuAdmin(#clienteId)")
+    public Page<FreteResponse> listarDoCliente(
+            @PathVariable UUID clienteId,
+            @PageableDefault(size = 20, sort = "criadoEm", direction = Sort.Direction.DESC) Pageable pageable) {
+        return freteService.listarDoCliente(clienteId, pageable);
+    }
+
     @PutMapping("/{id}")
     public FreteResponse revisar(@PathVariable UUID id, @Valid @RequestBody PublicarFreteRequest request,
                                  @AuthenticationPrincipal UsuarioLogado quem) {

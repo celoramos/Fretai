@@ -19,6 +19,9 @@ public interface FreteRepository extends JpaRepository<Frete, UUID> {
     @EntityGraph(attributePaths = {"empresa", "motorista", "veiculo"})
     Page<Frete> findByEmpresaId(UUID empresaId, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"cliente", "motorista", "veiculo"})
+    Page<Frete> findByClienteId(UUID clienteId, Pageable pageable);
+
     long countByEmpresaId(UUID empresaId);
 
     long countByEmpresaIdAndStatusIn(UUID empresaId, Collection<StatusFrete> status);

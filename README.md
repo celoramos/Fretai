@@ -195,6 +195,7 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 | Método | Caminho | O que faz |
 |---|---|---|
 | POST | `/api/fretes` | cliente pessoa física solicita frete |
+| GET | `/api/fretes/cliente/{clienteId}` | fretes do cliente pessoa física, paginado (só ele e admin) |
 | POST / GET | `/api/fretes/empresa/{empresaId}` | empresa publica frete / lista os seus |
 | GET | `/api/fretes?status=PUBLICADO` | lista por status, paginado |
 | GET | `/api/fretes/busca` | busca por raio: origem (lat/lng ou CEP), raio, destino, veículo, carroceria, filtros SIM/NAO/AMBOS |
