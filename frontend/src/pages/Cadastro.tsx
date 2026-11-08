@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type InputHTMLAttributes } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { api, ErroApi } from '../api/cliente'
+import { api, comoProblema } from '../api/cliente'
 import type { CadastroEmpresa, CadastroMotorista, CategoriaVeiculo, DadosCnpj, Problema, TipoEmpresa } from '../api/tipos'
 import { BotaoGoogle } from '../components/BotaoGoogle'
 import { GOOGLE_DISPONIVEL } from '../google'
@@ -65,7 +65,7 @@ export function Cadastro() {
       const t = await entrarComGoogle(credencial)
       navegar(t.papel === 'MOTORISTA' ? '/motorista' : '/empresa')
     } catch (erro) {
-      const p = erro instanceof ErroApi ? erro.problema : { title: 'Erro', detail: String(erro), status: 0 }
+      const p = comoProblema(erro)
       if (p.codigo === 'CADASTRO_NECESSARIO' && p.email) {
         setGoogle({ credencial, email: p.email, nome: p.nome ?? null })
         setCampos((c) => ({ ...c, nome: c.nome || p.nome || '' }))
@@ -107,7 +107,7 @@ export function Cadastro() {
       const t = google ? await entrarComGoogle(google.credencial) : await entrar(email, campos.senha ?? '')
       navegar(t.papel === 'MOTORISTA' ? '/motorista' : '/empresa')
     } catch (erro) {
-      setProblema(erro instanceof ErroApi ? erro.problema : { title: 'Erro', detail: String(erro), status: 0 })
+      setProblema(comoProblema(erro))
     } finally {
       setEnviando(false)
     }

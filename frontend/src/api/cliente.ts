@@ -11,6 +11,11 @@ export class ErroApi extends Error {
   }
 }
 
+/** Qualquer falha vira Problema para a tela: a da API já vem pronta (rede incluída, ver api()); erro de código vira um genérico. */
+export function comoProblema(falha: unknown, titulo = 'Erro'): Problema {
+  return falha instanceof ErroApi ? falha.problema : { title: titulo, detail: falha instanceof Error ? falha.message : String(falha), status: 0 }
+}
+
 export function lerSessao(): Tokens | null {
   const bruto = localStorage.getItem(CHAVE_SESSAO)
   return bruto ? (JSON.parse(bruto) as Tokens) : null

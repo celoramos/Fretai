@@ -106,6 +106,16 @@ export function Campo({ id, rotulo, erro, ajuda, children }: { id: string; rotul
   )
 }
 
+/** Um assunto por cartão, com o título pequeno em cima (o padrão do perfil, da conta e do extrato). */
+export function Cartao({ id, titulo, children }: { id: string; titulo: string; children: ReactNode }) {
+  return (
+    <section className="cartao bloco" aria-labelledby={id}>
+      <h2 id={id} className="bloco__titulo">{titulo}</h2>
+      {children}
+    </section>
+  )
+}
+
 export function Vazio({ titulo, children, acao }: { titulo: string; children?: ReactNode; acao?: ReactNode }) {
   return (
     <div className="vazio">

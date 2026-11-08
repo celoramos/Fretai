@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { api, ErroApi } from '../../api/cliente'
+import { api, comoProblema, ErroApi } from '../../api/cliente'
 import type { EventoFrete, Frete, Pagamento, Pagina, PerfilEmpresa, Problema, Proposta, Veiculo } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { Reputacao } from '../../components/CardFrete'
@@ -149,7 +149,7 @@ function Acoes({ frete, pagamento, aoMudar }: { frete: Frete; pagamento: Pagamen
       await api('POST', `/api/fretes/${frete.id}/inicio`)
       aoMudar()
     } catch (e) {
-      setProblema(e instanceof ErroApi ? e.problema : { title: 'Erro', detail: String(e), status: 0 })
+      setProblema(comoProblema(e))
     } finally {
       setEnviando(false)
     }
@@ -194,7 +194,7 @@ function MinhaProposta({ proposta, aoMudar }: { proposta: Proposta; aoMudar: () 
       await api('POST', `/api/propostas/${proposta.id}/retirada`)
       aoMudar()
     } catch (e) {
-      setProblema(e instanceof ErroApi ? e.problema : { title: 'Erro', detail: String(e), status: 0 })
+      setProblema(comoProblema(e))
       setFase('parado')
     }
   }

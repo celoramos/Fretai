@@ -1,14 +1,12 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
-import { api, ErroApi, MODO_DEMO } from '../../api/cliente'
+import { useState, type FormEvent } from 'react'
+import { api, comoProblema, MODO_DEMO } from '../../api/cliente'
 import type { Motorista, NovoVeiculo, PerfilMotorista, Problema, Veiculo } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
-import { Aviso, ErroCarga, Esqueleto, Placa } from '../../components/ui'
+import { Aviso, Cartao, ErroCarga, Esqueleto, Placa } from '../../components/ui'
 import { CARROCERIAS, carroceria, TIPOS_CAMINHAO, veiculo } from '../../formato'
 import { posicaoAtual } from '../../geo'
 import { useSessao } from '../../sessao'
 import { useTitulo } from '../../useTitulo'
-
-const comoProblema = (e: unknown): Problema => (e instanceof ErroApi ? e.problema : { title: 'Erro', detail: String(e), status: 0 })
 
 /*
  * Perfil do motorista: o que a empresa vê dele (reputação e documentos), para onde vai o dinheiro
@@ -54,15 +52,6 @@ export function Perfil() {
       <Avisos motorista={motorista} aoMudar={recarregar} />
       <Contato motorista={motorista} aoSalvar={recarregar} />
     </div>
-  )
-}
-
-function Cartao({ id, titulo, children }: { id: string; titulo: string; children: ReactNode }) {
-  return (
-    <section className="cartao bloco" aria-labelledby={id}>
-      <h2 id={id} className="bloco__titulo">{titulo}</h2>
-      {children}
-    </section>
   )
 }
 
@@ -274,7 +263,7 @@ function Avisos({ motorista, aoMudar }: { motorista: Motorista; aoMudar: () => v
       await api('PUT', `/api/motoristas/${motorista.id}/base`, { latitude: p.lat, longitude: p.lng, raioKm: raio })
       setBase({ fase: 'salvo', raio })
     } catch (falha) {
-      setBase({ fase: 'erro', texto: falha instanceof ErroApi ? falha.problema.detail : (falha as Error).message })
+      setBase({ fase: 'erro', texto: comoProblema(falha).detail })
     }
   }
 

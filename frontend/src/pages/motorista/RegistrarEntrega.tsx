@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { api, ErroApi, MODO_DEMO } from '../../api/cliente'
+import { api, comoProblema, MODO_DEMO } from '../../api/cliente'
 import type { Canhoto, Frete, Pagamento, Problema } from '../../api/tipos'
 import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { Assinatura } from '../../components/Assinatura'
@@ -123,7 +123,7 @@ function Formulario({ frete, pagamento }: { frete: Frete; pagamento: Pagamento |
       dados.append('assinatura', assinatura, 'assinatura.png')
       setCanhoto(await api<Canhoto>('POST', `/api/fretes/${frete.id}/canhoto`, dados))
     } catch (falha) {
-      setProblema(falha instanceof ErroApi ? falha.problema : { title: 'Erro', detail: String(falha), status: 0 })
+      setProblema(comoProblema(falha))
     } finally {
       setEnviando(false)
     }

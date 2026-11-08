@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
-import { api, ErroApi } from '../api/cliente'
+import { api, comoProblema } from '../api/cliente'
 import type { Frete, Problema } from '../api/tipos'
 import { Aviso } from './ui'
 
@@ -37,7 +37,7 @@ export function CancelarFrete({ frete, pago, aoCancelar }: { frete: Frete; pago:
       await api('POST', `/api/fretes/${frete.id}/cancelamento`, { motivo: motivo.trim() })
       aoCancelar()
     } catch (falha) {
-      setProblema(falha instanceof ErroApi ? falha.problema : { title: 'Erro', detail: String(falha), status: 0 })
+      setProblema(comoProblema(falha))
       setEnviando(false)
     }
   }

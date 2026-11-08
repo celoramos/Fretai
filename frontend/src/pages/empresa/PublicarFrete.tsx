@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { api, ErroApi } from '../../api/cliente'
+import { api, comoProblema } from '../../api/cliente'
 import type { Endereco, EnderecoPedido, Frete, Problema, PublicarFrete as Pedido, VerificacaoData } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { SairSemSalvar } from '../../components/SairSemSalvar'
@@ -195,7 +195,7 @@ function FormularioFrete({ inicial, enviar, rotuloEnviar, rotuloEnviando, cancel
     try {
       await enviar(pedidoDe(r))
     } catch (falha) {
-      setProblema(falha instanceof ErroApi ? falha.problema : { title: 'Erro', detail: String(falha), status: 0 })
+      setProblema(comoProblema(falha))
       setEnviando(false)
       // O primeiro campo com erro recebe o foco; sem erro por campo, o aviso no fim do formulário.
       requestAnimationFrame(() => {

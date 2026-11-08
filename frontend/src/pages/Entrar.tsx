@@ -2,7 +2,7 @@ import { motion, useReducedMotion, type Variants } from 'motion/react'
 import { CURVA, DUR_ROTA, item } from '../movimento'
 import { useRef, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { ErroApi, MODO_DEMO } from '../api/cliente'
+import { comoProblema, MODO_DEMO } from '../api/cliente'
 import type { Problema } from '../api/tipos'
 import { useTitulo } from '../useTitulo'
 import { Aviso } from '../components/ui'
@@ -39,7 +39,7 @@ export function Entrar() {
       const t = await entrar(email.trim(), senha)
       navegar(t.papel === 'MOTORISTA' ? '/motorista' : '/empresa')
     } catch (erro) {
-      const p = erro instanceof ErroApi ? erro.problema : { title: 'Erro', detail: String(erro), status: 0 }
+      const p = comoProblema(erro)
       setProblema(p)
       // Primeiro campo com erro recebe o foco; sem erro por campo, volta para a senha.
       if (p.erros?.email) campoEmail.current?.focus()
@@ -57,7 +57,7 @@ export function Entrar() {
       const t = await entrarComGoogle(credencial)
       navegar(t.papel === 'MOTORISTA' ? '/motorista' : '/empresa')
     } catch (erro) {
-      const p = erro instanceof ErroApi ? erro.problema : { title: 'Erro', detail: String(erro), status: 0 }
+      const p = comoProblema(erro)
       if (p.codigo === 'CADASTRO_NECESSARIO') {
         navegar('/cadastro', { state: { google: { credencial, email: p.email, nome: p.nome } } })
         return

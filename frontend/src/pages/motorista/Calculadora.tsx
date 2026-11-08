@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { api, ErroApi } from '../../api/cliente'
+import { api, comoProblema } from '../../api/cliente'
 import type { PedidoCalculo, Problema, ResultadoCalculo } from '../../api/tipos'
 import { Valor } from '../../components/Dinheiro'
 import { Aviso, Campo } from '../../components/ui'
@@ -68,7 +68,7 @@ export function Calculadora() {
       // A conta feita fica no endereço: voltar, recarregar ou mandar o link abre a mesma conta.
       setParams(Object.fromEntries(Object.entries({ km, valor, carga: tipoCarga, eixos }).filter(([, v]) => v)), { replace: true })
     } catch (falha) {
-      setProblema(falha instanceof ErroApi ? falha.problema : { title: 'Erro', detail: String(falha), status: 0 })
+      setProblema(comoProblema(falha))
       setResultado(null)
     } finally {
       setEnviando(false)

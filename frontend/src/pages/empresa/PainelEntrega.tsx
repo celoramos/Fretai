@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { api, ErroApi } from '../../api/cliente'
+import { api, comoProblema } from '../../api/cliente'
 import type { Canhoto, Frete, Problema } from '../../api/tipos'
 import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { Aviso, ErroCarga, Esqueleto, Vazio } from '../../components/ui'
@@ -120,7 +120,7 @@ function Contestar({ canhoto, aoContestar }: { canhoto: Canhoto; aoContestar: ()
       await api('POST', `/api/fretes/${canhoto.freteId}/canhoto/contestacao`, { motivo: motivo.trim() })
       aoContestar()
     } catch (falha) {
-      setProblema(falha instanceof ErroApi ? falha.problema : { title: 'Erro', detail: String(falha), status: 0 })
+      setProblema(comoProblema(falha))
       setEnviando(false)
     }
   }

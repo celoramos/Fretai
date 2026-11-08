@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { api, ErroApi, MODO_DEMO } from '../api/cliente'
+import { api, comoProblema, MODO_DEMO } from '../api/cliente'
 import type { Problema } from '../api/tipos'
 import { Marca } from '../components/Marca'
 import { Aviso, Campo } from '../components/ui'
@@ -39,7 +39,7 @@ export function Contestar() {
       await api('POST', '/api/canhotos/contestacao', { codigo, motivo: motivo.trim() })
       setFeito(true)
     } catch (falha) {
-      setProblema(falha instanceof ErroApi ? falha.problema : { title: 'Erro', detail: String(falha), status: 0 })
+      setProblema(comoProblema(falha))
     } finally {
       setEnviando(false)
     }

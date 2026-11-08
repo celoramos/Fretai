@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { api, ErroApi } from '../api/cliente'
+import { api, comoProblema } from '../api/cliente'
 import type { AcessoDocumento, Documento, LinkDocumento, Problema } from '../api/tipos'
 import { useRecurso } from '../api/useRecurso'
 import { prepararFoto } from '../foto'
@@ -41,7 +41,7 @@ export function DocumentosDoMotorista({ freteId, motoristaId }: { freteId: strin
       await api('POST', `/api/fretes/${freteId}/documentos`, dados)
       recarregar()
     } catch (falha) {
-      setProblema(falha instanceof ErroApi ? falha.problema : { title: 'Não deu para enviar', detail: (falha as Error).message, status: 0 })
+      setProblema(comoProblema(falha, 'Não deu para enviar'))
     } finally {
       setEnviando(null)
       const campo = campos.current[tipo]
@@ -98,7 +98,7 @@ export function DocumentosParaEmpresa({ freteId, nomes }: { freteId: string; nom
       else window.location.assign(link.url)
     } catch (falha) {
       janela?.close()
-      setProblema(falha instanceof ErroApi ? falha.problema : { title: 'Erro', detail: String(falha), status: 0 })
+      setProblema(comoProblema(falha))
     } finally {
       setAbrindo(null)
     }

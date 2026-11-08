@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom'
-import { api, ErroApi } from '../../api/cliente'
+import { api, comoProblema } from '../../api/cliente'
 import type { EventoFrete, Frete, Pagamento, PerfilMotorista, Problema, Proposta } from '../../api/tipos'
 import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { Avaliar } from '../../components/Avaliar'
@@ -177,7 +177,7 @@ function ColunaProposta({ frete, proposta: p, perfil, destaques, aoMudar }: { fr
       await api('POST', `/api/propostas/${p.id}/${acao}`)
       aoMudar()
     } catch (e) {
-      setProblema(e instanceof ErroApi ? e.problema : { title: 'Erro', detail: String(e), status: 0 })
+      setProblema(comoProblema(e))
       setFase('parado')
     }
   }
@@ -255,7 +255,7 @@ function PainelPagamento({ frete, pagamento, aoMudar }: { frete: Frete; pagament
       await api('POST', `/api/fretes/${frete.id}/pagamento`)
       aoMudar()
     } catch (e) {
-      setProblema(e instanceof ErroApi ? e.problema : { title: 'Erro', detail: String(e), status: 0 })
+      setProblema(comoProblema(e))
     } finally {
       setEnviando(false)
     }

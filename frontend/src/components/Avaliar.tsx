@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { api, ErroApi } from '../api/cliente'
+import { api, comoProblema } from '../api/cliente'
 import type { Avaliacao, Problema } from '../api/tipos'
 import { useRecurso } from '../api/useRecurso'
 import { Aviso } from './ui'
@@ -48,7 +48,7 @@ export function Avaliar({ freteId, lado, nomeAvaliado }: { freteId: string; lado
       await api('POST', `/api/fretes/${freteId}/avaliacoes`, { nota, comentario: comentario.trim() || null })
       recarregar()
     } catch (falha) {
-      setProblema(falha instanceof ErroApi ? falha.problema : { title: 'Erro', detail: String(falha), status: 0 })
+      setProblema(comoProblema(falha))
     } finally {
       setEnviando(false)
     }
