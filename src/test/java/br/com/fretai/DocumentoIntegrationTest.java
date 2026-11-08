@@ -159,6 +159,41 @@ class DocumentoIntegrationTest {
         mvc.perform(get("/api/documentos/pendentes").with(admin)).andExpect(jsonPath("$.length()").value(0));
         mvc.perform(get("/api/motoristas/{id}/perfil", motoristaId).with(empresa))
                 .andExpect(jsonPath("$.documentosVerificados[0]").value("CNH"));
+
+        // Recusa: pede o motivo, tira da fila, o motorista lê o motivo e a empresa não vê o arquivo.
+        String crlvId = JsonPath.read(mvc.perform(multipart("/api/fretes/{id}/documentos", freteId)
+                        .file(arquivo(PNG)).param("tipo", "CRLV").with(motorista))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(), "$.id");
+        mvc.perform(post("/api/documentos/{id}/recusa", crlvId).with(motorista)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"motivo\": \"Ilegível\"}"))
+                .andExpect(status().isForbidden());
+        mvc.perform(post("/api/documentos/{id}/recusa", crlvId).with(admin)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"motivo\": \" \"}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/documentos/{id}/recusa", crlvId).with(admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motivo\": \"Foto tremida, a placa não dá para ler.\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recusadoEm").exists())
+                .andExpect(jsonPath("$.verificado").value(false));
+        mvc.perform(get("/api/documentos/pendentes").with(admin)).andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(get("/api/fretes/{id}/documentos", freteId).with(motorista))
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[1].id").value(crlvId))
+                .andExpect(jsonPath("$[1].motivoRecusa").value("Foto tremida, a placa não dá para ler."));
+        mvc.perform(get("/api/fretes/{id}/documentos", freteId).with(empresa))
+                .andExpect(jsonPath("$.length()").value(1));
+        mvc.perform(post("/api/documentos/{id}/link", crlvId).with(empresa)).andExpect(status().isForbidden());
+
+        // Recusado não se verifica; verificado não se recusa.
+        mvc.perform(post("/api/documentos/{id}/verificacao", crlvId).with(admin))
+                .andExpect(status().isUnprocessableContent());
+        mvc.perform(post("/api/documentos/{id}/recusa", documentoId).with(admin)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"motivo\": \"Vencida\"}"))
+                .andExpect(status().isUnprocessableContent());
+        mvc.perform(get("/api/motoristas/{id}/perfil", motoristaId).with(empresa))
+                .andExpect(jsonPath("$.documentosVerificados.length()").value(1));
     }
 
     private static MockMultipartFile arquivo(byte[] conteudo) {

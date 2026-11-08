@@ -229,7 +229,9 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 | POST / GET | `/api/fretes/{id}/documentos` | motorista envia (multipart) / lista o que cada um pode ver |
 | POST | `/api/documentos/{id}/link` | link temporário; registra o acesso |
 | GET | `/api/documentos/{id}/acessos` | quem abriu o documento (dono e admin) |
+| GET | `/api/documentos/pendentes` | fila do admin: nem verificados nem recusados, do mais antigo |
 | POST | `/api/documentos/{id}/verificacao` | admin marca como verificado |
+| POST | `/api/documentos/{id}/recusa` | admin recusa com motivo; sai da fila, o motorista lê o motivo e a empresa não vê o arquivo |
 | GET | `/api/arquivos/{token}` | público; baixa pelo link assinado (armazenamento local) |
 
 **Reputação e utilidades**

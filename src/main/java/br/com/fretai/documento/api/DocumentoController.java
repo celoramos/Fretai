@@ -4,9 +4,11 @@ import br.com.fretai.documento.application.DocumentoService;
 import br.com.fretai.documento.application.dto.AcessoDocumentoResponse;
 import br.com.fretai.documento.application.dto.DocumentoResponse;
 import br.com.fretai.documento.application.dto.LinkDocumentoResponse;
+import br.com.fretai.documento.application.dto.RecusaDocumentoRequest;
 import br.com.fretai.documento.domain.TipoDocumento;
 import br.com.fretai.shared.seguranca.UsuarioLogado;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -70,5 +73,13 @@ public class DocumentoController {
     @PreAuthorize("hasRole('ADMIN')")
     public DocumentoResponse verificar(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem) {
         return documentoService.verificar(id, quem);
+    }
+
+    /** Foto ilegível, documento vencido ou de outra pessoa: sai da fila, e o motorista lê o motivo. */
+    @PostMapping("/api/documentos/{id}/recusa")
+    @PreAuthorize("hasRole('ADMIN')")
+    public DocumentoResponse recusar(@PathVariable UUID id, @Valid @RequestBody RecusaDocumentoRequest request,
+                                     @AuthenticationPrincipal UsuarioLogado quem) {
+        return documentoService.recusar(id, request.motivo(), quem);
     }
 }

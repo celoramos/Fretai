@@ -119,16 +119,25 @@ public class DocumentoService {
                 .map(AcessoDocumentoResponse::de).toList();
     }
 
-    /** Fila do administrador: o que ainda não foi conferido, do mais antigo para o mais novo. */
+    /** Fila do administrador: nem verificado nem recusado, do mais antigo para o mais novo. */
     @Transactional(readOnly = true)
     public List<DocumentoResponse> pendentes() {
-        return documentoRepository.findByVerificadoFalseOrderByCriadoEm().stream().map(DocumentoResponse::de).toList();
+        return documentoRepository.findByVerificadoFalseAndRecusadoEmIsNullOrderByCriadoEm().stream()
+                .map(DocumentoResponse::de).toList();
     }
 
     @Transactional
     public DocumentoResponse verificar(UUID documentoId, UsuarioLogado admin) {
         Documento documento = carregar(documentoId);
         documento.verificar(admin.id());
+        return DocumentoResponse.de(documento);
+    }
+
+    /** Recusado sai da fila; o motorista vê o motivo junto do documento e envia outro. */
+    @Transactional
+    public DocumentoResponse recusar(UUID documentoId, String motivo, UsuarioLogado admin) {
+        Documento documento = carregar(documentoId);
+        documento.recusar(admin.id(), motivo.trim());
         return DocumentoResponse.de(documento);
     }
 

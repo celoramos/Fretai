@@ -2,6 +2,7 @@ package br.com.fretai.documento.domain;
 
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.StatusFrete;
+import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.shared.seguranca.UsuarioLogado;
 import br.com.fretai.usuario.domain.Motorista;
 import jakarta.persistence.Column;
@@ -62,6 +63,12 @@ public class Documento {
     private UUID verificadoPor;
     private Instant verificadoEm;
 
+    private UUID recusadoPor;
+    private Instant recusadoEm;
+
+    @Column(length = 300)
+    private String motivoRecusa;
+
     @Column(nullable = false)
     private Instant criadoEm;
 
@@ -82,21 +89,44 @@ public class Documento {
     /**
      * O dono sempre vê; o administrador sempre vê; a empresa que contratou só
      * depois que este motorista foi aceito naquele frete. Qualquer outro: não.
+     * Recusado não vai para a empresa: pode ser ilegível, ou de outra pessoa.
      */
     public boolean podeSerVistoPor(UsuarioLogado quem) {
         if (quem.isAdmin() || motorista.getId().equals(quem.id())) {
             return true;
         }
-        return frete.ehContratante(quem)
+        return recusadoEm == null
+                && frete.ehContratante(quem)
                 && frete.getMotorista() != null
                 && frete.getMotorista().getId().equals(motorista.getId())
                 && CONTRATANTE_VE.contains(frete.getStatus());
     }
 
+    /** @throws RegraNegocioException se já foi recusado: o motorista precisa enviar outro arquivo */
     public void verificar(UUID administradorId) {
+        if (recusadoEm != null) {
+            throw new RegraNegocioException("Este documento foi recusado. O motorista precisa enviar outro.");
+        }
         this.verificado = true;
         this.verificadoPor = administradorId;
         this.verificadoEm = Instant.now();
+    }
+
+    /**
+     * Recusado não volta para a fila: o motorista envia outro arquivo, que entra como documento novo.
+     *
+     * @throws RegraNegocioException se já foi verificado ou recusado
+     */
+    public void recusar(UUID administradorId, String motivo) {
+        if (verificado) {
+            throw new RegraNegocioException("Este documento já foi verificado.");
+        }
+        if (recusadoEm != null) {
+            throw new RegraNegocioException("Este documento já foi recusado.");
+        }
+        this.recusadoPor = administradorId;
+        this.recusadoEm = Instant.now();
+        this.motivoRecusa = Objects.requireNonNull(motivo);
     }
 
     public UUID getId() {return id;}
@@ -108,5 +138,7 @@ public class Documento {
     public long getTamanhoBytes() {return tamanhoBytes;}
     public boolean isVerificado() {return verificado;}
     public Instant getVerificadoEm() {return verificadoEm;}
+    public Instant getRecusadoEm() {return recusadoEm;}
+    public String getMotivoRecusa() {return motivoRecusa;}
     public Instant getCriadoEm() {return criadoEm;}
 }
