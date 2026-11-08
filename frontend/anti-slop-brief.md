@@ -86,6 +86,20 @@ Pedido do dono do produto: o melhor front possível para o sistema. O que faltav
 
 A barra de baixo do motorista passou a ter quatro destinos (Fretes, Meus fretes, Calculadora, Perfil). Verde continua só no dinheiro garantido ou pago: a sobra da calculadora fica na tinta, a falta em vermelho.
 
+## O resto do sistema (2026-11-08)
+
+O que ainda faltava, no mesmo desenho:
+
+- empresa: editar o frete enquanto não há proposta (o mesmo formulário de publicar, preenchido), Pagamentos e Dados da empresa na barra de cima;
+- motorista: extrato, a partir do resumo do dinheiro em Meus fretes;
+- administrador: três filas (documentos, contestações, piso ANTT), na largura de escritório da empresa.
+
+Três decisões que valem para todas:
+
+- formulário preenchido pergunta antes de sair, por qualquer caminho (data router e <dialog>);
+- extrato e pagamentos mostram centavos, porque ali a soma tem de bater com as linhas; o resto do app continua com o valor redondo;
+- ação sem volta na API (verificar documento, decidir contestação) pede confirmação, e o botão diz o que move ("Liberar o saldo").
+
 ## Fora deste corte
 
-Edição de frete publicado, dados da empresa, extrato completo de pagamentos e o administrador (verificar documentos, resolver contestação, editar o piso ANTT). A navegação mostra só o que existe.
+O app do cliente pessoa física e recusar documento, que a API ainda não tem. A navegação mostra só o que existe.
