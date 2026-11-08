@@ -322,24 +322,40 @@ function errosDaPublicacao(b: Record<string, unknown>) {
   return erros
 }
 const EIXOS: Record<string, number> = { RODOTREM: 9, BITREM: 7, CARRETA_LS: 6, VANDERLEIA: 6, CARRETA: 5, BITRUCK: 4, TRUCK: 3, TOCO: 2, VUC: 2, TRES_QUARTOS: 2 }
-function publicar(b: Record<string, unknown>): Frete {
-  const coleta = enderecoDoCep(b.coleta as Record<string, unknown>)
-  const entrega = enderecoDoCep(b.entrega as Record<string, unknown>)
+/**
+ * Os campos do frete que saem do pedido de publicar ou editar, com distância e piso recalculados.
+ * Na edição, CEP igual ao de antes mantém o endereço (a região pelo prefixo do CEP é grosseira e
+ * trocaria Limeira por Campinas), e rota e caminhões iguais mantêm distância e piso, como na API.
+ */
+function montarFrete(b: Record<string, unknown>, anterior?: Frete) {
+  const ponta = (pedido: Record<string, unknown>, antes: Endereco | undefined): Endereco =>
+    antes && antes.cep === pedido.cep
+      ? { ...antes, numero: (pedido.numero as string | null) ?? null, complemento: (pedido.complemento as string | null) ?? null,
+          pontoReferencia: (pedido.pontoReferencia as string | null) ?? null }
+      : enderecoDoCep(pedido)
+  const coleta = ponta(b.coleta as Record<string, unknown>, anterior?.coleta)
+  const entrega = ponta(b.entrega as Record<string, unknown>, anterior?.entrega)
+  const mesmaRota = anterior != null && coleta.cep === anterior.coleta.cep && entrega.cep === anterior.entrega.cep
   const reta = Math.hypot((coleta.latitude! - entrega.latitude!) * 111, (coleta.longitude! - entrega.longitude!) * 102)
-  const distanciaKm = Math.max(30, Math.round(reta * 1.25))
+  const distanciaKm = mesmaRota && anterior.distanciaKm != null ? anterior.distanciaKm : Math.max(30, Math.round(reta * 1.25))
   const tipos = (b.veiculosAceitos as string[] | undefined) ?? []
   const eixos = tipos.length ? Math.max(...tipos.map((t) => EIXOS[t] ?? 5)) : 5
-  const pisoMinimo = Math.round(distanciaKm * (1.2 + eixos * 1.05) + 480)
+  const mesmosCaminhoes = anterior != null && [...tipos].sort().join() === [...anterior.veiculosAceitos].sort().join()
+  const pisoMinimo = mesmaRota && mesmosCaminhoes && anterior.preco?.pisoMinimo != null
+    ? anterior.preco.pisoMinimo : Math.round(distanciaKm * (1.2 + eixos * 1.05) + 480)
   const valor = b.valorACombinar ? null : Number(b.valor)
   const dia = verificarData(String(b.dataColeta))
-  const novo = frete({
-    id: `f${fretes.length + 1}`, coleta, entrega, status: 'PUBLICADO', criadoEm: iso(0), dataColeta: String(b.dataColeta),
+  return {
+    coleta, entrega, dataColeta: String(b.dataColeta),
     descricaoCarga: String(b.descricaoCarga), especieCarga: String(b.especieCarga), tipoCargaAntt: String(b.tipoCargaAntt), pesoKg: Number(b.pesoKg),
     valor, valorTotal: valor, valorACombinar: Boolean(b.valorACombinar), veiculosAceitos: tipos,
     carroceriasAceitas: (b.carroceriasAceitas as string[] | undefined) ?? [], exigeRastreador: Boolean(b.exigeRastreador), complemento: Boolean(b.complemento),
-    feriado: dia.feriado, nomeFeriado: dia.nomeFeriado, domingo: dia.domingo, distanciaKm, distanciaEstimada: true,
+    feriado: dia.feriado, nomeFeriado: dia.nomeFeriado, domingo: dia.domingo, distanciaKm, distanciaEstimada: mesmaRota ? anterior.distanciaEstimada : true,
     preco: { coeficientesDeExemplo: true, eixosConsiderados: eixos, pisoMinimo, abaixoDoPiso: valor != null && valor < pisoMinimo, acimaDaMedia: false, mediaRotaPorKm: null },
-  })
+  } satisfies Partial<Frete>
+}
+function publicar(b: Record<string, unknown>): Frete {
+  const novo = frete({ id: `f${fretes.length + 1}`, status: 'PUBLICADO', criadoEm: iso(0), ...montarFrete(b) })
   fretes.push(novo)
   eventos[novo.id] = [ev(null, 'PUBLICADO', 'EMPRESA', 0)]
   return novo
@@ -460,6 +476,13 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     if (!f) return problema(404, 'Frete não encontrado', 'Esse frete não existe ou foi removido.')
     const sub = m[2]
     if (metodo === 'GET' && !sub) return json(f)
+    if (metodo === 'PUT' && !sub) {
+      if (f.status !== 'PUBLICADO') return problema(409, 'Operação não permitida no status atual', 'O frete só pode ser editado antes de receber propostas.')
+      const erros = errosDaPublicacao(b)
+      if (Object.keys(erros).length) return invalido(erros)
+      Object.assign(f, montarFrete(b, f))
+      return json(f)
+    }
     if (metodo === 'GET' && sub === '/eventos') return json(eventos[f.id] ?? [])
     if (metodo === 'GET' && sub === '/retorno') {
       const km = (a: Endereco, z: Endereco) => Math.round(Math.hypot((a.latitude! - z.latitude!) * 111, (a.longitude! - z.longitude!) * 102) * 1.2)
@@ -563,7 +586,8 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       const pg = pagamentos.find((x) => x.freteId === f.id)
       if (pg?.status === 'RETIDO') { pg.status = 'ADIANTAMENTO_LIBERADO'; pg.adiantamentoLiberadoEm = iso(0) }
       return json(f)
-    }    if (metodo === 'POST' && sub === '/cancelamento') {
+    }
+    if (metodo === 'POST' && sub === '/cancelamento') {
       if (!['PUBLICADO', 'PROPOSTA_ENVIADA', 'ACEITO'].includes(f.status)) {
         return problema(409, 'Transição inválida', 'Não é possível cancelar: o frete já saiu para entrega, foi concluído ou já está cancelado.')
       }

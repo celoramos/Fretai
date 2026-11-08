@@ -317,6 +317,8 @@
 .detalhe-e { display: grid; gap: var(--esp-6); }
 .detalhe-e__cabeca { display: grid; gap: var(--esp-4); }
 .detalhe-e__linha-status { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-3); }
+/* Editar fica no fim da linha do status: é ação sobre o anúncio inteiro, e some depois da primeira proposta. */
+.detalhe-e__editar { margin-left: auto; }
 .detalhe-e__rota-valor { display: grid; gap: var(--esp-6); align-items: center; }
 .detalhe-e__valor { display: grid; gap: var(--esp-2); justify-items: start; }
 .detalhe-e__painel { display: grid; gap: var(--esp-6); }

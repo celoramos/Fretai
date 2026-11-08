@@ -26,8 +26,8 @@ export function DetalheFreteEmpresa() {
   const { id = '' } = useParams()
   const [params, setParams] = useSearchParams()
   const aba = (params.get('aba') as Aba | null) ?? 'propostas'
-  // Vindo de "Publicar frete": a confirmação aparece uma vez, no lugar onde o frete já está.
-  const publicado = (useLocation().state as { publicado?: boolean } | null)?.publicado === true
+  // Vindo de "Publicar frete" ou de "Editar frete": a confirmação aparece uma vez, no lugar onde o frete já está.
+  const vindo = useLocation().state as { publicado?: boolean; editado?: boolean } | null
 
   const [estado, recarregar] = useRecurso(async () => {
     const [frete, eventos, propostas, pagamento] = await Promise.all([
@@ -52,9 +52,11 @@ export function DetalheFreteEmpresa() {
   return (
     <div className="detalhe-e">
       <Link to="/empresa" className="voltar">Todos os fretes</Link>
-      {publicado && (
+      {(vindo?.publicado || vindo?.editado) && (
         <div aria-live="polite">
-          <Aviso tom="info" titulo="Frete publicado.">Motoristas perto da coleta já recebem o aviso. As propostas aparecem aqui.</Aviso>
+          {vindo.publicado
+            ? <Aviso tom="info" titulo="Frete publicado.">Motoristas perto da coleta já recebem o aviso. As propostas aparecem aqui.</Aviso>
+            : <Aviso tom="info" titulo="Frete atualizado.">A distância e o piso ANTT abaixo já são os dos dados novos.</Aviso>}
         </div>
       )}
       <header className="detalhe-e__cabeca cartao">
@@ -62,6 +64,10 @@ export function DetalheFreteEmpresa() {
           <StatusFreteEtiqueta status={frete.status} visao="empresa" />
           {garantido && <SeloGarantido />}
           <span className="detalhe">Coleta {dataCurta(frete.dataColeta)}</span>
+          {/* Só antes da primeira proposta: é o que a API aceita (Frete.revisar). */}
+          {frete.status === 'PUBLICADO' && (
+            <Link to={`/empresa/fretes/${frete.id}/editar`} className="botao botao--secundario detalhe-e__editar">Editar frete</Link>
+          )}
         </div>
         <h1 className="visualmente-oculto">Frete de {frete.coleta.cidade} para {frete.entrega.cidade}</h1>
         <div className="detalhe-e__rota-valor">

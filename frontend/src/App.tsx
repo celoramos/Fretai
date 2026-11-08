@@ -4,7 +4,7 @@ import type { Papel } from './api/tipos'
 import { LayoutEmpresa, LayoutMotorista } from './components/Layouts'
 import { DetalheFreteEmpresa } from './pages/empresa/DetalheFreteEmpresa'
 import { FretesEmpresa } from './pages/empresa/FretesEmpresa'
-import { PublicarFrete } from './pages/empresa/PublicarFrete'
+import { EditarFrete, PublicarFrete } from './pages/empresa/PublicarFrete'
 import { Cadastro } from './pages/Cadastro'
 import { Entrar } from './pages/Entrar'
 import { BuscaFretes } from './pages/motorista/BuscaFretes'
@@ -54,6 +54,7 @@ export function App() {
         <Route index element={<FretesEmpresa />} />
         <Route path="fretes/novo" element={<PublicarFrete />} />
         <Route path="fretes/:id" element={<DetalheFreteEmpresa />} />
+        <Route path="fretes/:id/editar" element={<EditarFrete />} />
       </Route>
       <Route path="*" element={<NaoEncontrada />} />
     </Routes>
