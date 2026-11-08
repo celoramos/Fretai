@@ -48,6 +48,9 @@
      claro, onde tinta clara sumiria. A tinta é o texto do claro: 16.52 sobre o papel. */
   --cor-papel: #FFFFFF;
   --cor-tinta: #1C1F24;
+  /* Véu atrás de uma pergunta (dialog): o texto a 45%. A página escurece e continua reconhecível,
+     para quem lê saber de onde a pergunta veio. */
+  --cor-veu: rgb(28 31 36 / 0.45);
 
   --borda: 1px;
   /* Traço da assinatura com o dedo: grosso o bastante para ler impresso, fino para caber o nome. */
@@ -164,6 +167,8 @@
   --cor-neutro-medidor: #2A2F3A;
   /* No escuro sombra não aparece: o cartão se separa pela superfície mais clara e um contorno. */
   --sombra-cartao: 0 0 0 var(--borda) var(--cor-linha);
+  /* O véu do claro mal aparece sobre o fundo escuro: no escuro é preto a 60%. */
+  --cor-veu: rgb(0 0 0 / 0.6);
 }
 
 @media (min-width: 1024px) {

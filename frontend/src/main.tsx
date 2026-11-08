@@ -13,19 +13,21 @@ import { StrictMode } from 'react'
 import { MotionConfig } from 'motion/react'
 import { transicao } from './movimento'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { App } from './App'
 import { ProvedorSessao } from './sessao'
 
+// Data router por um motivo só: useBlocker (components/SairSemSalvar.tsx) não existe no BrowserRouter.
+// As rotas continuam declaradas em <Routes> dentro do App, abaixo desta rota curinga.
+const roteador = createBrowserRouter([{ path: '*', element: <App /> }])
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <ProvedorSessao>
-        {/* reducedMotion="user": com movimento reduzido no sistema, o Motion corta deslocamento e escala e mantém só opacidade. */}
-        <MotionConfig reducedMotion="user" transition={transicao}>
-          <App />
-        </MotionConfig>
-      </ProvedorSessao>
-    </BrowserRouter>
+    <ProvedorSessao>
+      {/* reducedMotion="user": com movimento reduzido no sistema, o Motion corta deslocamento e escala e mantém só opacidade. */}
+      <MotionConfig reducedMotion="user" transition={transicao}>
+        <RouterProvider router={roteador} />
+      </MotionConfig>
+    </ProvedorSessao>
   </StrictMode>,
 )

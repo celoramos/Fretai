@@ -479,3 +479,22 @@
 .avaliar__significado { margin-left: var(--esp-2); color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
 .avaliar--feita .avaliar__estrelas { font-size: var(--tam-bloco); }
 .avaliar__comentario { color: var(--cor-texto-secundario); }
+
+/* ---------- sair sem salvar ----------
+   A pergunta antes de um link levar embora um formulário preenchido. Um cartão no meio da tela, sobre
+   o véu; os dois botões dizem o que cada um faz, sem "OK" e "Cancelar". */
+.sair {
+  width: min(var(--largura-formulario), calc(100% - 2 * var(--esp-4)));
+  margin: auto;
+  padding: var(--esp-6);
+  border: 0;
+  border-radius: var(--raio-cartao);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  box-shadow: var(--sombra-cartao);
+}
+.sair::backdrop { background: var(--cor-veu); }
+.sair__titulo { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); line-height: var(--altura-titulo); }
+.sair__texto { margin-top: var(--esp-2); color: var(--cor-texto-secundario); text-wrap: pretty; }
+/* Empilhados na largura toda: lado a lado os dois rótulos não cabem em 380 px e um quebrava sozinho. */
+.sair__botoes { display: grid; gap: var(--esp-2); margin-top: var(--esp-6); }

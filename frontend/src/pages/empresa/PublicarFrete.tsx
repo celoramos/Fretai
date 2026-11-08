@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api, ErroApi } from '../../api/cliente'
 import type { EnderecoPedido, Frete, Problema, PublicarFrete as Pedido, VerificacaoData } from '../../api/tipos'
+import { SairSemSalvar } from '../../components/SairSemSalvar'
 import { Aviso, Campo } from '../../components/ui'
 import { CARGAS_ANTT, CARROCERIAS, dataCurta, lerReais, TIPOS_CAMINHAO } from '../../formato'
 import { useSessao } from '../../sessao'
@@ -56,15 +57,8 @@ export function PublicarFrete() {
   const [problema, setProblema] = useState<Problema | null>(null)
   const formulario = useRef<HTMLFormElement>(null)
 
-  // Alterou alguma coisa: fechar a aba ou recarregar pergunta antes. Accepted cost: um clique num link
-  // do próprio app não pergunta, porque o BrowserRouter não tem bloqueio de navegação (só o data router).
+  // Alterou alguma coisa: sair por link, voltar, fechar a aba ou recarregar pergunta antes (SairSemSalvar).
   const alterado = [coleta.cep, entrega.cep, descricao, especie, peso, valor, dataColeta].some((v) => v.trim() !== '')
-  useEffect(() => {
-    if (!alterado || enviando) return
-    const avisar = (e: BeforeUnloadEvent) => e.preventDefault()
-    window.addEventListener('beforeunload', avisar)
-    return () => window.removeEventListener('beforeunload', avisar)
-  }, [alterado, enviando])
 
   // Feriado e domingo mudam quem pode pegar o frete: a empresa fica sabendo enquanto escolhe a data.
   useEffect(() => {
@@ -226,6 +220,7 @@ export function PublicarFrete() {
           </div>
         </div>
       </form>
+      <SairSemSalvar alterado={alterado && !enviando} />
     </div>
   )
 }
