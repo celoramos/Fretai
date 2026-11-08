@@ -32,6 +32,7 @@ class LoginGoogleIntegrationTest {
     @BeforeEach
     void simularGoogle() {
         when(verificadorGoogle.verificar("token-nova")).thenReturn(new IdentidadeGoogle("sub-nova", "nova@gmail.com", "Rita Nova"));
+        when(verificadorGoogle.verificar("token-cliente")).thenReturn(new IdentidadeGoogle("sub-cliente", "paula@gmail.com", "Paula Lima"));
         when(verificadorGoogle.verificar("token-ruim")).thenThrow(new CredenciaisInvalidasException("Não deu para confirmar sua conta Google."));
     }
 
@@ -64,6 +65,26 @@ class LoginGoogleIntegrationTest {
                         {"cpf":"60421738553","nome":"Outra","email":"x@exemplo.com","telefone":"11988887777",
                          "tipoVeiculo":"CAMINHAO","placa":"GOO2G34","credencialGoogle":"token-nova"}"""))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("Cliente pessoa física também se cadastra com o Google, sem senha")
+    void clienteComGoogle() throws Exception {
+        mvc.perform(post("/api/clientes").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"cpf":"31415926590","nome":"Paula Lima","email":"outro@exemplo.com","telefone":"11977776666",
+                         "credencialGoogle":"token-cliente"}"""))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.email").value("paula@gmail.com"));
+
+        mvc.perform(post("/api/auth/google").contentType(MediaType.APPLICATION_JSON).content("{\"credencial\":\"token-cliente\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.papel").value("CLIENTE"));
+
+        // Nem senha nem Google: a conta não teria como entrar.
+        mvc.perform(post("/api/clientes").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"cpf":"98765432100","nome":"Sem Acesso","email":"sem.acesso@exemplo.com","telefone":"11977776666"}"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erros.senhaOuGoogle").exists());
     }
 
     @Test

@@ -47,11 +47,15 @@ public class UsuarioService {
     @Transactional
     public ClienteResponse cadastrarCliente(CadastroClienteRequest request) {
         String cpf = somenteDigitos(request.cpf());
-        String email = normalizarEmail(request.email());
+        IdentidadeGoogle google = request.credencialGoogle() != null ? googleParaCadastro(request.credencialGoogle()) : null;
+        String email = google != null ? google.email() : normalizarEmail(request.email());
         validarUnicidade(cpf, email);
 
         Cliente cliente = new Cliente(cpf, request.nome().trim(), email,
-                passwordEncoder.encode(request.senha()), somenteDigitos(request.telefone()));
+                google != null ? null : passwordEncoder.encode(request.senha()), somenteDigitos(request.telefone()));
+        if (google != null) {
+            cliente.vincularGoogle(google.sub());
+        }
         return ClienteResponse.de(clienteRepository.save(cliente));
     }
 

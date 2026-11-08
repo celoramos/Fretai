@@ -40,7 +40,7 @@ class ValidacaoCadastroTest {
     }
 
     private static CadastroClienteRequest clienteCom(String cpf, String email) {
-        return new CadastroClienteRequest(cpf, "Carlos Silva", email, "senhaForte1", "(11) 99999-8888");
+        return new CadastroClienteRequest(cpf, "Carlos Silva", email, "senhaForte1", "(11) 99999-8888", null);
     }
 
     private static Set<String> camposInvalidos(Object request) {
