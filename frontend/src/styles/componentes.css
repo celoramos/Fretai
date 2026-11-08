@@ -60,6 +60,7 @@
 .campo__entrada--numero { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); font-variant-numeric: tabular-nums; }
 /* O exemplo no campo vazio não pode parecer valor digitado: volta para a letra e o peso do texto. */
 .campo__entrada::placeholder { color: var(--cor-texto-secundario); font-family: var(--fonte-texto); font-size: var(--tam-corpo); font-weight: var(--peso-normal); opacity: 1; }
+.campo__entrada--texto { min-height: calc(var(--alvo) * 2); padding: var(--esp-2) var(--esp-3); resize: vertical; line-height: var(--altura-texto); }
 .campo__erro { color: var(--cor-perigo); font-size: var(--tam-detalhe); font-weight: var(--peso-medio); }
 .campo__ajuda { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
 .campo__ajuda--numeros { font-variant-numeric: tabular-nums; }
@@ -442,3 +443,11 @@
 .reputacao__nome { color: var(--cor-texto); font-weight: var(--peso-medio); min-width: 0; overflow-wrap: anywhere; }
 .reputacao__emdia { color: var(--cor-texto); }
 .reputacao__emdia--baixo { color: var(--cor-alerta); }
+
+/* ---------- cancelar frete ----------
+   Quieto até ser preciso: um botão de texto no fim da página. Aberto, vira um cartão com o motivo. */
+.cancelar { display: grid; gap: var(--esp-3); justify-items: start; }
+.cancelar__abrir { color: var(--cor-perigo); }
+.cancelar__titulo { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); }
+.cancelar .campo { justify-self: stretch; }
+.cancelar__botoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); }

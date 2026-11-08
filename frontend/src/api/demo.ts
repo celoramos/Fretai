@@ -379,7 +379,19 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       const pg = pagamentos.find((x) => x.freteId === f.id)
       if (pg?.status === 'RETIDO') { pg.status = 'ADIANTAMENTO_LIBERADO'; pg.adiantamentoLiberadoEm = iso(0) }
       return json(f)
+    }    if (metodo === 'POST' && sub === '/cancelamento') {
+      if (!['PUBLICADO', 'PROPOSTA_ENVIADA', 'ACEITO'].includes(f.status)) {
+        return problema(409, 'Transição inválida', 'Não é possível cancelar: o frete já saiu para entrega, foi concluído ou já está cancelado.')
+      }
+      const motivo = String(b.motivo ?? '').trim()
+      if (!motivo) return json({ title: 'Dados inválidos', detail: 'Informe o motivo do cancelamento.', status: 400, erros: { motivo: 'Informe o motivo do cancelamento.' } }, 400)
+      ;(eventos[f.id] ??= []).push(ev(f.status, 'CANCELADO', token === 'demo-motorista' ? 'MOTORISTA' : 'EMPRESA', 0, motivo))
+      Object.assign(f, { status: 'CANCELADO', motivoCancelamento: motivo, concluidoEm: iso(0) })
+      const pg = pagamentos.find((x) => x.freteId === f.id)
+      if (pg && pg.status !== 'PENDENTE') { pg.status = 'ESTORNADO'; pg.estornadoEm = iso(0) }
+      return json(f)
     }
+
   }
   if (metodo === 'POST' && (m = p.match(/^\/api\/propostas\/([^/]+)\/(aceite|recusa)$/))) {
     const pr = propostas.find((x) => x.id === m![1])

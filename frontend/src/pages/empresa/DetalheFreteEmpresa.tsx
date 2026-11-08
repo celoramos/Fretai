@@ -3,6 +3,7 @@ import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { api, ErroApi } from '../../api/cliente'
 import type { EventoFrete, Frete, Pagamento, PerfilMotorista, Problema, Proposta } from '../../api/tipos'
 import { ouNulo, useRecurso } from '../../api/useRecurso'
+import { CancelarFrete } from '../../components/CancelarFrete'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
 import { RotaLinha } from '../../components/RotaLinha'
@@ -65,7 +66,7 @@ export function DetalheFreteEmpresa() {
             <ChipPiso preco={frete.preco} valor={valor} />
           </div>
         </div>
-        <Marcos status={frete.status} eventos={eventos} visao="empresa" orientacao="horizontal" />
+        <Marcos status={frete.status} eventos={eventos} visao="empresa" orientacao="horizontal" motivoCancelamento={frete.motivoCancelamento} />
       </header>
 
       <div className="abas" role="tablist" aria-label="Detalhes do frete">
@@ -84,6 +85,8 @@ export function DetalheFreteEmpresa() {
         {aba === 'pagamento' && <PainelPagamento frete={frete} pagamento={pagamento} aoMudar={recarregar} />}
         {aba === 'historico' && <Historico eventos={eventos} />}
       </div>
+
+      <CancelarFrete frete={frete} pago={garantido} aoCancelar={recarregar} />
     </div>
   )
 }

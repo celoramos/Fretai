@@ -36,14 +36,20 @@ export function Marcos({
   eventos,
   visao,
   orientacao,
+  motivoCancelamento,
 }: {
   status: StatusFrete
   eventos: EventoFrete[]
   visao: 'motorista' | 'empresa'
   orientacao: 'vertical' | 'horizontal'
+  motivoCancelamento?: string | null
 }) {
   if (status === 'CANCELADO') {
-    return <Aviso tom="perigo" titulo="Frete cancelado">O frete foi cancelado antes da viagem.</Aviso>
+    return (
+      <Aviso tom="perigo" titulo="Frete cancelado">
+        {motivoCancelamento ? `Motivo: ${motivoCancelamento}` : 'O frete foi cancelado antes da viagem.'}
+      </Aviso>
+    )
   }
   const atual = MARCOS.indexOf(status)
   // Quem foi direto de PUBLICADO para ACEITO não passou pela negociação: o marco some em vez de ficar "pulado".

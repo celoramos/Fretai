@@ -4,6 +4,7 @@ import { api, ErroApi } from '../../api/cliente'
 import type { EventoFrete, Frete, Pagamento, PerfilEmpresa, Problema, Veiculo } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { Reputacao } from '../../components/CardFrete'
+import { CancelarFrete } from '../../components/CancelarFrete'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
 import { RotaLinha } from '../../components/RotaLinha'
@@ -73,7 +74,7 @@ export function FreteMotorista() {
           <h2 id="andamento" className="bloco__titulo">Andamento</h2>
           <MedidorGarantia pagamento={pagamento} />
           <Acoes frete={frete} pagamento={pagamento} aoMudar={recarregar} />
-          <Marcos status={frete.status} eventos={eventos} visao="motorista" orientacao="vertical" />
+          <Marcos status={frete.status} eventos={eventos} visao="motorista" orientacao="vertical" motivoCancelamento={frete.motivoCancelamento} />
         </section>
       )}
 
@@ -99,6 +100,8 @@ export function FreteMotorista() {
         <Reputacao nome={frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'Cliente pessoa física'} perfil={perfil ?? undefined} />
         {perfil && <p className="detalhe">Na plataforma desde {new Date(perfil.naPlataformaDesde).getFullYear()} · {perfil.fretesConcluidos} fretes concluídos</p>}
       </section>
+
+      {meu && frete.status === 'ACEITO' && <CancelarFrete frete={frete} pago={garantido} aoCancelar={recarregar} />}
 
       {aberto && !meu && <Negociar frete={frete} valor={valor} aoMudar={recarregar} />}
     </div>
