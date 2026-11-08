@@ -168,6 +168,7 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 | Método | Caminho | O que faz |
 |---|---|---|
 | POST | `/api/auth/login` | público; devolve access token (15 min) e refresh token |
+| POST | `/api/auth/google` | público; entra com o ID token do botão do Google (404 CADASTRO_NECESSARIO se não tem conta) |
 | POST | `/api/auth/refresh` | público; troca o refresh token por um par novo |
 | POST | `/api/auth/logout` | revoga o refresh token |
 | GET | `/api/auth/eu` | quem está logado |
@@ -225,6 +226,7 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 | POST / GET | `/api/fretes/{id}/canhoto` | registra o canhoto (multipart) / consulta |
 | POST | `/api/fretes/{id}/canhoto/contestacao` | contratante contesta a entrega |
 | POST | `/api/canhotos/contestacao` | público; recebedor contesta com o código |
+| GET | `/api/canhotos/contestacoes` | fila do admin: contestações sem decisão, da mais antiga |
 | POST | `/api/fretes/{id}/canhoto/resolucao` | admin resolve a contestação |
 | POST / GET | `/api/fretes/{id}/documentos` | motorista envia (multipart) / lista o que cada um pode ver |
 | POST | `/api/documentos/{id}/link` | link temporário; registra o acesso |
