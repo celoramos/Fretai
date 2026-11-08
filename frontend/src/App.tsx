@@ -10,6 +10,7 @@ import { Entrar } from './pages/Entrar'
 import { BuscaFretes } from './pages/motorista/BuscaFretes'
 import { FreteMotorista } from './pages/motorista/FreteMotorista'
 import { MeusFretes } from './pages/motorista/MeusFretes'
+import { RegistrarEntrega } from './pages/motorista/RegistrarEntrega'
 import { NaoEncontrada } from './pages/NaoEncontrada'
 import { useSessao } from './sessao'
 
@@ -41,6 +42,7 @@ export function App() {
         <Route index element={<BuscaFretes />} />
         <Route path="meus-fretes" element={<MeusFretes />} />
         <Route path="fretes/:id" element={<FreteMotorista />} />
+        <Route path="fretes/:id/entrega" element={<RegistrarEntrega />} />
       </Route>
       <Route path="/empresa" element={<Protegida papel="EMPRESA"><LayoutEmpresa /></Protegida>}>
         <Route index element={<FretesEmpresa />} />

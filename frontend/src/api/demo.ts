@@ -5,6 +5,7 @@
  */
 import type {
   Endereco,
+  Canhoto,
   EventoFrete,
   Frete,
   Pagamento,
@@ -120,6 +121,10 @@ const fretes: Frete[] = [
     distanciaKm: 510, status: 'PAGO', motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'CARRETA_LS', placa: 'QWE4R56' },
     veiculo: resumoVeiculo('v3'), criadoEm: iso(-12), aceitoEm: iso(-11), concluidoEm: iso(-8), pagoEm: iso(-7), dataColeta: data(-10),
     preco: { ...exemplo, pisoMinimo: 4560, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 10.8 } }),
+  frete({ id: 'f8', coleta: sorocaba, entrega: santos, valor: 2300, valorTotal: 2300, valorAcordado: 2300, adiantamentoPercentual: 40,
+    distanciaKm: 120, status: 'ENTREGUE', motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CARRETA', placa: 'ABC1D23' },
+    veiculo: resumoVeiculo('v1'), criadoEm: iso(-3), aceitoEm: iso(-2.5), concluidoEm: iso(-0.2), dataColeta: data(-1),
+    descricaoCarga: 'Revestimentos cerâmicos', preco: { ...exemplo, pisoMinimo: 1490, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 11.4 } }),
 ]
 
 /** Distância da base do motorista demo (Campinas) até a coleta de cada frete aberto. */
@@ -131,6 +136,7 @@ const propostas: Proposta[] = [
   proposta('p3', 'f1', M3, 'v4', 4390, 50, -0.1),
   { ...proposta('p4', 'f2', M1, 'v1', 5100, 40, -2.2), status: 'ACEITA', respondidaEm: iso(-2) },
   { ...proposta('p5', 'f6', M1, 'v1', 2900, 50, -0.4), status: 'ACEITA', respondidaEm: iso(-0.2) },
+  { ...proposta('p6', 'f8', M1, 'v1', 2300, 40, -2.6), status: 'ACEITA', respondidaEm: iso(-2.5) },
 ]
 
 function proposta(id: string, freteId: string, motoristaId: string, veiculoId: string, valor: number, adiant: number, quando: number, obs: string | null = null): Proposta {
@@ -145,6 +151,7 @@ const pagamentos: Pagamento[] = [
   pagamento('f2', 5100, 40, 'ADIANTAMENTO_LIBERADO'),
   pagamento('f6', 2900, 50, 'RETIDO'),
   pagamento('f7', 5450, 30, 'LIBERADO'),
+  { ...pagamento('f8', 2300, 40, 'ADIANTAMENTO_LIBERADO'), saldoLiberavelApos: iso(0.8) },
 ]
 
 function pagamento(freteId: string, total: number, adiant: number, status: Pagamento['status']): Pagamento {
@@ -162,9 +169,39 @@ const eventos: Record<string, EventoFrete[]> = {
   f2: [ev(null, 'PUBLICADO', 'EMPRESA', -3), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -2.2), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -2), ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -1, 'Saída da coleta às 6h10.')],
   f6: [ev(null, 'PUBLICADO', 'EMPRESA', -1), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -0.4), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -0.2)],
   f7: [ev(null, 'PUBLICADO', 'EMPRESA', -12), ev('PUBLICADO', 'ACEITO', 'EMPRESA', -11), ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -10), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -8), ev('ENTREGUE', 'PAGO', null, -7)],
+  f8: [ev(null, 'PUBLICADO', 'EMPRESA', -3), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -2.6), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -2.5),
+    ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -1), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -0.2, 'Canhoto digital: recebido por Carlos Mendes.')],
 }
 function ev(de: StatusFrete | null, para: StatusFrete, papel: EventoFrete['autorPapel'], quando: number, observacao: string | null = null): EventoFrete {
   return { de, para, autorId: null, autorPapel: papel, observacao, ocorridoEm: iso(quando) }
+}
+
+// ---------- canhoto ----------
+
+/** Imagens de exemplo desenhadas aqui mesmo, para a empresa ver como o canhoto aparece. */
+const svg = (corpo: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">${corpo}</svg>`)}`
+const FOTO_EXEMPLO = svg('<rect width="400" height="300" fill="#C9C4B8"/><rect x="60" y="90" width="280" height="150" fill="#9C8F78"/><text x="200" y="60" font-family="sans-serif" font-size="22" text-anchor="middle" fill="#2A2F38">Foto da entrega (exemplo)</text>')
+const ASSINATURA_EXEMPLO = svg('<rect width="400" height="300" fill="#fff"/><path d="M40 190 C80 120 110 230 150 160 S210 120 230 190 S300 150 360 170" fill="none" stroke="#1C1F24" stroke-width="5" stroke-linecap="round"/>')
+
+/** Código que o recebedor recebe por mensagem. Na demonstração ele é fixo, e a página pública diz qual é. */
+const CODIGO_CONTESTACAO_DEMO = 'ENTREGA8'
+const codigos: Record<string, string> = { [CODIGO_CONTESTACAO_DEMO]: 'f8' }
+const canhotos: Record<string, Canhoto> = {
+  f8: {
+    id: 'c-f8', freteId: 'f8', nomeRecebedor: 'Carlos Mendes', latitude: santos.latitude! + 0.001, longitude: santos.longitude!,
+    distanciaDestinoKm: 0.11, localConferido: true, registradoEm: iso(-0.2), contestacaoAte: iso(0.8), contestado: false,
+    motivoContestacao: null, resolucao: null, fotoUrl: FOTO_EXEMPLO, assinaturaUrl: ASSINATURA_EXEMPLO,
+  },
+}
+
+function contestar(c: Canhoto, motivo: string): Response | null {
+  if (new Date(c.contestacaoAte).getTime() < Date.now()) return problema(422, 'Fora do prazo', 'O prazo para contestar esta entrega terminou.')
+  if (c.contestado) return problema(422, 'Já contestada', 'Esta entrega já foi contestada.')
+  if (!motivo.trim()) return json({ title: 'Dados inválidos', detail: 'Conte o que houve com a entrega.', status: 400, erros: { motivo: 'Conte o que houve com a entrega.' } }, 400)
+  Object.assign(c, { contestado: true, motivoContestacao: motivo.trim() })
+  const pg = pagamentos.find((x) => x.freteId === c.freteId)
+  if (pg) pg.saldoBloqueado = true
+  return null
 }
 
 // ---------- publicar frete ----------
@@ -318,6 +355,11 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
   if (metodo === 'GET' && (m = p.match(/^\/api\/empresas\/([0-9./-]{14,18})$/))) {
     return json({ cnpj: m[1].replace(/\D/g, ''), razaoSocial: 'Transportes Exemplo Ltda', nomeFantasia: 'Exemplo Cargas', situacaoCadastral: 'ATIVA' })
   }
+  if (metodo === 'POST' && p === '/api/canhotos/contestacao') {
+    const freteId = codigos[String(b.codigo ?? '').trim().toUpperCase()]
+    if (!freteId) return problema(404, 'Código inválido', 'Código de contestação inválido.')
+    return contestar(canhotos[freteId], String(b.motivo ?? '')) ?? new Response(null, { status: 202 })
+  }
   if (p === '/api/auth/logout') return new Response(null, { status: 204 })
   if (metodo === 'GET' && p === '/api/calendario/verificacao') return json(verificarData(url.searchParams.get('data') ?? data(0)))
   if (!token) return problema(401, 'Não autenticado', 'Faça login de novo.')
@@ -339,12 +381,47 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
   if (metodo === 'GET' && (m = p.match(/^\/api\/fretes\/empresa\/([^/]+)$/))) {
     return json(pagina(fretes.filter((f) => f.empresa?.id === m![1]).sort((a, z) => z.criadoEm.localeCompare(a.criadoEm))))
   }
+  if (metodo === 'POST' && (m = p.match(/^\/api\/fretes\/([^/]+)\/canhoto\/contestacao$/))) {
+    const c = canhotos[m[1]]
+    if (!c) return problema(404, 'Sem canhoto', 'Este frete ainda não tem canhoto.')
+    return contestar(c, String(b.motivo ?? '')) ?? json(c)
+  }
   if ((m = p.match(/^\/api\/fretes\/([^/]+)(\/[a-z]+)?$/))) {
     const f = fretes.find((x) => x.id === m![1])
     if (!f) return problema(404, 'Frete não encontrado', 'Esse frete não existe ou foi removido.')
     const sub = m[2]
     if (metodo === 'GET' && !sub) return json(f)
     if (metodo === 'GET' && sub === '/eventos') return json(eventos[f.id] ?? [])
+    if (metodo === 'GET' && sub === '/canhoto') {
+      return canhotos[f.id] ? json(canhotos[f.id]) : problema(404, 'Sem canhoto', 'Este frete ainda não tem canhoto.')
+    }
+    if (metodo === 'POST' && sub === '/canhoto') {
+      if (f.status !== 'EM_TRANSITO') return problema(409, 'Fora da hora', 'O canhoto é registrado com a carga em trânsito, na chegada ao destino.')
+      if (canhotos[f.id]) return problema(409, 'Conflito', 'Este frete já tem canhoto.')
+      const dados = corpo as FormData
+      const lat = Number(dados.get('latitude'))
+      const lng = Number(dados.get('longitude'))
+      const destinoKm = f.entrega.latitude != null && f.entrega.longitude != null
+        ? Math.hypot((lat - f.entrega.latitude) * 111, (lng - f.entrega.longitude) * 102) : null
+      if (destinoKm != null && destinoKm > 0.5) {
+        return problema(422, 'Longe do destino', `O GPS está a ${destinoKm.toFixed(1)} km do endereço de entrega. O canhoto só vale a até 500 m.`)
+      }
+      const foto = dados.get('foto')
+      const assinatura = dados.get('assinatura')
+      const nome = String(dados.get('nomeRecebedor') ?? '').trim()
+      const c: Canhoto = {
+        id: `c-${f.id}`, freteId: f.id, nomeRecebedor: nome, latitude: lat, longitude: lng, distanciaDestinoKm: destinoKm,
+        localConferido: destinoKm != null, registradoEm: iso(0), contestacaoAte: iso(1), contestado: false, motivoContestacao: null,
+        resolucao: null, fotoUrl: foto instanceof Blob ? URL.createObjectURL(foto) : null,
+        assinaturaUrl: assinatura instanceof Blob ? URL.createObjectURL(assinatura) : null,
+      }
+      canhotos[f.id] = c
+      ;(eventos[f.id] ??= []).push(ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', 0, `Canhoto digital: recebido por ${nome}.`))
+      Object.assign(f, { status: 'ENTREGUE', concluidoEm: iso(0) })
+      const pg = pagamentos.find((x) => x.freteId === f.id)
+      if (pg) pg.saldoLiberavelApos = c.contestacaoAte
+      return json(c, 201)
+    }
     if (metodo === 'GET' && sub === '/propostas') return json(propostas.filter((x) => x.freteId === f.id))
     if (metodo === 'GET' && sub === '/pagamento') {
       const pg = pagamentos.find((x) => x.freteId === f.id)

@@ -143,9 +143,10 @@ function Acoes({ frete, pagamento, aoMudar }: { frete: Frete; pagamento: Pagamen
   }
   if (frete.status === 'EM_TRANSITO') {
     return (
-      <Aviso tom="info" titulo="Na entrega, registre o canhoto.">
-        Foto, assinatura do recebedor e GPS a até 500 m do destino. É isso que libera o saldo.
-      </Aviso>
+      <div className="acoes">
+        <p className="detalhe">Na entrega: foto, assinatura de quem recebeu e GPS a até 500 m do destino. É isso que libera o saldo.</p>
+        <Link to={`/motorista/fretes/${frete.id}/entrega`} className="botao botao--primario botao--largo">Registrar entrega</Link>
+      </div>
     )
   }
   return null

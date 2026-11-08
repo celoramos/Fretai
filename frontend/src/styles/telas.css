@@ -111,6 +111,37 @@
 .negociar__ok { color: var(--cor-garantido); font-weight: var(--peso-forte); }
 .negociar__erro { color: var(--cor-perigo); font-weight: var(--peso-forte); }
 
+/* ---------- registrar entrega ----------
+   Uma coluna, uma parte do canhoto por cartão. O botão de enviar fica no fim, largo, para o polegar. */
+.entrega { display: grid; gap: var(--esp-4); }
+.entrega__cabeca { display: grid; gap: var(--esp-1); }
+.entrega__titulo { font-size: var(--tam-titulo); }
+.entrega__saldo { color: var(--cor-texto); font-variant-numeric: tabular-nums; }
+.entrega__parte { display: grid; gap: var(--esp-3); }
+.entrega__foto { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--raio-controle); background: var(--cor-linha); }
+/* O arquivo real cobre o botão inteiro, invisível: o toque abre a câmera e o teclado ainda alcança. */
+.entrega__camera { position: relative; }
+.entrega__arquivo { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.entrega__camera:has(:focus-visible) { outline: var(--foco-largura) solid var(--cor-foco); outline-offset: var(--foco-recuo); }
+.entrega__perto { font-weight: var(--peso-medio); }
+.entrega__fim { display: grid; gap: var(--esp-3); }
+.entrega__feito { display: grid; gap: var(--esp-3); }
+.entrega__botoes { display: grid; gap: var(--esp-2); margin-top: var(--esp-2); }
+
+/* Assinatura: o papel tem borda tracejada, a convenção de "assine aqui". touch-action: none deixa o
+   dedo desenhar em vez de rolar a página. */
+.assinatura { display: grid; gap: var(--esp-2); }
+.assinatura__papel {
+  width: 100%;
+  height: var(--altura-assinatura);
+  border: var(--borda-forte) dashed var(--cor-borda-campo);
+  border-radius: var(--raio-controle);
+  background: var(--cor-papel);
+  touch-action: none;
+  cursor: crosshair;
+}
+.assinatura__limpar { justify-self: end; }
+
 /* ---------- entrar ---------- */
 .entrar { min-height: 100dvh; display: grid; }
 .entrar__painel {
@@ -253,7 +284,7 @@
 
 .pagamento-e { display: grid; gap: var(--esp-6); max-width: var(--largura-pagamento); }
 .pix { display: flex; flex-wrap: wrap; gap: var(--esp-6); }
-.pix__qr { background: var(--cor-qr-fundo); padding: var(--esp-2); border-radius: var(--raio-campo); }
+.pix__qr { background: var(--cor-papel); padding: var(--esp-2); border-radius: var(--raio-campo); }
 .pix__texto { display: grid; gap: var(--esp-3); flex: 1; min-width: 0; align-content: start; }
 .pix__codigo { display: block; padding: var(--esp-3); border: var(--borda) solid var(--cor-linha); border-radius: var(--raio-campo); font-size: var(--tam-legenda); overflow-wrap: anywhere; }
 .pix__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); align-items: center; }
