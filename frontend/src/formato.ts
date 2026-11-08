@@ -63,7 +63,8 @@ export type Tom = 'info' | 'faixa' | 'garantido' | 'perigo' | 'neutro' | 'alerta
 export const STATUS_FRETE: Record<StatusFrete, { motorista: string; contratante: string; tom: Tom }> = {
   PUBLICADO: { motorista: 'Aberto', contratante: 'Aguardando propostas', tom: 'info' },
   PROPOSTA_ENVIADA: { motorista: 'Em negociação', contratante: 'Com propostas', tom: 'faixa' },
-  ACEITO: { motorista: 'Fechado, vá para a coleta', contratante: 'Motorista a caminho da coleta', tom: 'info' },
+  // Desvio do briefing ("Motorista a caminho da coleta"): no aceite o Pix ainda pode estar por pagar, e sem ele o motorista não sai.
+  ACEITO: { motorista: 'Fechado, vá para a coleta', contratante: 'Fechado com o motorista', tom: 'info' },
   EM_TRANSITO: { motorista: 'Em viagem', contratante: 'Em trânsito', tom: 'faixa' },
   ENTREGUE: { motorista: 'Entregue, saldo em análise', contratante: 'Entregue', tom: 'garantido' },
   PAGO: { motorista: 'Pago', contratante: 'Concluído e pago', tom: 'garantido' },
