@@ -289,6 +289,37 @@
 .pix__codigo { display: block; padding: var(--esp-3); border: var(--borda) solid var(--cor-linha); border-radius: var(--raio-campo); font-size: var(--tam-legenda); overflow-wrap: anywhere; }
 .pix__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); align-items: center; }
 
+/* ---------- canhoto (aba Entrega da empresa) ----------
+   A foto é a prova: ocupa a coluna maior. Os dados e o prazo ficam ao lado, com a contestação no pé. */
+.canhoto { display: grid; gap: var(--esp-4); align-items: start; }
+.canhoto__foto, .canhoto__dados { display: grid; gap: var(--esp-3); }
+.canhoto__imagem { width: 100%; height: auto; border-radius: var(--raio-controle); background: var(--cor-linha); }
+.canhoto__sem-imagem {
+  display: grid;
+  gap: var(--esp-2);
+  justify-items: start;
+  padding: var(--esp-6) var(--esp-4);
+  border: var(--borda) dashed var(--cor-borda-campo);
+  border-radius: var(--raio-controle);
+  color: var(--cor-texto-secundario);
+}
+.canhoto__assinatura { display: grid; gap: var(--esp-1); margin: 0; }
+.canhoto__assinatura img {
+  width: 100%;
+  max-width: var(--largura-formulario);
+  height: auto;
+  border: var(--borda) solid var(--cor-linha);
+  border-radius: var(--raio-controle);
+  background: var(--cor-papel);
+}
+.canhoto__contestacao { padding-top: var(--esp-3); border-top: var(--borda) solid var(--cor-linha); }
+.canhoto__prazo { display: grid; gap: var(--esp-3); justify-items: start; }
+.canhoto__prazo .campo { justify-self: stretch; }
+
+@media (min-width: 900px) {
+  .canhoto { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+}
+
 /* ---------- publicar frete ----------
    Coluna de leitura (a largura do pagamento), um cartão por assunto, na ordem em que a empresa pensa. */
 .fretes-e__cabeca { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-3); }

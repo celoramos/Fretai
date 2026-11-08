@@ -6,6 +6,7 @@ import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { CancelarFrete } from '../../components/CancelarFrete'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
+import { PainelEntrega } from './PainelEntrega'
 import { RotaLinha } from '../../components/RotaLinha'
 import { Aviso, Etiqueta, ErroCarga, Esqueleto, Indicador, Marcos, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
 import { carroceria, dataCurta, dataHora, PAPEL, reais, STATUS_FRETE, STATUS_PROPOSTA, veiculo } from '../../formato'
@@ -13,6 +14,7 @@ import { carroceria, dataCurta, dataHora, PAPEL, reais, STATUS_FRETE, STATUS_PRO
 const ABAS = [
   { id: 'propostas', rotulo: 'Propostas' },
   { id: 'pagamento', rotulo: 'Pagamento' },
+  { id: 'entrega', rotulo: 'Entrega' },
   { id: 'historico', rotulo: 'Histórico' },
 ] as const
 type Aba = (typeof ABAS)[number]['id']
@@ -83,6 +85,7 @@ export function DetalheFreteEmpresa() {
       <div id="painel-frete" role="tabpanel" aria-labelledby={`aba-${aba}`} className="detalhe-e__painel">
         {aba === 'propostas' && <Comparador frete={frete} propostas={propostas} aoMudar={recarregar} />}
         {aba === 'pagamento' && <PainelPagamento frete={frete} pagamento={pagamento} aoMudar={recarregar} />}
+        {aba === 'entrega' && <PainelEntrega frete={frete} aoMudar={recarregar} />}
         {aba === 'historico' && <Historico eventos={eventos} />}
       </div>
 
