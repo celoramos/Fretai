@@ -8,6 +8,7 @@ const NOTAS = [1, 2, 3, 4, 5] as const
 const SIGNIFICADO: Record<number, string> = { 1: 'Muito ruim', 2: 'Ruim', 3: 'Normal', 4: 'Bom', 5: 'Muito bom' }
 
 /*
+ * nomeAvaliado: como chamar quem é avaliado (o primeiro nome do motorista, o nome da empresa).
  * Avaliação depois da entrega. A reputação dos dois lados é o que dá confiança no próximo frete,
  * então a nota pede um toque só; o comentário é opcional. Quem já avaliou vê o que deu, sem editar
  * (a API aceita uma avaliação por lado).
@@ -21,12 +22,11 @@ export function Avaliar({ freteId, lado, nomeAvaliado }: { freteId: string; lado
 
   if (estado.fase !== 'pronto') return null
   const minha = estado.dados.find((a) => a.lado === lado)
-  const primeiroNome = nomeAvaliado.split(' ')[0]
 
   if (minha) {
     return (
       <div className="avaliar avaliar--feita">
-        <p className="avaliar__titulo">Sua avaliação de {primeiroNome}</p>
+        <p className="avaliar__titulo">Sua avaliação de {nomeAvaliado}</p>
         <p className="avaliar__estrelas" aria-label={`${minha.nota} de 5: ${SIGNIFICADO[minha.nota]}`}>
           {NOTAS.map((n) => <span key={n} aria-hidden="true" className={n <= minha.nota ? 'estrela estrela--cheia' : 'estrela'}>★</span>)}
           <span className="avaliar__significado" aria-hidden="true">{SIGNIFICADO[minha.nota]}</span>
@@ -58,7 +58,7 @@ export function Avaliar({ freteId, lado, nomeAvaliado }: { freteId: string; lado
   return (
     <form className="avaliar" onSubmit={enviar} noValidate>
       <fieldset className="avaliar__notas" aria-describedby={erroNota ? 'erro-nota' : undefined}>
-        <legend className="avaliar__titulo">Como foi com {primeiroNome}?</legend>
+        <legend className="avaliar__titulo">Como foi com {nomeAvaliado}?</legend>
         <div className="avaliar__estrelas">
           {NOTAS.map((n) => (
             <label key={n} className="avaliar__estrela">

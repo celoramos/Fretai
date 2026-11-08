@@ -90,7 +90,7 @@ export function DetalheFreteEmpresa() {
         {aba === 'entrega' && (frete.status === 'ENTREGUE' || frete.status === 'PAGO') && frete.motorista && (
           <section className="bloco cartao" aria-labelledby="avaliacao-motorista">
             <h2 id="avaliacao-motorista" className="bloco__titulo">Avaliação do motorista</h2>
-            <Avaliar freteId={frete.id} lado="CONTRATANTE" nomeAvaliado={frete.motorista.nome} />
+            <Avaliar freteId={frete.id} lado="CONTRATANTE" nomeAvaliado={frete.motorista.nome.split(' ')[0]} />
           </section>
         )}
         {aba === 'historico' && <Historico eventos={eventos} />}
