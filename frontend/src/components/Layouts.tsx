@@ -110,18 +110,15 @@ export function LayoutMotorista() {
   )
 }
 
-export function LayoutEmpresa() {
+/** Escritório: largura de mesa e a navegação em cima. A empresa e o administrador trabalham assim. */
+function LayoutEscritorio({ links }: { links: ReactNode }) {
   return (
     <div className="app-empresa">
       <FaixaDemo />
       <header className="topo topo--empresa">
         <div className="topo__miolo">
           <Marca />
-          <nav aria-label="Principal" className="topo__nav">
-            <LinkTopo para="/empresa" dentro="/empresa/fretes/">Fretes</LinkTopo>
-            <LinkTopo para="/empresa/pagamentos">Pagamentos</LinkTopo>
-            <LinkTopo para="/empresa/dados">Empresa</LinkTopo>
-          </nav>
+          <nav aria-label="Principal" className="topo__nav">{links}</nav>
           <div className="topo__acoes">
             <BotaoTema />
             <BotaoSair />
@@ -132,5 +129,26 @@ export function LayoutEmpresa() {
         <Pagina />
       </main>
     </div>
+  )
+}
+
+export function LayoutEmpresa() {
+  return (
+    <LayoutEscritorio links={<>
+      <LinkTopo para="/empresa" dentro="/empresa/fretes/">Fretes</LinkTopo>
+      <LinkTopo para="/empresa/pagamentos">Pagamentos</LinkTopo>
+      <LinkTopo para="/empresa/dados">Empresa</LinkTopo>
+    </>} />
+  )
+}
+
+/** As três filas do administrador, na ordem do que trava dinheiro: documento, contestação, piso. */
+export function LayoutAdmin() {
+  return (
+    <LayoutEscritorio links={<>
+      <LinkTopo para="/admin">Documentos</LinkTopo>
+      <LinkTopo para="/admin/contestacoes">Contestações</LinkTopo>
+      <LinkTopo para="/admin/piso-antt">Piso ANTT</LinkTopo>
+    </>} />
   )
 }

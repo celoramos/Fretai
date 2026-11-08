@@ -1,7 +1,11 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { Papel } from './api/tipos'
-import { LayoutEmpresa, LayoutMotorista } from './components/Layouts'
+import { LayoutAdmin, LayoutEmpresa, LayoutMotorista } from './components/Layouts'
+import { INICIO } from './inicio'
+import { ContestacoesAdmin } from './pages/admin/ContestacoesAdmin'
+import { DocumentosAdmin } from './pages/admin/DocumentosAdmin'
+import { PisoAntt } from './pages/admin/PisoAntt'
 import { DadosEmpresa } from './pages/empresa/DadosEmpresa'
 import { DetalheFreteEmpresa } from './pages/empresa/DetalheFreteEmpresa'
 import { FretesEmpresa } from './pages/empresa/FretesEmpresa'
@@ -25,8 +29,6 @@ const Inicio = lazy(() => import('./pages/Inicio').then((m) => ({ default: m.Ini
 const Privacidade = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Privacidade })))
 const Termos = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Termos })))
 const Contestar = lazy(() => import('./pages/Contestar').then((m) => ({ default: m.Contestar })))
-
-const INICIO: Partial<Record<Papel, string>> = { MOTORISTA: '/motorista', EMPRESA: '/empresa' }
 
 function Protegida({ papel, children }: { papel: Papel; children: React.ReactNode }) {
   const { tokens } = useSessao()
@@ -61,6 +63,11 @@ export function App() {
         <Route path="fretes/:id/editar" element={<EditarFrete />} />
         <Route path="pagamentos" element={<PagamentosEmpresa />} />
         <Route path="dados" element={<DadosEmpresa />} />
+      </Route>
+      <Route path="/admin" element={<Protegida papel="ADMIN"><LayoutAdmin /></Protegida>}>
+        <Route index element={<DocumentosAdmin />} />
+        <Route path="contestacoes" element={<ContestacoesAdmin />} />
+        <Route path="piso-antt" element={<PisoAntt />} />
       </Route>
       <Route path="*" element={<NaoEncontrada />} />
     </Routes>

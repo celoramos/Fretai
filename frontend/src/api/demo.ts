@@ -7,6 +7,7 @@ import type {
   AcessoDocumento,
   Avaliacao,
   Canhoto,
+  Coeficiente,
   Documento,
   Empresa,
   Endereco,
@@ -29,6 +30,7 @@ const M1 = 'a1000000-0000-0000-0000-000000000001'
 const M2 = 'a1000000-0000-0000-0000-000000000002'
 const M3 = 'a1000000-0000-0000-0000-000000000003'
 const U_EMPRESA = 'b1000000-0000-0000-0000-000000000001'
+const U_ADMIN = 'c1000000-0000-0000-0000-000000000001'
 
 const dia = (d: number) => new Date(Date.now() + d * 86_400_000)
 const iso = (d: number) => dia(d).toISOString()
@@ -139,6 +141,12 @@ const fretes: Frete[] = [
     descricaoCarga: 'Contêiner de 20 pés vazio', especieCarga: 'Contêiner', tipoCargaAntt: 'CONTEINERIZADA', pesoKg: 2300,
     veiculosAceitos: ['CARRETA', 'CARRETA_LS'], carroceriasAceitas: [], exigeRastreador: true,
     preco: { ...exemplo, pisoMinimo: 1810, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 13.6 } }),
+  // De outra empresa e outro motorista: só aparece para o administrador, na fila de contestações.
+  frete({ id: 'f11', coleta: curitiba, entrega: joinville, empresa: empresas[E2], publicadoPorAgenciador: true, valor: 3100, valorTotal: 3100,
+    valorAcordado: 3100, adiantamentoPercentual: 30, distanciaKm: 130, status: 'ENTREGUE', descricaoCarga: 'Peças automotivas em caixas',
+    motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'CARRETA_LS', placa: 'QWE4R56' }, veiculo: resumoVeiculo('v3'),
+    criadoEm: iso(-4), aceitoEm: iso(-3.5), concluidoEm: iso(-1.2), dataColeta: data(-2),
+    preco: { ...exemplo, pisoMinimo: 1640, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 12.1 } }),
 ]
 
 /** Distância da base do motorista demo (Campinas) até a coleta de cada frete aberto. */
@@ -167,6 +175,7 @@ const pagamentos: Pagamento[] = [
   { ...pagamento('f6', 2900, 50, 'RETIDO'), pagoEm: iso(-0.1) },
   { ...pagamento('f7', 5450, 30, 'LIBERADO'), pagoEm: iso(-11), adiantamentoLiberadoEm: iso(-10) },
   { ...pagamento('f8', 2300, 40, 'ADIANTAMENTO_LIBERADO'), saldoLiberavelApos: iso(0.8) },
+  { ...pagamento('f11', 3100, 30, 'ADIANTAMENTO_LIBERADO'), pagoEm: iso(-3.4), adiantamentoLiberadoEm: iso(-3), saldoLiberavelApos: iso(-0.2), saldoBloqueado: true },
 ]
 
 function pagamento(freteId: string, total: number, adiant: number, status: Pagamento['status']): Pagamento {
@@ -206,6 +215,12 @@ const canhotos: Record<string, Canhoto> = {
     id: 'c-f8', freteId: 'f8', nomeRecebedor: 'Carlos Mendes', latitude: santos.latitude! + 0.001, longitude: santos.longitude!,
     distanciaDestinoKm: 0.11, localConferido: true, registradoEm: iso(-0.2), contestacaoAte: iso(0.8), contestado: false,
     motivoContestacao: null, resolucao: null, fotoUrl: FOTO_EXEMPLO, assinaturaUrl: ASSINATURA_EXEMPLO,
+  },
+  f11: {
+    id: 'c-f11', freteId: 'f11', nomeRecebedor: 'Paulo Henrique Dias', latitude: joinville.latitude! + 0.0005, longitude: joinville.longitude!,
+    distanciaDestinoKm: 0.06, localConferido: true, registradoEm: iso(-1.2), contestacaoAte: iso(-0.2), contestado: true,
+    motivoContestacao: 'Duas caixas chegaram amassadas e a quantidade não bate com a nota.', resolucao: null,
+    fotoUrl: FOTO_EXEMPLO, assinaturaUrl: ASSINATURA_EXEMPLO,
   },
 }
 
@@ -264,15 +279,16 @@ function calcular(b: Record<string, unknown>) {
 // ---------- documentos ----------
 
 // Platform fact: aba nova não navega para endereço data:, então o exemplo vira blob:, como o arquivo enviado.
+// O arquivo de exemplo é SVG, mas os metadados dizem PNG: a API só aceita PDF, PNG e JPEG.
 const DOC_EXEMPLO = (titulo: string) => URL.createObjectURL(new Blob([`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#F2F0EA"/><rect x="20" y="20" width="360" height="260" fill="none" stroke="#5B6270" stroke-width="3"/><text x="200" y="150" font-family="sans-serif" font-size="26" text-anchor="middle" fill="#1C1F24">${titulo} (exemplo)</text></svg>`], { type: 'image/svg+xml' }))
 const documentos: (Documento & { url: string })[] = [
-  { id: 'd1', motoristaId: M1, freteId: 'f1', tipo: 'CNH', contentType: 'image/svg+xml', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CNH') },
-  { id: 'd2', motoristaId: M1, freteId: 'f1', tipo: 'CRLV', contentType: 'image/svg+xml', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CRLV') },
-  { id: 'd3', motoristaId: M2, freteId: 'f1', tipo: 'CNH', contentType: 'image/svg+xml', tamanhoBytes: 45_000, verificado: true, verificadoEm: iso(-90), criadoEm: iso(-0.3), url: DOC_EXEMPLO('CNH') },
-  { id: 'd4', motoristaId: M1, freteId: 'f8', tipo: 'CNH', contentType: 'image/svg+xml', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-2.6), url: DOC_EXEMPLO('CNH') },
-  { id: 'd5', motoristaId: M1, freteId: 'f8', tipo: 'CRLV', contentType: 'image/svg+xml', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-2.6), url: DOC_EXEMPLO('CRLV') },
-  { id: 'd6', motoristaId: M3, freteId: 'f1', tipo: 'CRLV', contentType: 'image/svg+xml', tamanhoBytes: 61_000, verificado: false, verificadoEm: null, criadoEm: iso(-0.1), url: DOC_EXEMPLO('CRLV') },
-  { id: 'd7', motoristaId: M1, freteId: 'f2', tipo: 'COMPROVANTE', contentType: 'image/svg+xml', tamanhoBytes: 233_000, verificado: false, verificadoEm: null, criadoEm: iso(-1.8), url: DOC_EXEMPLO('Comprovante de residência') },
+  { id: 'd1', motoristaId: M1, freteId: 'f1', tipo: 'CNH', contentType: 'image/png', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CNH') },
+  { id: 'd2', motoristaId: M1, freteId: 'f1', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CRLV') },
+  { id: 'd3', motoristaId: M2, freteId: 'f1', tipo: 'CNH', contentType: 'image/png', tamanhoBytes: 45_000, verificado: true, verificadoEm: iso(-90), criadoEm: iso(-0.3), url: DOC_EXEMPLO('CNH') },
+  { id: 'd4', motoristaId: M1, freteId: 'f8', tipo: 'CNH', contentType: 'image/png', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-2.6), url: DOC_EXEMPLO('CNH') },
+  { id: 'd5', motoristaId: M1, freteId: 'f8', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-2.6), url: DOC_EXEMPLO('CRLV') },
+  { id: 'd6', motoristaId: M3, freteId: 'f1', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 61_000, verificado: false, verificadoEm: null, criadoEm: iso(-0.1), url: DOC_EXEMPLO('CRLV') },
+  { id: 'd7', motoristaId: M1, freteId: 'f2', tipo: 'COMPROVANTE', contentType: 'image/png', tamanhoBytes: 233_000, verificado: false, verificadoEm: null, criadoEm: iso(-1.8), url: DOC_EXEMPLO('Comprovante de residência') },
 ]
 /** A regra da API (Documento.podeSerVistoPor): admin vê tudo, o motorista vê os dele, a empresa só os do motorista aceito. */
 const EMPRESA_VE: StatusFrete[] = ['ACEITO', 'EM_TRANSITO', 'ENTREGUE', 'PAGO']
@@ -389,11 +405,12 @@ function publicar(b: Record<string, unknown>): Frete {
  * Contas da demonstração. O cadastro acrescenta aqui; toda conta nova vê os dados do motorista ou da
  * empresa de exemplo. As novas ficam no localStorage para sobreviver a um F5 (o resto do demo não precisa).
  */
-type ContaDemo = { senha: string | null; papel: 'MOTORISTA' | 'EMPRESA' }
+type ContaDemo = { senha: string | null; papel: 'MOTORISTA' | 'EMPRESA' | 'ADMIN' }
 const CHAVE_CONTAS = 'fretai.demo.contas'
 const contas: Record<string, ContaDemo> = {
   'motorista@demo.fretai': { senha: 'demo123', papel: 'MOTORISTA' },
   'empresa@demo.fretai': { senha: 'demo123', papel: 'EMPRESA' },
+  'admin@demo.fretai': { senha: 'demo123', papel: 'ADMIN' },
   ...(JSON.parse(localStorage.getItem(CHAVE_CONTAS) ?? '{}') as Record<string, ContaDemo>),
 }
 function guardarConta(email: string, conta: ContaDemo) {
@@ -405,13 +422,24 @@ function guardarConta(email: string, conta: ContaDemo) {
 const CREDENCIAL_GOOGLE_DEMO = 'demo-google'
 const GOOGLE_DEMO = { email: 'voce@gmail.com', nome: 'Você (Google de demonstração)' }
 
-function tokensDe(papel: 'MOTORISTA' | 'EMPRESA'): Tokens {
-  const motorista = papel === 'MOTORISTA'
+function tokensDe(papel: ContaDemo['papel']): Tokens {
+  const usuario = { MOTORISTA: M1, EMPRESA: U_EMPRESA, ADMIN: U_ADMIN }[papel]
   return {
-    accessToken: motorista ? 'demo-motorista' : 'demo-empresa', refreshToken: 'demo-refresh', tokenType: 'Bearer',
-    expiresIn: 900, usuarioId: motorista ? M1 : U_EMPRESA, papel, empresaId: motorista ? null : E1,
+    accessToken: `demo-${papel.toLowerCase()}`, refreshToken: 'demo-refresh', tokenType: 'Bearer',
+    expiresIn: 900, usuarioId: usuario, papel, empresaId: papel === 'EMPRESA' ? E1 : null,
   }
 }
+const soAdmin = (token: string | undefined) =>
+  token === 'demo-admin' ? null : problema(403, 'Acesso negado', 'Só o administrador do Fretaí faz isso.')
+
+// ---------- piso ANTT ----------
+
+/** Os mesmos valores de exemplo da migração V8 (ccd = 1 + 0,5 × eixos; cc = 100 + 50 × eixos), para cada carga e eixo. */
+const coeficientes: Coeficiente[] = ['CARGA_GERAL', 'GRANEL_SOLIDO', 'GRANEL_LIQUIDO', 'FRIGORIFICADA', 'CONTEINERIZADA', 'NEOGRANEL',
+  'GRANEL_PRESSURIZADA', 'PERIGOSA_CARGA_GERAL', 'PERIGOSA_GRANEL_SOLIDO', 'PERIGOSA_GRANEL_LIQUIDO', 'PERIGOSA_FRIGORIFICADA',
+  'PERIGOSA_CONTEINERIZADA'].flatMap((tipoCarga) => [2, 3, 4, 5, 6, 7, 9].map((numeroEixos) => ({
+  tipoCarga, numeroEixos, ccd: 1 + numeroEixos * 0.5, cc: 100 + numeroEixos * 50, fonte: 'EXEMPLO', exemplo: true, atualizadoEm: iso(-30),
+})))
 
 // ---------- roteamento ----------
 
@@ -663,9 +691,59 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     }
     if (metodo === 'POST' && m[2] === 'link') {
       if (!podeVer(doc, token)) return problema(403, 'Acesso negado', 'A empresa só vê os documentos do motorista depois de aceitar a proposta dele.')
-      ;(acessos[doc.id] ??= []).push({ usuarioId: token === 'demo-motorista' ? M1 : U_EMPRESA, papel: token === 'demo-motorista' ? 'MOTORISTA' : 'EMPRESA', origem: '127.0.0.1', acessadoEm: iso(0) })
+      const papel = token === 'demo-motorista' ? 'MOTORISTA' : token === 'demo-admin' ? 'ADMIN' : 'EMPRESA'
+      ;(acessos[doc.id] ??= []).push({ usuarioId: { MOTORISTA: M1, ADMIN: U_ADMIN, EMPRESA: U_EMPRESA }[papel], papel, origem: '127.0.0.1', acessadoEm: iso(0) })
       return json({ url: doc.url, expiraEm: iso(10 / 1440) })
     }
+  }
+  // ---------- administrador ----------
+  if (metodo === 'GET' && p === '/api/documentos/pendentes') {
+    return soAdmin(token) ?? json(documentos.filter((d) => !d.verificado).sort((a, z) => a.criadoEm.localeCompare(z.criadoEm)).map(semUrl))
+  }
+  if (metodo === 'POST' && (m = p.match(/^\/api\/documentos\/([^/]+)\/verificacao$/))) {
+    const negado = soAdmin(token)
+    if (negado) return negado
+    const doc = documentos.find((x) => x.id === m![1])
+    if (!doc) return problema(404, 'Documento não encontrado', 'Esse documento não existe.')
+    Object.assign(doc, { verificado: true, verificadoEm: iso(0) })
+    const perfil = perfisMotorista[doc.motoristaId]
+    if (perfil && doc.tipo !== 'COMPROVANTE' && !perfil.documentosVerificados.includes(doc.tipo)) perfil.documentosVerificados.push(doc.tipo)
+    return json(semUrl(doc))
+  }
+  if (metodo === 'GET' && p === '/api/canhotos/contestacoes') {
+    return soAdmin(token) ?? json(Object.values(canhotos).filter((c) => c.contestado && !c.resolucao))
+  }
+  if (metodo === 'POST' && (m = p.match(/^\/api\/fretes\/([^/]+)\/canhoto\/resolucao$/))) {
+    const negado = soAdmin(token)
+    if (negado) return negado
+    const c = canhotos[m[1]]
+    if (!c) return problema(404, 'Recurso não encontrado', 'Este frete ainda não tem canhoto.')
+    if (b.resolucao !== 'ENTREGA_CONFIRMADA' && b.resolucao !== 'CONTESTACAO_PROCEDENTE') return invalido({ resolucao: 'Informe a resolução.' })
+    c.resolucao = b.resolucao
+    // Confirmada, o saldo destrava; a janela de contestação já passou, então ele sai na hora, como na API.
+    const pg = pagamentos.find((x) => x.freteId === c.freteId)
+    const f = fretes.find((x) => x.id === c.freteId)
+    if (b.resolucao === 'ENTREGA_CONFIRMADA' && pg && f) {
+      Object.assign(pg, { saldoBloqueado: false, status: 'LIBERADO', saldoLiberadoEm: iso(0) })
+      registrar(f.id, f.status, 'PAGO', null)
+      Object.assign(f, { status: 'PAGO', pagoEm: iso(0) })
+    }
+    return json(c)
+  }
+  if (metodo === 'GET' && p === '/api/piso-antt') return json(coeficientes)
+  if (metodo === 'PUT' && (m = p.match(/^\/api\/piso-antt\/([A-Z_]+)\/(\d+)$/))) {
+    const negado = soAdmin(token)
+    if (negado) return negado
+    const c = coeficientes.find((x) => x.tipoCarga === m![1] && x.numeroEixos === Number(m![2]))
+    if (!c) return problema(404, 'Recurso não encontrado', 'Coeficiente não encontrado.')
+    const erros: Record<string, string> = {}
+    if (!(Number(b.ccd) >= 0)) erros.ccd = 'deve ser maior ou igual a 0'
+    if (!(Number(b.cc) >= 0)) erros.cc = 'deve ser maior ou igual a 0'
+    if (!String(b.fonte ?? '').trim()) erros.fonte = 'Informe a fonte dos coeficientes.'
+    if (Object.keys(erros).length) return invalido(erros)
+    const fonte = String(b.fonte).trim()
+    Object.assign(c, { ccd: Number(b.ccd), cc: Number(b.cc), fonte, exemplo: fonte === 'EXEMPLO', atualizadoEm: iso(0) })
+    return json(c)
   }
   if (metodo === 'POST' && p === '/api/calculadora/frete') {
     const { erros, resultado } = calcular(b)

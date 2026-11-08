@@ -10,9 +10,9 @@ export const reaisCentavos = (v: number) => brlCentavos.format(v)
 export const quilometros = (v: number) => `${km.format(v)} km`
 export const porKm = (valor: number, distancia: number) => brlCentavos.format(valor / distancia)
 
-const digitavel = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 })
-/** O caminho de volta de lerReais, para preencher um campo: 27000 vira "27.000", 1500.5 vira "1.500,5". */
-export const paraDigitar = (v: number) => digitavel.format(v)
+/** O caminho de volta de lerReais, para preencher um campo: 27000 vira "27.000", 1500.5 vira "1.500,5".
+ *  casas: o máximo de decimais (o CCD do piso ANTT tem 4). */
+export const paraDigitar = (v: number, casas = 2) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: casas }).format(v)
 
 /** Número digitado do jeito brasileiro: "4.850", "4850,50", "R$ 27.000". Vazio ou ilegível dá NaN. */
 export function lerReais(texto: string) {

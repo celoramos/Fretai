@@ -495,3 +495,42 @@ ol.legal__itens { list-style: decimal; }
 @media (min-width: 900px) {
   .pagamentos-e__numeros { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
 }
+
+/* ---------- administrador ----------
+   Filas de trabalho: um cartão por pendência, o que é em cima e o que fazer embaixo. Na largura de
+   escritório, como a empresa: o administrador confere documento e foto numa tela grande. */
+.fila, .piso { display: grid; gap: var(--esp-4); }
+.fila__cabeca { display: grid; gap: var(--esp-1); max-width: var(--largura-pagamento); }
+.fila__lista { display: grid; gap: var(--esp-4); }
+.fila__item { display: grid; gap: var(--esp-3); }
+.fila__dados { display: grid; gap: var(--esp-1); }
+.fila__titulo { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); }
+.fila__de { font-family: var(--fonte-texto); font-size: var(--tam-corpo); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+.fila__fim { display: grid; gap: var(--esp-3); justify-items: start; }
+.fila__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
+.fila__pergunta { max-width: var(--largura-pagamento); text-wrap: pretty; }
+
+/* Contestação: o que foi dito (o motivo, com a régua da cor de alerta) antes da prova da entrega. */
+.contestacao { display: grid; gap: var(--esp-4); }
+.contestacao + .contestacao { padding-top: var(--esp-6); border-top: var(--borda-forte) solid var(--cor-linha); }
+.contestacao__cabeca { display: grid; gap: var(--esp-3); }
+.contestacao__rota { font-family: var(--fonte-placa); font-size: var(--tam-secao); font-weight: var(--peso-placa); line-height: var(--altura-titulo); }
+.contestacao__partes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-3); color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.contestacao__motivo { display: grid; gap: var(--esp-1); margin: 0; }
+.contestacao__motivo blockquote { margin: 0; padding-left: var(--esp-3); border-left: var(--borda-forte) solid var(--cor-alerta); font-size: var(--tam-bloco); text-wrap: pretty; }
+.contestacao__saldo { color: var(--cor-alerta); font-weight: var(--peso-medio); }
+.contestacao__decisao { display: grid; gap: var(--esp-3); padding-top: var(--esp-3); border-top: var(--borda) solid var(--cor-linha); }
+.contestacao__opcoes { display: grid; gap: var(--esp-1); min-width: 0; margin: 0; padding: 0; border: 0; }
+.contestacao__opcoes > legend { padding: 0; margin-bottom: var(--esp-1); }
+.contestacao__fim { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-3); }
+
+/* Piso ANTT: os dois campos em cima, e o quadro de uma carga por vez, com o piso de conferência ao lado. */
+.piso__form { display: grid; gap: var(--esp-4); }
+.piso__campos { display: grid; gap: var(--esp-3); max-width: var(--largura-pagamento); }
+/* Cabeçalho de linha: o número de eixos lê como o número da placa, não como rótulo de coluna. */
+.tabela .piso__eixos { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); color: var(--cor-texto); vertical-align: middle; }
+.piso__entrada { width: var(--largura-numero); }
+.piso__fim { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-3); }
+@media (min-width: 900px) {
+  .piso__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

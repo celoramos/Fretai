@@ -415,7 +415,7 @@
 .tabela { width: 100%; border-collapse: collapse; font-size: var(--tam-detalhe); }
 .tabela th { text-align: left; font-weight: var(--peso-medio); color: var(--cor-texto-secundario); padding: var(--esp-3) var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); white-space: nowrap; }
 .tabela td { padding: var(--esp-3) var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); vertical-align: middle; }
-.tabela tr:last-child td { border-bottom: 0; }
+.tabela tr:last-child td, .tabela tbody tr:last-child th { border-bottom: 0; }
 .tabela th:first-child, .tabela td:first-child { padding-left: 0; }
 .tabela th:last-child, .tabela td:last-child { padding-right: 0; }
 .tabela tbody tr:hover .tabela__rota { text-decoration: underline; }

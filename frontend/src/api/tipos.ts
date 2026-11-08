@@ -374,3 +374,17 @@ export interface Empresa {
   ativa: boolean
   criadoEm: string
 }
+
+/** GET /api/piso-antt e PUT /api/piso-antt/{tipoCarga}/{eixos}. Piso = distância × ccd + cc. */
+export interface Coeficiente {
+  tipoCarga: string
+  numeroEixos: number
+  /** Custo de deslocamento, em R$ por km. */
+  ccd: number
+  /** Custo de carga e descarga, em R$. */
+  cc: number
+  fonte: string
+  /** true enquanto a fonte for "EXEMPLO": valores de desenvolvimento, não os da ANTT. */
+  exemplo: boolean
+  atualizadoEm: string
+}

@@ -3,6 +3,7 @@ import { CURVA, DUR_ROTA, item } from '../movimento'
 import { useRef, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { comoProblema, MODO_DEMO } from '../api/cliente'
+import { INICIO } from '../inicio'
 import type { Problema } from '../api/tipos'
 import { useTitulo } from '../useTitulo'
 import { Aviso } from '../components/ui'
@@ -37,7 +38,7 @@ export function Entrar() {
     setEnviando(true)
     try {
       const t = await entrar(email.trim(), senha)
-      navegar(t.papel === 'MOTORISTA' ? '/motorista' : '/empresa')
+      navegar(INICIO[t.papel] ?? '/')
     } catch (erro) {
       const p = comoProblema(erro)
       setProblema(p)
@@ -55,7 +56,7 @@ export function Entrar() {
     setEnviando(true)
     try {
       const t = await entrarComGoogle(credencial)
-      navegar(t.papel === 'MOTORISTA' ? '/motorista' : '/empresa')
+      navegar(INICIO[t.papel] ?? '/')
     } catch (erro) {
       const p = comoProblema(erro)
       if (p.codigo === 'CADASTRO_NECESSARIO') {
@@ -135,6 +136,9 @@ export function Entrar() {
                 </button>
                 <button type="button" className="botao botao--secundario" onClick={() => { setEmail('empresa@demo.fretai'); setSenha('demo123') }}>
                   Preencher empresa
+                </button>
+                <button type="button" className="botao botao--secundario" onClick={() => { setEmail('admin@demo.fretai'); setSenha('demo123') }}>
+                  Preencher administrador
                 </button>
               </div>
             </div>
