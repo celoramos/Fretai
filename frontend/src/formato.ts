@@ -44,15 +44,15 @@ export const dataHora = (iso: string) =>
 
 export type Tom = 'info' | 'faixa' | 'garantido' | 'perigo' | 'neutro' | 'alerta'
 
-/** Seção 6 do briefing: o mesmo status fala diferente com o motorista e com a empresa. */
-export const STATUS_FRETE: Record<StatusFrete, { motorista: string; empresa: string; tom: Tom }> = {
-  PUBLICADO: { motorista: 'Aberto', empresa: 'Aguardando propostas', tom: 'info' },
-  PROPOSTA_ENVIADA: { motorista: 'Em negociação', empresa: 'Com propostas', tom: 'faixa' },
-  ACEITO: { motorista: 'Fechado, vá para a coleta', empresa: 'Motorista a caminho da coleta', tom: 'info' },
-  EM_TRANSITO: { motorista: 'Em viagem', empresa: 'Em trânsito', tom: 'faixa' },
-  ENTREGUE: { motorista: 'Entregue, saldo em análise', empresa: 'Entregue', tom: 'garantido' },
-  PAGO: { motorista: 'Pago', empresa: 'Concluído e pago', tom: 'garantido' },
-  CANCELADO: { motorista: 'Cancelado', empresa: 'Cancelado', tom: 'perigo' },
+/** Seção 6 do briefing: o mesmo status fala diferente com o motorista e com quem contratou (empresa ou cliente). */
+export const STATUS_FRETE: Record<StatusFrete, { motorista: string; contratante: string; tom: Tom }> = {
+  PUBLICADO: { motorista: 'Aberto', contratante: 'Aguardando propostas', tom: 'info' },
+  PROPOSTA_ENVIADA: { motorista: 'Em negociação', contratante: 'Com propostas', tom: 'faixa' },
+  ACEITO: { motorista: 'Fechado, vá para a coleta', contratante: 'Motorista a caminho da coleta', tom: 'info' },
+  EM_TRANSITO: { motorista: 'Em viagem', contratante: 'Em trânsito', tom: 'faixa' },
+  ENTREGUE: { motorista: 'Entregue, saldo em análise', contratante: 'Entregue', tom: 'garantido' },
+  PAGO: { motorista: 'Pago', contratante: 'Concluído e pago', tom: 'garantido' },
+  CANCELADO: { motorista: 'Cancelado', contratante: 'Cancelado', tom: 'perigo' },
 }
 
 /** Ordem dos marcos na estrada; CANCELADO sai da estrada e não é marco. */

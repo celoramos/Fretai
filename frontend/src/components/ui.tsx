@@ -8,7 +8,7 @@ export function Etiqueta({ tom, children }: { tom: Tom; children: ReactNode }) {
   return <span className={`etiqueta etiqueta--${tom}`}>{children}</span>
 }
 
-export function StatusFreteEtiqueta({ status, visao }: { status: StatusFrete; visao: 'motorista' | 'empresa' }) {
+export function StatusFreteEtiqueta({ status, visao }: { status: StatusFrete; visao: 'motorista' | 'contratante' }) {
   const s = STATUS_FRETE[status]
   return <Etiqueta tom={s.tom}>{s[visao]}</Etiqueta>
 }
@@ -40,7 +40,7 @@ export function Marcos({
 }: {
   status: StatusFrete
   eventos: EventoFrete[]
-  visao: 'motorista' | 'empresa'
+  visao: 'motorista' | 'contratante'
   orientacao: 'vertical' | 'horizontal'
   motivoCancelamento?: string | null
 }) {

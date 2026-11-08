@@ -95,7 +95,7 @@ export function FretesEmpresa() {
                     </td>
                     <td className="tabela__data">{dataCurta(f.dataColeta)}</td>
                     <td className="tabela__num">{valor != null && !(f.valorACombinar && !f.valorAcordado) ? `R$ ${reais(valor)}` : 'A combinar'}</td>
-                    <td><StatusFreteEtiqueta status={f.status} visao="empresa" /></td>
+                    <td><StatusFreteEtiqueta status={f.status} visao="contratante" /></td>
                     <td>{f.motorista ? <span className="tabela__motorista">{f.motorista.nome}{f.motorista.placa && <Placa placa={f.motorista.placa} />}</span> : <span className="tabela__sub">—</span>}</td>
                   </motion.tr>
                 )

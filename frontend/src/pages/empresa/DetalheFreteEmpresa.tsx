@@ -61,7 +61,7 @@ export function DetalheFreteEmpresa() {
       )}
       <header className="detalhe-e__cabeca cartao">
         <div className="detalhe-e__linha-status">
-          <StatusFreteEtiqueta status={frete.status} visao="empresa" />
+          <StatusFreteEtiqueta status={frete.status} visao="contratante" />
           {garantido && <SeloGarantido />}
           <span className="detalhe">Coleta {dataCurta(frete.dataColeta)}</span>
           {/* Só antes da primeira proposta: é o que a API aceita (Frete.revisar). */}
@@ -77,7 +77,7 @@ export function DetalheFreteEmpresa() {
             <ChipPiso preco={frete.preco} valor={valor} />
           </div>
         </div>
-        <Marcos status={frete.status} eventos={eventos} visao="empresa" orientacao="horizontal" motivoCancelamento={frete.motivoCancelamento} />
+        <Marcos status={frete.status} eventos={eventos} visao="contratante" orientacao="horizontal" motivoCancelamento={frete.motivoCancelamento} />
       </header>
 
       <div className="abas" role="tablist" aria-label="Detalhes do frete">
@@ -320,7 +320,7 @@ function Historico({ eventos }: { eventos: EventoFrete[] }) {
           {[...eventos].reverse().map((e) => (
             <tr key={`${e.ocorridoEm}-${e.para}`}>
               <td className="tabela__num">{dataHora(e.ocorridoEm)}</td>
-              <td>{e.de ? `${STATUS_FRETE[e.de].empresa} → ` : ''}{STATUS_FRETE[e.para].empresa}</td>
+              <td>{e.de ? `${STATUS_FRETE[e.de].contratante} → ` : ''}{STATUS_FRETE[e.para].contratante}</td>
               <td>{e.autorPapel ? PAPEL[e.autorPapel] : 'Sistema'}</td>
               <td>{e.observacao ?? '—'}</td>
             </tr>
