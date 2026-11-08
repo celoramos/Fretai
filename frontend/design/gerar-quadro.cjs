@@ -177,7 +177,7 @@ body.q { padding: 0; }
 `;
 
 const sec = (n, titulo, nota, corpo) => `<section class="q-sec" aria-labelledby="s${n}">
-  <div class="q-sec__cabeca"><span class="q-sec__n">0${n}</span><h2 id="s${n}" class="q-sec__titulo">${titulo}</h2>${nota ? `<p class="q-sec__nota">${nota}</p>` : ""}</div>
+  <div class="q-sec__cabeca"><span class="q-sec__n">${String(n).padStart(2, "0")}</span><h2 id="s${n}" class="q-sec__titulo">${titulo}</h2>${nota ? `<p class="q-sec__nota">${nota}</p>` : ""}</div>
   <div class="q-corpo">${corpo}</div>
 </section>`;
 
@@ -256,6 +256,7 @@ let html = `<!DOCTYPE html>
     ${tela("freteM2", "claro", 390, 0.85, "Detalhe do frete, aberto · claro")}
     ${tela("meusFretes", "escuro", 390, 0.85, "Meus fretes, com o km nas listas · escuro")}
     ${tela("entrar", "escuro", 390, 0.85, "Entrar, com a pista vertical · escuro")}
+    ${tela("extrato", "escuro", 390, 0.85, "Extrato, a receber e recebidos por mês · escuro")}
   </div>`)}
 
   ${sec(8, "Empresa, no escritório", "1280 px, mostrado a 75%. Claro é o padrão: várias abas, tabela, comparador lado a lado.", `
@@ -264,7 +265,24 @@ let html = `<!DOCTYPE html>
     ${tela("detalheE0", "claro", 1280, 0.75, "Detalhe com propostas, comparador · claro")}
     ${tela("detalheE1", "claro", 1280, 0.75, "Detalhe em trânsito, marcos da viagem · claro")}
     ${tela("detalheE0", "escuro", 1280, 0.75, "Detalhe com propostas · escuro")}
+    ${tela("pagamentosE", "claro", 1280, 0.75, "Pagamentos, com centavos · claro")}
+    ${tela("dadosE", "claro", 1280, 0.75, "Dados da empresa · claro")}
     ${tela("entrar", "claro", 1280, 0.75, "Entrar · claro")}
+  </div>`)}
+
+  ${sec(9, "Cliente pessoa física, no celular", "390 px, mostrado a 85%. Entrada secundária: um cartão por frete, com o próximo passo, e alvo de 48 px. Claro é o padrão.", `
+  <div class="q-telas">
+    ${tela("fretesC", "claro", 390, 0.85, "Seus fretes, com o próximo passo · claro")}
+    ${tela("detalheC", "claro", 390, 0.85, "Frete com propostas e o resumo do pedido · claro")}
+    ${tela("pedirC", "claro", 390, 0.85, "Pedir frete · claro")}
+    ${tela("cadastro", "claro", 390, 0.85, "Criar conta, com a entrada de pessoa física · claro")}
+  </div>`)}
+
+  ${sec(10, "Administrador, no escritório", "1280 px, mostrado a 75%. Três filas, na ordem do que trava dinheiro. Ação sem volta pede confirmação ou motivo.", `
+  <div class="q-telas">
+    ${tela("documentosA", "claro", 1280, 0.75, "Documentos, com a recusa aberta · claro")}
+    ${tela("contestacoesA", "claro", 1280, 0.75, "Contestação, com a prova da entrega ao lado · claro")}
+    ${tela("pisoA", "claro", 1280, 0.75, "Piso ANTT · claro")}
   </div>`)}
 
   <footer class="q-pe">
