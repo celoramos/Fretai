@@ -258,6 +258,34 @@
 .pix__codigo { display: block; padding: var(--esp-3); border: var(--borda) solid var(--cor-linha); border-radius: var(--raio-campo); font-size: var(--tam-legenda); overflow-wrap: anywhere; }
 .pix__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); align-items: center; }
 
+/* ---------- publicar frete ----------
+   Coluna de leitura (a largura do pagamento), um cartão por assunto, na ordem em que a empresa pensa. */
+.fretes-e__cabeca { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-3); }
+.publicar { display: grid; gap: var(--esp-4); max-width: var(--largura-pagamento); }
+.publicar__form { display: grid; gap: var(--esp-4); }
+.publicar__grupo { display: grid; gap: var(--esp-4); min-width: 0; margin: 0; border: 0; }
+/* Platform fact: a legend de um fieldset senta na borda e ignora o padding do cartão. Flutuando, ela
+   vira um item comum da grade e fica dentro do cartão como qualquer título. */
+.publicar__legenda { float: left; width: 100%; padding: 0; font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); }
+.publicar__pontas { display: grid; gap: var(--esp-6); }
+.publicar__ponta { display: grid; gap: var(--esp-3); align-content: start; }
+.publicar__ponta-titulo { font-weight: var(--peso-forte); }
+.publicar__linha { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); }
+.campo__entrada--cep { max-width: var(--largura-cep); font-family: var(--fonte-mono); }
+.publicar__data { max-width: var(--largura-formulario); }
+.publicar__valor { max-width: var(--largura-numero); }
+.publicar__dia { color: var(--cor-alerta); font-size: var(--tam-detalhe); font-weight: var(--peso-medio); }
+.publicar__dia:empty { display: none; }
+.publicar__escolhas { display: grid; gap: var(--esp-2); min-width: 0; margin: 0; padding: 0; border: 0; }
+.publicar__escolhas > legend { padding: 0; margin-bottom: var(--esp-2); }
+.publicar__opcoes { display: grid; gap: var(--esp-1); }
+.publicar__fim { display: grid; gap: var(--esp-3); }
+.publicar__botoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
+
+@media (min-width: 900px) {
+  .publicar__pontas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* ---------- privacidade e termos ----------
    Texto corrido de leitura: uma coluna estreita, sem cartão. A lacuna (fato que falta) usa a cor de
    alerta no título, como o aviso, para não passar por texto pronto. */

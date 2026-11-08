@@ -167,6 +167,78 @@ function ev(de: StatusFrete | null, para: StatusFrete, papel: EventoFrete['autor
   return { de, para, autorId: null, autorPapel: papel, observacao, ocorridoEm: iso(quando) }
 }
 
+// ---------- publicar frete ----------
+
+/** Feriados nacionais de data fixa (a API consulta a BrasilAPI; aqui basta para a demonstração). */
+const FERIADOS: Record<string, string> = {
+  '01-01': 'Confraternização Universal', '04-21': 'Tiradentes', '05-01': 'Dia do Trabalho', '09-07': 'Independência do Brasil',
+  '10-12': 'Nossa Senhora Aparecida', '11-02': 'Finados', '11-15': 'Proclamação da República', '11-20': 'Dia da Consciência Negra',
+  '12-25': 'Natal',
+}
+function verificarData(dataIso: string) {
+  const d = new Date(`${dataIso}T12:00:00`)
+  const nomeFeriado = FERIADOS[dataIso.slice(5)] ?? null
+  const domingo = d.getDay() === 0
+  return { data: dataIso, feriado: nomeFeriado != null, nomeFeriado, domingo, diaUtil: !nomeFeriado && !domingo && d.getDay() !== 6 }
+}
+
+/** A API resolve o CEP num serviço de endereço; a demonstração usa a região pelo começo do CEP. */
+const REGIOES: [RegExp, string, string, number, number][] = [
+  [/^0/, 'São Paulo', 'SP', -23.55, -46.63], [/^11/, 'Santos', 'SP', -23.95, -46.33], [/^12/, 'São José dos Campos', 'SP', -23.2, -45.88],
+  [/^13/, 'Campinas', 'SP', -22.9, -47.06], [/^1/, 'Sorocaba', 'SP', -23.5, -47.46], [/^2[0-8]/, 'Rio de Janeiro', 'RJ', -22.9, -43.2],
+  [/^29/, 'Vitória', 'ES', -20.32, -40.34], [/^3/, 'Belo Horizonte', 'MG', -19.92, -43.94], [/^4/, 'Salvador', 'BA', -12.97, -38.5],
+  [/^5/, 'Recife', 'PE', -8.05, -34.9], [/^6/, 'Fortaleza', 'CE', -3.73, -38.52], [/^7[0-3]/, 'Brasília', 'DF', -15.79, -47.88],
+  [/^7/, 'Goiânia', 'GO', -16.68, -49.25], [/^8[0-7]/, 'Curitiba', 'PR', -25.43, -49.27], [/^8/, 'Florianópolis', 'SC', -27.6, -48.55],
+  [/^9/, 'Porto Alegre', 'RS', -30.03, -51.23],
+]
+function enderecoDoCep(pedido: Record<string, unknown>): Endereco {
+  const cep = String(pedido.cep ?? '')
+  const [, cidade, uf, lat, lng] = REGIOES.find(([r]) => r.test(cep)) ?? REGIOES[0]
+  const numero = (pedido.numero as string | null) ?? null
+  return {
+    cep, logradouro: null, numero, complemento: (pedido.complemento as string | null) ?? null, bairro: null, cidade, uf,
+    pontoReferencia: (pedido.pontoReferencia as string | null) ?? null,
+    enderecoCompleto: `CEP ${cep}${numero ? `, ${numero}` : ''} - ${cidade}/${uf}`, latitude: lat, longitude: lng,
+  }
+}
+function errosDaPublicacao(b: Record<string, unknown>) {
+  const erros: Record<string, string> = {}
+  const cep = (x: unknown) => /^\d{5}-?\d{3}$/.test(String((x as Record<string, unknown> | undefined)?.cep ?? ''))
+  if (!cep(b.coleta)) erros['coleta.cep'] = 'CEP inválido. Use 00000-000 ou 00000000.'
+  if (!cep(b.entrega)) erros['entrega.cep'] = 'CEP inválido. Use 00000-000 ou 00000000.'
+  if (!b.dataColeta) erros.dataColeta = 'A data da coleta é obrigatória.'
+  else if (String(b.dataColeta) < data(0)) erros.dataColeta = 'A data da coleta não pode estar no passado.'
+  if (!String(b.descricaoCarga ?? '').trim()) erros.descricaoCarga = 'A descrição da carga é obrigatória.'
+  if (!String(b.especieCarga ?? '').trim()) erros.especieCarga = 'A espécie da carga é obrigatória.'
+  if (!(Number(b.pesoKg) > 0)) erros.pesoKg = 'O peso deve ser maior que zero.'
+  else if (Number(b.pesoKg) > 74000) erros.pesoKg = 'Peso acima do maior peso bruto total permitido (74 t).'
+  if (b.valorACombinar !== (b.valor == null)) erros.valorCoerente = 'Informe o valor ou marque como "a combinar" (um dos dois, nunca ambos).'
+  return erros
+}
+const EIXOS: Record<string, number> = { RODOTREM: 9, BITREM: 7, CARRETA_LS: 6, VANDERLEIA: 6, CARRETA: 5, BITRUCK: 4, TRUCK: 3, TOCO: 2, VUC: 2, TRES_QUARTOS: 2 }
+function publicar(b: Record<string, unknown>): Frete {
+  const coleta = enderecoDoCep(b.coleta as Record<string, unknown>)
+  const entrega = enderecoDoCep(b.entrega as Record<string, unknown>)
+  const reta = Math.hypot((coleta.latitude! - entrega.latitude!) * 111, (coleta.longitude! - entrega.longitude!) * 102)
+  const distanciaKm = Math.max(30, Math.round(reta * 1.25))
+  const tipos = (b.veiculosAceitos as string[] | undefined) ?? []
+  const eixos = tipos.length ? Math.max(...tipos.map((t) => EIXOS[t] ?? 5)) : 5
+  const pisoMinimo = Math.round(distanciaKm * (1.2 + eixos * 1.05) + 480)
+  const valor = b.valorACombinar ? null : Number(b.valor)
+  const dia = verificarData(String(b.dataColeta))
+  const novo = frete({
+    id: `f${fretes.length + 1}`, coleta, entrega, status: 'PUBLICADO', criadoEm: iso(0), dataColeta: String(b.dataColeta),
+    descricaoCarga: String(b.descricaoCarga), especieCarga: String(b.especieCarga), tipoCargaAntt: String(b.tipoCargaAntt), pesoKg: Number(b.pesoKg),
+    valor, valorTotal: valor, valorACombinar: Boolean(b.valorACombinar), veiculosAceitos: tipos,
+    carroceriasAceitas: (b.carroceriasAceitas as string[] | undefined) ?? [], exigeRastreador: Boolean(b.exigeRastreador), complemento: Boolean(b.complemento),
+    feriado: dia.feriado, nomeFeriado: dia.nomeFeriado, domingo: dia.domingo, distanciaKm, distanciaEstimada: true,
+    preco: { coeficientesDeExemplo: true, eixosConsiderados: eixos, pisoMinimo, abaixoDoPiso: valor != null && valor < pisoMinimo, acimaDaMedia: false, mediaRotaPorKm: null },
+  })
+  fretes.push(novo)
+  eventos[novo.id] = [ev(null, 'PUBLICADO', 'EMPRESA', 0)]
+  return novo
+}
+
 // ---------- contas (login e cadastro) ----------
 
 /**
@@ -247,6 +319,7 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     return json({ cnpj: m[1].replace(/\D/g, ''), razaoSocial: 'Transportes Exemplo Ltda', nomeFantasia: 'Exemplo Cargas', situacaoCadastral: 'ATIVA' })
   }
   if (p === '/api/auth/logout') return new Response(null, { status: 204 })
+  if (metodo === 'GET' && p === '/api/calendario/verificacao') return json(verificarData(url.searchParams.get('data') ?? data(0)))
   if (!token) return problema(401, 'Não autenticado', 'Faça login de novo.')
 
   if (metodo === 'GET' && p === '/api/fretes/busca') {
@@ -257,6 +330,11 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       .filter((a) => a.distanciaOrigemKm <= raio)
       .sort((a, z) => a.distanciaOrigemKm - z.distanciaOrigemKm)
     return json(pagina(achados))
+  }
+  if (metodo === 'POST' && (m = p.match(/^\/api\/fretes\/empresa\/([^/]+)$/))) {
+    const erros = errosDaPublicacao(b)
+    if (Object.keys(erros).length) return json({ title: 'Dados inválidos', detail: 'Confira os campos marcados.', status: 400, erros }, 400)
+    return json(publicar(b), 201)
   }
   if (metodo === 'GET' && (m = p.match(/^\/api\/fretes\/empresa\/([^/]+)$/))) {
     return json(pagina(fretes.filter((f) => f.empresa?.id === m![1]).sort((a, z) => z.criadoEm.localeCompare(a.criadoEm))))

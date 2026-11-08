@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { api, ErroApi } from '../../api/cliente'
 import type { EventoFrete, Frete, Pagamento, PerfilMotorista, Problema, Proposta } from '../../api/tipos'
 import { ouNulo, useRecurso } from '../../api/useRecurso'
@@ -20,6 +20,8 @@ export function DetalheFreteEmpresa() {
   const { id = '' } = useParams()
   const [params, setParams] = useSearchParams()
   const aba = (params.get('aba') as Aba | null) ?? 'propostas'
+  // Vindo de "Publicar frete": a confirmação aparece uma vez, no lugar onde o frete já está.
+  const publicado = (useLocation().state as { publicado?: boolean } | null)?.publicado === true
 
   const [estado, recarregar] = useRecurso(async () => {
     const [frete, eventos, propostas, pagamento] = await Promise.all([
@@ -44,6 +46,11 @@ export function DetalheFreteEmpresa() {
   return (
     <div className="detalhe-e">
       <Link to="/empresa" className="voltar">Todos os fretes</Link>
+      {publicado && (
+        <div aria-live="polite">
+          <Aviso tom="info" titulo="Frete publicado.">Motoristas perto da coleta já recebem o aviso. As propostas aparecem aqui.</Aviso>
+        </div>
+      )}
       <header className="detalhe-e__cabeca cartao">
         <div className="detalhe-e__linha-status">
           <StatusFreteEtiqueta status={frete.status} visao="empresa" />

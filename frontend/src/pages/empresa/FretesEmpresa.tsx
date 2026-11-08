@@ -37,6 +37,7 @@ export function FretesEmpresa() {
     <div className="fretes-e">
       <div className="fretes-e__cabeca">
         <h1 className="titulo-pagina">Fretes</h1>
+        <Link to="/empresa/fretes/novo" className="botao botao--primario">Publicar frete</Link>
       </div>
 
       <div className="filtros" role="group" aria-label="Filtrar por situação">
@@ -53,7 +54,9 @@ export function FretesEmpresa() {
       {estado.fase === 'carregando' && (estado.mostrarEsqueleto ? <Esqueleto linhas={6} /> : <div className="reserva-tabela" />)}
       {estado.fase === 'erro' && <ErroCarga problema={estado.problema} tentarDeNovo={recarregar} />}
       {estado.fase === 'pronto' && todos.length === 0 && (
-        <Vazio titulo="Nenhum frete publicado ainda.">Os fretes que a empresa publicar aparecem aqui, com as propostas dos motoristas.</Vazio>
+        <Vazio titulo="Nenhum frete publicado ainda." acao={<Link to="/empresa/fretes/novo" className="botao botao--primario">Publicar o primeiro frete</Link>}>
+          Os fretes que a empresa publicar aparecem aqui, com as propostas dos motoristas.
+        </Vazio>
       )}
       {estado.fase === 'pronto' && todos.length > 0 && visiveis.length === 0 && (
         <Vazio titulo={`Nada em “${filtro.rotulo}”.`} acao={<button type="button" className="botao botao--secundario" onClick={() => setParams({})}>Ver todos</button>} />

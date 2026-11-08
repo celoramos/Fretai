@@ -10,6 +10,13 @@ export const reaisCentavos = (v: number) => brlCentavos.format(v)
 export const quilometros = (v: number) => `${km.format(v)} km`
 export const porKm = (valor: number, distancia: number) => brlCentavos.format(valor / distancia)
 
+/** Número digitado do jeito brasileiro: "4.850", "4850,50", "R$ 27.000". Vazio ou ilegível dá NaN. */
+export function lerReais(texto: string) {
+  const limpo = texto.replace(/R\$|\s/g, '')
+  if (!limpo) return Number.NaN
+  return Number(limpo.replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.'))
+}
+
 export const dataCurta = (iso: string) =>
   new Date(iso.length === 10 ? `${iso}T12:00:00` : iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 export const dataHora = (iso: string) =>
