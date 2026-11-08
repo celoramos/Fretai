@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { api, comoProblema } from '../../api/cliente'
 import type { Canhoto, Frete, Problema } from '../../api/tipos'
 import { ouNulo, useRecurso } from '../../api/useRecurso'
+import { EvidenciaCanhoto } from '../../components/EvidenciaCanhoto'
 import { Aviso, ErroCarga, Esqueleto, Vazio } from '../../components/ui'
 import { dataHora } from '../../formato'
 
@@ -37,63 +38,26 @@ export function PainelEntrega({ frete, aoMudar }: { frete: Frete; aoMudar: () =>
 }
 
 function CartaoCanhoto({ canhoto, aoRecarregar, aoMudar }: { canhoto: Canhoto; aoRecarregar: () => void; aoMudar: () => void }) {
-  // Os links das imagens vencem em minutos: se a imagem não abrir, a tela pede links novos à API.
-  const [imagemFalhou, setImagemFalhou] = useState(false)
   // A hora de abrir a tela basta: o prazo é de horas, e recarregar o painel refaz a conta.
   const [abertoEm] = useState(() => Date.now())
   const noPrazo = new Date(canhoto.contestacaoAte).getTime() > abertoEm
 
   return (
-    <div className="canhoto">
-      <section className="cartao canhoto__foto" aria-labelledby="canhoto-foto">
-        <h2 id="canhoto-foto" className="bloco__titulo">Foto da entrega</h2>
-        {canhoto.fotoUrl && !imagemFalhou ? (
-          <img src={canhoto.fotoUrl} alt={`Foto da carga entregue, recebida por ${canhoto.nomeRecebedor}`} className="canhoto__imagem"
-            width={1600} height={1200} onError={() => setImagemFalhou(true)} />
+    <EvidenciaCanhoto canhoto={canhoto} aoRecarregar={aoRecarregar}>
+      <div aria-live="polite" className="canhoto__contestacao">
+        {canhoto.resolucao ? (
+          <Aviso tom="info" titulo="Contestação analisada.">{RESOLUCAO[canhoto.resolucao]}</Aviso>
+        ) : canhoto.contestado ? (
+          <Aviso tom="alerta" titulo="Entrega contestada.">
+            {canhoto.motivoContestacao ? `“${canhoto.motivoContestacao}” ` : ''}O saldo do motorista fica parado até a análise.
+          </Aviso>
+        ) : noPrazo ? (
+          <Contestar canhoto={canhoto} aoContestar={aoMudar} />
         ) : (
-          <div className="canhoto__sem-imagem">
-            <p>O link da foto venceu.</p>
-            <button type="button" className="botao botao--secundario" onClick={() => { setImagemFalhou(false); aoRecarregar() }}>Abrir de novo</button>
-          </div>
+          <p className="detalhe">O prazo para contestar terminou em {dataHora(canhoto.contestacaoAte)}.</p>
         )}
-      </section>
-
-      <section className="cartao canhoto__dados" aria-labelledby="canhoto-dados">
-        <h2 id="canhoto-dados" className="bloco__titulo">Canhoto</h2>
-        <dl className="ficha">
-          <div><dt>Recebido por</dt><dd>{canhoto.nomeRecebedor}</dd></div>
-          <div><dt>Quando</dt><dd>{dataHora(canhoto.registradoEm)}</dd></div>
-          <div>
-            <dt>Local</dt>
-            <dd>
-              {canhoto.localConferido && canhoto.distanciaDestinoKm != null
-                ? `A ${Math.round(canhoto.distanciaDestinoKm * 1000)} m do endereço de entrega`
-                : 'Não conferido: o endereço de entrega não tinha coordenadas'}
-            </dd>
-          </div>
-        </dl>
-        {canhoto.assinaturaUrl && !imagemFalhou && (
-          <figure className="canhoto__assinatura">
-            <img src={canhoto.assinaturaUrl} alt={`Assinatura de ${canhoto.nomeRecebedor}`} width={400} height={180} onError={() => setImagemFalhou(true)} />
-            <figcaption className="detalhe">Assinatura de quem recebeu</figcaption>
-          </figure>
-        )}
-
-        <div aria-live="polite" className="canhoto__contestacao">
-          {canhoto.resolucao ? (
-            <Aviso tom="info" titulo="Contestação analisada.">{RESOLUCAO[canhoto.resolucao]}</Aviso>
-          ) : canhoto.contestado ? (
-            <Aviso tom="alerta" titulo="Entrega contestada.">
-              {canhoto.motivoContestacao ? `“${canhoto.motivoContestacao}” ` : ''}O saldo do motorista fica parado até a análise.
-            </Aviso>
-          ) : noPrazo ? (
-            <Contestar canhoto={canhoto} aoContestar={aoMudar} />
-          ) : (
-            <p className="detalhe">O prazo para contestar terminou em {dataHora(canhoto.contestacaoAte)}.</p>
-          )}
-        </div>
-      </section>
-    </div>
+      </div>
+    </EvidenciaCanhoto>
   )
 }
 
