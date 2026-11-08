@@ -59,6 +59,13 @@ public class DocumentoController {
         return documentoService.acessos(id, quem);
     }
 
+    /** Fila do administrador: documentos que ninguém conferiu ainda. */
+    @GetMapping("/api/documentos/pendentes")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<DocumentoResponse> pendentes() {
+        return documentoService.pendentes();
+    }
+
     @PostMapping("/api/documentos/{id}/verificacao")
     @PreAuthorize("hasRole('ADMIN')")
     public DocumentoResponse verificar(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem) {

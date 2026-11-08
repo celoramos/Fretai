@@ -147,10 +147,16 @@ class DocumentoIntegrationTest {
                 .andExpect(status().isForbidden());
 
         RequestPostProcessor admin = Login.como(mvc, "admin.docs@fretai.dev", "senhaDoAdmin123");
+        // A fila do administrador: só ele vê, e o documento sai dela ao ser verificado.
+        mvc.perform(get("/api/documentos/pendentes").with(empresa)).andExpect(status().isForbidden());
+        mvc.perform(get("/api/documentos/pendentes").with(admin))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(documentoId));
         mvc.perform(post("/api/documentos/{id}/verificacao", documentoId).with(motorista))
                 .andExpect(status().isForbidden());
         mvc.perform(post("/api/documentos/{id}/verificacao", documentoId).with(admin))
                 .andExpect(jsonPath("$.verificado").value(true));
+        mvc.perform(get("/api/documentos/pendentes").with(admin)).andExpect(jsonPath("$.length()").value(0));
         mvc.perform(get("/api/motoristas/{id}/perfil", motoristaId).with(empresa))
                 .andExpect(jsonPath("$.documentosVerificados[0]").value("CNH"));
     }

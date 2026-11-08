@@ -9,6 +9,8 @@ public interface DocumentoRepository extends JpaRepository<Documento, UUID> {
 
     List<Documento> findByFreteIdOrderByCriadoEm(UUID freteId);
 
+    List<Documento> findByVerificadoFalseOrderByCriadoEm();
+
     @Query("SELECT DISTINCT d.tipo FROM Documento d WHERE d.motorista.id = :motoristaId AND d.verificado = true")
     List<TipoDocumento> tiposVerificados(UUID motoristaId);
 }

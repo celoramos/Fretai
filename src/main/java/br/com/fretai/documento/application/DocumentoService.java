@@ -119,6 +119,12 @@ public class DocumentoService {
                 .map(AcessoDocumentoResponse::de).toList();
     }
 
+    /** Fila do administrador: o que ainda não foi conferido, do mais antigo para o mais novo. */
+    @Transactional(readOnly = true)
+    public List<DocumentoResponse> pendentes() {
+        return documentoRepository.findByVerificadoFalseOrderByCriadoEm().stream().map(DocumentoResponse::de).toList();
+    }
+
     @Transactional
     public DocumentoResponse verificar(UUID documentoId, UsuarioLogado admin) {
         Documento documento = carregar(documentoId);

@@ -11,6 +11,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,6 +69,13 @@ public class CanhotoController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void contestarComCodigo(@Valid @RequestBody ContestacaoRequest request) {
         canhotoService.contestarComCodigo(request.codigo(), request.motivo());
+    }
+
+    /** Fila do administrador: contestações que ainda não têm decisão. */
+    @GetMapping("/api/canhotos/contestacoes")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<CanhotoResponse> contestacoes() {
+        return canhotoService.contestacoesAbertas();
     }
 
     @PostMapping("/api/fretes/{freteId}/canhoto/resolucao")

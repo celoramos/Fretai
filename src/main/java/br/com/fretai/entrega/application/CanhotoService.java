@@ -24,6 +24,7 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
@@ -113,6 +114,13 @@ public class CanhotoService {
             throw new AcessoNegadoException("Só quem participa do frete vê o canhoto.");
         }
         return resposta(carregarDoFrete(freteId));
+    }
+
+    /** Fila do administrador: entregas contestadas que esperam decisão, da contestação mais antiga para a mais nova. */
+    @Transactional(readOnly = true)
+    public List<CanhotoResponse> contestacoesAbertas() {
+        return canhotoRepository.findByContestadoTrueAndResolucaoIsNullOrderByContestadoEm().stream()
+                .map(this::resposta).toList();
     }
 
     /** O contratante logado contesta em nome do recebedor (caso comum no frete de empresa). */

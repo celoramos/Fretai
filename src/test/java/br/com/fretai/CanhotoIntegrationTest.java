@@ -176,6 +176,12 @@ class CanhotoIntegrationTest {
         assertFalse(pagamentoService.liberarSaldo(UUID.fromString(pagamentoId)));
 
         RequestPostProcessor admin = Login.como(mvc, "admin.canhoto@fretai.dev", "senhaDoAdmin123");
+        // A contestação entra na fila do administrador, que só ele vê.
+        mvc.perform(get("/api/canhotos/contestacoes").with(empresa)).andExpect(status().isForbidden());
+        mvc.perform(get("/api/canhotos/contestacoes").with(admin))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].freteId").value(freteId))
+                .andExpect(jsonPath("$[0].motivoContestacao").value("Faltaram 2 paletes"));
         mvc.perform(post("/api/fretes/{id}/canhoto/resolucao", freteId).with(empresa)
                         .contentType(MediaType.APPLICATION_JSON).content("{\"resolucao\": \"ENTREGA_CONFIRMADA\"}"))
                 .andExpect(status().isForbidden());
@@ -183,6 +189,7 @@ class CanhotoIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"resolucao\": \"ENTREGA_CONFIRMADA\", \"observacao\": \"Paletes no estoque do cliente\"}"))
                 .andExpect(status().isOk());
+        mvc.perform(get("/api/canhotos/contestacoes").with(admin)).andExpect(jsonPath("$.length()").value(0));
 
         assertTrue(pagamentoService.liberarSaldo(UUID.fromString(pagamentoId)));
         mvc.perform(get("/api/fretes/{id}", freteId).with(motorista)).andExpect(jsonPath("$.status").value("PAGO"));
