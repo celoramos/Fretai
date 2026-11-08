@@ -94,6 +94,8 @@ const limeira = endereco('Limeira', 'SP', '13486-000', 'Rod. Anhanguera, km 148'
 const sjc = endereco('São José dos Campos', 'SP', '12238-000', 'Rod. Presidente Dutra, km 147', -23.2, -45.88)
 const piracicaba = endereco('Piracicaba', 'SP', '13412-000', 'Av. Comendador Leopoldo Dedini', -22.73, -47.64)
 const santos = endereco('Santos', 'SP', '11095-000', 'Av. Engenheiro Augusto Barata', -23.93, -46.33)
+const joinville = endereco('Joinville', 'SC', '89219-000', 'Rua Dona Francisca', -26.26, -48.85)
+const araucaria = endereco('Araucária', 'PR', '83707-000', 'Rod. do Xisto, km 18', -25.59, -49.4)
 
 const exemplo = { coeficientesDeExemplo: true, eixosConsiderados: 5 }
 
@@ -126,10 +128,17 @@ const fretes: Frete[] = [
     distanciaKm: 120, status: 'ENTREGUE', motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CARRETA', placa: 'ABC1D23' },
     veiculo: resumoVeiculo('v1'), criadoEm: iso(-3), aceitoEm: iso(-2.5), concluidoEm: iso(-0.2), dataColeta: data(-1),
     descricaoCarga: 'Revestimentos cerâmicos', preco: { ...exemplo, pisoMinimo: 1490, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 11.4 } }),
+  frete({ id: 'f9', coleta: araucaria, entrega: joinville, empresa: empresas[E3], valor: 2650, valorTotal: 2650, distanciaKm: 140, dataColeta: data(2),
+    descricaoCarga: 'Bobinas de papel', especieCarga: 'Bobinas', veiculosAceitos: ['CARRETA', 'CARRETA_LS'], carroceriasAceitas: ['SIDER', 'GRADE_BAIXA'],
+    exigeRastreador: false, preco: { ...exemplo, pisoMinimo: 1720, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 17.9 } }),
+  frete({ id: 'f10', coleta: santos, entrega: campinas, valor: 2250, valorTotal: 2250, distanciaKm: 160, dataColeta: data(1),
+    descricaoCarga: 'Contêiner de 20 pés vazio', especieCarga: 'Contêiner', tipoCargaAntt: 'CONTEINERIZADA', pesoKg: 2300,
+    veiculosAceitos: ['CARRETA', 'CARRETA_LS'], carroceriasAceitas: [], exigeRastreador: true,
+    preco: { ...exemplo, pisoMinimo: 1810, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 13.6 } }),
 ]
 
 /** Distância da base do motorista demo (Campinas) até a coleta de cada frete aberto. */
-const distanciaDaBase: Record<string, number> = { f1: 6, f3: 1290, f4: 84, f5: 52 }
+const distanciaDaBase: Record<string, number> = { f1: 6, f3: 1290, f4: 84, f5: 52, f10: 148 }
 
 const propostas: Proposta[] = [
   proposta('p1', 'f1', M1, 'v1', 4850, 40, -0.5),
@@ -397,6 +406,15 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     const sub = m[2]
     if (metodo === 'GET' && !sub) return json(f)
     if (metodo === 'GET' && sub === '/eventos') return json(eventos[f.id] ?? [])
+    if (metodo === 'GET' && sub === '/retorno') {
+      const km = (a: Endereco, z: Endereco) => Math.round(Math.hypot((a.latitude! - z.latitude!) * 111, (a.longitude! - z.longitude!) * 102) * 1.2)
+      const achados = fretes
+        .filter((x) => x.id !== f.id && (x.status === 'PUBLICADO' || x.status === 'PROPOSTA_ENVIADA'))
+        .map((x) => ({ distanciaOrigemKm: km(f.entrega, x.coleta), frete: x }))
+        .filter((a) => a.distanciaOrigemKm <= 150)
+        .sort((a, z) => a.distanciaOrigemKm - z.distanciaOrigemKm)
+      return json(pagina(achados))
+    }
     if (sub === '/avaliacoes') {
       if (metodo === 'GET') return json(avaliacoes.filter((a) => a.freteId === f.id))
       if (f.status !== 'ENTREGUE' && f.status !== 'PAGO') return problema(422, 'Ainda não', 'Só é possível avaliar depois da entrega.')

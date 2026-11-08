@@ -6,15 +6,19 @@ import { ChipPiso, Valor } from './Dinheiro'
 import { RotaLinha } from './RotaLinha'
 import { item } from '../movimento'
 
-/** Em 2 segundos: de onde, para onde, quanto, e se a empresa é séria. */
-export function CardFrete({ frete, distanciaOrigemKm, perfil }: { frete: Frete; distanciaOrigemKm: number; perfil?: PerfilEmpresa }) {
+/**
+ * Em 2 segundos: de onde, para onde, quanto, e se a empresa é séria.
+ * referencia: de onde a distância é medida quando não é de onde o motorista está (ex.: o destino de
+ * um frete, nas sugestões de volta).
+ */
+export function CardFrete({ frete, distanciaOrigemKm, perfil, referencia }: { frete: Frete; distanciaOrigemKm: number; perfil?: PerfilEmpresa; referencia?: string }) {
   const valor = frete.valorTotal ?? frete.valor
   return (
     <motion.article className="card-frete cartao" variants={item}>
       <Link to={`/motorista/fretes/${frete.id}`} className="card-frete__link">
         <span className="visualmente-oculto">Ver frete de {frete.coleta.cidade} para {frete.entrega.cidade}</span>
       </Link>
-      <p className="card-frete__perto">a {quilometros(distanciaOrigemKm)} de você · coleta {dataCurta(frete.dataColeta)}</p>
+      <p className="card-frete__perto">{perto(distanciaOrigemKm, referencia)} · coleta {dataCurta(frete.dataColeta)}</p>
       <RotaLinha coleta={frete.coleta} entrega={frete.entrega} distanciaKm={frete.distanciaKm} estimada={frete.distanciaEstimada} />
 
       <div className="card-frete__dinheiro">
@@ -44,6 +48,12 @@ export function CardFrete({ frete, distanciaOrigemKm, perfil }: { frete: Frete; 
       <Reputacao nome={frete.empresa?.nomeFantasia ?? frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'Cliente'} perfil={perfil} />
     </motion.article>
   )
+}
+
+/** Menos de 1 km vira "em Santos" ou "a menos de 1 km de você": "a 0 km" não diz nada. */
+function perto(km: number, referencia?: string) {
+  if (km < 1) return referencia ? `em ${referencia}` : 'a menos de 1 km de você'
+  return `a ${quilometros(km)} de ${referencia ?? 'você'}`
 }
 
 export function Reputacao({ nome, perfil }: { nome: string; perfil?: PerfilEmpresa }) {

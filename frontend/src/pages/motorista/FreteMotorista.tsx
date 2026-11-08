@@ -6,6 +6,7 @@ import { useRecurso } from '../../api/useRecurso'
 import { Reputacao } from '../../components/CardFrete'
 import { Avaliar } from '../../components/Avaliar'
 import { CancelarFrete } from '../../components/CancelarFrete'
+import { FretesDeVolta } from '../../components/FretesDeVolta'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
 import { RotaLinha } from '../../components/RotaLinha'
@@ -85,6 +86,8 @@ export function FreteMotorista() {
           <Avaliar freteId={frete.id} lado="MOTORISTA" nomeAvaliado={frete.empresa?.nomeFantasia ?? frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'o cliente'} />
         </section>
       )}
+
+      {meu && ['EM_TRANSITO', 'ENTREGUE', 'PAGO'].includes(frete.status) && <FretesDeVolta frete={frete} />}
 
       <section className="bloco cartao" aria-labelledby="carga">
         <h2 id="carga" className="bloco__titulo">Carga e coleta</h2>

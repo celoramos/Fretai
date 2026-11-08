@@ -86,6 +86,11 @@
 .frete-m__numeros { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-3); }
 .frete-m__valor { display: grid; gap: var(--esp-3); justify-items: start; }
 
+/* Fretes de volta: uma seção aberta entre os cartões do detalhe, com os mesmos cartões da busca. */
+.volta { display: grid; gap: var(--esp-3); padding-top: var(--esp-2); scroll-margin-top: var(--esp-4); }
+.volta__titulo { font-size: var(--tam-secao); }
+.volta__vazio { display: grid; gap: var(--esp-3); justify-items: start; }
+
 /* Bloco: um assunto do detalhe, num cartão. Dentro dele o vão é menor que entre os cartões (16),
    para o olho agrupar pelo espaço e não só pela borda. */
 .bloco { display: grid; gap: var(--esp-3); }
