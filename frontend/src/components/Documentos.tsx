@@ -1,17 +1,14 @@
 import { useRef, useState } from 'react'
 import { api, comoProblema } from '../api/cliente'
-import type { AcessoDocumento, Documento, LinkDocumento, Problema } from '../api/tipos'
+import type { AcessoDocumento, Documento, Problema, StatusFrete } from '../api/tipos'
 import { useRecurso } from '../api/useRecurso'
+import { abrirDocumento, rotuloDocumento, TIPOS_DOCUMENTO } from '../documento'
 import { prepararFoto } from '../foto'
 import { dataHora } from '../formato'
 import { Aviso } from './ui'
 
-const TIPOS_DOCUMENTO = [
-  { valor: 'CNH', rotulo: 'CNH' },
-  { valor: 'CRLV', rotulo: 'CRLV' },
-  { valor: 'COMPROVANTE', rotulo: 'Outro comprovante' },
-] as const
-const rotuloDoc = (t: string) => TIPOS_DOCUMENTO.find((x) => x.valor === t)?.rotulo ?? t
+/** A API mostra os documentos do motorista à empresa só depois do aceite (Documento.podeSerVistoPor). */
+const EMPRESA_VE: StatusFrete[] = ['ACEITO', 'EM_TRANSITO', 'ENTREGUE', 'PAGO']
 
 /*
  * Documentos do motorista para um frete. Quem manda é o motorista; quem abre é a empresa, por um link
@@ -52,12 +49,12 @@ export function DocumentosDoMotorista({ freteId, motoristaId }: { freteId: strin
   const lista = estado.fase === 'pronto' ? estado.dados : []
   return (
     <div className="documentos">
-      <p className="detalhe">A empresa abre por um link que vence em minutos, e cada abertura fica registrada aqui.</p>
+      <p className="detalhe">A empresa só vê depois de aceitar a sua proposta, por um link que vence em minutos. Cada abertura fica registrada aqui.</p>
       {lista.length > 0 && (
         <ul className="documentos__lista">
           {lista.map(({ doc, acessos }) => (
             <li key={doc.id} className="documentos__item">
-              <span className="documentos__tipo">{rotuloDoc(doc.tipo)}</span>
+              <span className="documentos__tipo">{rotuloDocumento(doc.tipo)}</span>
               <span className={doc.verificado ? 'doc doc--ok' : 'detalhe'}>{doc.verificado ? 'verificado' : `enviado ${dataHora(doc.criadoEm)}`}</span>
               <span className="detalhe documentos__acessos">
                 {acessos.length === 0 ? 'Ninguém abriu ainda.'
@@ -81,34 +78,39 @@ export function DocumentosDoMotorista({ freteId, motoristaId }: { freteId: strin
   )
 }
 
-/** A empresa vê os documentos de cada motorista do frete e abre um por vez. Cada "Abrir" gera um link novo. */
-export function DocumentosParaEmpresa({ freteId, nomes }: { freteId: string; nomes: Record<string, string> }) {
-  const [estado] = useRecurso(() => api<Documento[]>('GET', `/api/fretes/${freteId}/documentos`), [freteId])
+/** A empresa vê os documentos do motorista que aceitou e abre um por vez. Cada "Abrir" gera um link novo. */
+export function DocumentosParaEmpresa({ freteId, status, nomes }: { freteId: string; status: StatusFrete; nomes: Record<string, string> }) {
+  const visivel = EMPRESA_VE.includes(status)
+  const [estado] = useRecurso(() => (visivel ? api<Documento[]>('GET', `/api/fretes/${freteId}/documentos`) : Promise.resolve([])), [freteId, visivel])
   const [abrindo, setAbrindo] = useState<string | null>(null)
   const [problema, setProblema] = useState<Problema | null>(null)
 
   async function abrir(doc: Documento) {
     setAbrindo(doc.id)
     setProblema(null)
-    // A aba abre já no clique: navegador bloqueia janela aberta depois de uma espera de rede.
-    const janela = window.open('', '_blank')
     try {
-      const link = await api<LinkDocumento>('POST', `/api/documentos/${doc.id}/link`)
-      if (janela) janela.location.href = link.url
-      else window.location.assign(link.url)
+      await abrirDocumento(doc.id)
     } catch (falha) {
-      janela?.close()
       setProblema(comoProblema(falha))
     } finally {
       setAbrindo(null)
     }
   }
 
+  if (!visivel) {
+    return (
+      <p className="detalhe">
+        {status === 'CANCELADO'
+          ? 'Frete cancelado antes do aceite: nenhum documento foi aberto.'
+          : 'A CNH e o CRLV do motorista aparecem aqui depois que você aceitar a proposta dele. Antes disso, cada proposta já mostra a reputação e os documentos que o Fretaí verificou.'}
+      </p>
+    )
+  }
   if (estado.fase !== 'pronto') return null
   const porMotorista = new Map<string, Documento[]>()
   for (const d of estado.dados) porMotorista.set(d.motoristaId, [...(porMotorista.get(d.motoristaId) ?? []), d])
   if (porMotorista.size === 0) {
-    return <p className="detalhe">Nenhum documento enviado neste frete ainda. O motorista manda a CNH e o CRLV pelo aplicativo.</p>
+    return <p className="detalhe">O motorista ainda não enviou documentos para este frete. Ele manda a CNH e o CRLV pelo aplicativo.</p>
   }
   return (
     <div className="documentos" aria-live="polite">
@@ -119,7 +121,7 @@ export function DocumentosParaEmpresa({ freteId, nomes }: { freteId: string; nom
           <ul className="documentos__lista">
             {docs.map((d) => (
               <li key={d.id} className="documentos__item">
-                <span className="documentos__tipo">{rotuloDoc(d.tipo)}</span>
+                <span className="documentos__tipo">{rotuloDocumento(d.tipo)}</span>
                 <span className={d.verificado ? 'doc doc--ok' : 'detalhe'}>{d.verificado ? 'verificado pelo Fretaí' : 'ainda não verificado'}</span>
                 <button type="button" className="botao botao--secundario" disabled={abrindo === d.id} onClick={() => abrir(d)}>
                   {abrindo === d.id ? 'Abrindo…' : 'Abrir'}

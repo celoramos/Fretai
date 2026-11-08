@@ -103,7 +103,7 @@ export function DetalheFreteEmpresa() {
         )}
         {aba === 'documentos' && (
           <section className="cartao bloco" aria-label="Documentos dos motoristas">
-            <DocumentosParaEmpresa freteId={frete.id}
+            <DocumentosParaEmpresa freteId={frete.id} status={frete.status}
               nomes={Object.fromEntries([...propostas.map((p) => [p.motorista.id, p.motorista.nome]), ...(frete.motorista ? [[frete.motorista.id, frete.motorista.nome]] : [])])} />
           </section>
         )}

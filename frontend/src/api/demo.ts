@@ -269,9 +269,22 @@ const documentos: (Documento & { url: string })[] = [
   { id: 'd1', motoristaId: M1, freteId: 'f1', tipo: 'CNH', contentType: 'image/svg+xml', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CNH') },
   { id: 'd2', motoristaId: M1, freteId: 'f1', tipo: 'CRLV', contentType: 'image/svg+xml', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CRLV') },
   { id: 'd3', motoristaId: M2, freteId: 'f1', tipo: 'CNH', contentType: 'image/svg+xml', tamanhoBytes: 45_000, verificado: true, verificadoEm: iso(-90), criadoEm: iso(-0.3), url: DOC_EXEMPLO('CNH') },
+  { id: 'd4', motoristaId: M1, freteId: 'f8', tipo: 'CNH', contentType: 'image/svg+xml', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-2.6), url: DOC_EXEMPLO('CNH') },
+  { id: 'd5', motoristaId: M1, freteId: 'f8', tipo: 'CRLV', contentType: 'image/svg+xml', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-2.6), url: DOC_EXEMPLO('CRLV') },
+  { id: 'd6', motoristaId: M3, freteId: 'f1', tipo: 'CRLV', contentType: 'image/svg+xml', tamanhoBytes: 61_000, verificado: false, verificadoEm: null, criadoEm: iso(-0.1), url: DOC_EXEMPLO('CRLV') },
+  { id: 'd7', motoristaId: M1, freteId: 'f2', tipo: 'COMPROVANTE', contentType: 'image/svg+xml', tamanhoBytes: 233_000, verificado: false, verificadoEm: null, criadoEm: iso(-1.8), url: DOC_EXEMPLO('Comprovante de residência') },
 ]
+/** A regra da API (Documento.podeSerVistoPor): admin vê tudo, o motorista vê os dele, a empresa só os do motorista aceito. */
+const EMPRESA_VE: StatusFrete[] = ['ACEITO', 'EM_TRANSITO', 'ENTREGUE', 'PAGO']
+function podeVer(doc: Documento, token: string | undefined) {
+  if (token === 'demo-admin') return true
+  if (token === 'demo-motorista') return doc.motoristaId === M1
+  const f = fretes.find((x) => x.id === doc.freteId)
+  return f != null && f.motorista?.id === doc.motoristaId && EMPRESA_VE.includes(f.status)
+}
 const acessos: Record<string, AcessoDocumento[]> = {
-  d1: [{ usuarioId: U_EMPRESA, papel: 'EMPRESA', origem: '187.45.10.2', acessadoEm: iso(-0.2) }],
+  // A empresa abriu a CNH do frete aceito (f8): no f1 ela ainda não pode ver nada.
+  d4: [{ usuarioId: U_EMPRESA, papel: 'EMPRESA', origem: '187.45.10.2', acessadoEm: iso(-2.4) }],
 }
 const semUrl = ({ url: _url, ...doc }: Documento & { url: string }): Documento => doc
 
@@ -518,7 +531,7 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       return json(nova, 201)
     }
     if (sub === '/documentos') {
-      if (metodo === 'GET') return json(documentos.filter((x) => x.freteId === f.id).map(semUrl))
+      if (metodo === 'GET') return json(documentos.filter((x) => x.freteId === f.id && podeVer(x, token)).map(semUrl))
       if (token !== 'demo-motorista') return problema(403, 'Acesso negado', 'Só motoristas enviam documentos.')
       const dados = corpo as FormData
       const arquivo = dados.get('arquivo')
@@ -644,8 +657,12 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
   if ((m = p.match(/^\/api\/documentos\/([^/]+)\/(link|acessos)$/))) {
     const doc = documentos.find((x) => x.id === m![1])
     if (!doc) return problema(404, 'Documento não encontrado', 'Esse documento não existe.')
-    if (metodo === 'GET' && m[2] === 'acessos') return json(acessos[doc.id] ?? [])
+    if (metodo === 'GET' && m[2] === 'acessos') {
+      if (token !== 'demo-admin' && !(token === 'demo-motorista' && doc.motoristaId === M1)) return problema(403, 'Acesso negado', 'Só o dono do documento vê quem o acessou.')
+      return json(acessos[doc.id] ?? [])
+    }
     if (metodo === 'POST' && m[2] === 'link') {
+      if (!podeVer(doc, token)) return problema(403, 'Acesso negado', 'A empresa só vê os documentos do motorista depois de aceitar a proposta dele.')
       ;(acessos[doc.id] ??= []).push({ usuarioId: token === 'demo-motorista' ? M1 : U_EMPRESA, papel: token === 'demo-motorista' ? 'MOTORISTA' : 'EMPRESA', origem: '127.0.0.1', acessadoEm: iso(0) })
       return json({ url: doc.url, expiraEm: iso(10 / 1440) })
     }
