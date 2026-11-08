@@ -3,9 +3,6 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import type { Papel } from './api/tipos'
 import { LayoutAdmin, LayoutEmpresa, LayoutMotorista } from './components/Layouts'
 import { INICIO } from './inicio'
-import { ContestacoesAdmin } from './pages/admin/ContestacoesAdmin'
-import { DocumentosAdmin } from './pages/admin/DocumentosAdmin'
-import { PisoAntt } from './pages/admin/PisoAntt'
 import { DadosEmpresa } from './pages/empresa/DadosEmpresa'
 import { DetalheFreteEmpresa } from './pages/empresa/DetalheFreteEmpresa'
 import { FretesEmpresa } from './pages/empresa/FretesEmpresa'
@@ -29,6 +26,11 @@ const Inicio = lazy(() => import('./pages/Inicio').then((m) => ({ default: m.Ini
 const Privacidade = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Privacidade })))
 const Termos = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Termos })))
 const Contestar = lazy(() => import('./pages/Contestar').then((m) => ({ default: m.Contestar })))
+
+/* As filas do administrador também: só quem é admin baixa esse código. */
+const DocumentosAdmin = lazy(() => import('./pages/admin/DocumentosAdmin').then((m) => ({ default: m.DocumentosAdmin })))
+const ContestacoesAdmin = lazy(() => import('./pages/admin/ContestacoesAdmin').then((m) => ({ default: m.ContestacoesAdmin })))
+const PisoAntt = lazy(() => import('./pages/admin/PisoAntt').then((m) => ({ default: m.PisoAntt })))
 
 function Protegida({ papel, children }: { papel: Papel; children: React.ReactNode }) {
   const { tokens } = useSessao()
@@ -65,9 +67,9 @@ export function App() {
         <Route path="dados" element={<DadosEmpresa />} />
       </Route>
       <Route path="/admin" element={<Protegida papel="ADMIN"><LayoutAdmin /></Protegida>}>
-        <Route index element={<DocumentosAdmin />} />
-        <Route path="contestacoes" element={<ContestacoesAdmin />} />
-        <Route path="piso-antt" element={<PisoAntt />} />
+        <Route index element={<Suspense fallback={null}><DocumentosAdmin /></Suspense>} />
+        <Route path="contestacoes" element={<Suspense fallback={null}><ContestacoesAdmin /></Suspense>} />
+        <Route path="piso-antt" element={<Suspense fallback={null}><PisoAntt /></Suspense>} />
       </Route>
       <Route path="*" element={<NaoEncontrada />} />
     </Routes>
