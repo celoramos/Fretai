@@ -1,8 +1,18 @@
-import type { Papel, StatusFrete, StatusPagamento, StatusProposta, TipoEmpresa } from './api/tipos'
+import type { Frete, Papel, StatusFrete, StatusPagamento, StatusProposta, TipoEmpresa } from './api/tipos'
 
 const brl = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 const brlCentavos = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const km = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 })
+
+/**
+ * Quem contratou o frete, dito para o motorista: o nome e como chamar na frase. Frete de cliente pessoa
+ * física também passa pelo motorista, e "a empresa" ali seria mentira.
+ */
+export function contratante(f: Pick<Frete, 'empresa' | 'cliente' | 'publicadoPorAgenciador'>) {
+  if (f.empresa) return { nome: f.empresa.nomeFantasia ?? f.empresa.razaoSocial, quem: f.publicadoPorAgenciador ? 'o agenciador' : 'a empresa' }
+  return { nome: f.cliente?.nome ?? 'Cliente', quem: 'o cliente' }
+}
+export const maiuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
 /** Só o número; o "R$" é desenhado à parte, menor e mais claro (briefing, seção 4). */
 export const reais = (v: number) => brl.format(v)

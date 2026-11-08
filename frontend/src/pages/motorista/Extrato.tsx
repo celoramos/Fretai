@@ -30,7 +30,7 @@ function separar(itens: { frete: Frete | null; pagamento: Pagamento }[]) {
     const base = { freteId: p.freteId, rota: frete ? `${frete.coleta.cidade} → ${frete.entrega.cidade}` : 'Frete' }
     const adiantamento = p.valorAdiantamento > 0
     if (p.status === 'PENDENTE') {
-      aReceber.push({ ...base, chave: `${p.id}-t`, parcela: 'Frete', valor: p.valorTotal, quando: null, condicao: 'quando a empresa pagar o Pix' })
+      aReceber.push({ ...base, chave: `${p.id}-t`, parcela: 'Frete', valor: p.valorTotal, quando: null, condicao: 'quando o Pix for pago' })
     }
     if (p.status === 'RETIDO') {
       if (adiantamento) aReceber.push({ ...base, chave: `${p.id}-a`, parcela: 'Adiantamento', valor: p.valorAdiantamento, quando: null, condicao: 'na saída para a viagem' })
@@ -100,7 +100,7 @@ function Conteudo({ recebidos, aReceber }: { recebidos: Movimento[]; aReceber: M
   if (recebidos.length === 0 && aReceber.length === 0) {
     return (
       <Vazio titulo="Nenhum dinheiro por aqui ainda." acao={<Link to="/motorista" className="botao botao--primario">Procurar fretes</Link>}>
-        Quando uma empresa aceitar sua proposta e pagar o Pix, o adiantamento e o saldo aparecem aqui.
+        Quando aceitarem sua proposta e o Pix for pago, o adiantamento e o saldo aparecem aqui.
       </Vazio>
     )
   }

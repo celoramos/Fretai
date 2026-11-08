@@ -49,7 +49,7 @@ export function DocumentosDoMotorista({ freteId, motoristaId }: { freteId: strin
   const lista = estado.fase === 'pronto' ? estado.dados : []
   return (
     <div className="documentos">
-      <p className="detalhe">A empresa só vê depois de aceitar a sua proposta, por um link que vence em minutos. Cada abertura fica registrada aqui.</p>
+      <p className="detalhe">Quem contratou só vê depois de aceitar a sua proposta, por um link que vence em minutos. Cada abertura fica registrada aqui.</p>
       {lista.length > 0 && (
         <ul className="documentos__lista">
           {lista.map(({ doc, acessos }) => (

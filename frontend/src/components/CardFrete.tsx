@@ -1,13 +1,13 @@
 import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import type { Frete, PerfilEmpresa } from '../api/tipos'
-import { dataCurta, porKm, quilometros, veiculo } from '../formato'
+import { contratante, dataCurta, porKm, quilometros, veiculo } from '../formato'
 import { ChipPiso, Valor } from './Dinheiro'
 import { RotaLinha } from './RotaLinha'
 import { item } from '../movimento'
 
 /**
- * Em 2 segundos: de onde, para onde, quanto, e se a empresa é séria.
+ * Em 2 segundos: de onde, para onde, quanto, e se quem contrata é sério.
  * referencia: de onde a distância é medida quando não é de onde o motorista está (ex.: o destino de
  * um frete, nas sugestões de volta).
  */
@@ -34,18 +34,19 @@ export function CardFrete({ frete, distanciaOrigemKm, perfil, referencia }: { fr
       </div>
 
       {frete.preco?.acimaDaMedia && (
-        <p className="card-frete__fretao">Valor muito acima da média desta rota. Confira a empresa.</p>
+        <p className="card-frete__fretao">Valor muito acima da média desta rota. Confira {contratante(frete).quem}.</p>
       )}
 
       <ul className="card-frete__requisitos" aria-label="Requisitos">
-        <li>{frete.veiculosAceitos.map(veiculo).join(', ')}</li>
+        <li>{frete.veiculosAceitos.map(veiculo).join(', ') || 'Qualquer veículo'}</li>
+        {frete.cliente && <li>Pessoa física</li>}
         {frete.exigeRastreador && <li>Rastreador</li>}
         {frete.complemento && <li>Complemento</li>}
         {frete.publicadoPorAgenciador && <li className="card-frete__agenciador">Agenciador</li>}
         {frete.feriado && <li>Feriado{frete.nomeFeriado ? `: ${frete.nomeFeriado}` : ''}</li>}
       </ul>
 
-      <Reputacao nome={frete.empresa?.nomeFantasia ?? frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'Cliente'} perfil={perfil} />
+      <Reputacao nome={contratante(frete).nome} perfil={perfil} />
     </motion.article>
   )
 }

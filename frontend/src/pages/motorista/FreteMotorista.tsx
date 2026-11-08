@@ -12,7 +12,7 @@ import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../component
 import { useTitulo } from '../../useTitulo'
 import { RotaLinha } from '../../components/RotaLinha'
 import { Aviso, ErroCarga, Esqueleto, Marcos, Placa, StatusFreteEtiqueta } from '../../components/ui'
-import { carga, carroceria, dataCurta, porKm, reais, veiculo } from '../../formato'
+import { carga, carroceria, contratante, dataCurta, maiuscula, porKm, reais, veiculo } from '../../formato'
 import { useSessao } from '../../sessao'
 
 /** Erro de permissão ou ausência vira "não tem": quem não participa do frete não vê histórico nem cobrança. */
@@ -76,7 +76,7 @@ export function FreteMotorista() {
         )}
         {frete.preco?.acimaDaMedia && (
           <Aviso tom="alerta" titulo="Valor muito acima da média desta rota.">
-            Golpe comum: valor alto para atrair motorista. Confira a empresa antes de carregar.
+            Golpe comum: valor alto para atrair motorista. Confira {contratante(frete).quem} antes de carregar.
           </Aviso>
         )}
       </section>
@@ -93,13 +93,13 @@ export function FreteMotorista() {
       {meu && (frete.status === 'ENTREGUE' || frete.status === 'PAGO') && (
         <section className="bloco cartao" aria-labelledby="avaliacao">
           <h2 id="avaliacao" className="bloco__titulo">Avaliação</h2>
-          <Avaliar freteId={frete.id} lado="MOTORISTA" nomeAvaliado={frete.empresa?.nomeFantasia ?? frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'o cliente'} />
+          <Avaliar freteId={frete.id} lado="MOTORISTA" nomeAvaliado={contratante(frete).nome} />
         </section>
       )}
 
       {tokens && (minha || (meu && (frete.status === 'ACEITO' || frete.status === 'EM_TRANSITO'))) && (
         <section className="bloco cartao" aria-labelledby="documentos">
-          <h2 id="documentos" className="bloco__titulo">Seus documentos para {frete.empresa?.nomeFantasia ?? frete.empresa?.razaoSocial ?? 'a empresa'}</h2>
+          <h2 id="documentos" className="bloco__titulo">Seus documentos para {contratante(frete).nome}</h2>
           <DocumentosDoMotorista freteId={frete.id} motoristaId={tokens.usuarioId} />
         </section>
       )}
@@ -124,15 +124,16 @@ export function FreteMotorista() {
       </section>
 
       <section className="bloco cartao" aria-labelledby="empresa">
-        <h2 id="empresa" className="bloco__titulo">{frete.publicadoPorAgenciador ? 'Agenciador' : 'Empresa'}</h2>
-        <Reputacao nome={frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'Cliente pessoa física'} perfil={perfil ?? undefined} />
+        <h2 id="empresa" className="bloco__titulo">{frete.cliente ? 'Cliente pessoa física' : frete.publicadoPorAgenciador ? 'Agenciador' : 'Empresa'}</h2>
+        <Reputacao nome={frete.empresa?.razaoSocial ?? contratante(frete).nome} perfil={perfil ?? undefined} />
+        {frete.cliente && <p className="detalhe">Frete avulso, sem histórico de empresa. O Pix é pago antes da coleta, como em qualquer frete do Fretaí.</p>}
         {perfil && <p className="detalhe">Na plataforma desde {new Date(perfil.naPlataformaDesde).getFullYear()} · {perfil.fretesConcluidos} fretes concluídos</p>}
       </section>
 
       {meu && frete.status === 'ACEITO' && <CancelarFrete frete={frete} pago={garantido} aoCancelar={recarregar} />}
 
       {aberto && !meu && (minha
-        ? <MinhaProposta proposta={minha} aoMudar={recarregar} />
+        ? <MinhaProposta proposta={minha} quem={contratante(frete).quem} aoMudar={recarregar} />
         : <Negociar frete={frete} valor={valor} aoMudar={recarregar} />)}
     </div>
   )
@@ -160,7 +161,7 @@ function Acoes({ frete, pagamento, aoMudar }: { frete: Frete; pagamento: Pagamen
     return (
       <div className="acoes" aria-live="polite">
         {semGarantia ? (
-          <Aviso tom="alerta" titulo="A empresa ainda não pagou o Pix.">Espere o “Pagamento garantido” antes de carregar.</Aviso>
+          <Aviso tom="alerta" titulo={`${maiuscula(contratante(frete).quem)} ainda não pagou o Pix.`}>Espere o “Pagamento garantido” antes de carregar.</Aviso>
         ) : (
           <Aviso tom="garantido" titulo="O dinheiro já está guardado. Pode carregar." />
         )}
@@ -183,7 +184,8 @@ function Acoes({ frete, pagamento, aoMudar }: { frete: Frete; pagamento: Pagamen
 }
 
 /** A proposta enviada fica no rodapé, onde estavam os botões de negociar: valor, adiantamento e retirar. */
-function MinhaProposta({ proposta, aoMudar }: { proposta: Proposta; aoMudar: () => void }) {
+/** quem: como chamar quem contratou ("a empresa", "o cliente"). */
+function MinhaProposta({ proposta, quem, aoMudar }: { proposta: Proposta; quem: string; aoMudar: () => void }) {
   const [fase, setFase] = useState<'parado' | 'confirmar' | 'enviando'>('parado')
   const [problema, setProblema] = useState<Problema | null>(null)
 
@@ -207,13 +209,13 @@ function MinhaProposta({ proposta, aoMudar }: { proposta: Proposta; aoMudar: () 
         <p className="detalhe">
           {proposta.adiantamentoPercentual}% na saída (R$&nbsp;{reais(proposta.valorAdiantamento)}) · enviada {dataCurta(proposta.criadaEm)}
         </p>
-        <p>Aguardando a empresa responder. Você recebe aviso quando ela responder.</p>
+        <p>Aguardando {quem} responder. Você recebe aviso quando houver resposta.</p>
       </div>
       <div aria-live="polite">{problema && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}</div>
       <div className="negociar__botoes">
         {fase === 'confirmar' ? (
           <>
-            <p className="proposta__confirmar">Retirar a proposta? A empresa deixa de ver o seu valor.</p>
+            <p className="proposta__confirmar">Retirar a proposta? {maiuscula(quem)} deixa de ver o seu valor.</p>
             <button type="button" className="botao botao--perigo botao--largo" onClick={retirar}>Retirar proposta</button>
             <button type="button" className="botao botao--fantasma botao--largo" onClick={() => setFase('parado')}>Manter</button>
           </>
