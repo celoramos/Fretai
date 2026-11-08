@@ -81,10 +81,11 @@ Pedido do dono do produto: o melhor front possível para o sistema. O que faltav
 
 - empresa: publicar frete, "Precisa de você" (Pix, propostas e entregas paradas), aba Entrega com o canhoto e a contestação, avaliar o motorista, cancelar;
 - motorista: registrar a entrega (foto, assinatura com o dedo em papel branco, GPS conferido contra os 500 m da API), ver e retirar a proposta enviada, fretes de volta, resumo do dinheiro, calculadora, perfil (chave Pix, caminhões, base dos avisos, feriado), avaliar a empresa, cancelar;
+- os dois: documentos do motorista (ele envia e vê quem abriu; a empresa abre por link temporário);
 - pública: contestar a entrega com o código do recebedor.
 
 A barra de baixo do motorista passou a ter quatro destinos (Fretes, Meus fretes, Calculadora, Perfil). Verde continua só no dinheiro garantido ou pago: a sobra da calculadora fica na tinta, a falta em vermelho.
 
 ## Fora deste corte
 
-Envio de documentos (CNH, CRLV) e o link temporário para a empresa abrir, edição de frete publicado, dados da empresa, extrato completo de pagamentos e o administrador (verificar documentos, resolver contestação, editar o piso ANTT). A navegação mostra só o que existe.
+Edição de frete publicado, dados da empresa, extrato completo de pagamentos e o administrador (verificar documentos, resolver contestação, editar o piso ANTT). A navegação mostra só o que existe.

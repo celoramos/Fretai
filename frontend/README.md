@@ -39,10 +39,11 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 | Empresa · Fretes (precisa de você, filtros por situação) | `GET /api/fretes/empresa/{empresaId}`, `GET /api/fretes/{id}/pagamento` |
 | Empresa · Publicar frete | `POST /api/fretes/empresa/{empresaId}`, `GET /api/calendario/verificacao` |
 | Empresa · Frete (comparador de propostas, Pix, entrega com canhoto e contestação, avaliar o motorista, histórico, cancelar) | `GET /api/fretes/{id}/propostas`, `POST /api/propostas/{id}/aceite`, `/recusa`, `POST /api/fretes/{id}/pagamento`, `GET /api/fretes/{id}/canhoto`, `POST /canhoto/contestacao`, `/avaliacoes`, `/cancelamento`, `GET /api/motoristas/{id}/perfil` |
+| Documentos do motorista (enviar CNH, CRLV e comprovantes; a empresa abre por link temporário; o motorista vê quem abriu) | `POST`/`GET /api/fretes/{id}/documentos` (multipart), `POST /api/documentos/{id}/link`, `GET /api/documentos/{id}/acessos` |
 | Contestar entrega (pública, com o código do recebedor) | `POST /api/canhotos/contestacao` |
 | Privacidade e termos de uso | nenhum |
 
-Ainda não implementado: envio de documentos (CNH, CRLV) e o link para a empresa abrir, edição de frete publicado, dados da empresa, extrato completo de pagamentos e as telas do administrador (verificar documentos, resolver contestação, piso ANTT).
+Ainda não implementado: edição de frete publicado, dados da empresa, extrato completo de pagamentos e as telas do administrador (verificar documentos, resolver contestação, piso ANTT).
 
 ## Design
 
