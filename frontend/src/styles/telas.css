@@ -343,6 +343,7 @@
 .proposta__docs { display: flex; flex-wrap: wrap; gap: var(--esp-2); font-size: var(--tam-legenda); }
 .doc { color: var(--cor-alerta); font-weight: var(--peso-medio); }
 .doc--ok { color: var(--cor-garantido); }
+.doc--recusado { color: var(--cor-perigo); }
 .proposta__valor { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-2); }
 .proposta__abaixo { color: var(--cor-alerta); font-weight: var(--peso-forte); font-size: var(--tam-detalhe); }
 .proposta__caminhao { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); }
@@ -465,7 +466,7 @@ ol.legal__itens { list-style: decimal; }
 .documentos__lista > li + li { border-top: var(--borda) solid var(--cor-linha); }
 .documentos__item { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-3); padding: var(--esp-2) 0; }
 .documentos__tipo { font-weight: var(--peso-forte); min-width: var(--esp-12); }
-.documentos__acessos { flex-basis: 100%; }
+.documentos__acessos, .documentos__motivo { flex-basis: 100%; }
 .documentos__item .botao { margin-left: auto; }
 .documentos__enviar { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
 .documentos__botao { position: relative; }
@@ -518,6 +519,7 @@ ol.legal__itens { list-style: decimal; }
 .fila__fim { display: grid; gap: var(--esp-3); justify-items: start; }
 .fila__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
 .fila__pergunta { max-width: var(--largura-pagamento); text-wrap: pretty; }
+.fila__recusa { display: grid; gap: var(--esp-3); width: 100%; max-width: var(--largura-pagamento); }
 
 /* Contestação: o que foi dito (o motivo, com a régua da cor de alerta) antes da prova da entrega. */
 .contestacao { display: grid; gap: var(--esp-4); }

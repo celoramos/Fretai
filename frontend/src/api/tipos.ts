@@ -369,6 +369,9 @@ export interface Documento {
   tamanhoBytes: number
   verificado: boolean
   verificadoEm: string | null
+  /** Recusado pelo administrador: sai da fila, e o motorista lê o motivo e manda outro arquivo. */
+  recusadoEm: string | null
+  motivoRecusa: string | null
   criadoEm: string
 }
 

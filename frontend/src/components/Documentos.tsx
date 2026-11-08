@@ -55,7 +55,10 @@ export function DocumentosDoMotorista({ freteId, motoristaId }: { freteId: strin
           {lista.map(({ doc, acessos }) => (
             <li key={doc.id} className="documentos__item">
               <span className="documentos__tipo">{rotuloDocumento(doc.tipo)}</span>
-              <span className={doc.verificado ? 'doc doc--ok' : 'detalhe'}>{doc.verificado ? 'verificado' : `enviado ${dataHora(doc.criadoEm)}`}</span>
+              {doc.recusadoEm
+                ? <span className="doc doc--recusado">recusado</span>
+                : <span className={doc.verificado ? 'doc doc--ok' : 'detalhe'}>{doc.verificado ? 'verificado' : `enviado ${dataHora(doc.criadoEm)}`}</span>}
+              {doc.recusadoEm && <span className="documentos__motivo">Motivo: {doc.motivoRecusa} Envie outro arquivo.</span>}
               <span className="detalhe documentos__acessos">
                 {acessos.length === 0 ? 'Ninguém abriu ainda.'
                   : `Aberto ${acessos.length === 1 ? '1 vez' : `${acessos.length} vezes`}, a última em ${dataHora(acessos[acessos.length - 1].acessadoEm)}.`}

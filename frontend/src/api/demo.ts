@@ -333,14 +333,18 @@ function calcular(b: Record<string, unknown>) {
 // Platform fact: aba nova não navega para endereço data:, então o exemplo vira blob:, como o arquivo enviado.
 // O arquivo de exemplo é SVG, mas os metadados dizem PNG: a API só aceita PDF, PNG e JPEG.
 const DOC_EXEMPLO = (titulo: string) => URL.createObjectURL(new Blob([`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#F2F0EA"/><rect x="20" y="20" width="360" height="260" fill="none" stroke="#5B6270" stroke-width="3"/><text x="200" y="150" font-family="sans-serif" font-size="26" text-anchor="middle" fill="#1C1F24">${titulo} (exemplo)</text></svg>`], { type: 'image/svg+xml' }))
+/** Os sete primeiros nasceram sem recusa; d8 foi recusado, para o motorista ver como a recusa chega. */
+const semRecusa = { recusadoEm: null, motivoRecusa: null }
 const documentos: (Documento & { url: string })[] = [
-  { id: 'd1', motoristaId: M1, freteId: 'f1', tipo: 'CNH', contentType: 'image/png', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CNH') },
-  { id: 'd2', motoristaId: M1, freteId: 'f1', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CRLV') },
-  { id: 'd3', motoristaId: M2, freteId: 'f1', tipo: 'CNH', contentType: 'image/png', tamanhoBytes: 45_000, verificado: true, verificadoEm: iso(-90), criadoEm: iso(-0.3), url: DOC_EXEMPLO('CNH') },
-  { id: 'd4', motoristaId: M1, freteId: 'f8', tipo: 'CNH', contentType: 'image/png', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-2.6), url: DOC_EXEMPLO('CNH') },
-  { id: 'd5', motoristaId: M1, freteId: 'f8', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-2.6), url: DOC_EXEMPLO('CRLV') },
-  { id: 'd6', motoristaId: M3, freteId: 'f1', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 61_000, verificado: false, verificadoEm: null, criadoEm: iso(-0.1), url: DOC_EXEMPLO('CRLV') },
-  { id: 'd7', motoristaId: M1, freteId: 'f2', tipo: 'COMPROVANTE', contentType: 'image/png', tamanhoBytes: 233_000, verificado: false, verificadoEm: null, criadoEm: iso(-1.8), url: DOC_EXEMPLO('Comprovante de residência') },
+  { id: 'd1', motoristaId: M1, freteId: 'f1', tipo: 'CNH', contentType: 'image/png', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), ...semRecusa, criadoEm: iso(-0.5), url: DOC_EXEMPLO('CNH') },
+  { id: 'd2', motoristaId: M1, freteId: 'f1', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), ...semRecusa, criadoEm: iso(-0.5), url: DOC_EXEMPLO('CRLV') },
+  { id: 'd3', motoristaId: M2, freteId: 'f1', tipo: 'CNH', contentType: 'image/png', tamanhoBytes: 45_000, verificado: true, verificadoEm: iso(-90), ...semRecusa, criadoEm: iso(-0.3), url: DOC_EXEMPLO('CNH') },
+  { id: 'd4', motoristaId: M1, freteId: 'f8', tipo: 'CNH', contentType: 'image/png', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), ...semRecusa, criadoEm: iso(-2.6), url: DOC_EXEMPLO('CNH') },
+  { id: 'd5', motoristaId: M1, freteId: 'f8', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), ...semRecusa, criadoEm: iso(-2.6), url: DOC_EXEMPLO('CRLV') },
+  { id: 'd6', motoristaId: M3, freteId: 'f1', tipo: 'CRLV', contentType: 'image/png', tamanhoBytes: 61_000, verificado: false, verificadoEm: null, ...semRecusa, criadoEm: iso(-0.1), url: DOC_EXEMPLO('CRLV') },
+  { id: 'd7', motoristaId: M1, freteId: 'f2', tipo: 'COMPROVANTE', contentType: 'image/png', tamanhoBytes: 233_000, verificado: false, verificadoEm: null, ...semRecusa, criadoEm: iso(-1.8), url: DOC_EXEMPLO('Comprovante de residência') },
+  { id: 'd8', motoristaId: M1, freteId: 'f6', tipo: 'CRLV', contentType: 'image/jpeg', tamanhoBytes: 38_000, verificado: false, verificadoEm: null,
+    recusadoEm: iso(-0.05), motivoRecusa: 'A foto cortou a placa e o ano do licenciamento. Mande o documento inteiro.', criadoEm: iso(-0.15), url: DOC_EXEMPLO('CRLV') },
 ]
 /** A regra da API (Documento.podeSerVistoPor): admin vê tudo, o motorista vê os dele, quem contratou só os do motorista aceito. */
 const CONTRATANTE_VE: StatusFrete[] = ['ACEITO', 'EM_TRANSITO', 'ENTREGUE', 'PAGO']
@@ -351,7 +355,7 @@ function podeVer(doc: Documento, token: string | undefined) {
   if (token === 'demo-admin') return true
   if (token === 'demo-motorista') return doc.motoristaId === M1
   const f = fretes.find((x) => x.id === doc.freteId)
-  return f != null && contratou(f, token) && f.motorista?.id === doc.motoristaId && CONTRATANTE_VE.includes(f.status)
+  return f != null && contratou(f, token) && f.motorista?.id === doc.motoristaId && CONTRATANTE_VE.includes(f.status) && !doc.recusadoEm
 }
 const acessos: Record<string, AcessoDocumento[]> = {
   // A empresa abriu a CNH do frete aceito (f8): no f1 ela ainda não pode ver nada.
@@ -671,7 +675,7 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       if (arquivo.size > 10 * 1024 * 1024) return problema(422, 'Arquivo grande', 'O arquivo deve ter até 10 MB.')
       const novo = {
         id: `d${documentos.length + 1}`, motoristaId: M1, freteId: f.id, tipo: String(dados.get('tipo')) as Documento['tipo'],
-        contentType: arquivo.type, tamanhoBytes: arquivo.size, verificado: false, verificadoEm: null, criadoEm: iso(0), url: URL.createObjectURL(arquivo),
+        contentType: arquivo.type, tamanhoBytes: arquivo.size, verificado: false, verificadoEm: null, ...semRecusa, criadoEm: iso(0), url: URL.createObjectURL(arquivo),
       }
       documentos.push(novo)
       return json(semUrl(novo), 201)
@@ -802,16 +806,30 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
   }
   // ---------- administrador ----------
   if (metodo === 'GET' && p === '/api/documentos/pendentes') {
-    return soAdmin(token) ?? json(documentos.filter((d) => !d.verificado).sort((a, z) => a.criadoEm.localeCompare(z.criadoEm)).map(semUrl))
+    return soAdmin(token) ?? json(documentos.filter((d) => !d.verificado && !d.recusadoEm).sort((a, z) => a.criadoEm.localeCompare(z.criadoEm)).map(semUrl))
   }
   if (metodo === 'POST' && (m = p.match(/^\/api\/documentos\/([^/]+)\/verificacao$/))) {
     const negado = soAdmin(token)
     if (negado) return negado
     const doc = documentos.find((x) => x.id === m![1])
     if (!doc) return problema(404, 'Documento não encontrado', 'Esse documento não existe.')
+    if (doc.recusadoEm) return problema(422, 'Regra de negócio', 'Este documento foi recusado. O motorista precisa enviar outro.')
     Object.assign(doc, { verificado: true, verificadoEm: iso(0) })
     const perfil = perfisMotorista[doc.motoristaId]
     if (perfil && doc.tipo !== 'COMPROVANTE' && !perfil.documentosVerificados.includes(doc.tipo)) perfil.documentosVerificados.push(doc.tipo)
+    return json(semUrl(doc))
+  }
+  if (metodo === 'POST' && (m = p.match(/^\/api\/documentos\/([^/]+)\/recusa$/))) {
+    const negado = soAdmin(token)
+    if (negado) return negado
+    const doc = documentos.find((x) => x.id === m![1])
+    if (!doc) return problema(404, 'Documento não encontrado', 'Esse documento não existe.')
+    if (doc.verificado) return problema(422, 'Regra de negócio', 'Este documento já foi verificado.')
+    if (doc.recusadoEm) return problema(422, 'Regra de negócio', 'Este documento já foi recusado.')
+    const motivo = String(b.motivo ?? '').trim()
+    if (!motivo) return invalido({ motivo: 'Diga ao motorista por que o documento foi recusado.' })
+    if (motivo.length > 300) return invalido({ motivo: 'O motivo deve ter até 300 caracteres.' })
+    Object.assign(doc, { recusadoEm: iso(0), motivoRecusa: motivo })
     return json(semUrl(doc))
   }
   if (metodo === 'GET' && p === '/api/canhotos/contestacoes') {
