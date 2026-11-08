@@ -225,3 +225,114 @@ export interface DadosCnpj {
   nomeFantasia: string | null
   situacaoCadastral: string
 }
+
+/** Corpo de POST /api/fretes/empresa/{empresaId} (PublicarFreteRequest). A API resolve cidade e coordenadas pelo CEP. */
+export interface EnderecoPedido {
+  cep: string
+  numero: string | null
+  complemento: string | null
+  pontoReferencia: string | null
+}
+
+export interface PublicarFrete {
+  coleta: EnderecoPedido
+  entrega: EnderecoPedido
+  descricaoCarga: string
+  especieCarga: string
+  tipoCargaAntt: string
+  pesoKg: number
+  /** null quando valorACombinar: um dos dois, nunca ambos. */
+  valor: number | null
+  valorACombinar: boolean
+  dataColeta: string
+  veiculosAceitos: string[]
+  carroceriasAceitas: string[]
+  exigeRastreador: boolean
+  complemento: boolean
+}
+
+/** GET /api/calendario/verificacao?data=AAAA-MM-DD */
+export interface VerificacaoData {
+  data: string
+  feriado: boolean
+  nomeFeriado: string | null
+  domingo: boolean
+  diaUtil: boolean
+}
+
+export type ResolucaoCanhoto = 'ENTREGA_CONFIRMADA' | 'CONTESTACAO_PROCEDENTE'
+
+/** Canhoto digital. fotoUrl e assinaturaUrl são links temporários: vencem em minutos. */
+export interface Canhoto {
+  id: string
+  freteId: string
+  nomeRecebedor: string
+  latitude: number
+  longitude: number
+  distanciaDestinoKm: number | null
+  /** false quando o destino não tinha coordenadas para comparar com o GPS. */
+  localConferido: boolean
+  registradoEm: string
+  contestacaoAte: string
+  contestado: boolean
+  motivoContestacao: string | null
+  resolucao: ResolucaoCanhoto | null
+  fotoUrl: string | null
+  assinaturaUrl: string | null
+}
+
+export interface Avaliacao {
+  id: string
+  freteId: string
+  /** Quem avaliou: o motorista ou quem contratou. */
+  lado: 'CONTRATANTE' | 'MOTORISTA'
+  avaliadoTipo: 'EMPRESA' | 'CLIENTE' | 'MOTORISTA'
+  avaliadoId: string
+  nota: number
+  comentario: string | null
+  criadaEm: string
+}
+
+/** GET /api/motoristas/{id}. A chave Pix em si não volta: só se existe. */
+export interface Motorista {
+  id: string
+  nome: string
+  email: string
+  telefone: string
+  tipoVeiculo: CategoriaVeiculo
+  placa: string
+  aceitaFeriado: boolean
+  temChavePix: boolean
+  criadoEm: string
+}
+
+/** Cadastro e edição de caminhão. Na edição a API ignora a placa. */
+export interface NovoVeiculo {
+  placa: string
+  rntrc: string
+  tipo: string
+  carroceria: string
+  numeroEixos: number
+  rastreador: boolean
+}
+
+/** POST /api/calculadora/frete: "esse frete paga a viagem?". Tipo de carga e eixos trazem o piso ANTT. */
+export interface PedidoCalculo {
+  distanciaKm: number
+  consumoKmPorLitro: number
+  precoDieselLitro: number
+  pedagio: number | null
+  outrosCustos: number | null
+  tipoCargaAntt: string | null
+  numeroEixos: number | null
+  valorOferecido: number | null
+}
+
+export interface ResultadoCalculo {
+  custo: { distanciaKm: number; litros: number; combustivel: number; pedagio: number; outros: number; total: number }
+  piso: { valor: number; tipoCarga: string; numeroEixos: number; distanciaKm: number; fonte: string; coeficientesDeExemplo: boolean } | null
+  valorOferecido: number | null
+  /** Valor oferecido menos o custo da viagem; null sem valor oferecido. */
+  margem: number | null
+  abaixoDoPiso: boolean
+}

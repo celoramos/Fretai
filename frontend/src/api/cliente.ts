@@ -28,13 +28,16 @@ async function transportar(metodo: Metodo, caminho: string, corpo?: unknown, tok
     const { responderDemo } = await import('./demo')
     return responderDemo(metodo, caminho, corpo, token)
   }
+  // Platform fact: com FormData (foto do canhoto) o navegador escreve o Content-Type com o boundary;
+  // definir à mão quebra o envio.
+  const arquivo = corpo instanceof FormData
   return fetch(caminho, {
     method: metodo,
     headers: {
-      ...(corpo !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...(corpo !== undefined && !arquivo ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: corpo !== undefined ? JSON.stringify(corpo) : undefined,
+    body: corpo === undefined ? undefined : arquivo ? corpo : JSON.stringify(corpo),
   })
 }
 

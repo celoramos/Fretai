@@ -50,18 +50,50 @@ export const PAPEL: Record<Papel, string> = {
   CLIENTE: 'Cliente', EMPRESA: 'Empresa', MOTORISTA: 'Motorista', ADMIN: 'Fretaí',
 }
 
-const VEICULO: Record<string, string> = {
-  RODOTREM: 'Rodotrem', BITREM: 'Bitrem', CARRETA_LS: 'Carreta LS', CARRETA: 'Carreta', VANDERLEIA: 'Vanderleia',
-  TRUCK: 'Truck', BITRUCK: 'Bitruck', TOCO: 'Toco', VUC: 'VUC', TRES_QUARTOS: '3/4',
-}
-const CARROCERIA: Record<string, string> = {
-  BAU: 'Baú', BAU_FRIGORIFICO: 'Baú frigorífico', SIDER: 'Sider', CACAMBA: 'Caçamba', GRADE_BAIXA: 'Grade baixa',
-  GRANELEIRO: 'Graneleiro', PRANCHA: 'Prancha', TANQUE: 'Tanque', CEGONHA: 'Cegonha',
-}
-const CARGA: Record<string, string> = {
-  GRANEL_SOLIDO: 'Granel sólido', GRANEL_LIQUIDO: 'Granel líquido', FRIGORIFICADA: 'Frigorificada',
-  CONTEINERIZADA: 'Conteinerizada', CARGA_GERAL: 'Carga geral', NEOGRANEL: 'Neogranel', GRANEL_PRESSURIZADA: 'Granel pressurizada',
-}
-export const veiculo = (v: string) => VEICULO[v] ?? v
-export const carroceria = (c: string) => CARROCERIA[c] ?? c
-export const carga = (c: string) => CARGA[c] ?? c.replaceAll('_', ' ').toLowerCase()
+/** Tipos de caminhão da API (enum TipoVeiculo), do maior para o menor; eixos é o padrão do tipo. */
+export const TIPOS_CAMINHAO = [
+  { valor: 'RODOTREM', rotulo: 'Rodotrem', eixos: 9 },
+  { valor: 'BITREM', rotulo: 'Bitrem', eixos: 7 },
+  { valor: 'CARRETA_LS', rotulo: 'Carreta LS', eixos: 6 },
+  { valor: 'VANDERLEIA', rotulo: 'Vanderleia', eixos: 6 },
+  { valor: 'CARRETA', rotulo: 'Carreta', eixos: 5 },
+  { valor: 'BITRUCK', rotulo: 'Bitruck', eixos: 4 },
+  { valor: 'TRUCK', rotulo: 'Truck', eixos: 3 },
+  { valor: 'TOCO', rotulo: 'Toco', eixos: 2 },
+  { valor: 'VUC', rotulo: 'VUC', eixos: 2 },
+  { valor: 'TRES_QUARTOS', rotulo: '3/4', eixos: 2 },
+] as const
+
+/** Carrocerias da API (enum TipoCarroceria). */
+export const CARROCERIAS = [
+  { valor: 'BAU', rotulo: 'Baú' },
+  { valor: 'BAU_FRIGORIFICO', rotulo: 'Baú frigorífico' },
+  { valor: 'SIDER', rotulo: 'Sider' },
+  { valor: 'CACAMBA', rotulo: 'Caçamba' },
+  { valor: 'GRADE_BAIXA', rotulo: 'Grade baixa' },
+  { valor: 'GRANELEIRO', rotulo: 'Graneleiro' },
+  { valor: 'PRANCHA', rotulo: 'Prancha' },
+  { valor: 'TANQUE', rotulo: 'Tanque' },
+  { valor: 'CEGONHA', rotulo: 'Cegonha' },
+] as const
+
+/** Tipos de carga da tabela ANTT (enum TipoCargaAntt), com o nome que a API usa. */
+export const CARGAS_ANTT = [
+  { valor: 'CARGA_GERAL', rotulo: 'Carga geral' },
+  { valor: 'GRANEL_SOLIDO', rotulo: 'Granel sólido' },
+  { valor: 'GRANEL_LIQUIDO', rotulo: 'Granel líquido' },
+  { valor: 'FRIGORIFICADA', rotulo: 'Frigorificada ou aquecida' },
+  { valor: 'CONTEINERIZADA', rotulo: 'Conteinerizada' },
+  { valor: 'NEOGRANEL', rotulo: 'Neogranel' },
+  { valor: 'GRANEL_PRESSURIZADA', rotulo: 'Carga granel pressurizada' },
+  { valor: 'PERIGOSA_CARGA_GERAL', rotulo: 'Perigosa (carga geral)' },
+  { valor: 'PERIGOSA_GRANEL_SOLIDO', rotulo: 'Perigosa (granel sólido)' },
+  { valor: 'PERIGOSA_GRANEL_LIQUIDO', rotulo: 'Perigosa (granel líquido)' },
+  { valor: 'PERIGOSA_FRIGORIFICADA', rotulo: 'Perigosa (frigorificada ou aquecida)' },
+  { valor: 'PERIGOSA_CONTEINERIZADA', rotulo: 'Perigosa (conteinerizada)' },
+] as const
+
+const rotulo = (lista: readonly { valor: string; rotulo: string }[], v: string) => lista.find((x) => x.valor === v)?.rotulo ?? v
+export const veiculo = (v: string) => rotulo(TIPOS_CAMINHAO, v)
+export const carroceria = (c: string) => rotulo(CARROCERIAS, c)
+export const carga = (c: string) => rotulo(CARGAS_ANTT, c)
