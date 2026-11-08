@@ -79,7 +79,7 @@ export function Entrar() {
         <motion.ol className="entrar__passos" variants={passos} initial={reduzido ? false : 'oculta'} animate="visivel">
           <motion.li variants={item}><span className="entrar__km">km 0</span>A empresa paga por Pix no aceite. O dinheiro fica guardado.</motion.li>
           <motion.li variants={item}><span className="entrar__km">saída</span>O adiantamento cai quando você sai com a carga.</motion.li>
-          <motion.li variants={item}><span className="entrar__km">entrega</span>O saldo cai com o canhoto: foto, assinatura e GPS no destino.</motion.li>
+          <motion.li variants={item}><span className="entrar__km">entrega</span>O saldo cai depois do canhoto: foto, assinatura e GPS no destino.</motion.li>
         </motion.ol>
       </section>
 

@@ -405,3 +405,10 @@ ol.legal__itens { list-style: decimal; }
 .legal__rodape { display: flex; flex-wrap: wrap; gap: var(--esp-6); padding-top: var(--esp-6); padding-bottom: var(--esp-8); border-top: var(--borda) solid var(--cor-linha); }
 .legal__rodape a { display: inline-flex; align-items: center; min-height: var(--alvo); color: var(--cor-texto-secundario); }
 .legal__rodape a:hover { color: var(--cor-texto); }
+
+/* ---------- contestar entrega (pública) ----------
+   Mesma moldura das páginas de privacidade e termos: quem chega aqui não tem conta. */
+.contestar__form, .contestar__feito { display: grid; gap: var(--esp-4); }
+.contestar__codigo { max-width: var(--largura-numero); font-family: var(--fonte-mono); letter-spacing: 0.12em; text-transform: uppercase; }
+.contestar__titulo { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); }
+.contestar__form .botao { justify-self: start; }

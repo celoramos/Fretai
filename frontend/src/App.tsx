@@ -21,6 +21,7 @@ const Inicio = lazy(() => import('./pages/Inicio').then((m) => ({ default: m.Ini
 
 const Privacidade = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Privacidade })))
 const Termos = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Termos })))
+const Contestar = lazy(() => import('./pages/Contestar').then((m) => ({ default: m.Contestar })))
 
 const INICIO: Partial<Record<Papel, string>> = { MOTORISTA: '/motorista', EMPRESA: '/empresa' }
 
@@ -40,6 +41,7 @@ export function App() {
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/privacidade" element={<Suspense fallback={null}><Privacidade /></Suspense>} />
       <Route path="/termos" element={<Suspense fallback={null}><Termos /></Suspense>} />
+      <Route path="/contestar" element={<Suspense fallback={null}><Contestar /></Suspense>} />
       <Route path="/motorista" element={<Protegida papel="MOTORISTA"><LayoutMotorista /></Protegida>}>
         <Route index element={<BuscaFretes />} />
         <Route path="meus-fretes" element={<MeusFretes />} />

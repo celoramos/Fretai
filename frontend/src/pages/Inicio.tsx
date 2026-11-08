@@ -58,15 +58,16 @@ const CHAMADA: Record<Publico, { titulo: string; texto: string; acao: string }> 
 const ETAPAS = [
   { marco: 'km 0', titulo: 'Aceite', texto: 'A empresa paga o frete inteiro por Pix. O dinheiro fica guardado, fora do alcance dela.' },
   { marco: 'saída', titulo: 'Adiantamento', texto: 'Quando você sai com a carga, a parte combinada de adiantamento cai na sua conta.' },
-  { marco: 'entrega', titulo: 'Saldo', texto: 'Na entrega você registra o canhoto: foto, assinatura na tela e GPS a até 500 m do destino. O saldo cai.' },
+  { marco: 'entrega', titulo: 'Saldo', texto: 'Na entrega você registra o canhoto: foto, assinatura na tela e GPS a até 500 m do destino. Passado o prazo para o recebedor contestar, o saldo cai.' },
 ]
 
 const PERGUNTAS = [
   { p: 'E se a empresa não pagar o saldo?', r: 'O frete inteiro já foi pago por Pix no aceite e fica retido. O saldo sai desse dinheiro guardado, não do bolso da empresa no fim da viagem.' },
-  { p: 'Quando eu recebo?', r: 'O adiantamento cai quando você sai com a carga. O saldo cai quando o canhoto é registrado no destino.' },
+  { p: 'Quando eu recebo?', r: 'O adiantamento cai quando você sai com a carga. O saldo cai depois do canhoto, passado o prazo para o recebedor contestar.' },
   { p: 'O que é o piso da ANTT?', r: 'É o valor mínimo de frete definido pela Lei 13.703/2018. O Fretaí calcula o piso de cada frete e avisa quando a oferta está abaixo dele.' },
   { p: 'Quem vê meus documentos?', r: 'Só a empresa que aceitou você naquele frete, por um link que expira. Fica registrado quem abriu.' },
-  { p: 'E se o recebedor discordar da entrega?', r: 'Ele recebe um código por WhatsApp e pode contestar. Enquanto a contestação é analisada, o saldo fica parado.' },
+  { p: 'E se o recebedor discordar da entrega?', r: 'Ele recebe um código por WhatsApp e pode contestar. Enquanto a contestação é analisada, o saldo fica parado.',
+    link: { para: '/contestar', texto: 'Contestar uma entrega' } },
 ]
 
 export function Inicio() {
@@ -196,7 +197,7 @@ export function Inicio() {
             {PERGUNTAS.map((q) => (
               <details key={q.p} className="inicio__duvida">
                 <summary>{q.p}</summary>
-                <p>{q.r}</p>
+                <p>{q.r}{'link' in q && q.link && <> <Link to={q.link.para}>{q.link.texto}</Link>.</>}</p>
               </details>
             ))}
           </div>
