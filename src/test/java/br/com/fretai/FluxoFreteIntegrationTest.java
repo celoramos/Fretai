@@ -193,6 +193,28 @@ class FluxoFreteIntegrationTest {
                 .andExpect(jsonPath("$.content.length()").value(0));
     }
 
+    @Test
+    @DisplayName("Pedido vazio, do jeito que o formulário do cliente manda: um erro por campo")
+    void pedidoVazioDoFormulario() throws Exception {
+        String clienteId = cadastrarCliente("71673015824", "vazio@email.com");
+        mvc.perform(post("/api/fretes").with(Login.como(mvc, "vazio@email.com")).contentType(MediaType.APPLICATION_JSON).content("""
+                        {"clienteId": "%s",
+                         "coleta":  {"cep": "", "numero": null, "complemento": null, "pontoReferencia": null},
+                         "entrega": {"cep": "", "numero": null, "complemento": null, "pontoReferencia": null},
+                         "nomeDestinatario": "", "telefoneDestinatario": "", "descricaoCarga": "",
+                         "pesoKg": 0, "valor": 0, "dataColeta": ""}
+                        """.formatted(clienteId)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erros['coleta.cep']").exists())
+                .andExpect(jsonPath("$.erros['entrega.cep']").exists())
+                .andExpect(jsonPath("$.erros.nomeDestinatario").exists())
+                .andExpect(jsonPath("$.erros.telefoneDestinatario").exists())
+                .andExpect(jsonPath("$.erros.descricaoCarga").exists())
+                .andExpect(jsonPath("$.erros.pesoKg").exists())
+                .andExpect(jsonPath("$.erros.valor").exists())
+                .andExpect(jsonPath("$.erros.dataColeta").value("A data da coleta é obrigatória."));
+    }
+
     // ---------- auxiliares ----------
 
     private static String clienteJson(String cpf, String email) {
