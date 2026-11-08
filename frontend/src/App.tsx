@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { Papel } from './api/tipos'
 import { LayoutEmpresa, LayoutMotorista } from './components/Layouts'
+import { DadosEmpresa } from './pages/empresa/DadosEmpresa'
 import { DetalheFreteEmpresa } from './pages/empresa/DetalheFreteEmpresa'
 import { FretesEmpresa } from './pages/empresa/FretesEmpresa'
 import { EditarFrete, PublicarFrete } from './pages/empresa/PublicarFrete'
@@ -55,6 +56,7 @@ export function App() {
         <Route path="fretes/novo" element={<PublicarFrete />} />
         <Route path="fretes/:id" element={<DetalheFreteEmpresa />} />
         <Route path="fretes/:id/editar" element={<EditarFrete />} />
+        <Route path="dados" element={<DadosEmpresa />} />
       </Route>
       <Route path="*" element={<NaoEncontrada />} />
     </Routes>

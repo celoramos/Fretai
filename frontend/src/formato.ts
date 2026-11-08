@@ -1,4 +1,4 @@
-import type { Papel, StatusFrete, StatusPagamento, StatusProposta } from './api/tipos'
+import type { Papel, StatusFrete, StatusPagamento, StatusProposta, TipoEmpresa } from './api/tipos'
 
 const brl = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 const brlCentavos = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -19,6 +19,22 @@ export function lerReais(texto: string) {
   const limpo = texto.replace(/R\$|\s/g, '')
   if (!limpo) return Number.NaN
   return Number(limpo.replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.'))
+}
+
+export const mesAno = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+
+/** CNPJ com a máscara da Receita. Serve também para o CNPJ com letras: a máscara é a mesma. */
+export function cnpj(c: string) {
+  const s = c.replace(/[^0-9A-Za-z]/g, '').toUpperCase()
+  return s.length === 14 ? `${s.slice(0, 2)}.${s.slice(2, 5)}.${s.slice(5, 8)}/${s.slice(8, 12)}-${s.slice(12)}` : c
+}
+
+/** Telefone que a API guarda só com dígitos, de volta com o DDD entre parênteses. */
+export function telefone(t: string) {
+  const d = t.replace(/\D/g, '').replace(/^55(?=\d{10,11}$)/, '')
+  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
+  return t
 }
 
 export const dataCurta = (iso: string) =>
@@ -55,6 +71,11 @@ export const STATUS_PROPOSTA: Record<StatusProposta, { rotulo: string; tom: Tom 
   ACEITA: { rotulo: 'Aceita', tom: 'garantido' },
   RECUSADA: { rotulo: 'Recusada', tom: 'neutro' },
   RETIRADA: { rotulo: 'Retirada', tom: 'neutro' },
+}
+
+export const TIPO_EMPRESA: Record<TipoEmpresa, string> = {
+  EMBARCADOR: 'Embarcador (dono da carga)',
+  AGENCIADOR: 'Agenciador de cargas',
 }
 
 export const PAPEL: Record<Papel, string> = {

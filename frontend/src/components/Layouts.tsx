@@ -1,5 +1,6 @@
+import type { ReactNode } from 'react'
 import { motion } from 'motion/react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { MODO_DEMO } from '../api/cliente'
 import { useSessao } from '../sessao'
 import { Indicador } from './ui'
@@ -59,6 +60,18 @@ function IconeNav({ tipo }: { tipo: keyof typeof ICONES }) {
   )
 }
 
+/** Link da barra de cima. "Fretes" continua marcado dentro de um frete (/empresa/fretes/...). */
+function LinkTopo({ para, dentro, children }: { para: string; dentro?: string; children: ReactNode }) {
+  const { pathname } = useLocation()
+  const aqui = pathname === para
+  const ativo = aqui || (dentro != null && pathname.startsWith(dentro))
+  return (
+    <Link to={para} className={ativo ? 'topo__link active' : 'topo__link'} aria-current={aqui ? 'page' : undefined}>
+      {children}
+    </Link>
+  )
+}
+
 function FaixaDemo() {
   if (!MODO_DEMO) return null
   return <p className="faixa-demo">Modo demonstração: dados de exemplo, nada é gravado.</p>
@@ -105,7 +118,8 @@ export function LayoutEmpresa() {
         <div className="topo__miolo">
           <Marca />
           <nav aria-label="Principal" className="topo__nav">
-            <NavLink to="/empresa" className="topo__link">Fretes</NavLink>
+            <LinkTopo para="/empresa" dentro="/empresa/fretes/">Fretes</LinkTopo>
+            <LinkTopo para="/empresa/dados">Empresa</LinkTopo>
           </nav>
           <div className="topo__acoes">
             <BotaoTema />

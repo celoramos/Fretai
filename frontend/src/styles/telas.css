@@ -13,8 +13,10 @@
 .topo { border-bottom: var(--borda) solid var(--cor-linha); }
 .topo__acoes { display: flex; align-items: center; gap: var(--esp-1); }
 .topo--motorista { display: flex; align-items: center; justify-content: space-between; padding: var(--esp-2) var(--esp-4); }
-.topo__miolo { display: flex; align-items: center; gap: var(--esp-8); max-width: var(--largura-conteudo); margin: 0 auto; padding: var(--esp-2) var(--esp-6); }
-.topo__nav { display: flex; gap: var(--esp-4); flex: 1; }
+.topo__miolo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: var(--esp-8); max-width: var(--largura-conteudo); margin: 0 auto; padding: var(--esp-2) var(--esp-6); }
+/* No celular a navegação desce para uma linha só dela: os destinos não cabem ao lado da marca e dos botões. */
+.topo__nav { display: flex; gap: var(--esp-4); order: 1; flex-basis: 100%; }
+@media (min-width: 900px) { .topo__nav { order: 0; flex: 1; } }
 .topo__link { display: inline-flex; align-items: center; min-height: var(--alvo); color: var(--cor-texto-secundario); font-weight: var(--peso-medio); text-decoration: none; border-bottom: var(--borda-forte) solid transparent; }
 .topo__link:hover { color: var(--cor-texto); }
 .topo__link:active { color: var(--cor-texto); border-bottom-color: var(--cor-linha); }
@@ -462,3 +464,8 @@ ol.legal__itens { list-style: decimal; }
 .documentos__motorista { display: grid; gap: var(--esp-1); }
 .documentos__motorista + .documentos__motorista { padding-top: var(--esp-3); border-top: var(--borda) solid var(--cor-linha); }
 .documentos__nome { font-weight: var(--peso-forte); }
+
+/* ---------- dados da empresa ----------
+   Três cartões numa coluna da largura do pagamento: vitrine, o que muda, o que vem da Receita. */
+.conta { display: grid; gap: var(--esp-4); max-width: var(--largura-pagamento); }
+.conta__cnpj { font-family: var(--fonte-mono); font-size: var(--tam-detalhe); }

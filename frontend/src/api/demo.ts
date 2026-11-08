@@ -8,6 +8,7 @@ import type {
   Avaliacao,
   Canhoto,
   Documento,
+  Empresa,
   Endereco,
   EventoFrete,
   Frete,
@@ -272,6 +273,13 @@ const acessos: Record<string, AcessoDocumento[]> = {
   d1: [{ usuarioId: U_EMPRESA, papel: 'EMPRESA', origem: '187.45.10.2', acessadoEm: iso(-0.2) }],
 }
 const semUrl = ({ url: _url, ...doc }: Documento & { url: string }): Documento => doc
+
+// ---------- dados da empresa ----------
+
+const dadosEmpresa: Record<string, Empresa> = {
+  [E1]: { id: E1, cnpj: '11222333000181', razaoSocial: empresas[E1].razaoSocial, nomeFantasia: empresas[E1].nomeFantasia,
+    tipo: 'EMBARCADOR', telefone: '1932104400', ativa: true, criadoEm: '2025-03-11T12:00:00Z' },
+}
 
 // ---------- publicar frete ----------
 
@@ -691,6 +699,22 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     if (i < 0) return problema(404, 'Veículo não encontrado', 'Esse caminhão não existe.')
     veiculos.splice(i, 1)
     return new Response(null, { status: 204 })
+  }
+  if ((m = p.match(/^\/api\/empresas\/([0-9a-f-]{36})$/))) {
+    const e = dadosEmpresa[m[1]]
+    if (!e) return problema(404, 'Recurso não encontrado', 'Empresa não encontrada.')
+    if (metodo === 'GET') return json(e)
+    if (metodo === 'PUT') {
+      const fone = String(b.telefone ?? '').trim()
+      const nomeFantasia = String(b.nomeFantasia ?? '').trim() || null
+      if (!fone) return invalido({ telefone: 'O telefone é obrigatório.' })
+      if (!TELEFONE.test(fone)) return invalido({ telefone: 'Telefone inválido. Use DDD + número.' })
+      Object.assign(e, { nomeFantasia, telefone: fone.replace(/\D/g, '') })
+      // O nome novo aparece nos fretes e no perfil público, como na API.
+      Object.assign(empresas[e.id as keyof typeof empresas] as { nomeFantasia: string | null }, { nomeFantasia })
+      Object.assign(perfisEmpresa[e.id], { nomeFantasia })
+      return json(e)
+    }
   }
   if (metodo === 'GET' && (m = p.match(/^\/api\/empresas\/([^/]+)\/perfil$/))) return json(perfisEmpresa[m[1]])
   if (metodo === 'GET' && (m = p.match(/^\/api\/motoristas\/([^/]+)\/perfil$/))) return json(perfisMotorista[m[1]])

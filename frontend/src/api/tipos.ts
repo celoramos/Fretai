@@ -362,3 +362,15 @@ export interface AcessoDocumento {
   origem: string | null
   acessadoEm: string
 }
+
+/** GET e PUT /api/empresas/{id}. O CNPJ é dado público; os dados do responsável não voltam. Telefone só com dígitos. */
+export interface Empresa {
+  id: string
+  cnpj: string
+  razaoSocial: string
+  nomeFantasia: string | null
+  tipo: TipoEmpresa
+  telefone: string
+  ativa: boolean
+  criadoEm: string
+}
