@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api, ErroApi } from '../../api/cliente'
 import type { EnderecoPedido, Frete, Problema, PublicarFrete as Pedido, VerificacaoData } from '../../api/tipos'
-import { Aviso } from '../../components/ui'
+import { Aviso, Campo } from '../../components/ui'
 import { CARGAS_ANTT, CARROCERIAS, dataCurta, lerReais, TIPOS_CAMINHAO } from '../../formato'
 import { useSessao } from '../../sessao'
 import { useTitulo } from '../../useTitulo'
@@ -226,16 +226,6 @@ export function PublicarFrete() {
           </div>
         </div>
       </form>
-    </div>
-  )
-}
-
-function Campo({ id, rotulo, erro, ajuda, children }: { id: string; rotulo: string; erro?: string; ajuda?: string; children: ReactNode }) {
-  return (
-    <div className="campo">
-      <label htmlFor={id} className="campo__rotulo">{rotulo}</label>
-      {children}
-      {erro ? <p id={`${id}-erro`} className="campo__erro">{erro}</p> : ajuda ? <p id={`${id}-ajuda`} className="campo__ajuda">{ajuda}</p> : null}
     </div>
   )
 }

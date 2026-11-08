@@ -94,6 +94,18 @@ export function ErroCarga({ problema, tentarDeNovo }: { problema: Problema; tent
   )
 }
 
+/** Rótulo, controle e, embaixo, o erro do campo ou a ajuda. Os ids ${id}-erro e ${id}-ajuda são os que o
+ *  controle aponta em aria-describedby. */
+export function Campo({ id, rotulo, erro, ajuda, children }: { id: string; rotulo: string; erro?: string; ajuda?: string; children: ReactNode }) {
+  return (
+    <div className="campo">
+      <label htmlFor={id} className="campo__rotulo">{rotulo}</label>
+      {children}
+      {erro ? <p id={`${id}-erro`} className="campo__erro">{erro}</p> : ajuda ? <p id={`${id}-ajuda`} className="campo__ajuda">{ajuda}</p> : null}
+    </div>
+  )
+}
+
 export function Vazio({ titulo, children, acao }: { titulo: string; children?: ReactNode; acao?: ReactNode }) {
   return (
     <div className="vazio">
