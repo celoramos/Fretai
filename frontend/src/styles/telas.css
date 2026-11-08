@@ -444,3 +444,19 @@ ol.legal__itens { list-style: decimal; }
 .contestar__codigo { max-width: var(--largura-numero); font-family: var(--fonte-mono); letter-spacing: 0.12em; text-transform: uppercase; }
 .contestar__titulo { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); }
 .contestar__form .botao { justify-self: start; }
+
+/* ---------- documentos do motorista ----------
+   Uma linha por documento: o tipo, a situação e, do lado do motorista, quem abriu; da empresa, o botão Abrir. */
+.documentos { display: grid; gap: var(--esp-3); }
+.documentos__lista { display: grid; }
+.documentos__lista > li + li { border-top: var(--borda) solid var(--cor-linha); }
+.documentos__item { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-3); padding: var(--esp-2) 0; }
+.documentos__tipo { font-weight: var(--peso-forte); min-width: var(--esp-12); }
+.documentos__acessos { flex-basis: 100%; }
+.documentos__item .botao { margin-left: auto; }
+.documentos__enviar { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
+.documentos__botao { position: relative; }
+.documentos__botao:has(:focus-visible) { outline: var(--foco-largura) solid var(--cor-foco); outline-offset: var(--foco-recuo); }
+.documentos__motorista { display: grid; gap: var(--esp-1); }
+.documentos__motorista + .documentos__motorista { padding-top: var(--esp-3); border-top: var(--borda) solid var(--cor-linha); }
+.documentos__nome { font-weight: var(--peso-forte); }

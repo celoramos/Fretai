@@ -336,3 +336,29 @@ export interface ResultadoCalculo {
   margem: number | null
   abaixoDoPiso: boolean
 }
+
+/** Metadados de um documento do motorista. O arquivo só abre por POST /api/documentos/{id}/link, que registra o acesso. */
+export interface Documento {
+  id: string
+  motoristaId: string
+  freteId: string
+  tipo: 'CNH' | 'CRLV' | 'COMPROVANTE'
+  contentType: string
+  tamanhoBytes: number
+  verificado: boolean
+  verificadoEm: string | null
+  criadoEm: string
+}
+
+/** Link temporário: depois de expiraEm é preciso pedir outro. */
+export interface LinkDocumento {
+  url: string
+  expiraEm: string
+}
+
+export interface AcessoDocumento {
+  usuarioId: string
+  papel: Papel
+  origem: string | null
+  acessadoEm: string
+}

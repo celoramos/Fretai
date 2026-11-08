@@ -6,6 +6,7 @@ import { useRecurso } from '../../api/useRecurso'
 import { Reputacao } from '../../components/CardFrete'
 import { Avaliar } from '../../components/Avaliar'
 import { CancelarFrete } from '../../components/CancelarFrete'
+import { DocumentosDoMotorista } from '../../components/Documentos'
 import { FretesDeVolta } from '../../components/FretesDeVolta'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
@@ -93,6 +94,13 @@ export function FreteMotorista() {
         <section className="bloco cartao" aria-labelledby="avaliacao">
           <h2 id="avaliacao" className="bloco__titulo">Avaliação</h2>
           <Avaliar freteId={frete.id} lado="MOTORISTA" nomeAvaliado={frete.empresa?.nomeFantasia ?? frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'o cliente'} />
+        </section>
+      )}
+
+      {tokens && (minha || (meu && (frete.status === 'ACEITO' || frete.status === 'EM_TRANSITO'))) && (
+        <section className="bloco cartao" aria-labelledby="documentos">
+          <h2 id="documentos" className="bloco__titulo">Seus documentos para {frete.empresa?.nomeFantasia ?? frete.empresa?.razaoSocial ?? 'a empresa'}</h2>
+          <DocumentosDoMotorista freteId={frete.id} motoristaId={tokens.usuarioId} />
         </section>
       )}
 

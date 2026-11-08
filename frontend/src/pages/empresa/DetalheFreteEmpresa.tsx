@@ -5,6 +5,7 @@ import type { EventoFrete, Frete, Pagamento, PerfilMotorista, Problema, Proposta
 import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { Avaliar } from '../../components/Avaliar'
 import { CancelarFrete } from '../../components/CancelarFrete'
+import { DocumentosParaEmpresa } from '../../components/Documentos'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
 import { useTitulo } from '../../useTitulo'
 import { PainelEntrega } from './PainelEntrega'
@@ -16,6 +17,7 @@ const ABAS = [
   { id: 'propostas', rotulo: 'Propostas' },
   { id: 'pagamento', rotulo: 'Pagamento' },
   { id: 'entrega', rotulo: 'Entrega' },
+  { id: 'documentos', rotulo: 'Documentos' },
   { id: 'historico', rotulo: 'Histórico' },
 ] as const
 type Aba = (typeof ABAS)[number]['id']
@@ -91,6 +93,12 @@ export function DetalheFreteEmpresa() {
           <section className="bloco cartao" aria-labelledby="avaliacao-motorista">
             <h2 id="avaliacao-motorista" className="bloco__titulo">Avaliação do motorista</h2>
             <Avaliar freteId={frete.id} lado="CONTRATANTE" nomeAvaliado={frete.motorista.nome.split(' ')[0]} />
+          </section>
+        )}
+        {aba === 'documentos' && (
+          <section className="cartao bloco" aria-label="Documentos dos motoristas">
+            <DocumentosParaEmpresa freteId={frete.id}
+              nomes={Object.fromEntries([...propostas.map((p) => [p.motorista.id, p.motorista.nome]), ...(frete.motorista ? [[frete.motorista.id, frete.motorista.nome]] : [])])} />
           </section>
         )}
         {aba === 'historico' && <Historico eventos={eventos} />}

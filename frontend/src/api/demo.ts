@@ -4,8 +4,10 @@
  * Os números são de exemplo, coerentes com o briefing (rotas reais, valores plausíveis).
  */
 import type {
+  AcessoDocumento,
   Avaliacao,
   Canhoto,
+  Documento,
   Endereco,
   EventoFrete,
   Frete,
@@ -257,6 +259,20 @@ function calcular(b: Record<string, unknown>) {
   }
 }
 
+// ---------- documentos ----------
+
+// Platform fact: aba nova não navega para endereço data:, então o exemplo vira blob:, como o arquivo enviado.
+const DOC_EXEMPLO = (titulo: string) => URL.createObjectURL(new Blob([`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#F2F0EA"/><rect x="20" y="20" width="360" height="260" fill="none" stroke="#5B6270" stroke-width="3"/><text x="200" y="150" font-family="sans-serif" font-size="26" text-anchor="middle" fill="#1C1F24">${titulo} (exemplo)</text></svg>`], { type: 'image/svg+xml' }))
+const documentos: (Documento & { url: string })[] = [
+  { id: 'd1', motoristaId: M1, freteId: 'f1', tipo: 'CNH', contentType: 'image/svg+xml', tamanhoBytes: 48_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CNH') },
+  { id: 'd2', motoristaId: M1, freteId: 'f1', tipo: 'CRLV', contentType: 'image/svg+xml', tamanhoBytes: 52_000, verificado: true, verificadoEm: iso(-200), criadoEm: iso(-0.5), url: DOC_EXEMPLO('CRLV') },
+  { id: 'd3', motoristaId: M2, freteId: 'f1', tipo: 'CNH', contentType: 'image/svg+xml', tamanhoBytes: 45_000, verificado: true, verificadoEm: iso(-90), criadoEm: iso(-0.3), url: DOC_EXEMPLO('CNH') },
+]
+const acessos: Record<string, AcessoDocumento[]> = {
+  d1: [{ usuarioId: U_EMPRESA, papel: 'EMPRESA', origem: '187.45.10.2', acessadoEm: iso(-0.2) }],
+}
+const semUrl = ({ url: _url, ...doc }: Documento & { url: string }): Documento => doc
+
 // ---------- publicar frete ----------
 
 /** Feriados nacionais de data fixa (a API consulta a BrasilAPI; aqui basta para a demonstração). */
@@ -469,6 +485,20 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       avaliacoes.push(nova)
       return json(nova, 201)
     }
+    if (sub === '/documentos') {
+      if (metodo === 'GET') return json(documentos.filter((x) => x.freteId === f.id).map(semUrl))
+      if (token !== 'demo-motorista') return problema(403, 'Acesso negado', 'Só motoristas enviam documentos.')
+      const dados = corpo as FormData
+      const arquivo = dados.get('arquivo')
+      if (!(arquivo instanceof Blob)) return problema(400, 'Sem arquivo', 'Envie PDF, PNG ou JPEG.')
+      if (arquivo.size > 10 * 1024 * 1024) return problema(422, 'Arquivo grande', 'O arquivo deve ter até 10 MB.')
+      const novo = {
+        id: `d${documentos.length + 1}`, motoristaId: M1, freteId: f.id, tipo: String(dados.get('tipo')) as Documento['tipo'],
+        contentType: arquivo.type, tamanhoBytes: arquivo.size, verificado: false, verificadoEm: null, criadoEm: iso(0), url: URL.createObjectURL(arquivo),
+      }
+      documentos.push(novo)
+      return json(semUrl(novo), 201)
+    }
     if (metodo === 'GET' && sub === '/canhoto') {
       return canhotos[f.id] ? json(canhotos[f.id]) : problema(404, 'Sem canhoto', 'Este frete ainda não tem canhoto.')
     }
@@ -578,6 +608,15 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     return json(pr)
   }
   if (metodo === 'GET' && p === '/api/propostas/minhas') return json(pagina(propostas.filter((x) => x.motorista.id === M1)))
+  if ((m = p.match(/^\/api\/documentos\/([^/]+)\/(link|acessos)$/))) {
+    const doc = documentos.find((x) => x.id === m![1])
+    if (!doc) return problema(404, 'Documento não encontrado', 'Esse documento não existe.')
+    if (metodo === 'GET' && m[2] === 'acessos') return json(acessos[doc.id] ?? [])
+    if (metodo === 'POST' && m[2] === 'link') {
+      ;(acessos[doc.id] ??= []).push({ usuarioId: token === 'demo-motorista' ? M1 : U_EMPRESA, papel: token === 'demo-motorista' ? 'MOTORISTA' : 'EMPRESA', origem: '127.0.0.1', acessadoEm: iso(0) })
+      return json({ url: doc.url, expiraEm: iso(10 / 1440) })
+    }
+  }
   if (metodo === 'POST' && p === '/api/calculadora/frete') {
     const { erros, resultado } = calcular(b)
     return erros ? invalido(erros) : json(resultado)
