@@ -525,6 +525,19 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     })
     return json(pr)
   }
+  if (metodo === 'POST' && (m = p.match(/^\/api\/propostas\/([^/]+)\/retirada$/))) {
+    const pr = propostas.find((x) => x.id === m![1])
+    if (!pr) return problema(404, 'Proposta não encontrada', 'Essa proposta não existe.')
+    if (pr.status !== 'ENVIADA') return problema(409, 'Proposta já respondida', 'Essa proposta já foi respondida.')
+    Object.assign(pr, { status: 'RETIRADA', respondidaEm: iso(0) })
+    // Como na API: sem nenhuma proposta em aberto, o frete volta para a vitrine.
+    const f = fretes.find((x) => x.id === pr.freteId)
+    if (f?.status === 'PROPOSTA_ENVIADA' && !propostas.some((x) => x.freteId === f.id && x.status === 'ENVIADA')) {
+      registrar(f.id, f.status, 'PUBLICADO', 'MOTORISTA')
+      f.status = 'PUBLICADO'
+    }
+    return json(pr)
+  }
   if (metodo === 'GET' && p === '/api/propostas/minhas') return json(pagina(propostas.filter((x) => x.motorista.id === M1)))
   if (metodo === 'GET' && (m = p.match(/^\/api\/empresas\/([^/]+)\/perfil$/))) return json(perfisEmpresa[m[1]])
   if (metodo === 'GET' && (m = p.match(/^\/api\/motoristas\/([^/]+)\/perfil$/))) return json(perfisMotorista[m[1]])

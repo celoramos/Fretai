@@ -113,8 +113,9 @@
 }
 .negociar__proposta { display: grid; gap: var(--esp-3); }
 .negociar__botoes { display: grid; gap: var(--esp-2); }
-.negociar__ok { color: var(--cor-garantido); font-weight: var(--peso-forte); }
+.minha { display: grid; gap: var(--esp-1); }
 .negociar__erro { color: var(--cor-perigo); font-weight: var(--peso-forte); }
+.negociar__erro:empty { display: none; }
 
 /* ---------- registrar entrega ----------
    Uma coluna, uma parte do canhoto por cartão. O botão de enviar fica no fim, largo, para o polegar. */

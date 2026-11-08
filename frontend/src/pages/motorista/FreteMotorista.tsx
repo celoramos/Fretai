@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api, ErroApi } from '../../api/cliente'
-import type { EventoFrete, Frete, Pagamento, PerfilEmpresa, Problema, Veiculo } from '../../api/tipos'
+import type { EventoFrete, Frete, Pagamento, Pagina, PerfilEmpresa, Problema, Proposta, Veiculo } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
 import { Reputacao } from '../../components/CardFrete'
 import { Avaliar } from '../../components/Avaliar'
@@ -22,12 +22,15 @@ export function FreteMotorista() {
   const { tokens } = useSessao()
   const [estado, recarregar] = useRecurso(async () => {
     const frete = await api<Frete>('GET', `/api/fretes/${id}`)
-    const [eventos, pagamento, perfil] = await Promise.all([
+    const [eventos, pagamento, perfil, minhas] = await Promise.all([
       talvez(api<EventoFrete[]>('GET', `/api/fretes/${id}/eventos`)),
       talvez(api<Pagamento>('GET', `/api/fretes/${id}/pagamento`)),
       frete.empresa ? talvez(api<PerfilEmpresa>('GET', `/api/empresas/${frete.empresa.id}/perfil`)) : null,
+      talvez(api<Pagina<Proposta>>('GET', '/api/propostas/minhas?size=100')),
     ])
-    return { frete, eventos: eventos ?? [], pagamento, perfil }
+    // A proposta que este motorista mandou e a empresa ainda não respondeu: no lugar de negociar de novo.
+    const minha = minhas?.content.find((p) => p.freteId === id && p.status === 'ENVIADA') ?? null
+    return { frete, eventos: eventos ?? [], pagamento, perfil, minha }
   }, [id])
 
   const titulo = estado.fase === 'pronto' ? `${estado.dados.frete.coleta.cidade} para ${estado.dados.frete.entrega.cidade}` : 'Frete'
@@ -36,7 +39,7 @@ export function FreteMotorista() {
   if (estado.fase === 'carregando') return <div className="frete-m">{estado.mostrarEsqueleto && <><Esqueleto linhas={2} /><Esqueleto linhas={5} /></>}</div>
   if (estado.fase === 'erro') return <div className="frete-m"><ErroCarga problema={estado.problema} tentarDeNovo={recarregar} /></div>
 
-  const { frete, eventos, pagamento, perfil } = estado.dados
+  const { frete, eventos, pagamento, perfil, minha } = estado.dados
   const meu = frete.motorista?.id === tokens?.usuarioId
   const aberto = frete.status === 'PUBLICADO' || frete.status === 'PROPOSTA_ENVIADA'
   const valor = frete.valorAcordado ?? frete.valorTotal ?? frete.valor
@@ -114,7 +117,9 @@ export function FreteMotorista() {
 
       {meu && frete.status === 'ACEITO' && <CancelarFrete frete={frete} pago={garantido} aoCancelar={recarregar} />}
 
-      {aberto && !meu && <Negociar frete={frete} valor={valor} aoMudar={recarregar} />}
+      {aberto && !meu && (minha
+        ? <MinhaProposta proposta={minha} aoMudar={recarregar} />
+        : <Negociar frete={frete} valor={valor} aoMudar={recarregar} />)}
     </div>
   )
 }
@@ -163,6 +168,51 @@ function Acoes({ frete, pagamento, aoMudar }: { frete: Frete; pagamento: Pagamen
   return null
 }
 
+/** A proposta enviada fica no rodapé, onde estavam os botões de negociar: valor, adiantamento e retirar. */
+function MinhaProposta({ proposta, aoMudar }: { proposta: Proposta; aoMudar: () => void }) {
+  const [fase, setFase] = useState<'parado' | 'confirmar' | 'enviando'>('parado')
+  const [problema, setProblema] = useState<Problema | null>(null)
+
+  async function retirar() {
+    setFase('enviando')
+    setProblema(null)
+    try {
+      await api('POST', `/api/propostas/${proposta.id}/retirada`)
+      aoMudar()
+    } catch (e) {
+      setProblema(e instanceof ErroApi ? e.problema : { title: 'Erro', detail: String(e), status: 0 })
+      setFase('parado')
+    }
+  }
+
+  return (
+    <section className="negociar" aria-labelledby="minha-titulo">
+      <h2 id="minha-titulo" className="bloco__titulo">Sua proposta</h2>
+      <div className="minha">
+        <Valor valor={proposta.valor} tamanho="grande" />
+        <p className="detalhe">
+          {proposta.adiantamentoPercentual}% na saída (R$&nbsp;{reais(proposta.valorAdiantamento)}) · enviada {dataCurta(proposta.criadaEm)}
+        </p>
+        <p>Aguardando a empresa responder. Você recebe aviso quando ela responder.</p>
+      </div>
+      <div aria-live="polite">{problema && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}</div>
+      <div className="negociar__botoes">
+        {fase === 'confirmar' ? (
+          <>
+            <p className="proposta__confirmar">Retirar a proposta? A empresa deixa de ver o seu valor.</p>
+            <button type="button" className="botao botao--perigo botao--largo" onClick={retirar}>Retirar proposta</button>
+            <button type="button" className="botao botao--fantasma botao--largo" onClick={() => setFase('parado')}>Manter</button>
+          </>
+        ) : (
+          <button type="button" className="botao botao--secundario botao--largo" disabled={fase === 'enviando'} onClick={() => setFase('confirmar')}>
+            {fase === 'enviando' ? 'Retirando…' : 'Retirar proposta'}
+          </button>
+        )}
+      </div>
+    </section>
+  )
+}
+
 function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | null; aoMudar: () => void }) {
   const { tokens } = useSessao()
   const [veiculos, setVeiculos] = useState<Veiculo[] | null>(null)
@@ -171,7 +221,8 @@ function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | nul
   const [proposto, setProposto] = useState(valor != null ? String(valor) : '')
   const [adiantamento, setAdiantamento] = useState(40)
   const [enviando, setEnviando] = useState(false)
-  const [resultado, setResultado] = useState<{ ok: boolean; texto: string } | null>(null)
+  // Deu certo, a tela recarrega e mostra a proposta ou o frete fechado; aqui só sobra a falha.
+  const [falha, setFalha] = useState<string | null>(null)
 
   useEffect(() => {
     if (!tokens) return
@@ -190,19 +241,18 @@ function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | nul
   async function executar(acao: 'aceite' | 'proposta', e?: FormEvent) {
     e?.preventDefault()
     setEnviando(true)
-    setResultado(null)
+    setFalha(null)
     try {
       if (acao === 'aceite') {
         await api('POST', `/api/fretes/${frete.id}/aceite`, { motoristaId: tokens?.usuarioId, veiculoId: veiculoId || null })
         aoMudar()
       } else {
         await api('POST', `/api/fretes/${frete.id}/propostas`, { motoristaId: tokens?.usuarioId, veiculoId: veiculoId || null, valor: numero, adiantamentoPercentual: adiantamento })
-        setResultado({ ok: true, texto: 'Proposta enviada. Você recebe aviso quando a empresa responder.' })
-        setModo('escolha')
+        aoMudar()
       }
     } catch (erro) {
       const p = erro instanceof ErroApi ? erro.problema : null
-      setResultado({ ok: false, texto: p ? `${p.title}. ${p.detail}` : String(erro) })
+      setFalha(p ? `${p.title}. ${p.detail}` : String(erro))
     } finally {
       setEnviando(false)
     }
@@ -251,7 +301,7 @@ function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | nul
         </form>
       )}
 
-      <p aria-live="polite" className={resultado ? (resultado.ok ? 'negociar__ok' : 'negociar__erro') : undefined}>{resultado?.texto}</p>
+      <p aria-live="polite" className="negociar__erro">{falha}</p>
 
       <div className="negociar__botoes">
         {modo === 'escolha' ? (
