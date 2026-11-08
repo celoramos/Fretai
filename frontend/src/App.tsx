@@ -5,11 +5,13 @@ import { LayoutEmpresa, LayoutMotorista } from './components/Layouts'
 import { DadosEmpresa } from './pages/empresa/DadosEmpresa'
 import { DetalheFreteEmpresa } from './pages/empresa/DetalheFreteEmpresa'
 import { FretesEmpresa } from './pages/empresa/FretesEmpresa'
+import { PagamentosEmpresa } from './pages/empresa/PagamentosEmpresa'
 import { EditarFrete, PublicarFrete } from './pages/empresa/PublicarFrete'
 import { Cadastro } from './pages/Cadastro'
 import { Entrar } from './pages/Entrar'
 import { BuscaFretes } from './pages/motorista/BuscaFretes'
 import { FreteMotorista } from './pages/motorista/FreteMotorista'
+import { Extrato } from './pages/motorista/Extrato'
 import { MeusFretes } from './pages/motorista/MeusFretes'
 import { RegistrarEntrega } from './pages/motorista/RegistrarEntrega'
 import { Calculadora } from './pages/motorista/Calculadora'
@@ -46,6 +48,7 @@ export function App() {
       <Route path="/motorista" element={<Protegida papel="MOTORISTA"><LayoutMotorista /></Protegida>}>
         <Route index element={<BuscaFretes />} />
         <Route path="meus-fretes" element={<MeusFretes />} />
+        <Route path="extrato" element={<Extrato />} />
         <Route path="fretes/:id" element={<FreteMotorista />} />
         <Route path="fretes/:id/entrega" element={<RegistrarEntrega />} />
         <Route path="calculadora" element={<Calculadora />} />
@@ -56,6 +59,7 @@ export function App() {
         <Route path="fretes/novo" element={<PublicarFrete />} />
         <Route path="fretes/:id" element={<DetalheFreteEmpresa />} />
         <Route path="fretes/:id/editar" element={<EditarFrete />} />
+        <Route path="pagamentos" element={<PagamentosEmpresa />} />
         <Route path="dados" element={<DadosEmpresa />} />
       </Route>
       <Route path="*" element={<NaoEncontrada />} />

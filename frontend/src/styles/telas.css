@@ -469,3 +469,29 @@ ol.legal__itens { list-style: decimal; }
    Três cartões numa coluna da largura do pagamento: vitrine, o que muda, o que vem da Receita. */
 .conta { display: grid; gap: var(--esp-4); max-width: var(--largura-pagamento); }
 .conta__cnpj { font-family: var(--fonte-mono); font-size: var(--tam-detalhe); }
+
+/* ---------- extrato do motorista ----------
+   Uma linha por parcela: o que é e de qual frete, quando caiu (ou quando cai) e o valor à direita,
+   em algarismos de largura igual para as colunas de valor alinharem. */
+.dinheiro__extrato { grid-column: 1 / -1; justify-self: start; }
+.extrato { display: grid; gap: var(--esp-4); }
+.extrato__lista { display: grid; }
+.extrato__lista > li + li { border-top: var(--borda) solid var(--cor-linha); }
+.extrato__linha { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-1) var(--esp-3); padding: var(--esp-3) 0; }
+.extrato__o-que { min-width: 0; overflow-wrap: anywhere; }
+.extrato__rota { color: var(--cor-texto); font-weight: var(--peso-medio); }
+.extrato__quando { grid-column: 1; color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.extrato__quando--parado { color: var(--cor-alerta); }
+.extrato__valor { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-variant-numeric: tabular-nums; font-weight: var(--peso-forte); white-space: nowrap; }
+.extrato__total { display: flex; justify-content: space-between; gap: var(--esp-3); padding-top: var(--esp-3); border-top: var(--borda-forte) solid var(--cor-linha); font-weight: var(--peso-medio); }
+
+/* ---------- pagamentos da empresa ----------
+   Os números lado a lado, quantos houver (2 a 4), e a tabela de sempre embaixo. */
+.pagamentos-e__resumo { display: grid; gap: var(--esp-4); }
+.pagamentos-e__numeros { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3) var(--esp-4); }
+.pagamentos-e__a-pagar { color: var(--cor-alerta); }
+.pagamentos-e__nota { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); text-wrap: pretty; }
+.pagamentos-e__pagar { color: var(--cor-texto); font-weight: var(--peso-forte); }
+@media (min-width: 900px) {
+  .pagamentos-e__numeros { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+}

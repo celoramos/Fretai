@@ -163,8 +163,9 @@ function proposta(id: string, freteId: string, motoristaId: string, veiculoId: s
 
 const pagamentos: Pagamento[] = [
   pagamento('f2', 5100, 40, 'ADIANTAMENTO_LIBERADO'),
-  pagamento('f6', 2900, 50, 'RETIDO'),
-  pagamento('f7', 5450, 30, 'LIBERADO'),
+  // Datas na ordem do fluxo: Pix depois do aceite, adiantamento na saída, saldo depois da entrega.
+  { ...pagamento('f6', 2900, 50, 'RETIDO'), pagoEm: iso(-0.1) },
+  { ...pagamento('f7', 5450, 30, 'LIBERADO'), pagoEm: iso(-11), adiantamentoLiberadoEm: iso(-10) },
   { ...pagamento('f8', 2300, 40, 'ADIANTAMENTO_LIBERADO'), saldoLiberavelApos: iso(0.8) },
 ]
 

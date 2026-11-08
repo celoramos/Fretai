@@ -1,14 +1,15 @@
 import { motion } from 'motion/react'
 import { DUR_MEDIA, transicao } from '../movimento'
 import type { Pagamento, Preco } from '../api/tipos'
-import { reais, STATUS_PAGAMENTO } from '../formato'
+import { reais, reaisCentavos, STATUS_PAGAMENTO } from '../formato'
 
-/** Valor em destaque: "R$" menor e mais claro que o número (briefing, seção 4). */
-export function Valor({ valor, tamanho = 'normal' }: { valor: number; tamanho?: 'normal' | 'grande' }) {
+/** Valor em destaque: "R$" menor e mais claro que o número (briefing, seção 4). Centavos só onde a conta
+ *  tem de fechar com as linhas de baixo (extrato); no resto o valor redondo lê mais rápido. */
+export function Valor({ valor, tamanho = 'normal', centavos = false }: { valor: number; tamanho?: 'normal' | 'grande'; centavos?: boolean }) {
   return (
     <span className={`valor valor--${tamanho}`}>
       <span className="valor__moeda">R$</span>
-      {reais(valor)}
+      {centavos ? reaisCentavos(valor) : reais(valor)}
     </span>
   )
 }

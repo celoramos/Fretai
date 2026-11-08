@@ -119,6 +119,7 @@ export function LayoutEmpresa() {
           <Marca />
           <nav aria-label="Principal" className="topo__nav">
             <LinkTopo para="/empresa" dentro="/empresa/fretes/">Fretes</LinkTopo>
+            <LinkTopo para="/empresa/pagamentos">Pagamentos</LinkTopo>
             <LinkTopo para="/empresa/dados">Empresa</LinkTopo>
           </nav>
           <div className="topo__acoes">

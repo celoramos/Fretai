@@ -95,6 +95,7 @@ function SeuDinheiro({ pagamentos }: { pagamentos: Pagamento[] }) {
       {parado > 0 && (
         <p className="dinheiro__parado">R$&nbsp;{reais(parado)} parados por contestação da entrega, até a análise.</p>
       )}
+      <Link to="/motorista/extrato" className="botao botao--secundario dinheiro__extrato">Ver extrato</Link>
     </section>
   )
 }
