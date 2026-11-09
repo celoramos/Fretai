@@ -88,7 +88,9 @@
   /* Raio. 4 fica no que imita sinalização (pista, marco de km, placa, código Pix, barra do medidor):
      placa de rodovia tem canto quase vivo. O resto segue o desenho dos apps de entrega e corrida. */
   --raio-campo: 4px;
-  /* Campo de texto e select: 3/4 do cartão, para o campo dentro do cartão ler como da mesma família. */
+  /* Campo de texto e select: 3/4 do cartão, para o campo dentro do cartão ler como da mesma família.
+     Custo aceito: com 16 de margem, o canto concêntrico do campo seria 0 (ou o do cartão, 28), e os
+     dois ficaram feios. O campo não é concêntrico com a folha de negociação. */
   --raio-controle: 12px;
 
   /* Cartão e pílula (2026-11-07). O dono do produto pediu um site atraente e fácil, na linha de iFood,

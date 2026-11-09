@@ -81,13 +81,14 @@
 .linha-frete__meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-3); color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
 
 .frete-m { display: grid; gap: var(--esp-4); }
-.frete-m__cabeca { display: grid; gap: var(--esp-4); }
+.frete-m__cabeca { display: grid; gap: var(--esp-3); }
 .frete-m__status { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
 .frete-m__numeros { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-3); }
 .frete-m__valor { display: grid; gap: var(--esp-3); justify-items: start; }
 
-/* Bloco: um assunto do detalhe, num cartão. */
-.bloco { display: grid; gap: var(--esp-4); }
+/* Bloco: um assunto do detalhe, num cartão. Dentro dele o vão é menor que entre os cartões (16),
+   para o olho agrupar pelo espaço e não só pela borda. */
+.bloco { display: grid; gap: var(--esp-3); }
 .bloco__titulo { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); font-weight: var(--peso-medio); }
 
 .acoes { display: grid; gap: var(--esp-3); }
@@ -218,7 +219,7 @@
 .reserva-tabela { min-height: 50dvh; }
 
 .detalhe-e { display: grid; gap: var(--esp-6); }
-.detalhe-e__cabeca { display: grid; gap: var(--esp-6); }
+.detalhe-e__cabeca { display: grid; gap: var(--esp-4); }
 .detalhe-e__linha-status { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-3); }
 .detalhe-e__rota-valor { display: grid; gap: var(--esp-6); align-items: center; }
 .detalhe-e__valor { display: grid; gap: var(--esp-2); justify-items: start; }
