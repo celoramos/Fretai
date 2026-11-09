@@ -64,7 +64,7 @@ public class BuscaFreteService {
                 .collect(Collectors.toMap(Frete::getId, Function.identity()));
         // findAllById não garante ordem: a da busca (por distância) é a que vale.
         return encontrados.map(e -> new FreteEncontradoResponse(arredondar(e.distanciaKm()),
-                FreteResponse.de(fretes.get(e.freteId()))));
+                FreteResponse.publico(fretes.get(e.freteId()))));
     }
 
     /**

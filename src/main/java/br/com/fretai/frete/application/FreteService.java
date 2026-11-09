@@ -76,8 +76,8 @@ public class FreteService {
     }
 
     @Transactional(readOnly = true)
-    public FreteResponse buscar(UUID freteId) {
-        return FreteResponse.de(carregar(freteId));
+    public FreteResponse buscar(UUID freteId, UsuarioLogado quem) {
+        return FreteResponse.de(carregar(freteId), quem);
     }
 
     /** Os fretes que um cliente pediu; quem pode ver a lista o controller já conferiu. */
@@ -87,8 +87,8 @@ public class FreteService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FreteResponse> listarPorStatus(StatusFrete status, Pageable pageable) {
-        return freteRepository.findByStatus(status, pageable).map(FreteResponse::de);
+    public Page<FreteResponse> listarPorStatus(StatusFrete status, Pageable pageable, UsuarioLogado quem) {
+        return freteRepository.findByStatus(status, pageable).map(f -> FreteResponse.de(f, quem));
     }
 
     /** Trilha de auditoria: só quem participa do frete (ou um administrador) vê. */

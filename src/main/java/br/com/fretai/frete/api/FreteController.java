@@ -99,9 +99,10 @@ public class FreteController {
         return buscaFreteService.buscar(filtro, pageable);
     }
 
+    /** Quem não participa do frete recebe sem endereço completo nem quem recebe. */
     @GetMapping("/{id}")
-    public FreteResponse buscar(@PathVariable UUID id) {
-        return freteService.buscar(id);
+    public FreteResponse buscar(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem) {
+        return freteService.buscar(id, quem);
     }
 
     /** Para o motorista não voltar vazio: fretes que saem perto do destino deste, compatíveis com o caminhão dele. */
@@ -120,8 +121,9 @@ public class FreteController {
     @GetMapping
     public Page<FreteResponse> listar(
             @RequestParam(defaultValue = "PUBLICADO") String status,
-            @PageableDefault(size = 20, sort = "criadoEm", direction = Sort.Direction.DESC) Pageable pageable) {
-        return freteService.listarPorStatus(StatusFrete.de(status), pageable);
+            @PageableDefault(size = 20, sort = "criadoEm", direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal UsuarioLogado quem) {
+        return freteService.listarPorStatus(StatusFrete.de(status), pageable, quem);
     }
 
     @PostMapping("/{id}/aceite")

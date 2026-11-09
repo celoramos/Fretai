@@ -91,7 +91,7 @@ class FreteControllerTest {
     @DisplayName("Frete inexistente → 404")
     void freteInexistente() throws Exception {
         UUID id = UUID.randomUUID();
-        when(freteService.buscar(id)).thenThrow(new RecursoNaoEncontradoException("Frete não encontrado."));
+        when(freteService.buscar(org.mockito.ArgumentMatchers.eq(id), any())).thenThrow(new RecursoNaoEncontradoException("Frete não encontrado."));
 
         mvc.perform(get("/api/fretes/{id}", id))
                 .andExpect(status().isNotFound());

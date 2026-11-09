@@ -91,8 +91,8 @@ class FluxoFreteIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(freteId));
 
-        // Relido do banco: coordenadas e distância passaram pela migration V2.
-        mvc.perform(get("/api/fretes/{id}", freteId).with(motorista))
+        // Relido do banco: coordenadas e distância passaram pela migration V2. Quem pediu vê as coordenadas.
+        mvc.perform(get("/api/fretes/{id}", freteId).with(cliente))
                 .andExpect(jsonPath("$.distanciaKm").value(12.4))
                 .andExpect(jsonPath("$.coleta.latitude").value(-23.5503898));
 
@@ -266,6 +266,64 @@ class FluxoFreteIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON).content("{\"valor\": 250.00, \"adiantamentoPercentual\": 0}"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.detail").value("Este frete precisa de caminhão."));
+    }
+
+    @Test
+    @DisplayName("Motorista de fora vê só bairro, cidade e UF; nada de quem recebe")
+    void motoristaDeForaVeSoBairroECidade() throws Exception {
+        String clienteId = cadastrarCliente("16180339805", "privado@email.com");
+        cadastrarMotorista("16180339996", "curioso@email.com", "CUR1A11");
+        String freteId = solicitarFrete(clienteId, Login.como(mvc, "privado@email.com"));
+        RequestPostProcessor curioso = Login.como(mvc, "curioso@email.com");
+
+        mvc.perform(get("/api/fretes/{id}", freteId).with(curioso))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.coleta.cidade").value("São Paulo"))
+                .andExpect(jsonPath("$.coleta.bairro").value("Sé"))
+                .andExpect(jsonPath("$.coleta.logradouro").doesNotExist())
+                .andExpect(jsonPath("$.coleta.numero").doesNotExist())
+                .andExpect(jsonPath("$.coleta.cep").doesNotExist())
+                .andExpect(jsonPath("$.coleta.latitude").doesNotExist())
+                .andExpect(jsonPath("$.coleta.enderecoCompleto").doesNotExist())
+                .andExpect(jsonPath("$.entrega.logradouro").doesNotExist())
+                .andExpect(jsonPath("$.nomeDestinatario").doesNotExist())
+                .andExpect(jsonPath("$.telefoneDestinatario").doesNotExist());
+
+        mvc.perform(get("/api/fretes").param("status", "PUBLICADO").with(curioso))
+                .andExpect(jsonPath("$.content[?(@.id == '%s')].coleta.logradouro".formatted(freteId))
+                        .value(org.hamcrest.Matchers.contains(org.hamcrest.Matchers.nullValue())))
+                .andExpect(jsonPath("$.content[?(@.id == '%s')].telefoneDestinatario".formatted(freteId))
+                        .value(org.hamcrest.Matchers.contains(org.hamcrest.Matchers.nullValue())));
+    }
+
+    @Test
+    @DisplayName("Depois do aceite o motorista do frete vê o endereço completo e quem recebe")
+    void motoristaDoFreteVeTudoDepoisDoAceite() throws Exception {
+        String clienteId = cadastrarCliente("16180340064", "aceito@email.com");
+        String motoristaId = cadastrarMotorista("16180340145", "fechou@email.com", "FEC1A11");
+        String freteId = solicitarFrete(clienteId, Login.como(mvc, "aceito@email.com"));
+        RequestPostProcessor motorista = Login.como(mvc, "fechou@email.com");
+        mvc.perform(post("/api/fretes/{id}/aceite", freteId).with(motorista).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motoristaId\": \"%s\"}".formatted(motoristaId)))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/fretes/{id}", freteId).with(motorista))
+                .andExpect(jsonPath("$.coleta.logradouro").value("Praça da Sé"))
+                .andExpect(jsonPath("$.coleta.numero").value("100"))
+                .andExpect(jsonPath("$.telefoneDestinatario").value("21977776666"));
+    }
+
+    @Test
+    @DisplayName("Quem pediu o frete vê tudo")
+    void clienteDonoVeTudo() throws Exception {
+        String clienteId = cadastrarCliente("16180340226", "dono@email.com");
+        RequestPostProcessor dono = Login.como(mvc, "dono@email.com");
+        String freteId = solicitarFrete(clienteId, dono);
+
+        mvc.perform(get("/api/fretes/{id}", freteId).with(dono))
+                .andExpect(jsonPath("$.coleta.logradouro").value("Praça da Sé"))
+                .andExpect(jsonPath("$.coleta.latitude").value(-23.5503898))
+                .andExpect(jsonPath("$.nomeDestinatario").value("Ana Pereira"));
     }
 
     // ---------- auxiliares ----------

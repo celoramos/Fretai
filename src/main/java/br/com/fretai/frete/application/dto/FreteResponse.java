@@ -8,6 +8,7 @@ import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.StatusFrete;
 import br.com.fretai.frete.domain.TipoCarga;
 import br.com.fretai.precificacao.domain.TipoCargaAntt;
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.veiculo.domain.TipoCarroceria;
@@ -102,9 +103,33 @@ public record FreteResponse(
                     e.getBairro(), e.getCidade(), e.getUf(), e.getPontoReferencia(), e.getEnderecoCompleto(),
                     c == null ? null : c.latitude(), c == null ? null : c.longitude());
         }
+
+        /** Para quem não participa do frete: o bairro e a cidade bastam para decidir; a porta, não. */
+        static EnderecoResponse publico(EnderecoFrete e) {
+            return new EnderecoResponse(null, null, null, null, e.getBairro(), e.getCidade(), e.getUf(), null, null,
+                    null, null);
+        }
     }
 
+    /** Tudo: para quem já participa do frete, ou quando quem chama acabou de agir sobre ele. */
     public static FreteResponse de(Frete frete) {
+        return montar(frete, true);
+    }
+
+    /**
+     * Completo para o administrador, para quem contrata e para o motorista do frete. Para os outros (o
+     * motorista que ainda está olhando), sem endereço completo, coordenadas e quem recebe.
+     */
+    public static FreteResponse de(Frete frete, UsuarioLogado quem) {
+        return montar(frete, quem.isAdmin() || frete.ehContratante(quem) || frete.ehMotoristaDoFrete(quem));
+    }
+
+    /** Sem os dados privados: a vitrine da busca e dos fretes de volta. */
+    public static FreteResponse publico(Frete frete) {
+        return montar(frete, false);
+    }
+
+    private static FreteResponse montar(Frete frete, boolean completo) {
         Motorista m = frete.getMotorista();
         Empresa e = frete.getEmpresa();
         Veiculo v = frete.getVeiculo();
@@ -117,10 +142,10 @@ public record FreteResponse(
                 m == null ? null : new MotoristaResumo(m.getId(), m.getNome(), m.getTipoVeiculo(), m.getPlaca()),
                 v == null ? null : new VeiculoResumo(v.getId(), v.getPlaca(), v.getCategoria(), v.getModelo(),
                         v.getTipo(), v.getCarroceria(), v.getNumeroEixos(), v.isRastreador()),
-                EnderecoResponse.de(frete.getPontoColeta()),
-                EnderecoResponse.de(frete.getPontoEntrega()),
-                frete.getNomeDestinatario(),
-                frete.getTelefoneDestinatario(),
+                completo ? EnderecoResponse.de(frete.getPontoColeta()) : EnderecoResponse.publico(frete.getPontoColeta()),
+                completo ? EnderecoResponse.de(frete.getPontoEntrega()) : EnderecoResponse.publico(frete.getPontoEntrega()),
+                completo ? frete.getNomeDestinatario() : null,
+                completo ? frete.getTelefoneDestinatario() : null,
                 frete.getDescricaoCarga(),
                 frete.getEspecieCarga(),
                 frete.getTipoCargaAntt(),
