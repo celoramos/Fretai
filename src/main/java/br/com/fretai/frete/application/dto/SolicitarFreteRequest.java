@@ -1,5 +1,7 @@
 package br.com.fretai.frete.application.dto;
 
+import br.com.fretai.frete.domain.TipoCarga;
+import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.Digits;
@@ -45,5 +47,11 @@ public record SolicitarFreteRequest(
 
         @NotNull(message = "A data da coleta é obrigatória.")
         @FutureOrPresent(message = "A data da coleta não pode estar no passado.")
-        LocalDate dataColeta) {
+        LocalDate dataColeta,
+
+        @NotNull(message = "Escolha o tamanho do veículo.")
+        CategoriaVeiculo categoriaVeiculo,
+
+        @NotNull(message = "Escolha o que vai levar.")
+        TipoCarga tipoCarga) {
 }

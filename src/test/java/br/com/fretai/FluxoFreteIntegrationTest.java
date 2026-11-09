@@ -212,7 +212,60 @@ class FluxoFreteIntegrationTest {
                 .andExpect(jsonPath("$.erros.descricaoCarga").exists())
                 .andExpect(jsonPath("$.erros.pesoKg").exists())
                 .andExpect(jsonPath("$.erros.valor").exists())
-                .andExpect(jsonPath("$.erros.dataColeta").value("A data da coleta é obrigatória."));
+                .andExpect(jsonPath("$.erros.dataColeta").value("A data da coleta é obrigatória."))
+                .andExpect(jsonPath("$.erros.categoriaVeiculo").value("Escolha o tamanho do veículo."))
+                .andExpect(jsonPath("$.erros.tipoCarga").value("Escolha o que vai levar."));
+    }
+
+    @Test
+    @DisplayName("O pedido guarda o tamanho do veículo e o tipo de carga")
+    void pedidoGuardaTamanhoETipo() throws Exception {
+        String clienteId = cadastrarCliente("31415927138", "tamanho@email.com");
+        RequestPostProcessor cliente = Login.como(mvc, "tamanho@email.com");
+        String freteId = solicitarFrete(clienteId, cliente, "VAN");
+
+        mvc.perform(get("/api/fretes/{id}", freteId).with(cliente))
+                .andExpect(jsonPath("$.categoriaVeiculo").value("VAN"))
+                .andExpect(jsonPath("$.tipoCarga").value("CAIXAS"));
+    }
+
+    @Test
+    @DisplayName("Moto não é tamanho de veículo de frete")
+    void motoNaoEhTamanho() throws Exception {
+        String clienteId = cadastrarCliente("31415927219", "moto@email.com");
+        mvc.perform(post("/api/fretes").with(Login.como(mvc, "moto@email.com")).contentType(MediaType.APPLICATION_JSON)
+                        .content(pedidoJson(clienteId, "MOTO")))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Motorista com veículo menor que o pedido não aceita; com o tamanho certo, aceita")
+    void veiculoMenorNaoAceita() throws Exception {
+        String clienteId = cadastrarCliente("31415926670", "mudanca@email.com");
+        String pequeno = cadastrarMotorista("31415926751", "fiorino@email.com", "FIO1A11", "UTILITARIO");
+        String grande = cadastrarMotorista("31415926832", "bau@email.com", "BAU1A11", "CAMINHAO");
+        String freteId = solicitarFrete(clienteId, Login.como(mvc, "mudanca@email.com"), "CAMINHAO");
+
+        mvc.perform(post("/api/fretes/{id}/aceite", freteId).with(Login.como(mvc, "fiorino@email.com"))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"motoristaId\": \"%s\"}".formatted(pequeno)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.detail").value("Este frete precisa de caminhão."));
+        mvc.perform(post("/api/fretes/{id}/aceite", freteId).with(Login.como(mvc, "bau@email.com"))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"motoristaId\": \"%s\"}".formatted(grande)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Motorista com veículo menor que o pedido não manda proposta")
+    void veiculoMenorNaoPropoe() throws Exception {
+        String clienteId = cadastrarCliente("31415926913", "obra@email.com");
+        cadastrarMotorista("31415927057", "van@email.com", "VAN1A11", "VAN");
+        String freteId = solicitarFrete(clienteId, Login.como(mvc, "obra@email.com"), "CAMINHAO");
+
+        mvc.perform(post("/api/fretes/{id}/propostas", freteId).with(Login.como(mvc, "van@email.com"))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"valor\": 250.00, \"adiantamentoPercentual\": 0}"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.detail").value("Este frete precisa de caminhão."));
     }
 
     // ---------- auxiliares ----------
@@ -232,24 +285,37 @@ class FluxoFreteIntegrationTest {
     }
 
     private String cadastrarMotorista(String cpf, String email, String placa) throws Exception {
+        return cadastrarMotorista(cpf, email, placa, "UTILITARIO");
+    }
+
+    private String cadastrarMotorista(String cpf, String email, String placa, String tipoVeiculo) throws Exception {
         String corpo = mvc.perform(post("/api/motoristas").contentType(MediaType.APPLICATION_JSON).content("""
                         {"cpf": "%s", "nome": "Marcos Souza", "email": "%s", "senha": "senhaForte1",
-                         "telefone": "11988887777", "tipoVeiculo": "UTILITARIO", "placa": "%s"}
-                        """.formatted(cpf, email, placa)))
+                         "telefone": "11988887777", "tipoVeiculo": "%s", "placa": "%s"}
+                        """.formatted(cpf, email, tipoVeiculo, placa)))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         return JsonPath.read(corpo, "$.id");
     }
 
+    private static String pedidoJson(String clienteId, String categoriaVeiculo) {
+        return """
+                {"clienteId": "%s",
+                 "coleta":  {"cep": "01001-000", "numero": "100"},
+                 "entrega": {"cep": "20040-002", "numero": "50"},
+                 "nomeDestinatario": "Ana Pereira", "telefoneDestinatario": "21977776666",
+                 "descricaoCarga": "Caixa de peças", "pesoKg": 12, "valor": 180.00,
+                 "dataColeta": "2099-01-07", "categoriaVeiculo": "%s", "tipoCarga": "CAIXAS"}
+                """.formatted(clienteId, categoriaVeiculo);
+    }
+
     private String solicitarFrete(String clienteId, RequestPostProcessor cliente) throws Exception {
-        String corpo = mvc.perform(post("/api/fretes").with(cliente).contentType(MediaType.APPLICATION_JSON).content("""
-                        {"clienteId": "%s",
-                         "coleta":  {"cep": "01001-000", "numero": "100"},
-                         "entrega": {"cep": "20040-002", "numero": "50"},
-                         "nomeDestinatario": "Ana Pereira", "telefoneDestinatario": "21977776666",
-                         "descricaoCarga": "Caixa de peças", "pesoKg": 12, "valor": 180.00,
-                         "dataColeta": "2099-01-07"}
-                        """.formatted(clienteId)))
+        return solicitarFrete(clienteId, cliente, "UTILITARIO");
+    }
+
+    private String solicitarFrete(String clienteId, RequestPostProcessor cliente, String categoriaVeiculo) throws Exception {
+        String corpo = mvc.perform(post("/api/fretes").with(cliente).contentType(MediaType.APPLICATION_JSON)
+                        .content(pedidoJson(clienteId, categoriaVeiculo)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("PUBLICADO"))
                 .andExpect(jsonPath("$.distanciaKm").value(12.4))

@@ -5,6 +5,7 @@ import br.com.fretai.empresa.domain.TipoEmpresa;
 import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.endereco.domain.Endereco;
 import br.com.fretai.frete.domain.Autor;
+import br.com.fretai.frete.domain.TipoCarga;
 import br.com.fretai.frete.domain.DadosCarga;
 import br.com.fretai.shared.seguranca.Papel;
 import br.com.fretai.frete.domain.EnderecoFrete;
@@ -56,7 +57,8 @@ public final class Fixtures {
         EnderecoFrete coleta = new EnderecoFrete(enderecoSaoPaulo(), "100", "Sala 3", "Próximo à Catedral");
         EnderecoFrete entrega = new EnderecoFrete(enderecoRioDeJaneiro(), "50", null, null);
         return new Frete(cliente(), coleta, entrega, "Ana Pereira", "21977776666",
-                "Caixa de peças automotivas", new BigDecimal("12.00"), valor, dataColeta);
+                "Caixa de peças automotivas", new BigDecimal("12.00"), valor, dataColeta,
+                CategoriaVeiculo.UTILITARIO, TipoCarga.CAIXAS);
     }
 
     // ---------- Marketplace B2B ----------

@@ -6,6 +6,7 @@ import br.com.fretai.endereco.domain.Coordenadas;
 import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.StatusFrete;
+import br.com.fretai.frete.domain.TipoCarga;
 import br.com.fretai.precificacao.domain.TipoCargaAntt;
 import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import br.com.fretai.usuario.domain.Motorista;
@@ -39,6 +40,8 @@ public record FreteResponse(
         String descricaoCarga,
         String especieCarga,
         TipoCargaAntt tipoCargaAntt,
+        CategoriaVeiculo categoriaVeiculo,
+        TipoCarga tipoCarga,
         BigDecimal pesoKg,
         BigDecimal valor,
         boolean valorACombinar,
@@ -121,6 +124,8 @@ public record FreteResponse(
                 frete.getDescricaoCarga(),
                 frete.getEspecieCarga(),
                 frete.getTipoCargaAntt(),
+                frete.getCategoriaVeiculo(),
+                frete.getTipoCarga(),
                 frete.getPesoKg(),
                 frete.getValor(),
                 frete.isValorACombinar(),

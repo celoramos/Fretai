@@ -67,7 +67,8 @@ public class FreteService {
 
         Frete frete = new Frete(cliente, coleta, entrega,
                 request.nomeDestinatario(), request.telefoneDestinatario(),
-                request.descricaoCarga(), request.pesoKg(), request.valor(), request.dataColeta());
+                request.descricaoCarga(), request.pesoKg(), request.valor(), request.dataColeta(),
+                request.categoriaVeiculo(), request.tipoCarga());
         preparacao.completar(frete, request.dataColeta());
         Frete salvo = freteRepository.save(frete);
         eventos.publishEvent(new EventosFrete.FretePublicado(salvo.getId()));

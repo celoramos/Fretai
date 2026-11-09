@@ -2,21 +2,36 @@ package br.com.fretai.usuario.domain;
 
 import java.math.BigDecimal;
 
+/**
+ * Tamanho do veículo de quem faz frete de pessoa física, do menor para o maior: a ordem da declaração
+ * é a regra de {@link #leva}. Carro de passeio e moto não fazem frete no Fretaí (decisão do dono do
+ * produto), por isso não estão aqui.
+ */
 public enum CategoriaVeiculo {
-    MOTO("Moto"),
-    CARRO("Carro de passeio"),
-    UTILITARIO("Utilitário (Fiorino, Kangoo)"),
-    VAN("Van / furgão"),
-    CAMINHAO("Caminhão");
+    UTILITARIO("Utilitário", "qualquer veículo"),
+    VAN("Van ou furgão", "van, furgão ou caminhão"),
+    CAMINHAO("Caminhão", "caminhão");
 
     private final String descricao;
+    private final String exigencia;
 
-    CategoriaVeiculo(String descricao) {
+    CategoriaVeiculo(String descricao, String exigencia) {
         this.descricao = descricao;
+        this.exigencia = exigencia;
     }
 
     public String getDescricao() {
         return descricao;
+    }
+
+    /** O que um frete que pede este tamanho exige, na frase "Este frete precisa de ...". */
+    public String exigencia() {
+        return exigencia;
+    }
+
+    /** Um veículo leva o frete que pede o tamanho dele ou um menor. Frete sem tamanho pedido: qualquer um leva. */
+    public boolean leva(CategoriaVeiculo exigida) {
+        return exigida == null || compareTo(exigida) >= 0;
     }
 
     /**

@@ -14,6 +14,7 @@ import br.com.fretai.frete.domain.EventosFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.PropostaRepository;
 import br.com.fretai.frete.domain.StatusProposta;
+import br.com.fretai.frete.domain.TipoCarga;
 import br.com.fretai.veiculo.domain.VeiculoRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import br.com.fretai.frete.domain.FreteRepository;
@@ -83,7 +84,8 @@ class FreteServiceTest {
         return new SolicitarFreteRequest(clienteId,
                 new EnderecoRequest(cepOrigem, "100", "Sala 3", "Próximo à Catedral"),
                 new EnderecoRequest(cepDestino, "50", null, null),
-                "Ana Pereira", "21977776666", "Caixa de peças", new BigDecimal("12"), valor, dataColeta);
+                "Ana Pereira", "21977776666", "Caixa de peças", new BigDecimal("12"), valor, dataColeta,
+                CategoriaVeiculo.UTILITARIO, TipoCarga.CAIXAS);
     }
 
     private void diaComum() {

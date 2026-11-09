@@ -56,7 +56,9 @@ class FreteControllerTest {
               "descricaoCarga": "Caixa",
               "pesoKg": 12,
               "valor": 180.00,
-              "dataColeta": "2099-01-07"
+              "dataColeta": "2099-01-07",
+              "categoriaVeiculo": "UTILITARIO",
+              "tipoCarga": "CAIXAS"
             }
             """;
 

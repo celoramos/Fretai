@@ -8,6 +8,7 @@ import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.shared.seguranca.Papel;
 import br.com.fretai.shared.seguranca.UsuarioLogado;
+import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.Motorista;
 import br.com.fretai.veiculo.domain.TipoCarroceria;
@@ -101,6 +102,16 @@ public class Frete {
     @Enumerated(EnumType.STRING)
     @Column(length = 40)
     private TipoCargaAntt tipoCargaAntt;
+
+    /** Frete de pessoa física: o menor veículo que leva a carga. Nulo no frete de empresa. */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private CategoriaVeiculo categoriaVeiculo;
+
+    /** Frete de pessoa física: o que vai (mudança, móveis...). Nulo no frete de empresa. */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private TipoCarga tipoCarga;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal pesoKg;
@@ -328,13 +339,26 @@ public class Frete {
 
     public Frete(Cliente cliente, EnderecoFrete pontoColeta, EnderecoFrete pontoEntrega,
                  String nomeDestinatario, String telefoneDestinatario,
-                 String descricaoCarga, BigDecimal pesoKg, BigDecimal valor, LocalDate dataColeta) {
+                 String descricaoCarga, BigDecimal pesoKg, BigDecimal valor, LocalDate dataColeta,
+                 CategoriaVeiculo categoriaVeiculo, TipoCarga tipoCarga) {
         this(pontoColeta, pontoEntrega, descricaoCarga, pesoKg, Objects.requireNonNull(valor, "Valor é obrigatório."),
                 dataColeta, new Autor(Objects.requireNonNull(cliente, "Cliente solicitante é obrigatório.").getId(),
                         Papel.CLIENTE));
         this.cliente = cliente;
         this.nomeDestinatario = nomeDestinatario;
         this.telefoneDestinatario = telefoneDestinatario;
+        this.categoriaVeiculo = Objects.requireNonNull(categoriaVeiculo, "O tamanho do veículo é obrigatório.");
+        this.tipoCarga = Objects.requireNonNull(tipoCarga, "O tipo de carga é obrigatório.");
+    }
+
+    /**
+     * Frete de pessoa física: o veículo do motorista tem que ser do tamanho pedido ou maior. Vale no
+     * aceite e também na proposta, para o cliente não fechar com quem não leva a carga.
+     */
+    public void exigirVeiculoDoTamanho(Motorista candidato) {
+        if (empresa == null && !candidato.getTipoVeiculo().leva(categoriaVeiculo)) {
+            throw new RegraNegocioException("Este frete precisa de " + categoriaVeiculo.exigencia() + ".");
+        }
     }
 
     /**
@@ -486,9 +510,12 @@ public class Frete {
                 throw new RegraNegocioException("O veículo " + caminhao.getPlaca()
                         + " não atende ao tipo, carroceria ou rastreador exigidos pelo frete.");
             }
-        } else if (!candidato.getTipoVeiculo().suporta(pesoKg)) {
-            throw new RegraNegocioException("O veículo " + candidato.getTipoVeiculo().getDescricao()
-                    + " não suporta uma carga de " + pesoKg + " kg.");
+        } else {
+            exigirVeiculoDoTamanho(candidato);
+            if (!candidato.getTipoVeiculo().suporta(pesoKg)) {
+                throw new RegraNegocioException("O veículo " + candidato.getTipoVeiculo().getDescricao()
+                        + " não suporta uma carga de " + pesoKg + " kg.");
+            }
         }
     }
 
@@ -507,6 +534,8 @@ public class Frete {
     public Veiculo getVeiculo() {return veiculo;}
     public String getEspecieCarga() {return especieCarga;}
     public TipoCargaAntt getTipoCargaAntt() {return tipoCargaAntt;}
+    public CategoriaVeiculo getCategoriaVeiculo() {return categoriaVeiculo;}
+    public TipoCarga getTipoCarga() {return tipoCarga;}
     public boolean isValorACombinar() {return valorACombinar;}
     public Set<TipoVeiculo> getVeiculosAceitos() {return Collections.unmodifiableSet(veiculosAceitos);}
     public Set<TipoCarroceria> getCarroceriasAceitas() {return Collections.unmodifiableSet(carroceriasAceitas);}
