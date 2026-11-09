@@ -213,6 +213,9 @@ export function Cadastro() {
                 {erroGeral && <Aviso tom={problema.status === 409 ? 'alerta' : 'perigo'} titulo={problema.title}>{problema.detail}</Aviso>}
               </div>
 
+              <p className="cadastro__aceite">
+                Ao criar a conta, você concorda com os <Link to="/termos">termos de uso</Link> e com a <Link to="/privacidade">política de privacidade</Link>.
+              </p>
               <button type="submit" className="botao botao--primario botao--largo" disabled={enviando}>
                 {enviando ? 'Criando a conta…' : 'Criar conta'}
               </button>

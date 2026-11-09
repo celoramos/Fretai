@@ -206,6 +206,10 @@ export function Inicio() {
       <footer className="inicio__rodape">
         <Marca />
         <p>Frete com pagamento garantido antes de carregar.</p>
+        <nav className="inicio__legal" aria-label="Documentos">
+          <Link to="/privacidade">Privacidade</Link>
+          <Link to="/termos">Termos de uso</Link>
+        </nav>
         <Link to="/entrar" className="botao botao--secundario inicio__pilula">Entrar</Link>
       </footer>
     </div>

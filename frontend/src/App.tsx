@@ -15,6 +15,9 @@ import { useSessao } from './sessao'
 /* A página pública carrega à parte: o GSAP e o CSS dela não entram no app logado. */
 const Inicio = lazy(() => import('./pages/Inicio').then((m) => ({ default: m.Inicio })))
 
+const Privacidade = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Privacidade })))
+const Termos = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Termos })))
+
 const INICIO: Partial<Record<Papel, string>> = { MOTORISTA: '/motorista', EMPRESA: '/empresa' }
 
 function Protegida({ papel, children }: { papel: Papel; children: React.ReactNode }) {
@@ -31,6 +34,8 @@ export function App() {
       <Route path="/" element={tokens ? <Navigate to={INICIO[tokens.papel] ?? '/entrar'} replace /> : <Suspense fallback={null}><Inicio /></Suspense>} />
       <Route path="/entrar" element={<Entrar />} />
       <Route path="/cadastro" element={<Cadastro />} />
+      <Route path="/privacidade" element={<Suspense fallback={null}><Privacidade /></Suspense>} />
+      <Route path="/termos" element={<Suspense fallback={null}><Termos /></Suspense>} />
       <Route path="/motorista" element={<Protegida papel="MOTORISTA"><LayoutMotorista /></Protegida>}>
         <Route index element={<BuscaFretes />} />
         <Route path="meus-fretes" element={<MeusFretes />} />

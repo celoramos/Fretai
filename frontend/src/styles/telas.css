@@ -197,6 +197,8 @@
 .cadastro__google { color: var(--cor-texto-secundario); }
 .cadastro__google strong { color: var(--cor-texto); }
 .campo__entrada--placa { font-family: var(--fonte-mono); text-transform: uppercase; }
+.cadastro__aceite { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.cadastro__aceite a { color: var(--cor-texto); }
 
 .entrar__demo { display: grid; gap: var(--esp-2); padding-top: var(--esp-4); border-top: var(--borda) solid var(--cor-linha); font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
 .entrar__demo-botoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
@@ -253,3 +255,28 @@
 .pix__texto { display: grid; gap: var(--esp-3); flex: 1; min-width: 0; align-content: start; }
 .pix__codigo { display: block; padding: var(--esp-3); border: var(--borda) solid var(--cor-linha); border-radius: var(--raio-campo); font-size: var(--tam-legenda); overflow-wrap: anywhere; }
 .pix__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); align-items: center; }
+
+/* ---------- privacidade e termos ----------
+   Texto corrido de leitura: uma coluna estreita, sem cartão. A lacuna (fato que falta) usa a cor de
+   alerta no título, como o aviso, para não passar por texto pronto. */
+.legal { --alvo: var(--alvo-motorista); min-height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; }
+.legal__topo, .legal__texto, .legal__rodape { width: 100%; max-width: 72ch; margin: 0 auto; padding-left: var(--esp-6); padding-right: var(--esp-6); }
+.legal__topo { padding-top: var(--esp-4); padding-bottom: var(--esp-4); }
+.legal__marca { display: inline-flex; min-height: var(--alvo); align-items: center; color: var(--cor-texto); text-decoration: none; }
+.legal__texto { display: grid; gap: var(--esp-6); align-content: start; padding-top: var(--esp-6); padding-bottom: var(--esp-12); }
+.legal__texto h1 { font-family: var(--fonte-placa); font-size: var(--tam-titulo); line-height: var(--altura-titulo); }
+.legal__texto section { display: grid; gap: var(--esp-3); }
+.legal__texto h2 { font-family: var(--fonte-placa); font-size: var(--tam-bloco); line-height: var(--altura-titulo); margin-top: var(--esp-4); }
+.legal__data, .legal__rascunho { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.legal__data { margin-top: calc(var(--esp-4) * -1); }
+.legal__lista { display: grid; gap: var(--esp-4); }
+.legal__lista dt { font-weight: var(--peso-forte); }
+.legal__lista dd { color: var(--cor-texto-secundario); }
+.legal__itens { display: grid; gap: var(--esp-2); padding-left: var(--esp-6); }
+ul.legal__itens { list-style: disc; }
+ol.legal__itens { list-style: decimal; }
+.legal__lacuna { color: var(--cor-texto); }
+.legal__lacuna strong { color: var(--cor-alerta); }
+.legal__rodape { display: flex; flex-wrap: wrap; gap: var(--esp-6); padding-top: var(--esp-6); padding-bottom: var(--esp-8); border-top: var(--borda) solid var(--cor-linha); }
+.legal__rodape a { display: inline-flex; align-items: center; min-height: var(--alvo); color: var(--cor-texto-secundario); }
+.legal__rodape a:hover { color: var(--cor-texto); }

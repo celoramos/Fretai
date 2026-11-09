@@ -154,6 +154,9 @@
   color: var(--cor-texto-secundario);
 }
 .inicio__rodape > .botao { margin-left: auto; }
+.inicio__legal { display: flex; gap: var(--esp-4); }
+.inicio__legal a { display: inline-flex; align-items: center; min-height: var(--alvo); color: var(--cor-texto-secundario); }
+.inicio__legal a:hover { color: var(--cor-texto); }
 
 /* 900px: mesma quebra de duas colunas do resto do app (tokens.css, --largura-coluna-celular). */
 @media (min-width: 900px) {
