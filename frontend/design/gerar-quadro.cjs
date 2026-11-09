@@ -86,7 +86,7 @@ const lado = (titulo, html, pilha) => `<div class="q-par${pilha ? " q-par--pilha
   <div class="q-par__lado"><p class="q-rotulo">Claro</p>${html}</div>
   <div class="q-par__lado tema-escuro"><p class="q-rotulo">Escuro</p>${html}</div>
 </div>`;
-const prop = (telas.detalheE0.match(/<article class="proposta"[\s\S]*?<\/article>/) || [pecas.proposta])[0]
+const prop = (telas.detalheE0.match(/<article class="proposta[^"]*"[\s\S]*?<\/article>/) || [pecas.proposta])[0]
   .replace('<p class="proposta__destaques"></p>', '<p class="proposta__destaques"><span class="proposta__destaque">Menor valor</span></p>')
   .replace("Carregando reputação…", "★ 4,9 · 212 fretes · 98% entregues no prazo");
 
@@ -106,7 +106,7 @@ const botoes = `<div class="q-linha">
 </div>`;
 
 const etiquetas = `<div class="q-linha">${[...new Set(pecas.etiquetas)].join("")}${pecas.selos[0]}</div>`;
-const tabelaMini = `<div class="tabela-rolagem"><table class="tabela"><thead><tr><th scope="col">Rota</th><th scope="col">Coleta</th><th scope="col" class="tabela__num">Valor</th><th scope="col">Situação</th></tr></thead><tbody>
+const tabelaMini = `<div class="tabela-rolagem cartao"><table class="tabela"><thead><tr><th scope="col">Rota</th><th scope="col">Coleta</th><th scope="col" class="tabela__num">Valor</th><th scope="col">Situação</th></tr></thead><tbody>
 <tr><td><div class="tabela__rota-cel"><a class="tabela__rota">Campinas/SP → Rio de Janeiro/RJ</a>${pecas.km}</div></td><td>09 de nov.</td><td class="tabela__num">R$ 4.850</td><td><span class="etiqueta etiqueta--faixa">Com propostas</span></td></tr>
 <tr><td><div class="tabela__rota-cel"><a class="tabela__rota">Jundiaí/SP → Curitiba/PR</a><span class="km">410&nbsp;km</span></div></td><td>05 de nov.</td><td class="tabela__num">R$ 5.300</td><td><span class="etiqueta etiqueta--faixa">Em trânsito</span></td></tr>
 </tbody></table></div>`;
