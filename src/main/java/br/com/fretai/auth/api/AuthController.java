@@ -1,6 +1,9 @@
 package br.com.fretai.auth.api;
 
 import br.com.fretai.auth.application.AuthService;
+import br.com.fretai.auth.application.SenhaService;
+import br.com.fretai.auth.application.dto.PedidoLinkSenhaRequest;
+import br.com.fretai.auth.application.dto.SenhaNovaRequest;
 import br.com.fretai.auth.application.dto.GoogleLoginRequest;
 import br.com.fretai.auth.application.dto.LoginRequest;
 import br.com.fretai.auth.application.dto.RefreshRequest;
@@ -22,9 +25,25 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final SenhaService senhaService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, SenhaService senhaService) {
         this.authService = authService;
+        this.senhaService = senhaService;
+    }
+
+    /** Esqueci a senha. Sempre 204, exista a conta ou não: a resposta não entrega quem tem cadastro. */
+    @PostMapping("/senha/link")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void pedirLinkSenha(@Valid @RequestBody PedidoLinkSenhaRequest request) {
+        senhaService.pedirLink(request.email());
+    }
+
+    /** Grava a senha nova com o token do link. Link usado, vencido ou desconhecido: 422. */
+    @PostMapping("/senha/nova")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void definirSenha(@Valid @RequestBody SenhaNovaRequest request) {
+        senhaService.definirSenha(request.token(), request.senha());
     }
 
     /** IP direto da conexão. Atrás de proxy, configurar server.forward-headers-strategy. */

@@ -27,7 +27,8 @@ class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(rotas -> rotas
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/google", "/api/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/google", "/api/auth/refresh",
+                                "/api/auth/senha/link", "/api/auth/senha/nova").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/clientes", "/api/motoristas", "/api/empresas").permitAll()
                         // Consulta de CNPJ (formulário de cadastro), feriados e calendário: dados públicos.
                         .requestMatchers(HttpMethod.GET, "/api/empresas/{cnpj:[0-9A-Za-z.\\-]{14,18}}").permitAll()

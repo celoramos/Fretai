@@ -94,6 +94,14 @@ public abstract class Usuario {
     }
 
     /** Liga a conta Google. Uma conta Fretaí aceita uma conta Google só, e não troca por outra. */
+    /** Senha nova, pelo link de esqueci a senha. Recebe o hash: a senha em si nunca entra aqui. */
+    public void definirSenha(String senhaHash) {
+        if (senhaHash == null || senhaHash.isBlank()) {
+            throw new IllegalArgumentException("O hash da senha é obrigatório.");
+        }
+        this.senhaHash = senhaHash;
+    }
+
     public void vincularGoogle(String sub) {
         if (googleSub != null && !googleSub.equals(sub)) {
             throw new IllegalStateException("Esta conta já está ligada a outra conta Google.");

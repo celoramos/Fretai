@@ -46,6 +46,9 @@ fretai:
   google:
     # Client ID OAuth (tipo "Aplicativo da Web") do Google Cloud. Sem ele, entrar com Google responde 422.
     client-id: ${FRETAI_GOOGLE_CLIENT_ID:}
+  front:
+    # Onde o app abre: o link de senha nova aponta para {url}/nova-senha.
+    url: ${FRETAI_URL_FRONT:http://localhost:5173}
   login:
     # Depois de 5 senhas erradas para o mesmo e-mail e IP, espera até 15 minutos.
     maximo-falhas: 5
