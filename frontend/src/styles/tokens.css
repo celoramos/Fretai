@@ -142,6 +142,8 @@
   --largura-acao: 20ch;     /* "Responder propostas", a ação mais longa de Precisa de você */
   /* Cartão de proteção na página pública: cabe título de 4 palavras em duas linhas; 4 por linha em 1120. */
   --largura-cartao-min: 240px;
+  /* Menu da conta no computador (canvas Cliente-Inicio-PC): "Como o pagamento funciona" e a seta numa linha. */
+  --largura-menu: 300px;
 }
 
 :root[data-tema="escuro"] {

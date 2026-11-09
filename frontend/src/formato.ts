@@ -14,6 +14,14 @@ export function contratante(f: Pick<Frete, 'empresa' | 'cliente' | 'publicadoPor
 }
 export const maiuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
+/** Iniciais do avatar, como no canvas: "Juliana Matos" vira JM; um nome só vira uma letra. */
+export function iniciais(nome: string | null | undefined) {
+  const partes = (nome ?? '').trim().split(/\s+/).filter(Boolean)
+  if (!partes.length) return ''
+  const ultima = partes.length > 1 ? partes[partes.length - 1][0] : ''
+  return (partes[0][0] + ultima).toUpperCase()
+}
+
 /** Só o número; o "R$" é desenhado à parte, menor e mais claro (briefing, seção 4). */
 export const reais = (v: number) => brl.format(v)
 export const reaisCentavos = (v: number) => brlCentavos.format(v)

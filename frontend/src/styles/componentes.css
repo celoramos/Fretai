@@ -499,3 +499,130 @@
 .sair__texto { margin-top: var(--esp-2); color: var(--cor-texto-secundario); text-wrap: pretty; }
 /* Empilhados na largura toda: lado a lado os dois rótulos não cabem em 380 px e um quebrava sozinho. */
 .sair__botoes { display: grid; gap: var(--esp-2); margin-top: var(--esp-6); }
+
+/* ---------- folha (dialog que sobe de baixo) ----------
+   No celular encosta embaixo, com os cantos de cima arredondados, como no canvas; a partir de 900px
+   fica no meio da tela, na largura de um formulário. */
+.folha {
+  width: 100%;
+  max-width: 100%;
+  max-height: 90dvh;
+  margin: auto 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--raio-cartao) var(--raio-cartao) 0 0;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  overflow: auto;
+}
+.folha::backdrop { background: var(--cor-veu); }
+.folha__corpo { display: grid; gap: var(--esp-4); padding: var(--esp-4) var(--esp-4) calc(var(--esp-6) + env(safe-area-inset-bottom)); }
+.folha__topo { display: flex; align-items: center; justify-content: space-between; gap: var(--esp-3); }
+.folha__titulo { font-size: var(--tam-secao); }
+.folha__texto { color: var(--cor-texto-secundario); text-wrap: pretty; }
+.folha__aviso { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); font-weight: var(--peso-medio); }
+.folha__acoes { display: grid; gap: var(--esp-2); }
+.folha__fechar { flex: none; background: var(--cor-linha); }
+@media (min-width: 900px) {
+  .folha { margin: auto; max-width: var(--largura-formulario); border-radius: var(--raio-cartao); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .folha[open] { animation: folha-sobe var(--dur-media) var(--curva); }
+}
+@keyframes folha-sobe { from { transform: translateY(var(--esp-8)); opacity: 0; } }
+
+/* ---------- motivos (cancelar ou desistir) ---------- */
+.motivos { display: grid; gap: var(--esp-2); margin: 0; padding: 0; border: 0; }
+.motivos__pergunta { margin-bottom: var(--esp-1); padding: 0; font-weight: var(--peso-forte); }
+.motivo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: var(--alvo);
+  padding: 0 var(--esp-3);
+  border: var(--borda) solid var(--cor-borda-campo);
+  border-radius: var(--raio-controle);
+  background: var(--cor-superficie);
+  cursor: pointer;
+}
+.motivo:has(input:checked) { border-color: var(--cor-texto); box-shadow: inset 0 0 0 var(--borda) var(--cor-texto); }
+.motivo input { margin: 0; accent-color: var(--cor-texto); }
+
+/* ---------- avatar e menu da conta ---------- */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: var(--alvo);
+  height: var(--alvo);
+  flex: none;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-linha);
+  color: var(--cor-texto);
+  font-family: var(--fonte-placa);
+  font-weight: var(--peso-placa);
+  font-size: var(--tam-detalhe);
+}
+.avatar--grande { width: calc(var(--alvo) + var(--esp-2)); height: calc(var(--alvo) + var(--esp-2)); font-size: var(--tam-corpo); }
+.conta { position: relative; }
+.conta__avatar { display: inline-flex; padding: 0; border: 0; text-decoration: none; border-radius: var(--raio-pilula); background: none; color: inherit; cursor: pointer; }
+.conta__avatar:hover .avatar { box-shadow: inset 0 0 0 var(--borda-forte) var(--cor-borda-campo); }
+.conta__menu {
+  position: absolute;
+  top: calc(100% + var(--esp-2));
+  right: 0;
+  z-index: 10;
+  display: grid;
+  width: var(--largura-menu);
+  padding: var(--esp-2);
+  border-radius: var(--raio-cartao);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-cartao);
+}
+.conta__menu[hidden] { display: none; }
+.conta__quem { display: flex; align-items: center; gap: var(--esp-3); }
+.conta__nome { display: grid; flex: 1; min-width: 0; }
+.conta__nome strong { font-family: var(--fonte-placa); font-size: var(--tam-secao); font-weight: var(--peso-placa); line-height: var(--altura-titulo); }
+.conta__nome span { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); overflow-wrap: anywhere; }
+.conta--menu .conta__quem { padding: var(--esp-2) var(--esp-3) var(--esp-3); }
+.conta--menu .conta__nome strong { font-family: var(--fonte-texto); font-size: var(--tam-corpo); font-weight: var(--peso-forte); }
+.conta__grupo { display: grid; padding: var(--esp-1) 0; border-top: var(--borda) solid var(--cor-linha); }
+.conta__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2);
+  min-height: var(--alvo);
+  padding: 0 var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-controle);
+  background: none;
+  color: var(--cor-texto);
+  font: inherit;
+  font-weight: var(--peso-medio);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.conta__item:hover { background: var(--cor-linha); }
+.conta__ajuda { padding: 0 var(--esp-3) var(--esp-2); color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); text-wrap: pretty; }
+.conta__seta { flex: none; color: var(--cor-texto-secundario); }
+/* Na folha do celular os itens são linhas de lista, separadas por fio, sem o fundo de menu. */
+.conta__lista { display: grid; }
+.conta__lista .conta__item { padding: 0; border-radius: 0; border-top: var(--borda) solid var(--cor-linha); }
+.conta__lista .conta__item:hover { background: none; color: var(--cor-texto-secundario); }
+.conta__lista .conta__ajuda { padding: 0 0 var(--esp-3); }
+.conta__lista > :last-child { border-bottom: var(--borda) solid var(--cor-linha); }
+
+/* ---------- cabeçalho de cada tela ----------
+   Celular: voltar (ou a carreta) e o título numa linha. Computador: a barra de cima tem a marca, e o
+   título vira o h1 grande. */
+.cabecalho-pagina { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-3); margin-bottom: var(--esp-4); }
+.cabecalho-pagina__voltar { display: inline-grid; place-items: center; width: var(--alvo); height: var(--alvo); margin-left: calc(var(--esp-3) * -1); border-radius: var(--raio-pilula); color: var(--cor-texto); }
+.cabecalho-pagina__voltar:hover { background: var(--cor-linha); }
+.cabecalho-pagina__marca { display: inline-flex; }
+.cabecalho-pagina__titulo { flex: 1; min-width: 0; font-size: var(--tam-secao); }
+@media (min-width: 900px) {
+  .cabecalho-pagina { margin-bottom: var(--esp-6); }
+  .cabecalho-pagina__marca { display: none; }
+  .cabecalho-pagina__titulo { font-size: var(--tam-display); }
+}

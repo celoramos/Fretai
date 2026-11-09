@@ -1,10 +1,14 @@
 import type { ReactNode } from 'react'
 import { motion } from 'motion/react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { MODO_DEMO } from '../api/cliente'
+import { api, MODO_DEMO } from '../api/cliente'
+import type { Eu } from '../api/tipos'
+import { useRecurso } from '../api/useRecurso'
 import { useSessao } from '../sessao'
+import { Avatar } from './Avatar'
 import { Indicador } from './ui'
 import { Marca } from './Marca'
+import { MenuConta } from './MenuConta'
 
 /** Troca de tela: a página nova sobe 4 px e aparece. Sem saída animada, para não atrasar a navegação. */
 function Pagina() {
@@ -16,7 +20,7 @@ function Pagina() {
   )
 }
 
-function BotaoTema() {
+export function BotaoTema() {
   const { tema, alternarTema } = useSessao()
   return (
     <button type="button" className="botao botao--fantasma botao--icone" onClick={alternarTema} aria-label={tema === 'escuro' ? 'Usar tema claro' : 'Usar tema escuro'}>
@@ -44,10 +48,10 @@ function BotaoSair() {
   )
 }
 
-/** Ícones da barra inferior, no traço do botão de tema. O rótulo vem sempre junto: ícone sozinho não diz. */
+/** Ícones da barra de baixo, no traço do botão de tema. O rótulo vem sempre junto: ícone sozinho não diz. */
 const ICONES = {
   buscar: <><circle cx="8.5" cy="8.5" r="5" /><path d="M12.2 12.2 17 17" /></>,
-  meus: <><rect x="4" y="3" width="12" height="14" rx="2" /><path d="M7.5 7.5h5M7.5 10.5h5M7.5 13.5h3" /></>,
+  meus: <><path d="M2.5 5.5h9.5v8H2.5z" /><path d="M12 8.5h3.2l2.3 2.7v2.3H12" /><circle cx="6" cy="15" r="1.6" /><circle cx="14.5" cy="15" r="1.6" /></>,
   conta: <><rect x="4" y="2.5" width="12" height="15" rx="2" /><path d="M7 6h6M7 10h.01M10 10h.01M13 10h.01M7 13.5h.01M10 13.5h.01M13 13.5h.01" /></>,
   perfil: <><circle cx="10" cy="7" r="3.2" /><path d="M3.8 17c.9-3.2 3.3-5 6.2-5s5.3 1.8 6.2 5" /></>,
 }
@@ -77,34 +81,56 @@ function FaixaDemo() {
   return <p className="faixa-demo">Modo demonstração: dados de exemplo, nada é gravado.</p>
 }
 
+/** Os quatro lugares a que o motorista volta, na ordem do canvas. */
+const DESTINOS_MOTORISTA = [
+  { para: '/motorista', rotulo: 'Fretes', icone: 'buscar', fim: true, dentro: '/motorista/fretes/' },
+  { para: '/motorista/meus-fretes', rotulo: 'Meus fretes', icone: 'meus', fim: false },
+  { para: '/motorista/calculadora', rotulo: 'Calculadora', icone: 'conta', fim: false },
+  { para: '/motorista/perfil', rotulo: 'Perfil', icone: 'perfil', fim: false },
+] as const
+
+/**
+ * Motorista. No celular não há barra em cima: cada tela traz o próprio cabeçalho e a navegação fica
+ * embaixo, no alcance do polegar. A partir de 900px a navegação sobe para uma barra com a marca, o tema
+ * e o avatar, que leva ao Perfil, como no canvas.
+ */
 export function LayoutMotorista() {
+  const { pathname } = useLocation()
+  const { tokens } = useSessao()
+  const [eu] = useRecurso(() => api<Eu>('GET', '/api/auth/eu'), [tokens?.usuarioId])
   return (
     <div className="app-motorista">
       <FaixaDemo />
-      <header className="topo topo--motorista">
-        <Marca />
-        <div className="topo__acoes">
+      <header className="topo-app topo-app--so-computador">
+        <div className="topo-app__miolo">
+          <Link to="/motorista" className="topo-app__marca" aria-label="Fretaí, fretes perto de você"><Marca /></Link>
+          <nav aria-label="Menu do motorista" className="topo-app__nav">
+            {DESTINOS_MOTORISTA.map((d) => {
+              const ativo = d.fim ? pathname === d.para || ('dentro' in d && pathname.startsWith(d.dentro)) : pathname.startsWith(d.para)
+              return (
+                <Link key={d.para} to={d.para} className={ativo ? 'pilula-nav ativa' : 'pilula-nav'} aria-current={pathname === d.para ? 'page' : undefined}>
+                  {ativo && <Indicador id="nav-motorista-topo" forma="fundo" />}
+                  {d.rotulo}
+                </Link>
+              )
+            })}
+          </nav>
           <BotaoTema />
-          <BotaoSair />
+          <Link to="/motorista/perfil" className="conta__avatar" aria-label="Seu perfil">
+            <Avatar nome={eu.fase === 'pronto' ? eu.dados.nome : null} />
+          </Link>
         </div>
       </header>
       <main className="app-motorista__conteudo" id="conteudo">
         <Pagina />
       </main>
-      {/* Navegação no alcance do polegar: os quatro lugares a que o motorista volta. */}
       <nav className="nav-inferior" aria-label="Principal">
-        <NavLink to="/motorista" end className="nav-inferior__item">
-          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="buscar" />Fretes</>}
-        </NavLink>
-        <NavLink to="/motorista/meus-fretes" className="nav-inferior__item">
-          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="meus" />Meus fretes</>}
-        </NavLink>
-        <NavLink to="/motorista/calculadora" className="nav-inferior__item">
-          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="conta" />Calculadora</>}
-        </NavLink>
-        <NavLink to="/motorista/perfil" className="nav-inferior__item">
-          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="perfil" />Perfil</>}
-        </NavLink>
+        {DESTINOS_MOTORISTA.map((d) => (
+          <NavLink key={d.para} to={d.para} end={d.fim} className="nav-inferior__item">
+            <IconeNav tipo={d.icone} />
+            {d.rotulo}
+          </NavLink>
+        ))}
       </nav>
     </div>
   )
@@ -143,11 +169,31 @@ export function LayoutEmpresa() {
 }
 
 /**
- * Cliente pessoa física: um lugar só, os fretes que pediu, então a barra fica sem navegação. Cada tela
- * tem o caminho de volta. O alvo de toque é o do celular, onde quem pede um frete avulso está.
+ * Cliente pessoa física, como no canvas. No computador, a barra de cima em toda tela: marca, Meus fretes,
+ * Pedir frete e o avatar com o menu da conta. No celular a barra só aparece no início (marca e avatar);
+ * as outras telas têm o próprio cabeçalho, com o caminho de volta.
  */
 export function LayoutCliente() {
-  return <LayoutEscritorio classe="app-cliente" />
+  const { pathname } = useLocation()
+  const noInicio = pathname === '/cliente'
+  return (
+    <div className="app-cliente">
+      <FaixaDemo />
+      <header className={noInicio ? 'topo-app' : 'topo-app topo-app--so-computador'}>
+        <div className="topo-app__miolo">
+          <Link to="/cliente" className="topo-app__marca" aria-label="Fretaí, seus fretes"><Marca /></Link>
+          <nav aria-label="Principal" className="topo-app__nav topo-app__nav--cliente">
+            <Link to="/cliente" className="pilula-nav pilula-nav--clara" aria-current={noInicio ? 'page' : undefined}>Meus fretes</Link>
+            <Link to="/cliente/fretes/novo" className="pilula-nav pilula-nav--escura">Pedir frete</Link>
+          </nav>
+          <MenuConta />
+        </div>
+      </header>
+      <main className="app-cliente__conteudo" id="conteudo">
+        <Pagina />
+      </main>
+    </div>
+  )
 }
 
 /** As três filas do administrador, na ordem do que trava dinheiro: documento, contestação, piso. */

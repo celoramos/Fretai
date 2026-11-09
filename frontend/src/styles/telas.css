@@ -12,7 +12,6 @@
 
 .topo { border-bottom: var(--borda) solid var(--cor-linha); }
 .topo__acoes { display: flex; align-items: center; gap: var(--esp-1); }
-.topo--motorista { display: flex; align-items: center; justify-content: space-between; padding: var(--esp-2) var(--esp-4); }
 .topo__miolo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: var(--esp-8); max-width: var(--largura-conteudo); margin: 0 auto; padding: var(--esp-2) var(--esp-6); }
 /* No celular a navegação desce para uma linha só dela: os destinos não cabem ao lado da marca e dos botões. */
 .topo__nav { display: flex; gap: var(--esp-4); order: 1; flex-basis: 100%; }
@@ -22,9 +21,41 @@
 .topo__link:active { color: var(--cor-texto); border-bottom-color: var(--cor-linha); }
 .topo__link.active { color: var(--cor-texto); border-bottom-color: var(--cor-texto); }
 
-/* ---------- motorista ---------- */
-.app-motorista { min-height: 100dvh; display: grid; grid-template-rows: auto auto 1fr auto; }
-.app-motorista__conteudo { width: 100%; max-width: var(--largura-coluna-celular); margin: 0 auto; padding: var(--esp-4) var(--esp-4) var(--esp-8); }
+/* ---------- barra de cima do app (motorista no computador; cliente) ----------
+   Como no canvas: marca à esquerda, destinos em pílula e o avatar à direita, na largura do conteúdo. */
+.topo-app { background: var(--cor-fundo); }
+.topo-app--so-computador { display: none; }
+.topo-app__miolo { display: flex; align-items: center; gap: var(--esp-2); max-width: var(--largura-conteudo); margin: 0 auto; padding: var(--esp-2) var(--esp-4); }
+.topo-app__marca { display: inline-flex; align-items: center; min-height: var(--alvo); margin-right: auto; color: var(--cor-texto); text-decoration: none; }
+.topo-app__nav { display: flex; align-items: center; gap: var(--esp-1); }
+.topo-app__nav--cliente { display: none; gap: var(--esp-2); }
+@media (min-width: 900px) {
+  .topo-app { border-bottom: var(--borda) solid var(--cor-linha); }
+  .topo-app--so-computador { display: block; }
+  .topo-app__miolo { padding: var(--esp-3) var(--esp-6); }
+  .topo-app__nav--cliente { display: flex; }
+}
+
+/* Pílula da navegação: o destino ativo ganha o fundo de tinta (o Indicador desliza de um para o outro). */
+.pilula-nav { position: relative; isolation: isolate; display: inline-flex; align-items: center; min-height: var(--alvo); padding: 0 var(--esp-4); border-radius: var(--raio-pilula); color: var(--cor-texto); font-weight: var(--peso-forte); text-decoration: none; }
+.pilula-nav:hover { background: var(--cor-linha); }
+.pilula-nav.ativa { color: var(--cor-fundo); }
+.pilula-nav.ativa:hover { background: transparent; }
+.pilula-nav--clara { background: var(--cor-linha); }
+.pilula-nav--escura { background: var(--cor-texto); color: var(--cor-fundo); }
+.pilula-nav--escura:hover { background: var(--cor-texto-secundario); }
+
+/* ---------- motorista ----------
+   No celular a navegação fica embaixo e cada tela traz o próprio cabeçalho; a partir de 900px ela sobe. */
+.app-motorista, .app-cliente { min-height: 100dvh; display: flex; flex-direction: column; }
+.app-motorista__conteudo, .app-cliente__conteudo { flex: 1; width: 100%; margin: 0 auto; padding: var(--esp-4) var(--esp-4) var(--esp-8); }
+.app-motorista__conteudo { max-width: var(--largura-coluna-celular); }
+.app-cliente__conteudo { max-width: var(--largura-conteudo); }
+@media (min-width: 900px) {
+  .app-motorista__conteudo { max-width: var(--largura-conteudo); }
+  .app-motorista__conteudo, .app-cliente__conteudo { padding: var(--esp-8) var(--esp-6) var(--esp-12); }
+  .app-motorista .nav-inferior { display: none; }
+}
 
 .nav-inferior {
   position: sticky;
@@ -52,7 +83,7 @@
 }
 .nav-inferior__item:hover { color: var(--cor-texto); }
 .nav-inferior__item:active { background: var(--cor-linha); }
-.nav-inferior__item.active { color: var(--cor-texto); }
+.nav-inferior__item.active { color: var(--cor-texto); font-weight: var(--peso-forte); }
 .nav-inferior__item:focus-visible { outline-offset: calc(var(--foco-largura) * -1); }
 
 .busca, .meus { display: grid; gap: var(--esp-4); }

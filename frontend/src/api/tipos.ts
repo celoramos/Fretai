@@ -195,6 +195,15 @@ export interface FotoCarga {
   url: string
 }
 
+/** GET /api/auth/eu: quem está logado, com o nome e o e-mail que o menu da conta mostra. */
+export interface Eu {
+  id: string
+  papel: Papel
+  empresaId: string | null
+  nome: string
+  email: string
+}
+
 /** GET /api/fretes/{id}/contato: o outro lado do frete, para o WhatsApp. Só depois do aceite. */
 export interface Contato {
   nome: string
