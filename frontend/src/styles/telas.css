@@ -118,7 +118,8 @@
   gap: var(--esp-8);
   padding: var(--esp-8) var(--esp-6);
 }
-.entrar__titulo { font-size: var(--tam-display); max-width: 14ch; }
+/* Slogan com corpo de título, mas o h1 da tela é "Entrar", o mesmo nome da aba. */
+.entrar__titulo { font-family: var(--fonte-placa); font-weight: var(--peso-placa); font-size: var(--tam-display); line-height: var(--altura-titulo); text-wrap: balance; max-width: 14ch; }
 /* O caminho do dinheiro desenhado como a própria pista: asfalto vertical com o tracejado, e cada
    etapa é uma faixa de parada atravessando a pista. É a assinatura explicando o produto. */
 .entrar__passos {

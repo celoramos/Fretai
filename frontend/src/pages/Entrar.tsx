@@ -74,7 +74,7 @@ export function Entrar() {
   return (
     <main className="entrar">
       <section className="entrar__painel" aria-labelledby="entrar-titulo">
-        <h1 id="entrar-titulo" className="entrar__titulo">Frete com pagamento garantido antes de carregar.</h1>
+        <p id="entrar-titulo" className="entrar__titulo">Frete com pagamento garantido antes de carregar.</p>
         {/* --trajeto: quanto da pista ainda está coberto. O Motion leva de 100% a 0%, de cima para baixo. */}
         <motion.ol className="entrar__passos" variants={passos} initial={reduzido ? false : 'oculta'} animate="visivel">
           <motion.li variants={item}><span className="entrar__km">km 0</span>A empresa paga por Pix no aceite. O dinheiro fica guardado.</motion.li>
@@ -86,7 +86,7 @@ export function Entrar() {
       <section className="entrar__form-area">
         <form className="formulario" onSubmit={enviar} noValidate aria-describedby={problema && !erroEmail && !erroSenha ? 'erro-login' : undefined}>
           <Link to="/" className="entrar__marca" aria-label="Fretaí, página inicial"><Marca /></Link>
-          <h2 className="formulario__titulo">Entrar</h2>
+          <h1 className="formulario__titulo">Entrar</h1>
           {GOOGLE_DISPONIVEL && (
             <>
               <BotaoGoogle texto="signin_with" aoReceber={comGoogle} />
