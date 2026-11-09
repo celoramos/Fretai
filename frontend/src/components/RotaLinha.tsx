@@ -22,8 +22,19 @@ const destino: Variants = {
 }
 
 /**
+ * Como cada ponta é dita. cidade: a cidade em destaque e a UF embaixo (frete de empresa, entre cidades).
+ * bairro: só o bairro (frete de pessoa física, dentro da cidade). bairro-cidade: "Pituba, Salvador".
+ * Sem bairro (o motorista que não fechou só recebe bairro e cidade), cai para a cidade.
+ */
+type Pontas = 'cidade' | 'bairro' | 'bairro-cidade'
+
+export const nomeDaPonta = (e: Endereco, pontas: Pontas) =>
+  pontas === 'cidade' || !e.bairro ? e.cidade : pontas === 'bairro' ? e.bairro : `${e.bairro}, ${e.cidade}`
+
+/**
  * A assinatura do Fretaí: origem e destino ligados por uma faixa de asfalto com tracejado amarelo,
  * a distância pintada no meio como num marco. Aparece em todo frete, e em nenhum outro lugar.
+ * empilhada: os nomes numa linha e a pista inteira embaixo, como nos cartões do canvas.
  */
 export function RotaLinha({
   coleta,
@@ -31,17 +42,24 @@ export function RotaLinha({
   distanciaKm,
   estimada,
   grande = false,
+  pontas = 'cidade',
+  empilhada = false,
 }: {
   coleta: Endereco
   entrega: Endereco
   distanciaKm: number | null
   estimada?: boolean | null
   grande?: boolean
+  pontas?: Pontas
+  empilhada?: boolean
 }) {
   const reduzido = useReducedMotion()
+  const classe = ['rota', grande && 'rota--grande', empilhada && 'rota--empilhada', pontas !== 'cidade' && 'rota--leve'].filter(Boolean).join(' ')
   return (
-    <motion.div className={grande ? 'rota rota--grande' : 'rota'} initial={reduzido ? false : 'fechada'} whileInView="aberta" viewport={{ once: true, amount: 0.8 }}>
-      <Ponta endereco={coleta} lado="origem" />
+    <motion.div className={classe} initial={reduzido ? false : 'fechada'} whileInView="aberta" viewport={{ once: true, amount: 0.8 }}>
+      <div className="rota__ponta rota__ponta--origem" aria-hidden="true">
+        <PontaTexto endereco={coleta} pontas={pontas} />
+      </div>
       <motion.div className="rota__pista" aria-hidden="true" variants={pista}>
         {distanciaKm != null && (
           <motion.span className="rota__marco" variants={marco}>
@@ -51,25 +69,18 @@ export function RotaLinha({
         )}
       </motion.div>
       <motion.div variants={destino} className="rota__ponta rota__ponta--destino" aria-hidden="true">
-        <PontaTexto endereco={entrega} />
+        <PontaTexto endereco={entrega} pontas={pontas} />
       </motion.div>
       <span className="visualmente-oculto">
-        De {coleta.cidade}/{coleta.uf} para {entrega.cidade}/{entrega.uf}
+        De {nomeDaPonta(coleta, pontas === 'cidade' ? 'cidade' : 'bairro-cidade')} para {nomeDaPonta(entrega, pontas === 'cidade' ? 'cidade' : 'bairro-cidade')}
         {distanciaKm != null ? `, ${estimada ? 'cerca de ' : ''}${quilometros(distanciaKm)}` : ''}
       </span>
     </motion.div>
   )
 }
 
-function Ponta({ endereco, lado }: { endereco: Endereco; lado: 'origem' | 'destino' }) {
-  return (
-    <div className={`rota__ponta rota__ponta--${lado}`} aria-hidden="true">
-      <PontaTexto endereco={endereco} />
-    </div>
-  )
-}
-
-function PontaTexto({ endereco }: { endereco: Endereco }) {
+function PontaTexto({ endereco, pontas }: { endereco: Endereco; pontas: Pontas }) {
+  if (pontas !== 'cidade') return <span className="rota__lugar">{nomeDaPonta(endereco, pontas)}</span>
   return (
     <>
       <span className="rota__cidade">{endereco.cidade}</span>
