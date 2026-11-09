@@ -4,6 +4,7 @@ import br.com.fretai.auth.application.AuthService;
 import br.com.fretai.auth.application.SenhaService;
 import br.com.fretai.auth.application.dto.PedidoLinkSenhaRequest;
 import br.com.fretai.auth.application.dto.SenhaNovaRequest;
+import br.com.fretai.auth.application.dto.EuResponse;
 import br.com.fretai.auth.application.dto.GoogleLoginRequest;
 import br.com.fretai.auth.application.dto.LoginRequest;
 import br.com.fretai.auth.application.dto.RefreshRequest;
@@ -70,7 +71,8 @@ public class AuthController {
     }
 
     @GetMapping("/eu")
-    public UsuarioLogado eu(@AuthenticationPrincipal UsuarioLogado usuario) {
-        return usuario;
+    /** Quem está logado, com nome e e-mail para o menu da conta. */
+    public EuResponse eu(@AuthenticationPrincipal UsuarioLogado usuario) {
+        return authService.eu(usuario);
     }
 }

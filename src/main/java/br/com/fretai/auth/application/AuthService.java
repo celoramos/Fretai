@@ -1,5 +1,6 @@
 package br.com.fretai.auth.application;
 
+import br.com.fretai.auth.application.dto.EuResponse;
 import br.com.fretai.auth.application.dto.LoginRequest;
 import br.com.fretai.auth.application.dto.TokensResponse;
 import br.com.fretai.auth.domain.EmissorToken;
@@ -129,6 +130,14 @@ public class AuthService {
                 .orElseThrow(() -> new CredenciaisInvalidasException("Sessão inválida. Faça login de novo."));
         atual.revogar();
         return emitir(usuario.comoUsuarioLogado());
+    }
+
+    /** O token diz quem é; o nome e o e-mail vêm do cadastro, que pode ter mudado depois do login. */
+    @Transactional(readOnly = true)
+    public EuResponse eu(UsuarioLogado quem) {
+        Usuario usuario = usuarioRepository.findById(quem.id())
+                .orElseThrow(() -> new CredenciaisInvalidasException("Sessão inválida. Faça login de novo."));
+        return new EuResponse(quem.id(), quem.papel(), quem.empresaId(), usuario.getNome(), usuario.getEmail());
     }
 
     @Transactional
