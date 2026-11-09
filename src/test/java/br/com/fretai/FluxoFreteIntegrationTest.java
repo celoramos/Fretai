@@ -342,7 +342,7 @@ class FluxoFreteIntegrationTest {
     @DisplayName("Depois do aceite, cada lado recebe o nome e o telefone do outro")
     void contatoDepoisDoAceiteDosDoisLados() throws Exception {
         String clienteId = cadastrarCliente("16180340498", "contato2@email.com");
-        String motoristaId = cadastrarMotorista("16180340579", "contato.motorista@email.com", "CON2B22");
+        String motoristaId = cadastrarMotorista("16180340579", "contato.motorista@email.com", "CTT2B22");
         RequestPostProcessor cliente = Login.como(mvc, "contato2@email.com");
         RequestPostProcessor motorista = Login.como(mvc, "contato.motorista@email.com");
         String freteId = solicitarFrete(clienteId, cliente);
@@ -364,8 +364,8 @@ class FluxoFreteIntegrationTest {
     @DisplayName("Quem não participa do frete não vê o contato")
     void contatoDeQuemNaoParticipa() throws Exception {
         String clienteId = cadastrarCliente("16180340650", "contato3@email.com");
-        String motoristaId = cadastrarMotorista("16180340730", "contato.dono@email.com", "CON3C33");
-        cadastrarMotorista("16180340811", "contato.outro@email.com", "CON4D44");
+        String motoristaId = cadastrarMotorista("16180340730", "contato.dono@email.com", "CTT3C33");
+        cadastrarMotorista("16180340811", "contato.outro@email.com", "CTT4D44");
         String freteId = solicitarFrete(clienteId, Login.como(mvc, "contato3@email.com"));
         mvc.perform(post("/api/fretes/{id}/aceite", freteId).with(Login.como(mvc, "contato.dono@email.com"))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"motoristaId\": \"%s\"}".formatted(motoristaId)))
