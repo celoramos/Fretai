@@ -4,7 +4,7 @@ import type { Endereco, EnderecoPedido } from './api/tipos'
 export type Ponta = { cep: string; numero: string; complemento: string; pontoReferencia: string }
 export const PONTA_VAZIA: Ponta = { cep: '', numero: '', complemento: '', pontoReferencia: '' }
 
-export const pontaDe = (e: Endereco): Ponta => ({ cep: e.cep, numero: e.numero ?? '', complemento: e.complemento ?? '', pontoReferencia: e.pontoReferencia ?? '' })
+export const pontaDe = (e: Endereco): Ponta => ({ cep: e.cep ?? '', numero: e.numero ?? '', complemento: e.complemento ?? '', pontoReferencia: e.pontoReferencia ?? '' })
 
 export const enderecoDe = (p: Ponta): EnderecoPedido => ({
   cep: p.cep.trim(),

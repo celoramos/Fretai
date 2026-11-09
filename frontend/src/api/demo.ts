@@ -12,6 +12,7 @@ import type {
   Empresa,
   Endereco,
   EventoFrete,
+  FotoCarga,
   Frete,
   Motorista,
   Pagamento,
@@ -74,18 +75,21 @@ const perfisMotorista: Record<string, PerfilMotorista> = {
   [M3]: { id: M3, nome: 'Ana Paula Siqueira', naPlataformaDesde: '2026-09-30T12:00:00Z', mediaNotas: null, quantidadeAvaliacoes: 0, fretesConcluidos: 0, documentosVerificados: ['CNH'] },
 }
 
+const caminhao = (modelo: string) => ({ categoria: 'CAMINHAO' as const, modelo })
+const semCaminhao = { rntrc: null, tipo: null, carroceria: null, numeroEixos: null, rastreador: false }
 const veiculos: Veiculo[] = [
-  { id: 'v1', motoristaId: M1, placa: 'ABC1D23', rntrc: '045821937', tipo: 'CARRETA', carroceria: 'SIDER', numeroEixos: 5, rastreador: true, criadoEm: iso(-300) },
-  { id: 'v2', motoristaId: M1, placa: 'FRT2E45', rntrc: '045821937', tipo: 'TRUCK', carroceria: 'BAU', numeroEixos: 3, rastreador: false, criadoEm: iso(-120) },
-  { id: 'v3', motoristaId: M2, placa: 'QWE4R56', rntrc: '051234880', tipo: 'CARRETA_LS', carroceria: 'SIDER', numeroEixos: 6, rastreador: true, criadoEm: iso(-200) },
-  { id: 'v4', motoristaId: M3, placa: 'RTY7U89', rntrc: '060011422', tipo: 'CARRETA', carroceria: 'SIDER', numeroEixos: 5, rastreador: false, criadoEm: iso(-30) },
+  { id: 'v1', motoristaId: M1, placa: 'ABC1D23', ...caminhao('Scania R 450'), rntrc: '045821937', tipo: 'CARRETA', carroceria: 'SIDER', numeroEixos: 5, rastreador: true, criadoEm: iso(-300) },
+  { id: 'v2', motoristaId: M1, placa: 'FRT2E45', ...caminhao('VW Constellation'), rntrc: '045821937', tipo: 'TRUCK', carroceria: 'BAU', numeroEixos: 3, rastreador: false, criadoEm: iso(-120) },
+  { id: 'v3', motoristaId: M2, placa: 'QWE4R56', ...caminhao('Volvo FH 540'), rntrc: '051234880', tipo: 'CARRETA_LS', carroceria: 'SIDER', numeroEixos: 6, rastreador: true, criadoEm: iso(-200) },
+  { id: 'v4', motoristaId: M3, placa: 'RTY7U89', ...caminhao('Mercedes Actros'), rntrc: '060011422', tipo: 'CARRETA', carroceria: 'SIDER', numeroEixos: 5, rastreador: false, criadoEm: iso(-30) },
   // Veículos pequenos: são eles que pegam a mudança e a entrega avulsa do cliente pessoa física.
-  { id: 'v5', motoristaId: M3, placa: 'MUD5A12', rntrc: '060011422', tipo: 'VUC', carroceria: 'BAU', numeroEixos: 2, rastreador: false, criadoEm: iso(-20) },
-  { id: 'v6', motoristaId: M2, placa: 'TRE3Q44', rntrc: '051234880', tipo: 'TRES_QUARTOS', carroceria: 'BAU', numeroEixos: 2, rastreador: false, criadoEm: iso(-90) },
+  { id: 'v5', motoristaId: M3, placa: 'MUD5A12', categoria: 'VAN', modelo: 'Fiat Ducato', ...semCaminhao, criadoEm: iso(-20) },
+  { id: 'v6', motoristaId: M2, placa: 'TRE3Q44', ...caminhao('Hyundai HR'), rntrc: '051234880', tipo: 'TRES_QUARTOS', carroceria: 'BAU', numeroEixos: 2, rastreador: false, criadoEm: iso(-90) },
+  { id: 'v7', motoristaId: M1, placa: 'VAN7M01', categoria: 'VAN', modelo: 'Renault Master', ...semCaminhao, criadoEm: iso(-60) },
 ]
 const resumoVeiculo = (id: string) => {
   const v = veiculos.find((x) => x.id === id)!
-  return { id: v.id, placa: v.placa, tipo: v.tipo, carroceria: v.carroceria, numeroEixos: v.numeroEixos, rastreador: v.rastreador }
+  return { id: v.id, placa: v.placa, categoria: v.categoria, modelo: v.modelo, tipo: v.tipo, carroceria: v.carroceria, numeroEixos: v.numeroEixos, rastreador: v.rastreador }
 }
 
 function frete(parcial: Partial<Frete> & Pick<Frete, 'id' | 'coleta' | 'entrega'>): Frete {
@@ -93,7 +97,7 @@ function frete(parcial: Partial<Frete> & Pick<Frete, 'id' | 'coleta' | 'entrega'
   return {
     status, statusDescricao: status, cliente: null, empresa: empresas[E1], motorista: null, veiculo: null,
     nomeDestinatario: 'Recebimento - Doca 3', telefoneDestinatario: '(21) 3333-4410',
-    descricaoCarga: 'Pisos cerâmicos paletizados', especieCarga: 'Paletes', tipoCargaAntt: 'CARGA_GERAL', pesoKg: 27000,
+    descricaoCarga: 'Pisos cerâmicos paletizados', especieCarga: 'Paletes', tipoCargaAntt: 'CARGA_GERAL', categoriaVeiculo: null, tipoCarga: null, pesoKg: 27000,
     valor: null, valorACombinar: false, adicionalFeriado: null, valorTotal: null,
     veiculosAceitos: ['CARRETA', 'CARRETA_LS'], carroceriasAceitas: ['SIDER', 'BAU'], exigeRastreador: true,
     complemento: false, publicadoPorAgenciador: false, dataColeta: data(2), feriado: false, nomeFeriado: null,
@@ -135,7 +139,7 @@ const fretes: Frete[] = [
   frete({ id: 'f1', coleta: campinas, entrega: rio, valor: 4850, valorTotal: 4850, distanciaKm: 430, status: 'PROPOSTA_ENVIADA',
     preco: { ...exemplo, pisoMinimo: 3920, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 10.9 } }),
   frete({ id: 'f2', coleta: jundiai, entrega: curitiba, valor: 5200, valorTotal: 5200, valorAcordado: 5100, adiantamentoPercentual: 40,
-    distanciaKm: 470, status: 'EM_TRANSITO', motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CARRETA', placa: 'ABC1D23' },
+    distanciaKm: 470, status: 'EM_TRANSITO', motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CAMINHAO', placa: 'ABC1D23' },
     veiculo: resumoVeiculo('v1'), aceitoEm: iso(-2), dataColeta: data(-1), prazoEntrega: data(1),
     preco: { ...exemplo, pisoMinimo: 4210, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 10.6 } }),
   frete({ id: 'f3', coleta: cuiaba, entrega: belem, empresa: empresas[E3], valorACombinar: true, distanciaKm: 2940, distanciaEstimada: true,
@@ -149,15 +153,15 @@ const fretes: Frete[] = [
     feriado: true, nomeFeriado: 'Proclamação da República',
     preco: { ...exemplo, pisoMinimo: 2380, abaixoDoPiso: true, acimaDaMedia: false, mediaRotaPorKm: 10.4 } }),
   frete({ id: 'f6', coleta: piracicaba, entrega: santos, valor: 2900, valorTotal: 2900, valorAcordado: 2900, adiantamentoPercentual: 50,
-    distanciaKm: 260, status: 'ACEITO', motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CARRETA', placa: 'ABC1D23' },
+    distanciaKm: 260, status: 'ACEITO', motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CAMINHAO', placa: 'ABC1D23' },
     veiculo: resumoVeiculo('v1'), aceitoEm: iso(-0.2), dataColeta: data(1), prazoEntrega: data(2),
     preco: { ...exemplo, pisoMinimo: 2510, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 11.1 } }),
   frete({ id: 'f7', coleta: campinas, entrega: curitiba, valor: 5600, valorTotal: 5600, valorAcordado: 5450, adiantamentoPercentual: 30,
-    distanciaKm: 510, status: 'PAGO', motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'CARRETA_LS', placa: 'QWE4R56' },
+    distanciaKm: 510, status: 'PAGO', motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'CAMINHAO', placa: 'QWE4R56' },
     veiculo: resumoVeiculo('v3'), criadoEm: iso(-12), aceitoEm: iso(-11), concluidoEm: iso(-8), pagoEm: iso(-7), dataColeta: data(-10),
     preco: { ...exemplo, pisoMinimo: 4560, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 10.8 } }),
   frete({ id: 'f8', coleta: sorocaba, entrega: santos, valor: 2300, valorTotal: 2300, valorAcordado: 2300, adiantamentoPercentual: 40,
-    distanciaKm: 120, status: 'ENTREGUE', motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CARRETA', placa: 'ABC1D23' },
+    distanciaKm: 120, status: 'ENTREGUE', motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CAMINHAO', placa: 'ABC1D23' },
     veiculo: resumoVeiculo('v1'), criadoEm: iso(-3), aceitoEm: iso(-2.5), concluidoEm: iso(-0.2), dataColeta: data(-1),
     descricaoCarga: 'Revestimentos cerâmicos', preco: { ...exemplo, pisoMinimo: 1490, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 11.4 } }),
   frete({ id: 'f9', coleta: araucaria, entrega: joinville, empresa: empresas[E3], valor: 2650, valorTotal: 2650, distanciaKm: 140, dataColeta: data(2),
@@ -170,25 +174,48 @@ const fretes: Frete[] = [
   // De outra empresa e outro motorista: só aparece para o administrador, na fila de contestações.
   frete({ id: 'f11', coleta: curitiba, entrega: joinville, empresa: empresas[E2], publicadoPorAgenciador: true, valor: 3100, valorTotal: 3100,
     valorAcordado: 3100, adiantamentoPercentual: 30, distanciaKm: 130, status: 'ENTREGUE', descricaoCarga: 'Peças automotivas em caixas',
-    motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'CARRETA_LS', placa: 'QWE4R56' }, veiculo: resumoVeiculo('v3'),
+    motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'CAMINHAO', placa: 'QWE4R56' }, veiculo: resumoVeiculo('v3'),
     criadoEm: iso(-4), aceitoEm: iso(-3.5), concluidoEm: iso(-1.2), dataColeta: data(-2),
     preco: { ...exemplo, pisoMinimo: 1640, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 12.1 } }),
   // Os três fretes da cliente demo, um em cada momento em que ela tem de agir: propostas, Pix e entrega.
-  freteCliente({ id: 'f12', coleta: cambui, entrega: vergueiro, status: 'PROPOSTA_ENVIADA', valor: 900, valorTotal: 900, distanciaKm: 92,
+  freteCliente({ id: 'f12', coleta: cambui, entrega: vergueiro, status: 'PROPOSTA_ENVIADA', categoriaVeiculo: 'VAN', tipoCarga: 'MUDANCA', valor: 900, valorTotal: 900, distanciaKm: 92,
     distanciaEstimada: true, descricaoCarga: 'Mudança: geladeira, fogão, sofá e 15 caixas', pesoKg: 450, dataColeta: data(4),
     nomeDestinatario: 'Paula Andrade', telefoneDestinatario: '15988776655', criadoEm: iso(-0.6) }),
-  freteCliente({ id: 'f13', coleta: perdizes, entrega: cambui, status: 'ACEITO', valor: 750, valorTotal: 750, valorAcordado: 750,
+  freteCliente({ id: 'f13', coleta: perdizes, entrega: cambui, status: 'ACEITO', categoriaVeiculo: 'VAN', tipoCarga: 'MOVEIS', valor: 750, valorTotal: 750, valorAcordado: 750,
     adiantamentoPercentual: 30, distanciaKm: 98, distanciaEstimada: true, descricaoCarga: 'Piano vertical', pesoKg: 280, dataColeta: data(2),
     nomeDestinatario: 'Paula Andrade', telefoneDestinatario: '19988776655', prazoEntrega: data(2), criadoEm: iso(-2), aceitoEm: iso(-0.1),
-    motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'TRES_QUARTOS', placa: 'TRE3Q44' }, veiculo: resumoVeiculo('v6') }),
-  freteCliente({ id: 'f14', coleta: cambui, entrega: anhangabau, status: 'ENTREGUE', valor: 380, valorTotal: 380, valorAcordado: 380,
+    motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'CAMINHAO', placa: 'TRE3Q44' }, veiculo: resumoVeiculo('v6') }),
+  freteCliente({ id: 'f14', coleta: cambui, entrega: anhangabau, status: 'ENTREGUE', categoriaVeiculo: 'UTILITARIO', tipoCarga: 'MOVEIS', valor: 380, valorTotal: 380, valorAcordado: 380,
     adiantamentoPercentual: 30, distanciaKm: 42, distanciaEstimada: true, descricaoCarga: 'Máquina de lavar e 6 caixas', pesoKg: 120,
     dataColeta: data(-1), nomeDestinatario: 'Lúcia Andrade', telefoneDestinatario: '11977665544', criadoEm: iso(-5), aceitoEm: iso(-4.5),
-    concluidoEm: iso(-0.3), motorista: { id: M3, nome: 'Ana Paula Siqueira', tipoVeiculo: 'VUC', placa: 'MUD5A12' }, veiculo: resumoVeiculo('v5') }),
+    concluidoEm: iso(-0.3), motorista: { id: M3, nome: 'Ana Paula Siqueira', tipoVeiculo: 'VAN', placa: 'MUD5A12' }, veiculo: resumoVeiculo('v5') }),
+  // Mais uma etapa cada: procurando motorista, em viagem, terminado e cancelado.
+  freteCliente({ id: 'f15', coleta: perdizes, entrega: anhangabau, status: 'PUBLICADO', categoriaVeiculo: 'UTILITARIO', tipoCarga: 'CAIXAS',
+    valor: 320, valorTotal: 320, distanciaKm: 61, distanciaEstimada: true, descricaoCarga: 'Seis caixas de livros e uma estante desmontada',
+    pesoKg: 200, dataColeta: data(3), nomeDestinatario: 'Lúcia Andrade', telefoneDestinatario: '11977665544', criadoEm: iso(-0.05) }),
+  freteCliente({ id: 'f16', coleta: cambui, entrega: perdizes, status: 'EM_TRANSITO', categoriaVeiculo: 'VAN', tipoCarga: 'MUDANCA',
+    valor: 680, valorTotal: 680, valorAcordado: 680, adiantamentoPercentual: 30, distanciaKm: 96, distanciaEstimada: true,
+    descricaoCarga: 'Mudança de quitinete: cama, geladeira e 10 caixas', pesoKg: 650, dataColeta: data(0), nomeDestinatario: 'Paula Andrade',
+    telefoneDestinatario: '11988776655', prazoEntrega: data(0), criadoEm: iso(-3), aceitoEm: iso(-2.5),
+    motorista: { id: M2, nome: 'Marcos Vinícius Rocha', tipoVeiculo: 'CAMINHAO', placa: 'TRE3Q44' }, veiculo: resumoVeiculo('v6') }),
+  freteCliente({ id: 'f17', coleta: vergueiro, entrega: cambui, status: 'PAGO', categoriaVeiculo: 'UTILITARIO', tipoCarga: 'MOVEIS',
+    valor: 260, valorTotal: 260, valorAcordado: 260, adiantamentoPercentual: 30, distanciaKm: 90, distanciaEstimada: true,
+    descricaoCarga: 'Geladeira duplex', pesoKg: 150, dataColeta: data(-14), nomeDestinatario: 'Paula Andrade', telefoneDestinatario: '19988776655',
+    criadoEm: iso(-16), aceitoEm: iso(-15.5), concluidoEm: iso(-14), pagoEm: iso(-13),
+    motorista: { id: M3, nome: 'Ana Paula Siqueira', tipoVeiculo: 'VAN', placa: 'MUD5A12' }, veiculo: resumoVeiculo('v5') }),
+  freteCliente({ id: 'f18', coleta: anhangabau, entrega: cambui, status: 'CANCELADO', categoriaVeiculo: 'CAMINHAO', tipoCarga: 'OBRA',
+    valor: 540, valorTotal: 540, distanciaKm: 44, distanciaEstimada: true, descricaoCarga: 'Tijolos e 20 sacos de cimento', pesoKg: 1500,
+    dataColeta: data(-8), nomeDestinatario: 'Paula Andrade', telefoneDestinatario: '19988776655', criadoEm: iso(-9),
+    concluidoEm: iso(-8.8), motivoCancelamento: 'Vou mudar a data' }),
+  // Perto da base e de bitrem: o motorista de exemplo vê o frete apagado, com o motivo.
+  frete({ id: 'f19', coleta: campinas, entrega: santos, empresa: empresas[E3], valor: 3400, valorTotal: 3400, distanciaKm: 170,
+    descricaoCarga: 'Farelo de soja', especieCarga: 'Granel', tipoCargaAntt: 'GRANEL_SOLIDO', pesoKg: 36000, dataColeta: data(2),
+    veiculosAceitos: ['BITREM', 'RODOTREM'], carroceriasAceitas: ['GRANELEIRO'], exigeRastreador: false,
+    preco: { coeficientesDeExemplo: true, eixosConsiderados: 7, pisoMinimo: 2980, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: null } }),
 ]
 
 /** Distância da base do motorista demo (Campinas) até a coleta de cada frete aberto. */
-const distanciaDaBase: Record<string, number> = { f1: 6, f3: 1290, f4: 84, f5: 52, f10: 148, f12: 4 }
+const distanciaDaBase: Record<string, number> = { f1: 6, f3: 1290, f4: 46, f5: 22, f10: 38, f12: 4, f15: 12, f19: 18 }
 
 const propostas: Proposta[] = [
   proposta('p1', 'f1', M1, 'v1', 4850, 40, -0.5),
@@ -219,6 +246,8 @@ const pagamentos: Pagamento[] = [
   { ...pagamento('f8', 2300, 40, 'ADIANTAMENTO_LIBERADO'), saldoLiberavelApos: iso(0.8) },
   { ...pagamento('f11', 3100, 30, 'ADIANTAMENTO_LIBERADO'), pagoEm: iso(-3.4), adiantamentoLiberadoEm: iso(-3), saldoLiberavelApos: iso(-0.2), saldoBloqueado: true },
   { ...pagamento('f14', 380, 30, 'ADIANTAMENTO_LIBERADO'), pagoEm: iso(-4.4), adiantamentoLiberadoEm: iso(-1), saldoLiberavelApos: iso(0.7) },
+  { ...pagamento('f16', 680, 30, 'ADIANTAMENTO_LIBERADO'), pagoEm: iso(-2.4), adiantamentoLiberadoEm: iso(-0.1) },
+  { ...pagamento('f17', 260, 30, 'LIBERADO'), pagoEm: iso(-15.4), adiantamentoLiberadoEm: iso(-14.5), saldoLiberadoEm: iso(-13) },
 ]
 
 function pagamento(freteId: string, total: number, adiant: number, status: Pagamento['status']): Pagamento {
@@ -240,6 +269,12 @@ const eventos: Record<string, EventoFrete[]> = {
   f13: [ev(null, 'PUBLICADO', 'CLIENTE', -2), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -1.5), ev('PROPOSTA_ENVIADA', 'ACEITO', 'CLIENTE', -0.1)],
   f14: [ev(null, 'PUBLICADO', 'CLIENTE', -5), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -4.8), ev('PROPOSTA_ENVIADA', 'ACEITO', 'CLIENTE', -4.5),
     ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -1), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -0.3, 'Canhoto digital: recebido por Lúcia Andrade.')],
+  f15: [ev(null, 'PUBLICADO', 'CLIENTE', -0.05)],
+  f16: [ev(null, 'PUBLICADO', 'CLIENTE', -3), ev('PUBLICADO', 'ACEITO', 'MOTORISTA', -2.5), ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -0.1, 'Saída da coleta às 8h.')],
+  f17: [ev(null, 'PUBLICADO', 'CLIENTE', -16), ev('PUBLICADO', 'ACEITO', 'MOTORISTA', -15.5), ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -14.2),
+    ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -14, 'Canhoto digital: recebido por Paula Andrade.'), ev('ENTREGUE', 'PAGO', null, -13)],
+  f18: [ev(null, 'PUBLICADO', 'CLIENTE', -9), ev('PUBLICADO', 'CANCELADO', 'CLIENTE', -8.8, 'Vou mudar a data')],
+  f19: [ev(null, 'PUBLICADO', 'EMPRESA', -0.4)],
   f8: [ev(null, 'PUBLICADO', 'EMPRESA', -3), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -2.6), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -2.5),
     ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -1), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -0.2, 'Canhoto digital: recebido por Carlos Mendes.')],
 }
@@ -253,6 +288,30 @@ function ev(de: StatusFrete | null, para: StatusFrete, papel: EventoFrete['autor
 const svg = (corpo: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">${corpo}</svg>`)}`
 const FOTO_EXEMPLO = svg('<rect width="400" height="300" fill="#C9C4B8"/><rect x="60" y="90" width="280" height="150" fill="#9C8F78"/><text x="200" y="60" font-family="sans-serif" font-size="22" text-anchor="middle" fill="#2A2F38">Foto da entrega (exemplo)</text>')
 const ASSINATURA_EXEMPLO = svg('<rect width="400" height="300" fill="#fff"/><path d="M40 190 C80 120 110 230 150 160 S210 120 230 190 S300 150 360 170" fill="none" stroke="#1C1F24" stroke-width="5" stroke-linecap="round"/>')
+
+/** Fotos que o cliente mandou com o pedido; o motorista vê antes de aceitar. */
+const fotoCarga = (texto: string) => svg(`<rect width="400" height="300" fill="#D8D2C4"/><rect x="70" y="80" width="120" height="150" fill="#A89B82"/><rect x="210" y="120" width="120" height="110" fill="#8E826B"/><text x="200" y="50" font-family="sans-serif" font-size="20" text-anchor="middle" fill="#2A2F38">${texto}</text>`)
+const fotosCarga: Record<string, FotoCarga[]> = {
+  f12: [{ id: 'fc1', url: fotoCarga('Geladeira e fogão (exemplo)') }, { id: 'fc2', url: fotoCarga('Sofá e caixas (exemplo)') }],
+  f15: [{ id: 'fc3', url: fotoCarga('Caixas de livros (exemplo)') }],
+}
+
+/** Telefones de quem está nos fretes de exemplo, para o contato depois do aceite. */
+const telefones: Record<string, string> = { [M1]: '19998765432', [M2]: '11987654321', [M3]: '19991234567', [U_CLIENTE]: '19988776655' }
+
+/** Como na API: quem não participa do frete vê só bairro, cidade e UF, e não vê quem recebe. */
+function publico(f: Frete): Frete {
+  const so = (e: Endereco): Endereco => ({ cep: null, logradouro: null, numero: null, complemento: null, bairro: e.bairro, cidade: e.cidade,
+    uf: e.uf, pontoReferencia: null, enderecoCompleto: null, latitude: null, longitude: null })
+  return { ...f, coleta: so(f.coleta), entrega: so(f.entrega), nomeDestinatario: null, telefoneDestinatario: null }
+}
+const paraQuem = (f: Frete, token: string) => (token === 'demo-motorista' && f.motorista?.id !== M1 ? publico(f) : f)
+
+/** Na demonstração o Pix confirma sozinho na terceira consulta, como se o banco tivesse respondido. */
+const consultasPix: Record<string, number> = {}
+
+/** Esqueci a senha: o link da demonstração usa o token "demo" e troca a senha da última conta que pediu. */
+let emailDoLink: string | null = null
 
 /** Código que o recebedor recebe por mensagem. Na demonstração ele é fixo, e a página pública diz qual é. */
 const CODIGO_CONTESTACAO_DEMO = 'ENTREGA8'
@@ -288,7 +347,9 @@ function contestar(c: Canhoto, motivo: string): Response | null {
 
 // ---------- avaliações ----------
 
-const avaliacoes: Avaliacao[] = []
+const avaliacoes: Avaliacao[] = [
+  { id: 'av1', freteId: 'f17', lado: 'CONTRATANTE', avaliadoTipo: 'MOTORISTA', avaliadoId: M3, nota: 5, comentario: null, criadaEm: iso(-13) },
+]
 
 // ---------- perfil do motorista ----------
 
@@ -298,6 +359,21 @@ const motoristaDemo: Motorista = {
 }
 const TELEFONE = /^(\+?55)?\s?\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/
 const PLACA = /^[A-Za-z]{3}-?\d[A-Za-z0-9]\d{2}$/
+/** As regras de VeiculoRequest: tipo obrigatório, modelo até 60, dados de caminhão conferidos só quando vêm. */
+function dadosDoVeiculo(b: Record<string, unknown>, erros: Record<string, string>) {
+  const categoria = String(b.categoria ?? '')
+  if (!['UTILITARIO', 'VAN', 'CAMINHAO'].includes(categoria)) erros.categoria = 'Escolha o tipo do veículo.'
+  const modelo = String(b.modelo ?? '').trim()
+  if (modelo.length > 60) erros.modelo = 'O modelo deve ter até 60 caracteres.'
+  const rntrc = b.rntrc == null || String(b.rntrc).trim() === '' ? null : String(b.rntrc)
+  if (rntrc != null && !/^\d{8,9}$/.test(rntrc)) erros.rntrc = 'RNTRC inválido. Deve ter 8 ou 9 dígitos.'
+  const eixos = b.numeroEixos == null || b.numeroEixos === '' ? null : Number(b.numeroEixos)
+  if (eixos != null && !(eixos >= 2 && eixos <= 9)) erros.numeroEixos = 'O veículo deve ter de 2 a 9 eixos.'
+  return {
+    categoria: categoria as Veiculo['categoria'], modelo: modelo || null, rntrc, tipo: (b.tipo as string | null) || null,
+    carroceria: (b.carroceria as string | null) || null, numeroEixos: eixos, rastreador: Boolean(b.rastreador),
+  }
+}
 const invalido = (erros: Record<string, string>) => json({ title: 'Dados inválidos', detail: 'Confira os campos marcados.', status: 400, erros }, 400)
 
 /** A mesma conta da API (precificacao): diesel pelo consumo, mais pedágio e outros; piso com o coeficiente de exemplo. */
@@ -474,6 +550,8 @@ function errosDoPedido(b: Record<string, unknown>) {
   if (!(Number(b.valor) > 0)) erros.valor = 'O valor deve ser maior que zero.'
   if (!b.dataColeta) erros.dataColeta = 'A data da coleta é obrigatória.'
   else if (String(b.dataColeta) < data(0)) erros.dataColeta = 'A data da coleta não pode estar no passado.'
+  if (!['UTILITARIO', 'VAN', 'CAMINHAO'].includes(String(b.categoriaVeiculo))) erros.categoriaVeiculo = 'Escolha o tamanho do veículo.'
+  if (!['MUDANCA', 'MOVEIS', 'CAIXAS', 'OBRA', 'OUTRO'].includes(String(b.tipoCarga))) erros.tipoCarga = 'Escolha o que vai levar.'
   return erros
 }
 /** Feriado na coleta soma 20% ao valor, o adicional-feriado-percentual da API. */
@@ -488,6 +566,7 @@ function pedir(b: Record<string, unknown>): Frete {
     id: `f${fretes.length + 1}`, status: 'PUBLICADO', criadoEm: iso(0), coleta, entrega, dataColeta: String(b.dataColeta),
     nomeDestinatario: String(b.nomeDestinatario).trim(), telefoneDestinatario: String(b.telefoneDestinatario).trim(),
     descricaoCarga: String(b.descricaoCarga).trim(), pesoKg: Number(b.pesoKg), valor, adicionalFeriado,
+    categoriaVeiculo: b.categoriaVeiculo as Frete['categoriaVeiculo'], tipoCarga: b.tipoCarga as Frete['tipoCarga'],
     valorTotal: valor + (adicionalFeriado ?? 0), feriado: dia.feriado, nomeFeriado: dia.nomeFeriado, domingo: dia.domingo,
     distanciaKm: Math.max(5, Math.round(reta * 1.25)), distanciaEstimada: true,
   })
@@ -593,15 +672,35 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     if (!freteId) return problema(404, 'Código inválido', 'Código de contestação inválido.')
     return contestar(canhotos[freteId], String(b.motivo ?? '')) ?? new Response(null, { status: 202 })
   }
+  if (metodo === 'POST' && p === '/api/auth/senha/link') {
+    const email = String(b.email ?? '').trim().toLowerCase()
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return invalido({ email: 'Digite o e-mail da sua conta para receber o link.' })
+    if (contas[email]) emailDoLink = email
+    return new Response(null, { status: 204 })
+  }
+  if (metodo === 'POST' && p === '/api/auth/senha/nova') {
+    const senha = String(b.senha ?? '')
+    if (senha.length < 8 || senha.length > 72) return invalido({ senha: 'A senha deve ter entre 8 e 72 caracteres.' })
+    if (b.token !== 'demo') return problema(422, 'Regra de negócio', 'Este link não vale mais. Peça outro na tela de entrar.')
+    if (emailDoLink) guardarConta(emailDoLink, { ...contas[emailDoLink], senha })
+    return new Response(null, { status: 204 })
+  }
   if (p === '/api/auth/logout') return new Response(null, { status: 204 })
   if (metodo === 'GET' && p === '/api/calendario/verificacao') return json(verificarData(url.searchParams.get('data') ?? data(0)))
   if (!token) return problema(401, 'Não autenticado', 'Faça login de novo.')
 
+  if (metodo === 'GET' && p === '/api/auth/eu') {
+    const papel = token.replace('demo-', '').toUpperCase() as ContaDemo['papel']
+    const id = { MOTORISTA: M1, EMPRESA: U_EMPRESA, CLIENTE: U_CLIENTE, ADMIN: U_ADMIN }[papel]
+    const nome = { MOTORISTA: motoristaDemo.nome, EMPRESA: 'Rafael Moreira', CLIENTE: 'Paula Andrade', ADMIN: 'Equipe Fretaí' }[papel]
+    const email = Object.entries(contas).find(([, c]) => c.papel === papel)?.[0] ?? ''
+    return json({ id, papel, empresaId: papel === 'EMPRESA' ? E1 : null, nome, email })
+  }
   if (metodo === 'GET' && p === '/api/fretes/busca') {
     const raio = Number(url.searchParams.get('raioKm') ?? 100)
     const achados = fretes
       .filter((f) => (f.status === 'PUBLICADO' || f.status === 'PROPOSTA_ENVIADA') && distanciaDaBase[f.id] !== undefined)
-      .map((f) => ({ distanciaOrigemKm: distanciaDaBase[f.id], frete: f }))
+      .map((f) => ({ distanciaOrigemKm: distanciaDaBase[f.id], frete: publico(f) }))
       .filter((a) => a.distanciaOrigemKm <= raio)
       .sort((a, z) => a.distanciaOrigemKm - z.distanciaOrigemKm)
     return json(pagina(achados))
@@ -633,7 +732,7 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     const f = fretes.find((x) => x.id === m![1])
     if (!f) return problema(404, 'Frete não encontrado', 'Esse frete não existe ou foi removido.')
     const sub = m[2]
-    if (metodo === 'GET' && !sub) return json(f)
+    if (metodo === 'GET' && !sub) return json(paraQuem(f, token))
     if (metodo === 'PUT' && !sub) {
       if (f.status !== 'PUBLICADO') return problema(409, 'Operação não permitida no status atual', 'O frete só pode ser editado antes de receber propostas.')
       const erros = errosDaPublicacao(b)
@@ -646,7 +745,7 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       const km = (a: Endereco, z: Endereco) => Math.round(Math.hypot((a.latitude! - z.latitude!) * 111, (a.longitude! - z.longitude!) * 102) * 1.2)
       const achados = fretes
         .filter((x) => x.id !== f.id && (x.status === 'PUBLICADO' || x.status === 'PROPOSTA_ENVIADA'))
-        .map((x) => ({ distanciaOrigemKm: km(f.entrega, x.coleta), frete: x }))
+        .map((x) => ({ distanciaOrigemKm: km(f.entrega, x.coleta), frete: publico(x) }))
         .filter((a) => a.distanciaOrigemKm <= 150)
         .sort((a, z) => a.distanciaOrigemKm - z.distanciaOrigemKm)
       return json(pagina(achados))
@@ -710,18 +809,56 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       if (pg) pg.saldoLiberavelApos = c.contestacaoAte
       return json(c, 201)
     }
+    if (sub === '/fotos') {
+      if (metodo === 'GET') return json(fotosCarga[f.id] ?? [])
+      if (token !== 'demo-cliente' || f.cliente?.id !== U_CLIENTE) return problema(403, 'Acesso negado', 'Só quem pediu o frete envia fotos.')
+      if (f.status !== 'PUBLICADO' && f.status !== 'PROPOSTA_ENVIADA') return problema(422, 'Regra de negócio', 'As fotos entram antes de o frete fechar.')
+      const lista = (fotosCarga[f.id] ??= [])
+      if (lista.length >= 5) return problema(422, 'Regra de negócio', 'Até 5 fotos por pedido.')
+      const foto = (corpo as FormData).get('foto')
+      if (!(foto instanceof Blob) || !['image/jpeg', 'image/png'].includes(foto.type)) return problema(422, 'Regra de negócio', 'A foto da carga deve ser JPEG ou PNG.')
+      const nova = { id: `fc${Date.now()}`, url: URL.createObjectURL(foto) }
+      lista.push(nova)
+      return json(nova, 201)
+    }
+    if (metodo === 'GET' && sub === '/contato') {
+      const ehMotorista = token === 'demo-motorista' && f.motorista?.id === M1
+      const ehContratante = (token === 'demo-cliente' && f.cliente?.id === U_CLIENTE) || (token === 'demo-empresa' && f.empresa?.id === E1)
+      if (!ehMotorista && !ehContratante) return problema(403, 'Acesso negado', 'Só quem participa do frete vê o contato.')
+      if (f.status === 'PUBLICADO' || f.status === 'PROPOSTA_ENVIADA') return problema(422, 'Regra de negócio', 'O contato aparece depois que o frete fecha.')
+      if (f.status === 'PAGO' || f.status === 'CANCELADO') return problema(422, 'Regra de negócio', 'Este frete já terminou.')
+      if (ehContratante) return json({ nome: f.motorista!.nome, telefone: telefones[f.motorista!.id] ?? '19998765432' })
+      if (f.empresa) return json({ nome: f.empresa.nomeFantasia ?? f.empresa.razaoSocial, telefone: '1932104400' })
+      return json({ nome: f.cliente!.nome, telefone: telefones[f.cliente!.id] })
+    }
     if (metodo === 'GET' && sub === '/propostas') return json(propostas.filter((x) => x.freteId === f.id))
     if (metodo === 'GET' && sub === '/pagamento') {
       const pg = pagamentos.find((x) => x.freteId === f.id)
+      if (pg?.status === 'PENDENTE' && (consultasPix[f.id] = (consultasPix[f.id] ?? 0) + 1) >= 3) {
+        Object.assign(pg, { status: 'RETIDO', pagoEm: iso(0) })
+      }
       return pg ? json(pg) : problema(404, 'Sem cobrança', 'Ainda não há cobrança para este frete.')
     }
     if (metodo === 'POST' && sub === '/pagamento') {
+      const existente = pagamentos.find((x) => x.freteId === f.id)
+      if (existente) return json(existente)
       const total = f.valorAcordado ?? f.valor ?? 0
       const novo = { ...pagamento(f.id, total, f.adiantamentoPercentual ?? 0, 'PENDENTE'), pixCopiaECola: `00020126580014br.gov.bcb.pix0136demo-${f.id}-fretai5204000053039865406${total.toFixed(2)}5802BR6304ABCD` }
       pagamentos.push(novo)
       return json(novo, 201)
     }
+    const naoLeva = (veiculoId: unknown) => {
+      const v = veiculos.find((x) => x.id === veiculoId) ?? veiculos.find((x) => x.motoristaId === M1)!
+      const ordem = ['UTILITARIO', 'VAN', 'CAMINHAO']
+      if (f.categoriaVeiculo && ordem.indexOf(v.categoria) < ordem.indexOf(f.categoriaVeiculo)) {
+        const exigencia = { UTILITARIO: 'qualquer veículo', VAN: 'van, furgão ou caminhão', CAMINHAO: 'caminhão' }[f.categoriaVeiculo]
+        return problema(422, 'Regra de negócio', `Este frete precisa de ${exigencia}.`)
+      }
+      return null
+    }
     if (metodo === 'POST' && sub === '/propostas') {
+      const recusa = naoLeva(b.veiculoId)
+      if (recusa) return recusa
       const nova = proposta(`p${propostas.length + 1}`, f.id, M1, String(b.veiculoId ?? 'v1'), Number(b.valor), Number(b.adiantamentoPercentual ?? 0), 0)
       propostas.push(nova)
       if (f.status === 'PUBLICADO') { registrar(f.id, f.status, 'PROPOSTA_ENVIADA', 'MOTORISTA'); f.status = 'PROPOSTA_ENVIADA' }
@@ -729,11 +866,13 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     }
     if (metodo === 'POST' && sub === '/aceite') {
       if (f.valorACombinar) return problema(422, 'Frete a combinar', 'Frete sem valor só fecha por proposta.')
+      const recusa = naoLeva(b.veiculoId)
+      if (recusa) return recusa
       registrar(f.id, f.status, 'ACEITO', 'MOTORISTA')
       const v = veiculos.find((x) => x.id === b.veiculoId) ?? veiculos[0]
       Object.assign(f, {
         status: 'ACEITO', aceitoEm: iso(0), valorAcordado: f.valor, veiculo: resumoVeiculo(v.id),
-        motorista: { id: M1, nome: perfisMotorista[M1].nome, tipoVeiculo: v.tipo, placa: v.placa },
+        motorista: { id: M1, nome: perfisMotorista[M1].nome, tipoVeiculo: v.categoria, placa: v.placa },
       })
       return json(f)
     }
@@ -772,7 +911,7 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     Object.assign(f, {
       status: 'ACEITO', aceitoEm: iso(0), valorAcordado: pr.valor, adiantamentoPercentual: pr.adiantamentoPercentual,
       prazoEntrega: pr.prazoEntrega, veiculo: pr.veiculo,
-      motorista: { id: pr.motorista.id, nome: pr.motorista.nome, tipoVeiculo: pr.veiculo?.tipo ?? null, placa: pr.veiculo?.placa ?? null },
+      motorista: { id: pr.motorista.id, nome: pr.motorista.nome, tipoVeiculo: pr.veiculo?.categoria ?? null, placa: pr.veiculo?.placa ?? null },
     })
     return json(pr)
   }
@@ -891,6 +1030,8 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     if (metodo === 'PUT' && m[2] === '/base') {
       const raio = Number(b.raioKm)
       if (!(raio >= 1 && raio <= 1000)) return invalido({ raioKm: 'O raio vai de 1 a 1000 km.' })
+      if (b.cep != null && !/^\d{5}-?\d{3}$/.test(String(b.cep))) return invalido({ cep: 'Digite os 8 números do CEP.' })
+      if (b.cep == null && (b.latitude == null || b.longitude == null)) return invalido({ origemInformada: 'Informe o CEP ou use a sua localização.' })
       return json(motoristaDemo)
     }
     if (metodo === 'PATCH' && m[2] === '/preferencias') {
@@ -903,14 +1044,20 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
     const erros: Record<string, string> = {}
     if (!PLACA.test(placa)) erros.placa = 'Placa inválida. Use o formato ABC1234 ou ABC1D23.'
     else if (veiculos.some((v) => v.placa === placa)) erros.placa = 'Já existe um veículo com essa placa.'
-    if (!/^\d{8,9}$/.test(String(b.rntrc ?? ''))) erros.rntrc = 'RNTRC inválido. Deve ter 8 ou 9 dígitos.'
+    const dados = dadosDoVeiculo(b, erros)
     if (Object.keys(erros).length) return invalido(erros)
-    const novo: Veiculo = {
-      id: `v${veiculos.length + 1}`, motoristaId: m[1], placa, rntrc: String(b.rntrc), tipo: String(b.tipo), carroceria: String(b.carroceria),
-      numeroEixos: Number(b.numeroEixos), rastreador: Boolean(b.rastreador), criadoEm: iso(0),
-    }
+    const novo: Veiculo = { id: `v${veiculos.length + 1}`, motoristaId: m[1], placa, ...dados, criadoEm: iso(0) }
     veiculos.push(novo)
     return json(novo, 201)
+  }
+  if (metodo === 'PUT' && (m = p.match(/^\/api\/motoristas\/([^/]+)\/veiculos\/([^/]+)$/))) {
+    const v = veiculos.find((x) => x.id === m![2] && x.motoristaId === m![1])
+    if (!v) return problema(404, 'Veículo não encontrado', 'Esse veículo não existe.')
+    const erros: Record<string, string> = {}
+    const dados = dadosDoVeiculo(b, erros)
+    if (Object.keys(erros).length) return invalido(erros)
+    Object.assign(v, dados)
+    return json(v)
   }
   if (metodo === 'DELETE' && (m = p.match(/^\/api\/motoristas\/([^/]+)\/veiculos\/([^/]+)$/))) {
     const i = veiculos.findIndex((v) => v.id === m![2] && v.motoristaId === m![1])

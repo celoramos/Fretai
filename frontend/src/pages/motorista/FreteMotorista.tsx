@@ -344,8 +344,8 @@ function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | nul
 
 /** Por que este caminhão não serve para este frete; null quando serve. */
 function compatibilidade(frete: Frete, v: Veiculo): string | null {
-  if (frete.veiculosAceitos.length && !frete.veiculosAceitos.includes(v.tipo)) return 'tipo não aceito'
-  if (frete.carroceriasAceitas.length && !frete.carroceriasAceitas.includes(v.carroceria)) return 'carroceria não aceita'
+  if (frete.veiculosAceitos.length && (!v.tipo || !frete.veiculosAceitos.includes(v.tipo))) return 'tipo não aceito'
+  if (frete.carroceriasAceitas.length && (!v.carroceria || !frete.carroceriasAceitas.includes(v.carroceria))) return 'carroceria não aceita'
   if (frete.exigeRastreador && !v.rastreador) return 'sem rastreador'
   return null
 }

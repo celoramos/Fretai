@@ -182,7 +182,7 @@ function NovoCaminhao({ motoristaId, aoSalvar, aoCancelar }: { motoristaId: stri
     e.preventDefault()
     setProblema(null)
     setEnviando(true)
-    const pedido: NovoVeiculo = { placa: placa.trim().toUpperCase(), rntrc: rntrc.trim(), tipo, carroceria: carroceriaEscolhida, numeroEixos: eixos, rastreador }
+    const pedido: NovoVeiculo = { placa: placa.trim().toUpperCase(), categoria: 'CAMINHAO', rntrc: rntrc.trim(), tipo, carroceria: carroceriaEscolhida, numeroEixos: eixos, rastreador }
     try {
       await api('POST', `/api/motoristas/${motoristaId}/veiculos`, pedido)
       aoSalvar()

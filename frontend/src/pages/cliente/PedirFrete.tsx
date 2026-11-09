@@ -75,6 +75,9 @@ export function PedirFrete() {
       pesoKg: Number.isFinite(peso) ? peso : 0,
       valor: Number.isFinite(valor) ? valor : 0,
       dataColeta: r.dataColeta,
+      // Provisório: a tela nova do pedido (tarefa 13 do plano) pergunta o tamanho e o tipo.
+      categoriaVeiculo: 'UTILITARIO',
+      tipoCarga: 'OUTRO',
     }
     try {
       const novo = await api<Frete>('POST', '/api/fretes', pedido)

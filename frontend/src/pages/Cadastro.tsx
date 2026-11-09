@@ -20,8 +20,6 @@ const VEICULOS: { valor: CategoriaVeiculo; rotulo: string }[] = [
   { valor: 'CAMINHAO', rotulo: 'Caminhão' },
   { valor: 'VAN', rotulo: 'Van / furgão' },
   { valor: 'UTILITARIO', rotulo: 'Utilitário (Fiorino, Kangoo)' },
-  { valor: 'CARRO', rotulo: 'Carro de passeio' },
-  { valor: 'MOTO', rotulo: 'Moto' },
 ]
 
 const digitos = (v: string) => v.replace(/\D/g, '')

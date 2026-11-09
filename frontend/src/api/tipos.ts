@@ -25,8 +25,12 @@ export interface Tokens {
   empresaId: string | null
 }
 
+/**
+ * Para quem não participa do frete (o motorista que ainda está olhando) a API manda só bairro, cidade e
+ * UF: CEP, rua, número, coordenadas e o endereço completo vêm nulos.
+ */
 export interface Endereco {
-  cep: string
+  cep: string | null
   logradouro: string | null
   numero: string | null
   complemento: string | null
@@ -34,17 +38,20 @@ export interface Endereco {
   cidade: string
   uf: string
   pontoReferencia: string | null
-  enderecoCompleto: string
+  enderecoCompleto: string | null
   latitude: number | null
   longitude: number | null
 }
 
+/** Utilitário, van ou caminhão. Os dados de caminhão (tipo, carroceria, eixos) só o frete de empresa exige. */
 export interface VeiculoResumo {
   id: string
   placa: string
-  tipo: string
-  carroceria: string
-  numeroEixos: number
+  categoria: CategoriaVeiculo
+  modelo: string | null
+  tipo: string | null
+  carroceria: string | null
+  numeroEixos: number | null
   rastreador: boolean
 }
 
@@ -72,6 +79,9 @@ export interface Frete {
   descricaoCarga: string | null
   especieCarga: string | null
   tipoCargaAntt: string | null
+  /** Frete de pessoa física: o menor veículo que leva a carga e o que vai. Nulos no frete de empresa. */
+  categoriaVeiculo: CategoriaVeiculo | null
+  tipoCarga: TipoCarga | null
   pesoKg: number | null
   valor: number | null
   valorACombinar: boolean
@@ -175,8 +185,20 @@ export interface PerfilMotorista {
 
 export interface Veiculo extends VeiculoResumo {
   motoristaId: string
-  rntrc: string
+  rntrc: string | null
   criadoEm: string
+}
+
+/** Foto que o cliente manda com o pedido (até 5). A url é assinada e expira. */
+export interface FotoCarga {
+  id: string
+  url: string
+}
+
+/** GET /api/fretes/{id}/contato: o outro lado do frete, para o WhatsApp. Só depois do aceite. */
+export interface Contato {
+  nome: string
+  telefone: string
 }
 
 export interface Pagina<T> {
@@ -196,8 +218,11 @@ export interface Problema {
   nome?: string | null
 }
 
-/** Categorias de veículo do cadastro de motorista (enum CategoriaVeiculo da API). */
-export type CategoriaVeiculo = 'MOTO' | 'CARRO' | 'UTILITARIO' | 'VAN' | 'CAMINHAO'
+/** Tamanho do veículo, do menor para o maior (enum CategoriaVeiculo da API). Carro e moto não fazem frete. */
+export type CategoriaVeiculo = 'UTILITARIO' | 'VAN' | 'CAMINHAO'
+
+/** O que a pessoa física vai levar (enum TipoCarga da API). */
+export type TipoCarga = 'MUDANCA' | 'MOVEIS' | 'CAIXAS' | 'OBRA' | 'OUTRO'
 
 export interface CadastroCliente {
   cpf: string
@@ -247,6 +272,8 @@ export interface SolicitarFrete {
   pesoKg: number
   valor: number
   dataColeta: string
+  categoriaVeiculo: CategoriaVeiculo
+  tipoCarga: TipoCarga
 }
 
 export interface EnderecoPedido {
@@ -328,13 +355,18 @@ export interface Motorista {
   criadoEm: string
 }
 
-/** Cadastro e edição de caminhão. Na edição a API ignora a placa. */
+/**
+ * Cadastro e edição de veículo (VeiculoRequest). Tipo, modelo e placa bastam para frete de pessoa física;
+ * os dados de caminhão completam o veículo para frete de empresa. Na edição a API ignora a placa.
+ */
 export interface NovoVeiculo {
   placa: string
-  rntrc: string
-  tipo: string
-  carroceria: string
-  numeroEixos: number
+  categoria: CategoriaVeiculo
+  modelo?: string | null
+  rntrc?: string | null
+  tipo?: string | null
+  carroceria?: string | null
+  numeroEixos?: number | null
   rastreador: boolean
 }
 

@@ -1,4 +1,4 @@
-import type { Frete, Papel, StatusFrete, StatusPagamento, StatusProposta, TipoEmpresa } from './api/tipos'
+import type { CategoriaVeiculo, Frete, Papel, StatusFrete, StatusPagamento, StatusProposta, TipoCarga, TipoEmpresa } from './api/tipos'
 
 const brl = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 const brlCentavos = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -142,6 +142,41 @@ export const CARGAS_ANTT = [
 ] as const
 
 const rotulo = (lista: readonly { valor: string; rotulo: string }[], v: string) => lista.find((x) => x.valor === v)?.rotulo ?? v
-export const veiculo = (v: string) => rotulo(TIPOS_CAMINHAO, v)
-export const carroceria = (c: string) => rotulo(CARROCERIAS, c)
+/** Veículo sem os dados de caminhão (o de frete avulso) não tem tipo nem carroceria: sai vazio. */
+export const veiculo = (v: string | null) => (v ? rotulo(TIPOS_CAMINHAO, v) : '')
+export const carroceria = (c: string | null) => (c ? rotulo(CARROCERIAS, c) : '')
 export const carga = (c: string) => rotulo(CARGAS_ANTT, c)
+
+/** Os três tamanhos de veículo, do menor para o maior, com os textos do canvas (Cliente-Veiculo). */
+export const CATEGORIAS: Record<CategoriaVeiculo, { nome: string; cabe: string; exemplo: string; exigencia: string }> = {
+  UTILITARIO: { nome: 'Utilitário', cabe: 'Pequenos volumes, um ou dois eletrodomésticos.', exemplo: 'Fiorino, Kangoo', exigencia: 'qualquer veículo' },
+  VAN: { nome: 'Van ou furgão', cabe: 'Mudança de quitinete ou de um quarto.', exemplo: 'Master, Ducato, Sprinter', exigencia: 'van, furgão ou caminhão' },
+  CAMINHAO: { nome: 'Caminhão', cabe: 'Mudança de casa, material de obra.', exemplo: '3/4, toco, baú', exigencia: 'caminhão' },
+}
+export const ORDEM_CATEGORIAS: CategoriaVeiculo[] = ['UTILITARIO', 'VAN', 'CAMINHAO']
+
+/** A regra de CategoriaVeiculo.leva da API: o veículo leva o frete que pede o tamanho dele ou um menor. */
+export const levaCategoria = (doVeiculo: CategoriaVeiculo, exigida: CategoriaVeiculo | null) =>
+  exigida == null || ORDEM_CATEGORIAS.indexOf(doVeiculo) >= ORDEM_CATEGORIAS.indexOf(exigida)
+
+export const TIPOS_CARGA: Record<TipoCarga, string> = {
+  MUDANCA: 'Mudança',
+  MOVEIS: 'Móveis e eletros',
+  CAIXAS: 'Caixas e volumes',
+  OBRA: 'Material de obra',
+  OUTRO: 'Outro',
+}
+
+/** Peso aproximado, como no canvas. O pedido manda o limite de cima da faixa; a última pede o peso. */
+export const FAIXAS_PESO = [
+  { rotulo: 'Até 200 kg', kg: 200 },
+  { rotulo: 'De 200 a 700 kg', kg: 700 },
+  { rotulo: 'De 700 kg a 1,5 t', kg: 1500 },
+  { rotulo: 'Mais de 1,5 t', kg: null },
+] as const
+
+/** O peso do pedido dito como a faixa que a pessoa escolheu; acima de 1,5 t, o peso que ela digitou. */
+export function faixaDoPeso(kg: number) {
+  const faixa = FAIXAS_PESO.find((f) => f.kg != null && kg <= f.kg)
+  return faixa ? faixa.rotulo : `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(kg / 1000)} t`
+}
