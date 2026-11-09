@@ -49,6 +49,8 @@
 /* align-content: start: lado a lado com um campo que tem ajuda embaixo, o controle não desce para o meio da linha. */
 .campo { display: grid; gap: var(--esp-1); align-content: start; }
 .campo__rotulo { font-size: var(--tam-detalhe); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); }
+/* Nas telas do canvas (entrar, cadastro, cliente e motorista) o rótulo é tinta e forte; a empresa fica como está. */
+:is(.entrar, .cadastro, .app-cliente, .app-motorista) .campo__rotulo { color: var(--cor-texto); font-weight: var(--peso-forte); }
 .campo__entrada {
   width: 100%;
   min-height: var(--alvo);
@@ -624,5 +626,6 @@
 @media (min-width: 900px) {
   .cabecalho-pagina { margin-bottom: var(--esp-6); }
   .cabecalho-pagina__marca { display: none; }
-  .cabecalho-pagina__titulo { font-size: var(--tam-display); }
+  /* O canvas usa 40px no computador; o degrau mais perto da escala é o título (36 a partir de 1024px). */
+  .cabecalho-pagina__titulo { font-size: var(--tam-titulo); }
 }

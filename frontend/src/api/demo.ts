@@ -310,8 +310,15 @@ const paraQuem = (f: Frete, token: string) => (token === 'demo-motorista' && f.m
 /** Na demonstração o Pix confirma sozinho na terceira consulta, como se o banco tivesse respondido. */
 const consultasPix: Record<string, number> = {}
 
-/** Esqueci a senha: o link da demonstração usa o token "demo" e troca a senha da última conta que pediu. */
-let emailDoLink: string | null = null
+/**
+ * Esqueci a senha: o link da demonstração usa o token "demo" e troca a senha da última conta que pediu.
+ * O e-mail fica no localStorage porque o link abre a página de novo, como o link de um e-mail abriria.
+ */
+const CHAVE_LINK = 'fretai.demo.emailDoLink'
+const emailDoLink = {
+  ler: () => localStorage.getItem(CHAVE_LINK),
+  gravar: (email: string) => localStorage.setItem(CHAVE_LINK, email),
+}
 
 /** Código que o recebedor recebe por mensagem. Na demonstração ele é fixo, e a página pública diz qual é. */
 const CODIGO_CONTESTACAO_DEMO = 'ENTREGA8'
@@ -675,14 +682,15 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
   if (metodo === 'POST' && p === '/api/auth/senha/link') {
     const email = String(b.email ?? '').trim().toLowerCase()
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return invalido({ email: 'Digite o e-mail da sua conta para receber o link.' })
-    if (contas[email]) emailDoLink = email
+    if (contas[email]) emailDoLink.gravar(email)
     return new Response(null, { status: 204 })
   }
   if (metodo === 'POST' && p === '/api/auth/senha/nova') {
     const senha = String(b.senha ?? '')
     if (senha.length < 8 || senha.length > 72) return invalido({ senha: 'A senha deve ter entre 8 e 72 caracteres.' })
     if (b.token !== 'demo') return problema(422, 'Regra de negócio', 'Este link não vale mais. Peça outro na tela de entrar.')
-    if (emailDoLink) guardarConta(emailDoLink, { ...contas[emailDoLink], senha })
+    const doLink = emailDoLink.ler()
+    if (doLink && contas[doLink]) guardarConta(doLink, { ...contas[doLink], senha })
     return new Response(null, { status: 204 })
   }
   if (p === '/api/auth/logout') return new Response(null, { status: 204 })

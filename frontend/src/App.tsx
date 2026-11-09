@@ -18,6 +18,7 @@ import { RegistrarEntrega } from './pages/motorista/RegistrarEntrega'
 import { Calculadora } from './pages/motorista/Calculadora'
 import { Perfil } from './pages/motorista/Perfil'
 import { NaoEncontrada } from './pages/NaoEncontrada'
+import { NovaSenha } from './pages/NovaSenha'
 import { useSessao } from './sessao'
 
 /* A página pública carrega à parte: o GSAP e o CSS dela não entram no app logado. */
@@ -50,6 +51,7 @@ export function App() {
       <Route path="/" element={tokens ? <Navigate to={INICIO[tokens.papel]} replace /> : <Suspense fallback={null}><Inicio /></Suspense>} />
       <Route path="/entrar" element={<Entrar />} />
       <Route path="/cadastro" element={<Cadastro />} />
+      <Route path="/nova-senha" element={<NovaSenha />} />
       <Route path="/privacidade" element={<Suspense fallback={null}><Privacidade /></Suspense>} />
       <Route path="/termos" element={<Suspense fallback={null}><Termos /></Suspense>} />
       <Route path="/contestar" element={<Suspense fallback={null}><Contestar /></Suspense>} />

@@ -215,23 +215,32 @@
 }
 .assinatura__limpar { justify-self: end; }
 
-/* ---------- entrar ---------- */
-.entrar { min-height: 100dvh; display: grid; }
-.entrar__painel {
-  display: grid;
-  align-content: end;
-  gap: var(--esp-8);
-  padding: var(--esp-8) var(--esp-6);
-}
-/* Slogan com corpo de título, mas o h1 da tela é "Entrar", o mesmo nome da aba. */
-.entrar__titulo { font-family: var(--fonte-placa); font-weight: var(--peso-placa); font-size: var(--tam-display); line-height: var(--altura-titulo); text-wrap: balance; max-width: 14ch; }
-/* O caminho do dinheiro desenhado como a própria pista: asfalto vertical com o tracejado, e cada
-   etapa é uma faixa de parada atravessando a pista. É a assinatura explicando o produto. */
+/* ---------- entrar ----------
+   Como no canvas: o formulário sobre o fundo e, no computador, o painel branco à direita com o caminho
+   do dinheiro desenhado como a pista. No celular o painel vira o cartão "Como o dinheiro anda". */
+.entrar { --alvo: var(--alvo-motorista); min-height: 100dvh; display: grid; align-content: start; gap: var(--esp-6); padding: var(--esp-4) var(--esp-4) var(--esp-8); }
+.entrar__form-area, .entrar__coluna { display: grid; gap: var(--esp-6); }
+.entrar__marca { justify-self: start; color: var(--cor-texto); text-decoration: none; }
+.entrar__cabeca { display: grid; gap: var(--esp-2); }
+.entrar__h1 { font-size: var(--tam-display); }
+.entrar__sub { color: var(--cor-texto-secundario); text-wrap: pretty; }
+.entrar__rotulo-senha { display: flex; align-items: center; justify-content: space-between; gap: var(--esp-3); }
+.entrar__link-enviado { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.entrar__link-enviado:empty { display: none; }
+/* Ação com cara de link (Esqueci a senha): o azul de informação, com o alvo de toque inteiro. */
+.link-acao { display: inline-flex; align-items: center; min-height: var(--alvo); padding: 0; border: 0; background: none; color: var(--cor-info); font: inherit; font-size: var(--tam-detalhe); font-weight: var(--peso-forte); cursor: pointer; }
+.link-acao:hover { color: var(--cor-texto); text-decoration: underline; }
+.link-acao:disabled { cursor: progress; opacity: var(--opac-desabilitado); }
+.entrar__painel { display: grid; gap: var(--esp-4); padding: var(--esp-4); background: var(--cor-superficie); border-radius: var(--raio-cartao); box-shadow: var(--sombra-cartao); }
+.entrar__anda { font-size: var(--tam-secao); }
+.entrar__chamada { font-size: var(--tam-display); text-wrap: balance; }
+.entrar__chamada-texto { max-width: 52ch; color: var(--cor-texto-secundario); font-size: var(--tam-bloco); text-wrap: pretty; }
+/* O caminho do dinheiro desenhado como a própria pista: asfalto vertical com o tracejado. */
 .entrar__passos {
   position: relative;
   display: grid;
   gap: var(--esp-6);
-  max-width: 46ch;
+  max-width: 52ch;
   padding: var(--esp-2) 0 var(--esp-2) calc(var(--esp-6) + var(--esp-4));
 }
 .entrar__passos::before {
@@ -250,25 +259,18 @@
   background-repeat: no-repeat;
 }
 .entrar__passos li { display: grid; gap: var(--esp-1); color: var(--cor-texto-secundario); }
-/* Faixa de parada: sem top/bottom, o absoluto fica na altura do próprio item. */
-.entrar__passos li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: var(--esp-6);
-  height: var(--borda-forte);
-  margin-top: calc(var(--tam-detalhe) * var(--altura-texto) / 2 - var(--borda));
-  background: var(--cor-fundo);
-}
-.entrar__km { font-family: var(--fonte-mono); font-size: var(--tam-detalhe); color: var(--cor-texto); }
-.entrar__form-area { display: grid; place-items: center; padding: var(--esp-8) var(--esp-6); }
+/* A placa do marco: o amarelo da pista sobre o asfalto, como o km da linha de rota (8.55 no claro). */
+.entrar__km { justify-self: start; padding: 0 var(--esp-2); border-radius: var(--raio-campo); background: var(--cor-asfalto); color: var(--cor-faixa); font-family: var(--fonte-placa); font-size: var(--tam-detalhe); font-weight: var(--peso-placa); }
+.entrar__marco { color: var(--cor-texto); font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); }
 .formulario { width: 100%; max-width: var(--largura-formulario); display: grid; gap: var(--esp-4); }
 .formulario__titulo { font-size: var(--tam-titulo); }
-.entrar__marca { justify-self: start; color: var(--cor-texto); text-decoration: none; }
 .formulario__ou { display: flex; align-items: center; gap: var(--esp-3); color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
 .formulario__ou::before, .formulario__ou::after { content: ""; flex: 1; height: var(--borda); background: var(--cor-linha); }
-.formulario__troca { color: var(--cor-texto-secundario); text-align: center; }
-.formulario__troca a { color: var(--cor-texto); font-weight: var(--peso-forte); }
+.formulario__troca { color: var(--cor-texto-secundario); }
+.formulario__troca a { color: var(--cor-info); font-weight: var(--peso-forte); }
+.formulario__troca a:hover { color: var(--cor-texto); }
+/* Senha nova: só a coluna do formulário, no meio. */
+.entrar--so-form { justify-items: center; }
 
 /* ---------- cadastro ---------- */
 /* Uma coluna no centro, como no login dos apps de corrida: um passo por vez (perfil, depois dados). */
@@ -312,8 +314,12 @@
 .entrar__demo-botoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
 
 @media (min-width: 900px) {
-  .entrar { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
-  .entrar__painel { align-content: center; padding: var(--esp-12); border-right: var(--borda) solid var(--cor-linha); }
+  .entrar { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-content: stretch; gap: 0; padding: 0; }
+  .entrar__form-area { padding: var(--esp-8) var(--esp-12); }
+  .entrar__coluna { grid-template-rows: auto 1fr; }
+  .entrar__coluna .formulario { align-self: center; justify-self: center; }
+  .entrar__painel { align-content: center; gap: var(--esp-6); padding: var(--esp-12); border-left: var(--borda) solid var(--cor-linha); border-radius: 0; box-shadow: none; }
+  .entrar--so-form { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ---------- empresa ---------- */
