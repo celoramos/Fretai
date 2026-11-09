@@ -1,7 +1,11 @@
 package br.com.fretai.usuario.application;
 
+import br.com.fretai.endereco.domain.Coordenadas;
+import br.com.fretai.endereco.domain.EnderecoGateway;
+import br.com.fretai.endereco.domain.GeocodificacaoGateway;
 import br.com.fretai.shared.exception.ConflitoException;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
+import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.shared.seguranca.IdentidadeGoogle;
 import br.com.fretai.shared.seguranca.VerificadorGoogle;
 import br.com.fretai.usuario.application.dto.AtualizarContatoRequest;
@@ -36,16 +40,21 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final VerificadorGoogle verificadorGoogle;
     private final ApplicationEventPublisher eventos;
+    private final EnderecoGateway enderecoGateway;
+    private final GeocodificacaoGateway geocodificacaoGateway;
 
     public UsuarioService(UsuarioRepository usuarioRepository, ClienteRepository clienteRepository,
                           MotoristaRepository motoristaRepository, PasswordEncoder passwordEncoder,
-                          VerificadorGoogle verificadorGoogle, ApplicationEventPublisher eventos) {
+                          VerificadorGoogle verificadorGoogle, ApplicationEventPublisher eventos,
+                          EnderecoGateway enderecoGateway, GeocodificacaoGateway geocodificacaoGateway) {
         this.usuarioRepository = usuarioRepository;
         this.clienteRepository = clienteRepository;
         this.motoristaRepository = motoristaRepository;
         this.passwordEncoder = passwordEncoder;
         this.verificadorGoogle = verificadorGoogle;
         this.eventos = eventos;
+        this.enderecoGateway = enderecoGateway;
+        this.geocodificacaoGateway = geocodificacaoGateway;
     }
 
     @Transactional
@@ -138,8 +147,17 @@ public class UsuarioService {
     @Transactional
     public MotoristaResponse definirBase(UUID motoristaId, BaseMotoristaRequest request) {
         Motorista motorista = carregarMotorista(motoristaId);
-        motorista.definirBase(request.latitude(), request.longitude(), request.raioKm());
+        Coordenadas base = request.latitude() != null && request.longitude() != null
+                ? new Coordenadas(request.latitude(), request.longitude())
+                : localizarCep(request.cep());
+        motorista.definirBase(base.latitude(), base.longitude(), request.raioKm());
         return MotoristaResponse.de(motorista);
+    }
+
+    private Coordenadas localizarCep(String cep) {
+        return geocodificacaoGateway.localizar(enderecoGateway.buscarPorCep(cep), null)
+                .orElseThrow(() -> new RegraNegocioException("Não foi possível achar o CEP " + cep
+                        + " no mapa. Use a sua localização."));
     }
 
     /** Usado por todo cadastro de pessoa, inclusive o responsável de uma empresa. */
