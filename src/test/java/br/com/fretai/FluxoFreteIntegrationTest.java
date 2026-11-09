@@ -326,6 +326,56 @@ class FluxoFreteIntegrationTest {
                 .andExpect(jsonPath("$.nomeDestinatario").value("Ana Pereira"));
     }
 
+    @Test
+    @DisplayName("O contato só aparece depois que o frete fecha")
+    void contatoAntesDoAceite() throws Exception {
+        String clienteId = cadastrarCliente("16180340307", "contato1@email.com");
+        RequestPostProcessor cliente = Login.como(mvc, "contato1@email.com");
+        String freteId = solicitarFrete(clienteId, cliente);
+
+        mvc.perform(get("/api/fretes/{id}/contato", freteId).with(cliente))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.detail").value("O contato aparece depois que o frete fecha."));
+    }
+
+    @Test
+    @DisplayName("Depois do aceite, cada lado recebe o nome e o telefone do outro")
+    void contatoDepoisDoAceiteDosDoisLados() throws Exception {
+        String clienteId = cadastrarCliente("16180340498", "contato2@email.com");
+        String motoristaId = cadastrarMotorista("16180340579", "contato.motorista@email.com", "CON2B22");
+        RequestPostProcessor cliente = Login.como(mvc, "contato2@email.com");
+        RequestPostProcessor motorista = Login.como(mvc, "contato.motorista@email.com");
+        String freteId = solicitarFrete(clienteId, cliente);
+        mvc.perform(post("/api/fretes/{id}/aceite", freteId).with(motorista).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motoristaId\": \"%s\"}".formatted(motoristaId)))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/fretes/{id}/contato", freteId).with(cliente))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("Marcos Souza"))
+                .andExpect(jsonPath("$.telefone").value("11988887777"));
+        mvc.perform(get("/api/fretes/{id}/contato", freteId).with(motorista))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("Carlos Silva"))
+                .andExpect(jsonPath("$.telefone").value("11999998888"));
+    }
+
+    @Test
+    @DisplayName("Quem não participa do frete não vê o contato")
+    void contatoDeQuemNaoParticipa() throws Exception {
+        String clienteId = cadastrarCliente("16180340650", "contato3@email.com");
+        String motoristaId = cadastrarMotorista("16180340730", "contato.dono@email.com", "CON3C33");
+        cadastrarMotorista("16180340811", "contato.outro@email.com", "CON4D44");
+        String freteId = solicitarFrete(clienteId, Login.como(mvc, "contato3@email.com"));
+        mvc.perform(post("/api/fretes/{id}/aceite", freteId).with(Login.como(mvc, "contato.dono@email.com"))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"motoristaId\": \"%s\"}".formatted(motoristaId)))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/fretes/{id}/contato", freteId).with(Login.como(mvc, "contato.outro@email.com")))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.detail").value("Só quem participa do frete vê o contato."));
+    }
+
     // ---------- auxiliares ----------
 
     private static String clienteJson(String cpf, String email) {

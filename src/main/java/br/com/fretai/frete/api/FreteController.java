@@ -6,6 +6,7 @@ import br.com.fretai.frete.application.PublicacaoFreteService;
 import br.com.fretai.frete.application.dto.AceiteRequest;
 import br.com.fretai.frete.application.dto.BuscaFreteRequest;
 import br.com.fretai.frete.application.dto.CancelamentoRequest;
+import br.com.fretai.frete.application.dto.ContatoResponse;
 import br.com.fretai.frete.application.dto.EventoFreteResponse;
 import br.com.fretai.frete.application.dto.FreteEncontradoResponse;
 import br.com.fretai.frete.application.dto.FreteResponse;
@@ -110,6 +111,12 @@ public class FreteController {
     public Page<FreteEncontradoResponse> retorno(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem,
                                                  @PageableDefault(size = 20) Pageable pageable) {
         return buscaFreteService.sugerirRetorno(id, quem, pageable);
+    }
+
+    /** Nome e telefone do outro lado, para o WhatsApp. Só depois do aceite. */
+    @GetMapping("/{id}/contato")
+    public ContatoResponse contato(@PathVariable UUID id, @AuthenticationPrincipal UsuarioLogado quem) {
+        return freteService.contato(id, quem);
     }
 
     /** Trilha de auditoria: cada mudança de status, quem fez e quando. */

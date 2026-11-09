@@ -1,5 +1,7 @@
 package br.com.fretai.frete.application;
 
+import br.com.fretai.empresa.domain.Empresa;
+import br.com.fretai.frete.application.dto.ContatoResponse;
 import br.com.fretai.frete.application.dto.EventoFreteResponse;
 import br.com.fretai.frete.application.dto.FreteResponse;
 import br.com.fretai.frete.application.dto.SolicitarFreteRequest;
@@ -12,6 +14,7 @@ import br.com.fretai.frete.domain.PropostaRepository;
 import br.com.fretai.frete.domain.StatusFrete;
 import br.com.fretai.shared.exception.AcessoNegadoException;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
+import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.shared.seguranca.UsuarioLogado;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.ClienteRepository;
@@ -98,6 +101,34 @@ public class FreteService {
         exigir(quem.isAdmin() || frete.ehContratante(quem) || frete.ehMotoristaDoFrete(quem),
                 "Só quem participa do frete vê o histórico.");
         return frete.getEventos().stream().map(EventoFreteResponse::de).toList();
+    }
+
+    /**
+     * O outro lado do frete, para o WhatsApp: o motorista recebe quem contratou (o cliente ou a empresa) e
+     * quem contratou recebe o motorista. Só depois de fechar e enquanto o frete anda; antes do aceite o
+     * telefone não sai, para ninguém fechar por fora.
+     */
+    @Transactional(readOnly = true)
+    public ContatoResponse contato(UUID freteId, UsuarioLogado quem) {
+        Frete frete = carregar(freteId);
+        boolean ehMotorista = frete.ehMotoristaDoFrete(quem);
+        exigir(ehMotorista || frete.ehContratante(quem), "Só quem participa do frete vê o contato.");
+        switch (frete.getStatus()) {
+            case PUBLICADO, PROPOSTA_ENVIADA -> throw new RegraNegocioException("O contato aparece depois que o frete fecha.");
+            case PAGO, CANCELADO -> throw new RegraNegocioException("Este frete já terminou.");
+            default -> {
+            }
+        }
+        if (!ehMotorista) {
+            Motorista motorista = frete.getMotorista();
+            return new ContatoResponse(motorista.getNome(), motorista.getTelefone());
+        }
+        Empresa empresa = frete.getEmpresa();
+        if (empresa != null) {
+            String nome = empresa.getNomeFantasia() != null ? empresa.getNomeFantasia() : empresa.getRazaoSocial();
+            return new ContatoResponse(nome, empresa.getTelefone());
+        }
+        return new ContatoResponse(frete.getCliente().getNome(), frete.getCliente().getTelefone());
     }
 
     /** Aceite pelo valor anunciado: vira uma proposta do motorista, já aceita. */
