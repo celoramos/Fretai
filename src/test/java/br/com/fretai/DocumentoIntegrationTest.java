@@ -87,7 +87,7 @@ class DocumentoIntegrationTest {
         RequestPostProcessor intruso = Login.como(mvc, "intruso@email.com");
         String veiculoId = JsonPath.read(mvc.perform(post("/api/motoristas/{id}/veiculos", motoristaId).with(motorista)
                         .contentType(MediaType.APPLICATION_JSON).content("""
-                                {"placa": "DOC2B22", "rntrc": "12345678", "tipo": "TRUCK", "carroceria": "BAU",
+                                {"placa": "DOC2B22", "categoria": "CAMINHAO", "rntrc": "12345678", "tipo": "TRUCK", "carroceria": "BAU",
                                  "numeroEixos": 3, "rastreador": false}"""))
                 .andReturn().getResponse().getContentAsString(), "$.id");
         String freteId = JsonPath.read(mvc.perform(post("/api/fretes/empresa/{id}", empresaId).with(empresa)

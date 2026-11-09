@@ -219,7 +219,7 @@ class PropostaIntegrationTest {
                                     String carroceria) throws Exception {
         return JsonPath.read(mvc.perform(post("/api/motoristas/{id}/veiculos", motoristaId).with(motorista)
                         .contentType(MediaType.APPLICATION_JSON).content("""
-                                {"placa": "%s", "rntrc": "12345678", "tipo": "%s", "carroceria": "%s",
+                                {"placa": "%s", "categoria": "CAMINHAO", "rntrc": "12345678", "tipo": "%s", "carroceria": "%s",
                                  "numeroEixos": 5, "rastreador": true}""".formatted(placa, tipo, carroceria)))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString(), "$.id");

@@ -113,8 +113,9 @@ class MarketplaceApiIntegrationTest {
                         .andExpect(jsonPath("$.tipo").value("BITREM"))
                         .andReturn().getResponse().getContentAsString(), "$.id");
 
+        // O cadastro já criou o primeiro veículo (CAM1A11); o bitrem é o segundo.
         mvc.perform(get("/api/motoristas/{id}/veiculos", motoristaId).with(dono))
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$.length()").value(2));
         mvc.perform(put("/api/motoristas/{m}/veiculos/{v}", motoristaId, veiculoId).with(dono)
                         .contentType(MediaType.APPLICATION_JSON).content(veiculoJson("BIT2B22", 9)))
                 .andExpect(jsonPath("$.numeroEixos").value(9));
@@ -126,7 +127,7 @@ class MarketplaceApiIntegrationTest {
         mvc.perform(delete("/api/motoristas/{m}/veiculos/{v}", motoristaId, veiculoId).with(dono))
                 .andExpect(status().isNoContent());
         mvc.perform(get("/api/motoristas/{id}/veiculos", motoristaId).with(dono))
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.length()").value(1));
     }
 
     @Test
@@ -207,7 +208,7 @@ class MarketplaceApiIntegrationTest {
 
     private static String veiculoJson(String placa, int eixos) {
         return """
-                {"placa": "%s", "rntrc": "12345678", "tipo": "BITREM", "carroceria": "GRANELEIRO",
+                {"placa": "%s", "categoria": "CAMINHAO", "rntrc": "12345678", "tipo": "BITREM", "carroceria": "GRANELEIRO",
                  "numeroEixos": %d, "rastreador": true}
                 """.formatted(placa, eixos);
     }

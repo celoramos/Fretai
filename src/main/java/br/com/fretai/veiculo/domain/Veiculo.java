@@ -1,5 +1,6 @@
 package br.com.fretai.veiculo.domain;
 
+import br.com.fretai.usuario.domain.CategoriaVeiculo;
 import br.com.fretai.usuario.domain.Motorista;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,8 +19,9 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
- * Caminhão de um motorista autônomo. Um motorista pode ter vários, e cada
- * proposta diz com qual deles vai fazer o frete.
+ * Veículo de um motorista: utilitário, van ou caminhão. Um motorista pode ter vários, e cada
+ * proposta diz com qual deles vai fazer o frete. RNTRC, tipo de caminhão, carroceria e eixos só o frete
+ * de empresa exige; para o frete de pessoa física bastam tipo, modelo e placa.
  */
 @Entity
 public class Veiculo {
@@ -42,19 +44,25 @@ public class Veiculo {
     @Column(nullable = false, unique = true, length = 7)
     private String placa;
 
-    @Column(nullable = false, length = 9)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private CategoriaVeiculo categoria;
+
+    @Column(length = 60)
+    private String modelo;
+
+    @Column(length = 9)
     private String rntrc;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private TipoVeiculo tipo;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private TipoCarroceria carroceria;
 
-    @Column(nullable = false)
-    private int numeroEixos;
+    private Integer numeroEixos;
 
     @Column(nullable = false)
     private boolean rastreador;
@@ -69,27 +77,42 @@ public class Veiculo {
     protected Veiculo() {
     }
 
+    /** Caminhão com todos os dados, o veículo do frete de empresa. */
     public Veiculo(Motorista motorista, String placa, String rntrc, TipoVeiculo tipo,
                    TipoCarroceria carroceria, int numeroEixos, boolean rastreador) {
+        this(motorista, placa, CategoriaVeiculo.CAMINHAO, null, rntrc, Objects.requireNonNull(tipo,
+                "Tipo do veículo é obrigatório."), Objects.requireNonNull(carroceria, "Carroceria é obrigatória."),
+                numeroEixos, rastreador);
+    }
+
+    /** Qualquer veículo: os dados de caminhão podem vir nulos. */
+    public Veiculo(Motorista motorista, String placa, CategoriaVeiculo categoria, String modelo, String rntrc,
+                   TipoVeiculo tipo, TipoCarroceria carroceria, Integer numeroEixos, boolean rastreador) {
         this.motorista = Objects.requireNonNull(motorista, "Motorista é obrigatório.");
         this.placa = normalizarPlaca(placa);
         this.criadoEm = Instant.now();
-        atualizar(rntrc, tipo, carroceria, numeroEixos, rastreador);
+        atualizar(categoria, modelo, rntrc, tipo, carroceria, numeroEixos, rastreador);
     }
 
-    public void atualizar(String rntrc, TipoVeiculo tipo, TipoCarroceria carroceria,
-                          int numeroEixos, boolean rastreador) {
-        String rntrcLimpo = rntrc == null ? "" : rntrc.replaceAll("\\D", "");
-        if (!RNTRC.matcher(rntrcLimpo).matches()) {
-            throw new IllegalArgumentException("RNTRC inválido. Deve ter 8 ou 9 dígitos.");
+    /** Dados que vierem são validados; RNTRC em branco conta como não informado. */
+    public void atualizar(CategoriaVeiculo categoria, String modelo, String rntrc, TipoVeiculo tipo,
+                          TipoCarroceria carroceria, Integer numeroEixos, boolean rastreador) {
+        String rntrcLimpo = null;
+        if (rntrc != null && !rntrc.isBlank()) {
+            rntrcLimpo = rntrc.replaceAll("\\D", "");
+            if (!RNTRC.matcher(rntrcLimpo).matches()) {
+                throw new IllegalArgumentException("RNTRC inválido. Deve ter 8 ou 9 dígitos.");
+            }
         }
-        if (numeroEixos < EIXOS_MINIMO || numeroEixos > EIXOS_MAXIMO) {
+        if (numeroEixos != null && (numeroEixos < EIXOS_MINIMO || numeroEixos > EIXOS_MAXIMO)) {
             throw new IllegalArgumentException("Número de eixos deve estar entre "
                     + EIXOS_MINIMO + " e " + EIXOS_MAXIMO + ".");
         }
+        this.categoria = Objects.requireNonNull(categoria, "O tipo do veículo é obrigatório.");
+        this.modelo = modelo == null || modelo.isBlank() ? null : modelo.trim();
         this.rntrc = rntrcLimpo;
-        this.tipo = Objects.requireNonNull(tipo, "Tipo do veículo é obrigatório.");
-        this.carroceria = Objects.requireNonNull(carroceria, "Carroceria é obrigatória.");
+        this.tipo = tipo;
+        this.carroceria = carroceria;
         this.numeroEixos = numeroEixos;
         this.rastreador = rastreador;
     }
@@ -114,10 +137,12 @@ public class Veiculo {
     public UUID getId() {return id;}
     public Motorista getMotorista() {return motorista;}
     public String getPlaca() {return placa;}
+    public CategoriaVeiculo getCategoria() {return categoria;}
+    public String getModelo() {return modelo;}
     public String getRntrc() {return rntrc;}
     public TipoVeiculo getTipo() {return tipo;}
     public TipoCarroceria getCarroceria() {return carroceria;}
-    public int getNumeroEixos() {return numeroEixos;}
+    public Integer getNumeroEixos() {return numeroEixos;}
     public boolean isRastreador() {return rastreador;}
     public boolean isAtivo() {return ativo;}
     public Instant getCriadoEm() {return criadoEm;}

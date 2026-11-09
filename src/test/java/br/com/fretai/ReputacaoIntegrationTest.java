@@ -81,7 +81,7 @@ class ReputacaoIntegrationTest {
         RequestPostProcessor motorista = Login.como(mvc, "avaliado@email.com");
         String veiculoId = JsonPath.read(mvc.perform(post("/api/motoristas/{id}/veiculos", motoristaId).with(motorista)
                         .contentType(MediaType.APPLICATION_JSON).content("""
-                                {"placa": "AVA2B22", "rntrc": "12345678", "tipo": "TRUCK", "carroceria": "BAU",
+                                {"placa": "AVA2B22", "categoria": "CAMINHAO", "rntrc": "12345678", "tipo": "TRUCK", "carroceria": "BAU",
                                  "numeroEixos": 3, "rastreador": false}"""))
                 .andReturn().getResponse().getContentAsString(), "$.id");
         String freteId = JsonPath.read(mvc.perform(post("/api/fretes/empresa/{id}", empresaId).with(empresa)

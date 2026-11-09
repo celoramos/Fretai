@@ -72,5 +72,7 @@ class FretePublicadoTest {
                 TipoVeiculo.CARRETA, TipoCarroceria.GRANELEIRO, 5, true)), "carroceria não aceita");
         assertFalse(frete.aceitaVeiculo(new Veiculo(motorista, "AAA1111", "12345678",
                 TipoVeiculo.CARRETA, TipoCarroceria.SIDER, 5, false)), "sem rastreador");
+        assertFalse(frete.aceitaVeiculo(new Veiculo(motorista, "AAA1111", CategoriaVeiculo.CAMINHAO, "Baú",
+                null, null, null, null, true)), "caminhão sem tipo cadastrado");
     }
 }

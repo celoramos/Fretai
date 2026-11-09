@@ -34,8 +34,8 @@ public class VeiculoService {
         if (veiculoRepository.existsByPlaca(placa)) {
             throw new ConflitoException("Já existe um veículo com essa placa.");
         }
-        Veiculo veiculo = new Veiculo(motorista, placa, request.rntrc(), request.tipo(), request.carroceria(),
-                request.numeroEixos(), request.rastreador());
+        Veiculo veiculo = new Veiculo(motorista, placa, request.categoria(), request.modelo(), request.rntrc(),
+                request.tipo(), request.carroceria(), request.numeroEixos(), request.rastreador());
         return VeiculoResponse.de(veiculoRepository.save(veiculo));
     }
 
@@ -54,8 +54,8 @@ public class VeiculoService {
     @Transactional
     public VeiculoResponse atualizar(UUID motoristaId, UUID veiculoId, VeiculoRequest request) {
         Veiculo veiculo = carregar(motoristaId, veiculoId);
-        veiculo.atualizar(request.rntrc(), request.tipo(), request.carroceria(), request.numeroEixos(),
-                request.rastreador());
+        veiculo.atualizar(request.categoria(), request.modelo(), request.rntrc(), request.tipo(),
+                request.carroceria(), request.numeroEixos(), request.rastreador());
         return VeiculoResponse.de(veiculo);
     }
 

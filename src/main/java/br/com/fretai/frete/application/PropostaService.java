@@ -71,7 +71,7 @@ public class PropostaService {
             } else if (frete.getEmpresa() != null) {
                 throw new RegraNegocioException("Informe com qual veículo você fará o frete.");
             }
-            frete.exigirVeiculoDoTamanho(motorista);
+            frete.exigirVeiculoDoTamanho(motorista, veiculo);
             if (veiculo != null && !frete.aceitaVeiculo(veiculo)) {
                 throw new RegraNegocioException("O veículo " + veiculo.getPlaca()
                         + " não atende ao tipo, carroceria ou rastreador exigidos pelo frete.");

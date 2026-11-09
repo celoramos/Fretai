@@ -309,8 +309,11 @@ public class Frete {
      * os tipos aceitos, que dá o piso mais baixo possível (o anúncio não pode ficar abaixo nem dele).
      */
     public int eixosParaPiso() {
-        if (veiculo != null) {
+        if (veiculo != null && veiculo.getNumeroEixos() != null) {
             return veiculo.getNumeroEixos();
+        }
+        if (veiculo != null && veiculo.getTipo() != null) {
+            return veiculo.getTipo().getEixosTipicos();
         }
         return veiculosAceitos.stream().mapToInt(TipoVeiculo::getEixosTipicos).min().orElse(Veiculo.EIXOS_MINIMO);
     }
@@ -352,11 +355,13 @@ public class Frete {
     }
 
     /**
-     * Frete de pessoa física: o veículo do motorista tem que ser do tamanho pedido ou maior. Vale no
-     * aceite e também na proposta, para o cliente não fechar com quem não leva a carga.
+     * Frete de pessoa física: o veículo tem que ser do tamanho pedido ou maior. Vale no aceite e também na
+     * proposta, para o cliente não fechar com quem não leva a carga. Sem veículo escolhido, vale o tipo
+     * que o motorista declarou no cadastro.
      */
-    public void exigirVeiculoDoTamanho(Motorista candidato) {
-        if (empresa == null && !candidato.getTipoVeiculo().leva(categoriaVeiculo)) {
+    public void exigirVeiculoDoTamanho(Motorista candidato, Veiculo veiculo) {
+        CategoriaVeiculo doCandidato = veiculo != null ? veiculo.getCategoria() : candidato.getTipoVeiculo();
+        if (empresa == null && !doCandidato.leva(categoriaVeiculo)) {
             throw new RegraNegocioException("Este frete precisa de " + categoriaVeiculo.exigencia() + ".");
         }
     }
@@ -511,7 +516,7 @@ public class Frete {
                         + " não atende ao tipo, carroceria ou rastreador exigidos pelo frete.");
             }
         } else {
-            exigirVeiculoDoTamanho(candidato);
+            exigirVeiculoDoTamanho(candidato, caminhao);
             if (!candidato.getTipoVeiculo().suporta(pesoKg)) {
                 throw new RegraNegocioException("O veículo " + candidato.getTipoVeiculo().getDescricao()
                         + " não suporta uma carga de " + pesoKg + " kg.");

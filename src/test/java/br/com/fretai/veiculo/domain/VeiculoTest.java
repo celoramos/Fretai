@@ -26,6 +26,18 @@ class VeiculoTest {
         assertTrue(veiculo.isAtivo());
     }
 
+    @Test
+    @DisplayName("Veículo de frete avulso: tipo, modelo e placa, sem dados de caminhão")
+    void semDadosDeCaminhao() {
+        Veiculo veiculo = new Veiculo(motorista, "abc1d23", CategoriaVeiculo.VAN, " Master ", null, null, null, null, false);
+
+        assertEquals(CategoriaVeiculo.VAN, veiculo.getCategoria());
+        assertEquals("Master", veiculo.getModelo());
+        assertNull(veiculo.getRntrc());
+        assertNull(veiculo.getTipo());
+        assertNull(veiculo.getNumeroEixos());
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"AB12345", "ABCD123", "1234567", ""})
     @DisplayName("Recusa placa fora do padrão")

@@ -15,10 +15,12 @@ import br.com.fretai.usuario.application.dto.PreferenciasMotoristaRequest;
 import br.com.fretai.usuario.domain.Cliente;
 import br.com.fretai.usuario.domain.ClienteRepository;
 import br.com.fretai.usuario.domain.Motorista;
+import br.com.fretai.usuario.domain.MotoristaCadastrado;
 import br.com.fretai.usuario.domain.MotoristaRepository;
 import br.com.fretai.usuario.domain.UsuarioRepository;
 import java.util.Locale;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,15 +35,17 @@ public class UsuarioService {
     private final MotoristaRepository motoristaRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificadorGoogle verificadorGoogle;
+    private final ApplicationEventPublisher eventos;
 
     public UsuarioService(UsuarioRepository usuarioRepository, ClienteRepository clienteRepository,
                           MotoristaRepository motoristaRepository, PasswordEncoder passwordEncoder,
-                          VerificadorGoogle verificadorGoogle) {
+                          VerificadorGoogle verificadorGoogle, ApplicationEventPublisher eventos) {
         this.usuarioRepository = usuarioRepository;
         this.clienteRepository = clienteRepository;
         this.motoristaRepository = motoristaRepository;
         this.passwordEncoder = passwordEncoder;
         this.verificadorGoogle = verificadorGoogle;
+        this.eventos = eventos;
     }
 
     @Transactional
@@ -76,7 +80,9 @@ public class UsuarioService {
         if (google != null) {
             motorista.vincularGoogle(google.sub());
         }
-        return MotoristaResponse.de(motoristaRepository.save(motorista));
+        Motorista salvo = motoristaRepository.save(motorista);
+        eventos.publishEvent(new MotoristaCadastrado(salvo.getId(), salvo.getTipoVeiculo(), salvo.getPlaca()));
+        return MotoristaResponse.de(salvo);
     }
 
     /**

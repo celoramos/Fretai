@@ -88,8 +88,8 @@ public record FreteResponse(
     public record MotoristaResumo(UUID id, String nome, CategoriaVeiculo tipoVeiculo, String placa) {
     }
 
-    public record VeiculoResumo(UUID id, String placa, TipoVeiculo tipo, TipoCarroceria carroceria,
-                                int numeroEixos, boolean rastreador) {
+    public record VeiculoResumo(UUID id, String placa, CategoriaVeiculo categoria, String modelo, TipoVeiculo tipo,
+                                TipoCarroceria carroceria, Integer numeroEixos, boolean rastreador) {
     }
 
     public record EnderecoResponse(String cep, String logradouro, String numero, String complemento,
@@ -115,8 +115,8 @@ public record FreteResponse(
                 frete.getCliente() == null ? null : new Pessoa(frete.getCliente().getId(), frete.getCliente().getNome()),
                 e == null ? null : new EmpresaResumo(e.getId(), e.getRazaoSocial(), e.getNomeFantasia(), e.getTipo()),
                 m == null ? null : new MotoristaResumo(m.getId(), m.getNome(), m.getTipoVeiculo(), m.getPlaca()),
-                v == null ? null : new VeiculoResumo(v.getId(), v.getPlaca(), v.getTipo(), v.getCarroceria(),
-                        v.getNumeroEixos(), v.isRastreador()),
+                v == null ? null : new VeiculoResumo(v.getId(), v.getPlaca(), v.getCategoria(), v.getModelo(),
+                        v.getTipo(), v.getCarroceria(), v.getNumeroEixos(), v.isRastreador()),
                 EnderecoResponse.de(frete.getPontoColeta()),
                 EnderecoResponse.de(frete.getPontoEntrega()),
                 frete.getNomeDestinatario(),

@@ -105,7 +105,7 @@ class CanhotoIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{\"chavePix\": \"31432098870\"}"));
         String veiculoId = JsonPath.read(mvc.perform(post("/api/motoristas/{id}/veiculos", motoristaId).with(motorista)
                         .contentType(MediaType.APPLICATION_JSON).content("""
-                                {"placa": "CAN2B22", "rntrc": "12345678", "tipo": "CARRETA", "carroceria": "SIDER",
+                                {"placa": "CAN2B22", "categoria": "CAMINHAO", "rntrc": "12345678", "tipo": "CARRETA", "carroceria": "SIDER",
                                  "numeroEixos": 5, "rastreador": true}"""))
                 .andReturn().getResponse().getContentAsString(), "$.id");
         String freteId = JsonPath.read(mvc.perform(post("/api/fretes/empresa/{id}", empresaId).with(empresa)

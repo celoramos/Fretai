@@ -92,7 +92,7 @@ class PagamentoIntegrationTest {
         motorista = Login.como(mvc, "recebe@email.com");
         veiculoId = JsonPath.read(mvc.perform(post("/api/motoristas/{id}/veiculos", motoristaId).with(motorista)
                         .contentType(MediaType.APPLICATION_JSON).content("""
-                                {"placa": "PAG2B22", "rntrc": "12345678", "tipo": "TRUCK", "carroceria": "BAU",
+                                {"placa": "PAG2B22", "categoria": "CAMINHAO", "rntrc": "12345678", "tipo": "TRUCK", "carroceria": "BAU",
                                  "numeroEixos": 3, "rastreador": false}"""))
                 .andReturn().getResponse().getContentAsString(), "$.id");
     }
@@ -160,7 +160,7 @@ class PagamentoIntegrationTest {
         RequestPostProcessor semPix = Login.como(mvc, "sempix@email.com");
         String caminhao = JsonPath.read(mvc.perform(post("/api/motoristas/{id}/veiculos", outro).with(semPix)
                         .contentType(MediaType.APPLICATION_JSON).content("""
-                                {"placa": "PAG4D44", "rntrc": "12345678", "tipo": "TRUCK", "carroceria": "BAU",
+                                {"placa": "PAG4D44", "categoria": "CAMINHAO", "rntrc": "12345678", "tipo": "TRUCK", "carroceria": "BAU",
                                  "numeroEixos": 3, "rastreador": false}"""))
                 .andReturn().getResponse().getContentAsString(), "$.id");
         String freteId = JsonPath.read(mvc.perform(post("/api/fretes/empresa/{id}", empresaId).with(empresa)
