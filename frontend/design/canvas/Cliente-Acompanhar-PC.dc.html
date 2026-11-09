@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Acompanhar frete no computador</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#FAFAF8;color:#1C1F24;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#1F5FAD}a:hover{color:#1C1F24}
+button,textarea,input{font:inherit;color:inherit}
+button:disabled{opacity:.55;cursor:not-allowed}
+:focus-visible{outline:3px solid #1F5FAD;outline-offset:2px}
+.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.m{font-family:"JetBrains Mono",ui-monospace,monospace}
+.f{width:100%;padding:12px 14px;border:1px solid #8A8F98;border-radius:12px;background:#FFFFFF;font-size:16px}
+.b{transition:filter .15s}.b:hover{filter:brightness(1.25)}
+.n:hover{background:#F0EFEB}
+.f::placeholder{color:#5B6270}
+.o:hover{border-color:#1C1F24}
+input[type=radio]{width:20px;height:20px;margin:0;flex:none;accent-color:#1C1F24}
+summary{list-style:none}summary::-webkit-details-marker{display:none}
+.dd[open]>summary .chev{transform:rotate(180deg)}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #FAFAF8">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E6E4DF">
+<div style="max-width: 1120px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<a href="Cliente-Inicio-PC.dc.html" style="display: inline-flex; align-items: center; gap: 10px; color: #1C1F24; text-decoration: none">
+<svg viewBox="8 56 240 156" width="46" height="30" aria-hidden="true"><path fill="#2A2F38" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#2A2F38" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#2A2F38" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<span style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 24px; font-weight: 700">Fretaí</span>
+</a>
+<nav aria-label="Principal" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<a class="n" href="Cliente-Inicio-PC.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #F0EFEB; color: #1C1F24; font-size: 16px; font-weight: 600; text-decoration: none">Meus fretes</a>
+<a class="b" href="Cliente-Pedido-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 16px; font-weight: 600; text-decoration: none">Pedir frete</a>
+<details style="position: relative">
+<summary aria-label="Sua conta" style="display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #E6E4DF; font-size: 15px; font-weight: 700; cursor: pointer">JM</summary>
+<div style="position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; width: 300px; display: flex; flex-direction: column; padding: 8px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .08), 0 16px 40px rgb(28 31 36 / .18)">
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 12px; margin-bottom: 6px; border-bottom: 1px solid #E6E4DF"><strong style="font-size: 16px">Juliana Matos</strong><span style="font-size: 14px; color: #5B6270">juliana.matos@email.com</span></div>
+<a class="n" href="Cliente-Acompanhar-PC.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 12px; color: #1C1F24; font-size: 16px; font-weight: 600; text-decoration: none">Frete em andamento</a>
+<details class="dd">
+<summary class="n" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer">Como o pagamento funciona<svg class="i chev" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; color: #5B6270"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="padding: 6px 12px 10px; font-size: 15px; line-height: 1.5; color: #5B6270">Você paga por Pix quando fecha com o motorista. O dinheiro fica guardado no Fretaí e vai para ele até 24 h depois da entrega, se nada chegar errado. Se você cancelar antes da saída, o Pix volta para você.</p>
+</details>
+<div style="height: 1px; margin: 6px 0; background: #E6E4DF"></div>
+<a class="n" href="Main.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 12px; color: #1C1F24; font-size: 16px; font-weight: 600; text-decoration: none">Sair</a>
+</div>
+</details>
+</nav>
+</div>
+</header>
+<main style="width: 100%; max-width: 1120px; margin: 0 auto; padding: 28px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<a href="Cliente-Inicio-PC.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; font-size: 15px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px"><path d="M15 5l-7 7 7 7"></path></svg>Meus fretes</a>
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: {{cor}}"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: {{cor}}"></span>{{rotulo}}</span>
+<h1 style="font-size: 40px; text-wrap: balance">{{titulo}}</h1>
+<p style="font-size: 17px; line-height: 1.5; color: #5B6270">{{subtitulo}}</p>
+</div>
+<sc-if value="{{vCancelado}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
+<a class="b" href="Cliente-Pedido-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 28px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; text-decoration: none">Fazer outro pedido</a>
+<a href="Cliente-Inicio-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-size: 16px; font-weight: 600">Voltar para meus fretes</a>
+</div>
+</sc-if>
+<sc-if value="{{vAtivo}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Etapas" style="padding: 24px 24px 20px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08); overflow-x: auto">
+<div style="position: relative; min-width: 640px">
+<div aria-hidden="true" style="position: absolute; left: 12.5%; right: 12.5%; top: 9px; height: 14px; border-radius: 4px; background: #2A2F38">
+<div style="position: absolute; left: 6px; right: 6px; top: 5.5px; height: 3px; background: repeating-linear-gradient(90deg, #FFC629 0 14px, transparent 14px 28px)"></div>
+</div>
+<ol style="position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr))">
+<sc-for list="{{passos}}" as="p" hint-placeholder-count="4">
+<li style="display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<span style="display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 3px solid {{p.borda}}; background: {{p.fundo}}; color: #FAFAF8">
+<sc-if value="{{p.feito}}" hint-placeholder-val="{{ true }}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px; stroke-width: 3"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+</span>
+<strong style="font-size: 16px; color: {{p.corTexto}}">{{p.nome}}</strong>
+<span style="font-size: 14px; color: #5B6270">{{p.quando}}</span>
+</li>
+</sc-for>
+</ol>
+</div>
+</section>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{vEntregue}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="t-canhoto" style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<h2 id="t-canhoto" style="font-size: 24px">Canhoto da entrega</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 14px">
+<div role="img" aria-label="Foto da entrega" style="display: grid; place-items: center; height: 150px; border-radius: 12px; background: repeating-linear-gradient(135deg, #F0EFEB 0 10px, #E6E4DF 10px 20px); color: #5B6270; font-size: 14px; font-weight: 600">Foto da entrega</div>
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 6px; height: 150px; padding: 12px 16px; border-radius: 4px; border: 1px solid #E6E4DF; background: #FFFFFF">
+<svg class="i" viewBox="0 0 200 60" role="img" aria-label="Assinatura de Juliana Matos" style="width: 100%; height: 64px; stroke-width: 2.5"><path d="M8 44c14-26 22-30 28-10s10 18 18-6 14-20 20 0 8 18 16 2 12-14 18-4 10 12 20 4 16-10 26-14 12 2 20-2"></path></svg>
+<span style="font-size: 13px; color: #5B6270">Juliana Matos · 14/11, 10:35</span>
+</div>
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 6px; height: 150px; padding: 16px; border-radius: 12px; border: 1px solid #E6E4DF">
+<svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 26px; height: 26px"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z"></path><circle cx="12" cy="9.8" r="2.3"></circle></svg>
+<strong style="font-size: 16px">A 80 m do endereço</strong>
+<span style="font-size: 14px; color: #5B6270">GPS registrado na entrega</span>
+</div>
+</div>
+<sc-if value="{{vBotaoContestar}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding-top: 16px; border-top: 1px solid #E6E4DF">
+<p style="flex: 1 1 320px; font-size: 16px; line-height: 1.5">Se está tudo certo, não precisa fazer nada. O pagamento vai para o Edvaldo em 23 h.</p>
+<button type="button" onClick="{{abrirContestacao}}" style="min-height: 48px; padding: 0 20px; border-radius: 999px; border: 1px solid #8A8F98; background: #FFFFFF; color: #C92A2A; font-size: 16px; font-weight: 600; cursor: pointer">Algo chegou errado</button>
+</div>
+</sc-if>
+<sc-if value="{{vFormContestar}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid #E6E4DF">
+<label for="motivo" style="font-size: 15px; font-weight: 600">O que aconteceu?</label>
+<textarea id="motivo" class="f" placeholder="Ex.: o espelho do guarda-roupa chegou quebrado" value="{{motivo}}" onChange="{{onMotivo}}" style="height: 96px; resize: vertical"></textarea>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" class="b" onClick="{{enviarContestacao}}" disabled="{{semMotivo}}" style="min-height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 16px; font-weight: 600; cursor: pointer">Enviar contestação</button>
+<button type="button" onClick="{{desistirContestacao}}" style="min-height: 48px; padding: 0 18px; border: 0; border-radius: 999px; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer">Voltar</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{contestado}}" hint-placeholder-val="{{ false }}">
+<p role="status" style="font-size: 16px; line-height: 1.5; color: #C92A2A">Contestação enviada. O pagamento fica parado até um administrador decidir, e o Edvaldo foi avisado.</p>
+</sc-if>
+</section>
+</sc-if>
+<sc-if value="{{vAvaliar}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="t-avaliar" style="display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<h2 id="t-avaliar" style="font-size: 24px">Como foi com o Edvaldo?</h2>
+<sc-if value="{{naoAvaliado}}" hint-placeholder-val="{{ true }}">
+<div role="group" aria-label="Nota de 1 a 5" style="display: flex; gap: 4px">
+<sc-for list="{{estrelas}}" as="e" hint-placeholder-count="5">
+<button type="button" aria-label="{{e.label}}" aria-pressed="{{e.on}}" onClick="{{e.pick}}" style="display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 999px; background: none; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 34px; height: 34px; stroke: #1C1F24; fill: {{e.fill}}"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8z"></path></svg></button>
+</sc-for>
+</div>
+<button type="button" class="b" onClick="{{avaliar}}" disabled="{{semNota}}" style="align-self: flex-start; min-height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 16px; font-weight: 600; cursor: pointer">Enviar avaliação</button>
+</sc-if>
+<sc-if value="{{avaliado}}" hint-placeholder-val="{{ false }}"><p role="status" style="font-size: 16px">Obrigado! A nota aparece no perfil do Edvaldo.</p></sc-if>
+</section>
+</sc-if>
+<section aria-labelledby="t-pedido" style="display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<h2 id="t-pedido" style="font-size: 24px">Seu pedido</h2>
+<p style="font-size: 16px; line-height: 1.5">Mudança de 1 quarto: geladeira, fogão, cama de casal, guarda-roupa desmontado e umas 15 caixas.</p>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 12px 24px">
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 14px; color: #5B6270">Coleta</dt><dd style="margin: 0; font-size: 15px">Av. Paulo VI, 1200, ap. 302 · Pituba</dd></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 14px; color: #5B6270">Entrega</dt><dd style="margin: 0; font-size: 15px">Rua Praia de Guarajuba, 40 · Vilas do Atlântico</dd></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 14px; color: #5B6270">Quem recebe</dt><dd style="margin: 0; font-size: 15px">Juliana Matos</dd></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 14px; color: #5B6270">Dia</dt><dd style="margin: 0; font-size: 15px">Sábado, 14/11</dd></div>
+</dl>
+</section>
+</div>
+<aside style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section aria-label="Motorista" style="display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<div style="display: flex; gap: 12px; align-items: center">
+<span aria-hidden="true" style="display: grid; place-items: center; width: 52px; height: 52px; flex: none; border-radius: 50%; background: #E6E4DF; font-size: 17px; font-weight: 700">ES</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><strong style="font-size: 17px">Edvaldo Santos</strong><span style="font-size: 14px; color: #5B6270">Nota 4,9 · 132 fretes</span><span style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #5B6270">Van Renault Master <span class="m" style="padding: 1px 6px; border-radius: 4px; border: 1px solid #8A8F98; color: #1C1F24; font-size: 13px">RPX2G41</span></span></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px"><span>Pituba</span><span>Vilas do Atlântico</span></div>
+<div role="img" aria-label="22 km de estrada" style="position: relative; display: grid; place-items: center; height: 24px; border-radius: 4px; background: #2A2F38">
+<div style="position: absolute; left: 8px; right: 8px; top: 10.5px; height: 3px; background: repeating-linear-gradient(90deg, #FFC629 0 14px, transparent 14px 28px)"></div>
+<span style="position: relative; padding: 0 8px; background: #2A2F38; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 14px; font-weight: 700; line-height: 24px">22 km</span>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 12px; border-top: 1px solid #E6E4DF"><span style="font-size: 17px; font-weight: 700; color: #007A51">{{dinheiro}}</span><span style="font-size: 14px; color: #5B6270; text-align: right">{{dinheiroDetalhe}}</span></div>
+<button type="button" class="o" aria-haspopup="dialog" onClick="{{abrirChat}}" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 999px; border: 1px solid #8A8F98; background: #FFFFFF; color: #1C1F24; font-size: 16px; font-weight: 600; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="M4 5h16v11H9l-5 4z"></path></svg>Mandar mensagem para o Edvaldo</button>
+</section>
+<sc-if value="{{vCodigo}}" hint-placeholder-val="{{ true }}">
+<section aria-labelledby="t-codigo" style="display: flex; flex-direction: column; gap: 10px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<h2 id="t-codigo" style="font-size: 20px">Código de quem recebe</h2>
+<span class="m" style="align-self: flex-start; padding: 6px 12px; border-radius: 4px; border: 1px solid #8A8F98; font-size: 26px; letter-spacing: .2em">HK7M 4PXR</span>
+<p style="font-size: 14px; line-height: 1.45; color: #5B6270">Mandamos pelo WhatsApp para Juliana Matos, que recebe. Se algo chegar errado, ela usa esse código para contestar em até 24 h.</p>
+</section>
+</sc-if>
+<sc-if value="{{vCancelar}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 2px">
+<button type="button" aria-haspopup="dialog" onClick="{{pedirCancelar}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border: 0; background: transparent; color: #C92A2A; font-size: 15px; font-weight: 600; text-decoration: underline; cursor: pointer">Cancelar frete</button>
+<span style="font-size: 13px; color: #5B6270">Antes da saída, o Pix volta para você.</span>
+</div>
+</sc-if>
+</aside>
+</div>
+</sc-if>
+</main>
+<sc-if value="{{chat}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; z-index: 40; display: flex; background: rgb(28 31 36 / .45)">
+<button type="button" aria-label="Fechar conversa" onClick="{{fecharChat}}" style="flex: 1; border: 0; background: transparent; cursor: pointer"></button>
+<section role="dialog" aria-modal="true" aria-labelledby="t-chat" style="width: 100%; max-width: 440px; display: flex; flex-direction: column; background: #FAFAF8; box-shadow: -8px 0 32px rgb(28 31 36 / .18)">
+<div style="display: flex; align-items: center; gap: 12px; padding: 18px 16px 14px 24px; border-bottom: 1px solid #E6E4DF">
+<span aria-hidden="true" style="display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%; background: #E6E4DF; font-size: 15px; font-weight: 700">ES</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><h2 id="t-chat" style="font-size: 20px">Edvaldo Santos</h2><span style="font-size: 14px; color: #5B6270">Van Renault Master · <span class="m">RPX2G41</span></span></div>
+<button type="button" onClick="{{fecharChat}}" aria-label="Fechar" style="display: grid; place-items: center; width: 44px; height: 44px; flex: none; border: 0; border-radius: 999px; background: #E6E4DF; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<div role="log" aria-label="Mensagens" style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 12px; padding: 20px 24px">
+<sc-if value="{{digitando}}" hint-placeholder-val="{{ false }}"><p role="status" style="align-self: flex-start; font-size: 14px; color: #5B6270">Edvaldo está digitando…</p></sc-if>
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="3">
+<div style="align-self: {{m.lado}}; max-width: 82%; display: flex; flex-direction: column; align-items: {{m.lado}}; gap: 4px">
+<p style="padding: 10px 14px; border-radius: {{m.raio}}; background: {{m.bg}}; color: {{m.fg}}; box-shadow: {{m.sombra}}; font-size: 15px; line-height: 1.4">{{m.texto}}</p>
+<span style="font-size: 12px; color: #5B6270">{{m.hora}}</span>
+</div>
+</sc-for>
+<p style="align-self: center; max-width: 320px; padding: 8px 12px; border-radius: 12px; background: #F0EFEB; font-size: 13px; line-height: 1.4; color: #5B6270; text-align: center">Pagamento e comprovantes ficam no Fretaí, fora do chat. Não combine pagamento por fora.</p>
+</div>
+<form onSubmit="{{enviarMsg}}" style="display: flex; gap: 8px; align-items: center; padding: 14px 16px 18px 24px; border-top: 1px solid #E6E4DF">
+<input class="f" aria-label="Mensagem para o Edvaldo" placeholder="Escreva uma mensagem" autocomplete="off" value="{{texto}}" onChange="{{onTexto}}" style="flex: 1; min-width: 0; height: 48px; padding: 0 14px">
+<button type="submit" aria-label="Enviar" disabled="{{semTexto}}" style="display: grid; place-items: center; width: 48px; height: 48px; flex: none; border: 0; border-radius: 999px; background: #1C1F24; color: #FAFAF8; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 22px; height: 22px"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"></path></svg></button>
+</form>
+</section>
+</div>
+</sc-if>
+<sc-if value="{{confirmando}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 24px; background: rgb(28 31 36 / .45)">
+<section role="alertdialog" aria-modal="true" aria-labelledby="t-confirma" aria-describedby="d-confirma" style="width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 14px; padding: 28px; border-radius: 16px; background: #FAFAF8">
+<h2 id="t-confirma" style="font-size: 28px">Cancelar o frete com o Edvaldo?</h2>
+<p id="d-confirma" style="font-size: 16px; line-height: 1.5; color: #5B6270">Ele ainda não saiu para a coleta. O Pix de R$ 380 volta para você, e ele é avisado na hora.</p>
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column">
+<legend style="padding: 0 0 4px; font-size: 16px; font-weight: 600">Por que você quer cancelar?</legend>
+<sc-for list="{{motivosCanc}}" as="mc" hint-placeholder-count="4">
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 16px; cursor: pointer"><input type="radio" name="motivo-cancelamento" value="{{mc.valor}}" checked="{{mc.on}}" onChange="{{mc.pick}}">{{mc.nome}}</label>
+</sc-for>
+</fieldset>
+<sc-if value="{{motivoOutro}}" hint-placeholder-val="{{ false }}">
+<textarea class="f" aria-label="Motivo do cancelamento" placeholder="Conte em poucas palavras" maxlength="500" value="{{textoCanc}}" onChange="{{onTextoCanc}}" style="height: 84px; resize: vertical"></textarea>
+</sc-if>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding-top: 8px">
+<button type="button" onClick="{{confirmarCancelar}}" disabled="{{semMotivoCanc}}" style="min-height: 48px; padding: 0 22px; border-radius: 999px; border: 1px solid #8A8F98; background: #FFFFFF; color: #C92A2A; font-size: 16px; font-weight: 600; cursor: pointer">Sim, cancelar frete</button>
+<button type="button" class="b" onClick="{{manter}}" style="min-height: 48px; padding: 0 24px; border: 0; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 16px; font-weight: 600; cursor: pointer">Manter o frete</button>
+</div>
+</section>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"etapa":{"editor":"enum","options":["ACEITO","EM_TRANSITO","ENTREGUE","PAGO"],"default":"ACEITO"},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  state = this.inicial();
+  inicial() {
+    return {
+      contestando: false, contestado: false, motivo: '', nota: 0, avaliado: false,
+      chat: false, texto: '', digitando: false, respostas: 0,
+      msgs: [
+        { de: 'ele', texto: 'Boa noite, Juliana! Aqui é o Edvaldo. Sábado às 8h estou na Pituba. O prédio tem elevador?', hora: '08/11, 22:45' },
+        { de: 'eu', texto: 'Tem elevador de serviço. É no 3º andar, ap. 302.', hora: '08/11, 22:47' },
+        { de: 'ele', texto: 'Perfeito. Levo cinta e cobertor para proteger os móveis.', hora: '08/11, 22:48' }
+      ],
+      confirmando: false, cancelado: false, motivoCanc: '', textoCanc: ''
+    };
+  }
+  componentDidUpdate(prev) {
+    if (prev && prev.etapa !== this.props.etapa) {
+      clearTimeout(this.tChat);
+      this.setState(this.inicial());
+    }
+  }
+  componentWillUnmount() {
+    clearTimeout(this.tChat);
+  }
+  renderVals() {
+    const s = this.state;
+    const etapa = this.props.etapa || 'ACEITO';
+    const idx = ['ACEITO', 'EM_TRANSITO', 'ENTREGUE', 'PAGO'].indexOf(etapa);
+    const agora = () => new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const respostas = ['Combinado! Qualquer coisa me chama por aqui.', 'Certo, anotado.', 'Beleza, pode deixar comigo.'];
+    const textos = s.cancelado ? ['Cancelado', '#C92A2A', 'Frete cancelado', 'O Pix de R$ 380 volta para você. O Edvaldo foi avisado e não vai à coleta.'] : {
+      ACEITO: ['Fechado com o motorista', '#1F5FAD', 'Edvaldo vai à coleta no sábado, 14/11, às 8h', 'O Pix está guardado. Ele já sabe o endereço e o que vai no veículo.'],
+      EM_TRANSITO: ['Carga na estrada', '#1F5FAD', 'Sua mudança está a caminho', 'Edvaldo saiu da Pituba às 9h40. A previsão de chegada é 10h30.'],
+      ENTREGUE: ['Entregue', '#1F5FAD', 'Chegou! Confira o canhoto', 'Edvaldo registrou a entrega com foto, assinatura e GPS.'],
+      PAGO: ['Pago ao motorista', '#007A51', 'Frete concluído', 'Os R$ 380 foram para o Edvaldo depois da entrega confirmada.']
+    }[etapa];
+    const passos = [
+      ['Pix confirmado e guardado', '08/11, 22:41', ''],
+      ['Carga coletada', '14/11, 9:40', 'Coleta no sábado, 14/11, às 8h'],
+      ['Entregue', '14/11, 10:35', 'Previsão: 14/11, 10:30'],
+      ['Pago ao motorista', '15/11, 10:35', 'Até 24 h depois da entrega']
+    ].map(([nome, feitoEm, previsto], i) => {
+      const feito = i <= idx;
+      const atual = i === idx + 1;
+      return {
+        nome, feito,
+        quando: feito ? feitoEm : previsto,
+        borda: feito || atual ? '#1C1F24' : '#8A8F98',
+        fundo: feito ? '#1C1F24' : '#FFFFFF',
+        corTexto: feito || atual ? '#1C1F24' : '#5B6270'
+      };
+    });
+    return {
+      rotulo: textos[0],
+      cor: textos[1],
+      titulo: textos[2],
+      subtitulo: textos[3],
+      passos,
+      dinheiro: etapa === 'PAGO' ? 'R$ 380 pagos' : 'R$ 380 guardado',
+      dinheiroDetalhe: etapa === 'PAGO' ? 'em 15/11' : 'sai depois da entrega',
+      vEntregue: etapa === 'ENTREGUE',
+      vBotaoContestar: !s.contestando && !s.contestado,
+      vFormContestar: s.contestando,
+      contestado: s.contestado,
+      abrirContestacao: () => this.setState({ contestando: true }),
+      enviarContestacao: () => this.setState({ contestando: false, contestado: true }),
+      vCodigo: etapa !== 'PAGO',
+      vAvaliar: etapa === 'PAGO',
+      naoAvaliado: !s.avaliado,
+      avaliado: s.avaliado,
+      estrelas: [1, 2, 3, 4, 5].map((n) => ({ label: n + (n > 1 ? ' estrelas' : ' estrela'), on: n <= s.nota, fill: n <= s.nota ? '#1C1F24' : 'transparent', pick: () => this.setState({ nota: n }) })),
+      semNota: s.nota === 0,
+      avaliar: () => this.setState({ avaliado: true }),
+      vCancelar: etapa === 'ACEITO',
+      vAtivo: !s.cancelado,
+      vCancelado: s.cancelado,
+      motivo: s.motivo,
+      onMotivo: (e) => this.setState({ motivo: e.target.value }),
+      semMotivo: !String(s.motivo).trim(),
+      desistirContestacao: () => this.setState({ contestando: false, motivo: '' }),
+      chat: s.chat,
+      abrirChat: () => this.setState({ chat: true }),
+      fecharChat: () => this.setState({ chat: false }),
+      msgs: s.msgs.slice().reverse().map((m) => {
+        const eu = m.de === 'eu';
+        return { texto: m.texto, hora: m.hora, lado: eu ? 'flex-end' : 'flex-start', bg: eu ? '#1C1F24' : '#FFFFFF', fg: eu ? '#FAFAF8' : '#1C1F24', sombra: eu ? 'none' : '0 0 0 1px #E6E4DF', raio: eu ? '16px 16px 4px 16px' : '16px 16px 16px 4px' };
+      }),
+      digitando: s.digitando,
+      texto: s.texto,
+      onTexto: (e) => this.setState({ texto: e.target.value }),
+      semTexto: !String(s.texto).trim(),
+      enviarMsg: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const t = String(this.state.texto).trim();
+        if (!t) return;
+        this.setState({ msgs: this.state.msgs.concat({ de: 'eu', texto: t, hora: agora() }), texto: '', digitando: true });
+        clearTimeout(this.tChat);
+        this.tChat = setTimeout(() => {
+          const n = this.state.respostas;
+          this.setState({ msgs: this.state.msgs.concat({ de: 'ele', texto: respostas[n % respostas.length], hora: agora() }), digitando: false, respostas: n + 1 });
+        }, 1200);
+      },
+      confirmando: s.confirmando,
+      pedirCancelar: () => this.setState({ confirmando: true }),
+      manter: () => this.setState({ confirmando: false, motivoCanc: '', textoCanc: '' }),
+      motivosCanc: [['nao-preciso', 'Não preciso mais do frete'], ['data', 'Vou mudar a data'], ['outro-jeito', 'Achei outro jeito de levar'], ['outro', 'Outro motivo']].map(([v, nome]) => ({ valor: v, nome, on: s.motivoCanc === v, pick: () => this.setState({ motivoCanc: v }) })),
+      motivoOutro: s.motivoCanc === 'outro',
+      textoCanc: s.textoCanc,
+      onTextoCanc: (e) => this.setState({ textoCanc: e.target.value }),
+      semMotivoCanc: !s.motivoCanc || (s.motivoCanc === 'outro' && !String(s.textoCanc).trim()),
+      confirmarCancelar: () => this.setState({ confirmando: false, cancelado: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

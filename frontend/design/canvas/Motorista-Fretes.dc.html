@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Meus fretes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#14171C;color:#F2F0EA;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#6EA8F0}a:hover{color:#F2F0EA}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #FFC629;outline-offset:2px}
+.i{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.c{transition:box-shadow .15s}.c:hover{box-shadow:0 0 0 1px #6B7280}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; background: #14171C">
+<header style="display: flex; align-items: center; gap: 10px; padding: 16px 16px 10px">
+<svg viewBox="8 56 240 156" width="37" height="24" aria-hidden="true"><path fill="#F2F0EA" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#F2F0EA" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#F2F0EA" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<h1 style="font-size: 24px">Meus fretes</h1>
+</header>
+<main style="flex: 1; min-height: 0; overflow-y: auto; padding: 4px 16px 24px; display: flex; flex-direction: column; gap: 16px">
+<section aria-label="Seu dinheiro" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 16px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 14px; color: #A3A9B5">A receber</span>
+<strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 32px; line-height: 1; color: #2FBF84"><span style="font-size: .55em">R$</span> 380</strong>
+<span style="font-size: 13px; line-height: 1.35; color: #A3A9B5">guardado, sai depois da entrega</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-left: 12px; border-left: 1px solid #2A2F3A">
+<span style="font-size: 14px; color: #A3A9B5">Recebido em novembro</span>
+<strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 32px; line-height: 1"><span style="font-size: .55em">R$</span> 460</strong>
+<span style="font-size: 13px; line-height: 1.35; color: #A3A9B5">2 fretes pagos</span>
+</div>
+</section>
+<div role="group" aria-label="Mostrar" style="display: flex; gap: 8px; overflow-x: auto">
+<sc-for list="{{abas}}" as="a" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{a.on}}" onClick="{{a.pick}}" style="flex: none; min-height: 48px; padding: 0 16px; border-radius: 999px; border: {{a.borda}}; background: {{a.bg}}; color: {{a.fg}}; font-size: 15px; font-weight: 600; cursor: pointer">{{a.nome}}</button>
+</sc-for>
+</div>
+<sc-if value="{{vAndamento}}" hint-placeholder-val="{{ true }}">
+<a class="c" href="Motorista-Frete.dc.html" style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A; color: #F2F0EA; text-decoration: none">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px"><strong style="font-size: 17px">Mudança de 1 quarto</strong><strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 24px; line-height: 1"><span style="font-size: .55em">R$</span> 380</strong></div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 15px"><span>Pituba</span><span style="flex: none; padding: 0 6px; border-radius: 4px; background: #0A0C0F; box-shadow: 0 0 0 1px #4A5160; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 13px; font-weight: 700; line-height: 22px">22 km</span><span>Vilas do Atlântico</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid #2A2F3A; font-size: 14px"><span style="color: #2FBF84; font-weight: 600">Pix confirmado</span><span style="color: #A3A9B5">sáb, 14/11 · 8h</span></div>
+</a>
+</sc-if>
+<sc-if value="{{vPropostas}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{temProposta}}" hint-placeholder-val="{{ true }}">
+<article style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px"><strong style="font-size: 17px">Sofá e rack</strong><span style="font-size: 14px; color: #A3A9B5">amanhã</span></div>
+<span style="font-size: 15px">Itapuã → Stella Maris · 6 km</span>
+<p style="font-size: 15px; font-weight: 600; color: #6EA8F0">Você propôs R$ 170 · a cliente decide</p>
+<button type="button" onClick="{{retirar}}" style="min-height: 48px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer">Retirar proposta</button>
+</article>
+</sc-if>
+<sc-if value="{{semProposta}}" hint-placeholder-val="{{ false }}"><p style="font-size: 15px; color: #A3A9B5">Nenhuma proposta esperando resposta.</p></sc-if>
+</sc-if>
+<sc-if value="{{vConcluidos}}" hint-placeholder-val="{{ false }}">
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{concluidos}}" as="f" hint-placeholder-count="3">
+<li style="display: flex; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 16px">{{f.titulo}}</strong><span style="font-size: 14px; color: #A3A9B5">{{f.rota}} · {{f.data}}</span></span>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px"><strong style="font-size: 16px">{{f.valor}}</strong><span style="font-size: 14px; color: #2FBF84">Pago</span></span>
+</li>
+</sc-for>
+</ul>
+</sc-if>
+</main>
+<nav aria-label="Menu do motorista" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 4px 12px; border-top: 1px solid #2A2F3A; background: #14171C">
+<a href="Motorista-Busca.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #A3A9B5; font-size: 12px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>Fretes</a>
+<a href="Motorista-Fretes.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #F2F0EA; font-size: 12px; font-weight: 700; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7h12v9H2z"></path><path d="M14 10h4.5l3 3v3H14z"></path><circle cx="6" cy="18" r="2"></circle><circle cx="17.5" cy="18" r="2"></circle></svg>Meus fretes</a>
+<a href="Motorista-Calculadora.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #A3A9B5; font-size: 12px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M8 7h8M8 11.5h.01M12 11.5h.01M16 11.5h.01M8 15.5h.01M12 15.5h.01M16 15.5v2.5"></path></svg>Calculadora</a>
+<a href="Motorista-Perfil.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #A3A9B5; font-size: 12px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 20.5c1.4-3.6 4.2-5.5 7.5-5.5s6.1 1.9 7.5 5.5"></path></svg>Perfil</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { aba: 'andamento', retirada: false };
+  renderVals() {
+    const s = this.state;
+    const nProp = s.retirada ? 0 : 1;
+    const abas = [['andamento', 'Em andamento (1)'], ['propostas', 'Propostas (' + nProp + ')'], ['concluidos', 'Concluídos (3)']].map(([k, nome]) => {
+      const on = s.aba === k;
+      return { nome, on, bg: on ? '#F2F0EA' : 'transparent', fg: on ? '#14171C' : '#F2F0EA', borda: on ? '1px solid #F2F0EA' : '1px solid #6B7280', pick: () => this.setState({ aba: k }) };
+    });
+    return {
+      abas,
+      vAndamento: s.aba === 'andamento',
+      vPropostas: s.aba === 'propostas',
+      vConcluidos: s.aba === 'concluidos',
+      temProposta: !s.retirada,
+      semProposta: s.retirada,
+      retirar: () => this.setState({ retirada: true }),
+      concluidos: [
+        { titulo: 'Armário e cama', rota: 'Federação → Barra', data: '05/11', valor: 'R$ 320' },
+        { titulo: 'Geladeira e fogão', rota: 'Brotas → Cabula', data: '02/11', valor: 'R$ 140' },
+        { titulo: 'Caixas e móveis', rota: 'Ondina → Imbuí', data: '29/10', valor: 'R$ 260' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

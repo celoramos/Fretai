@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Criar conta no celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#FAFAF8;color:#1C1F24;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#1F5FAD}a:hover{color:#1C1F24}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #1F5FAD;outline-offset:2px}
+.i{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.m{font-family:"JetBrains Mono",ui-monospace,monospace}
+.f{width:100%;height:52px;padding:0 14px;border:1px solid #8A8F98;border-radius:12px;background:#FFFFFF;font-size:16px}
+.f::placeholder{color:#5B6270}
+.b{transition:filter .15s}.b:hover{filter:brightness(1.25)}
+input[type=checkbox],input[type=radio]{width:20px;height:20px;margin:0;flex:none;accent-color:#1C1F24}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; background: #FAFAF8">
+<header style="display: flex; align-items: center; gap: 4px; padding: 8px 16px 6px 4px">
+<a href="Main-Celular.dc.html" aria-label="Voltar" style="display: grid; place-items: center; width: 48px; height: 48px; border-radius: 999px; color: #1C1F24"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<h1 style="flex: 1; font-size: 24px">Criar conta</h1>
+</header>
+<form onSubmit="{{semEnvio}}" style="flex: 1; min-height: 0; overflow-y: auto; padding: 10px 16px 24px; display: flex; flex-direction: column; gap: 16px">
+<div role="group" aria-label="Como você vai usar o Fretaí" style="display: flex; flex-direction: column; gap: 10px">
+<button type="button" aria-pressed="{{ehCliente}}" onClick="{{escolherCliente}}" style="display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border-radius: 16px; border: {{bordaCliente}}; background: #FFFFFF; text-align: left; cursor: pointer"><strong style="font-size: 17px">Quero pedir fretes</strong><span style="font-size: 14px; line-height: 1.4; color: #5B6270">Mudança, móveis, eletrodomésticos, material de obra.</span></button>
+<button type="button" aria-pressed="{{ehMotorista}}" onClick="{{escolherMotorista}}" style="display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border-radius: 16px; border: {{bordaMotorista}}; background: #FFFFFF; text-align: left; cursor: pointer"><strong style="font-size: 17px">Sou motorista</strong><span style="font-size: 14px; line-height: 1.4; color: #5B6270">Tenho utilitário, van ou caminhão.</span></button>
+</div>
+<a href="{{destino}}" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; border: 1px solid #8A8F98; background: #FFFFFF; color: #1C1F24; font-size: 17px; font-weight: 600; text-decoration: none">Continuar com Google</a>
+<div aria-hidden="true" style="display: flex; align-items: center; gap: 12px; font-size: 14px; color: #5B6270"><span style="flex: 1; height: 1px; background: #E6E4DF"></span>ou com e-mail<span style="flex: 1; height: 1px; background: #E6E4DF"></span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="nome" style="font-size: 15px; font-weight: 600">Nome completo</label><input id="nome" class="f"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="cpf" style="font-size: 15px; font-weight: 600">CPF</label><input id="cpf" class="f" placeholder="000.000.000-00"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="cel" style="font-size: 15px; font-weight: 600">Celular com WhatsApp</label><input id="cel" class="f" type="tel" placeholder="(00) 00000-0000"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="email" style="font-size: 15px; font-weight: 600">E-mail</label><input id="email" class="f" type="email" placeholder="voce@email.com"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="senha" style="font-size: 15px; font-weight: 600">Senha</label><input id="senha" class="f" type="password" placeholder="Pelo menos 8 caracteres"></div>
+<sc-if value="{{ehMotorista}}" hint-placeholder-val="{{ false }}">
+<fieldset style="margin: 0; padding: 16px 0 0; border: 0; border-top: 1px solid #E6E4DF; display: flex; flex-direction: column; gap: 10px">
+<legend style="float: left; width: 100%; padding: 0; margin-bottom: 4px; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 20px; font-weight: 700">Seu veículo</legend>
+<sc-for list="{{veiculos}}" as="v" hint-placeholder-count="3">
+<label style="display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; border: {{v.borda}}; background: #FFFFFF; cursor: pointer"><input type="radio" name="veiculo" checked="{{v.on}}" onChange="{{v.pick}}" style="margin-top: 2px"><span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 16px">{{v.nome}}</strong><span style="font-size: 14px; line-height: 1.4; color: #5B6270">{{v.exemplo}}</span></span></label>
+</sc-for>
+<p style="font-size: 14px; color: #5B6270">Carro de passeio e moto não fazem frete no Fretaí.</p>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="placa" style="font-size: 15px; font-weight: 600">Placa</label><input id="placa" class="f m" placeholder="ABC1D23"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="cnh" style="font-size: 15px; font-weight: 600">Número da CNH</label><input id="cnh" class="f"></div>
+<p style="font-size: 14px; line-height: 1.45; color: #5B6270">A foto da CNH e o CRLV você envia pelo app. Um administrador confere antes do seu primeiro frete.</p>
+</fieldset>
+</sc-if>
+<label style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.45; cursor: pointer"><input type="checkbox">Li e aceito os termos de uso e a política de privacidade.</label>
+</form>
+<footer style="padding: 12px 16px 18px; border-top: 1px solid #E6E4DF; background: #FAFAF8">
+<a class="b" href="{{destino}}" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; text-decoration: none">Criar conta</a>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"perfil":{"editor":"enum","options":["cliente","motorista"],"default":"cliente"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { perfil: null, veiculo: 'VAN' };
+  componentDidUpdate(prev) {
+    if (prev && prev.perfil !== this.props.perfil && this.state.perfil !== null) this.setState({ perfil: null });
+  }
+  renderVals() {
+    const mot = (this.state.perfil || this.props.perfil || 'cliente') === 'motorista';
+    const on = '2px solid #1C1F24';
+    const off = '1px solid #E6E4DF';
+    const veiculos = [
+      ['UTILITARIO', 'Utilitário', 'Fiorino, Kangoo. Volumes pequenos e eletrodomésticos.'],
+      ['VAN', 'Van ou furgão', 'Master, Ducato, Sprinter. Mudança de até um quarto.'],
+      ['CAMINHAO', 'Caminhão', '3/4, toco ou baú. Mudança de casa e obra.']
+    ].map(([k, nome, exemplo]) => ({ nome, exemplo, on: this.state.veiculo === k, borda: this.state.veiculo === k ? on : off, pick: () => this.setState({ veiculo: k }) }));
+    return {
+      ehCliente: !mot,
+      ehMotorista: mot,
+      bordaCliente: mot ? off : on,
+      bordaMotorista: mot ? on : off,
+      escolherCliente: () => this.setState({ perfil: 'cliente' }),
+      escolherMotorista: () => this.setState({ perfil: 'motorista' }),
+      veiculos,
+      destino: mot ? 'Motorista-Busca.dc.html' : 'Cliente-Inicio.dc.html',
+      semEnvio: (e) => { if (e && e.preventDefault) e.preventDefault(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

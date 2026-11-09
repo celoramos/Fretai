@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Fretes perto de você</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#14171C;color:#F2F0EA;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#6EA8F0}a:hover{color:#F2F0EA}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #FFC629;outline-offset:2px}
+.i{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.c{transition:box-shadow .15s}.c:hover{box-shadow:0 0 0 1px #6B7280}
+.f{width:100%;height:48px;padding:0 12px;border:1px solid #6B7280;border-radius:12px;background:#1E222A;font-size:16px}
+.f::placeholder{color:#A3A9B5}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; background: #14171C">
+<header style="display: flex; flex-direction: column; gap: 14px; padding: 16px 16px 12px">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg viewBox="8 56 240 156" width="37" height="24" aria-hidden="true"><path fill="#F2F0EA" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#F2F0EA" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#F2F0EA" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<h1 style="font-size: 24px">Fretes perto de você</h1>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 13px; color: #A3A9B5">Perto de</span><strong style="font-size: 16px">{{local}}</strong></span>
+<div style="display: flex; gap: 6px; flex: none">
+<button type="button" aria-expanded="{{cepAberto}}" onClick="{{abrirCep}}" style="min-height: 48px; padding: 0 14px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; font-size: 15px; font-weight: 600; cursor: pointer">CEP</button>
+<button type="button" onClick="{{usarGps}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; font-size: 15px; font-weight: 600; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><circle cx="12" cy="12" r="7"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="2"></circle></svg>{{rotuloGps}}</button>
+</div>
+</div>
+<sc-if value="{{cepAberto}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 8px; align-items: flex-end">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 6px"><label for="cep" style="font-size: 14px; font-weight: 600">CEP de onde buscar</label><input id="cep" class="f" inputmode="numeric" placeholder="00000-000" value="{{cep}}" onChange="{{onCep}}"></div>
+<button type="button" onClick="{{buscarCep}}" style="min-height: 48px; padding: 0 18px; border: 0; border-radius: 999px; background: #F2F0EA; color: #14171C; font-size: 15px; font-weight: 700; cursor: pointer">Buscar</button>
+</div>
+<sc-if value="{{cepErro}}" hint-placeholder-val="{{ false }}"><p role="alert" style="font-size: 14px; color: #FF6B6B">Digite os 8 números do CEP.</p></sc-if>
+</sc-if>
+<div role="group" aria-label="Raio da busca" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{raios}}" as="r" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{r.on}}" onClick="{{r.pick}}" style="min-height: 48px; border-radius: 999px; border: {{r.borda}}; background: {{r.bg}}; color: {{r.fg}}; font-size: 16px; font-weight: 600; cursor: pointer">{{r.nome}}</button>
+</sc-for>
+</div>
+</header>
+<main style="flex: 1; min-height: 0; overflow-y: auto; padding: 4px 16px 24px; display: flex; flex-direction: column; gap: 12px">
+<p role="status" style="font-size: 15px; color: #A3A9B5">{{resumo}}</p>
+<sc-for list="{{fretes}}" as="f" hint-placeholder-count="4">
+<sc-if value="{{f.serve}}" hint-placeholder-val="{{ true }}">
+<a class="c" href="Motorista-Frete.dc.html" style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A; color: #F2F0EA; text-decoration: none">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+<strong style="font-size: 17px; line-height: 1.3">{{f.titulo}}</strong>
+<strong style="flex: none; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 26px; line-height: 1"><span style="font-size: .55em">R$</span> {{f.valor}}</strong>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 15px">
+<span style="min-width: 0">{{f.origem}}</span>
+<span style="flex: none; padding: 0 6px; border-radius: 4px; background: #0A0C0F; box-shadow: 0 0 0 1px #4A5160; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 13px; font-weight: 700; line-height: 22px">{{f.km}} km</span>
+<span style="min-width: 0">{{f.destino}}</span>
+</div>
+<span style="font-size: 14px; color: #A3A9B5">{{f.meta}}</span>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid #2A2F3A; font-size: 14px; color: #A3A9B5"><span>a {{f.dist}} km de você</span><span>{{f.veiculo}}</span></div>
+</a>
+</sc-if>
+<sc-if value="{{f.naoServe}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A; opacity: .6">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+<strong style="font-size: 17px; line-height: 1.3">{{f.titulo}}</strong>
+<strong style="flex: none; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 26px; line-height: 1"><span style="font-size: .55em">R$</span> {{f.valor}}</strong>
+</div>
+<span style="font-size: 14px; color: #A3A9B5">{{f.origem}} → {{f.destino}} · {{f.meta}}</span>
+<span style="font-size: 14px; font-weight: 600; color: #FB8C4B">{{f.veiculo}}: sua van não leva esse peso</span>
+</div>
+</sc-if>
+</sc-for>
+</main>
+<nav aria-label="Menu do motorista" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 4px 12px; border-top: 1px solid #2A2F3A; background: #14171C">
+<a href="Motorista-Busca.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #F2F0EA; font-size: 12px; font-weight: 700; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>Fretes</a>
+<a href="Motorista-Fretes.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #A3A9B5; font-size: 12px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7h12v9H2z"></path><path d="M14 10h4.5l3 3v3H14z"></path><circle cx="6" cy="18" r="2"></circle><circle cx="17.5" cy="18" r="2"></circle></svg>Meus fretes</a>
+<a href="Motorista-Calculadora.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #A3A9B5; font-size: 12px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M8 7h8M8 11.5h.01M12 11.5h.01M16 11.5h.01M8 15.5h.01M12 15.5h.01M16 15.5v2.5"></path></svg>Calculadora</a>
+<a href="Motorista-Perfil.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #A3A9B5; font-size: 12px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 20.5c1.4-3.6 4.2-5.5 7.5-5.5s6.1 1.9 7.5 5.5"></path></svg>Perfil</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { raio: 25, local: 'Pituba, Salvador', localizando: false, cepAberto: false, cep: '', cepErro: false };
+  componentWillUnmount() {
+    clearTimeout(this.timer);
+  }
+  renderVals() {
+    const raio = this.state.raio;
+    const todos = [
+      { titulo: 'Mudança de 1 quarto', origem: 'Pituba', destino: 'Vilas do Atlântico', km: 22, valor: '380', meta: 'sáb, 14/11 · 200 a 700 kg', veiculo: 'Van ou caminhão', dist: 2, serve: true },
+      { titulo: 'Geladeira e máquina de lavar', origem: 'Brotas', destino: 'Cajazeiras', km: 14, valor: '130', meta: 'ter, 10/11 · até 200 kg', veiculo: 'Utilitário ou maior', dist: 7, serve: true },
+      { titulo: 'Sofá e rack', origem: 'Itapuã', destino: 'Stella Maris', km: 6, valor: '150', meta: 'amanhã · até 200 kg', veiculo: 'Utilitário ou maior', dist: 14, serve: true },
+      { titulo: 'Escritório: 12 caixas e 4 mesas', origem: 'Comércio', destino: 'Paralela', km: 15, valor: '290', meta: 'sex, 13/11 · 700 kg a 1,5 t', veiculo: 'Van ou caminhão', dist: 18, serve: true },
+      { titulo: 'Material de obra: 40 sacos de cimento', origem: 'Camaçari', destino: 'Dias d’Ávila', km: 19, valor: '260', meta: 'qua, 11/11 · 2 t', veiculo: 'Só caminhão', dist: 41, serve: false }
+    ];
+    const fretes = todos.filter((f) => f.dist <= raio).map((f) => ({ ...f, naoServe: !f.serve }));
+    const raios = [10, 25, 50].map((r) => {
+      const on = r === raio;
+      return { nome: r + ' km', on, bg: on ? '#F2F0EA' : 'transparent', fg: on ? '#14171C' : '#F2F0EA', borda: on ? '1px solid #F2F0EA' : '1px solid #6B7280', pick: () => this.setState({ raio: r }) };
+    });
+    return {
+      raios,
+      fretes,
+      resumo: fretes.length + (fretes.length === 1 ? ' frete' : ' fretes') + ' até ' + raio + ' km',
+      local: this.state.local,
+      rotuloGps: this.state.localizando ? 'Localizando…' : 'Usar GPS',
+      usarGps: () => {
+        this.setState({ localizando: true, cepAberto: false });
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => this.setState({ localizando: false, local: 'Rio Vermelho, Salvador (GPS)' }), 1200);
+      },
+      cepAberto: this.state.cepAberto,
+      abrirCep: () => this.setState({ cepAberto: !this.state.cepAberto, cepErro: false }),
+      cep: this.state.cep,
+      onCep: (e) => this.setState({ cep: e.target.value }),
+      cepErro: this.state.cepErro,
+      buscarCep: () => {
+        const d = String(this.state.cep).replace(/\D/g, '');
+        if (d.length !== 8) { this.setState({ cepErro: true }); return; }
+        this.setState({ local: 'CEP ' + d.slice(0, 5) + '-' + d.slice(5), cepAberto: false, cepErro: false });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

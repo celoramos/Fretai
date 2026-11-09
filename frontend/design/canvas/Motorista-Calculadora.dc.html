@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Calculadora do motorista</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#14171C;color:#F2F0EA;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#6EA8F0}a:hover{color:#F2F0EA}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #FFC629;outline-offset:2px}
+.i{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f{width:100%;height:48px;padding:0 12px;border:1px solid #6B7280;border-radius:12px;background:#14171C;font-size:16px}
+.f::placeholder{color:#A3A9B5}
+input[type=checkbox]{width:20px;height:20px;margin:0;flex:none;accent-color:#FFC629}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; background: #14171C">
+<header style="display: flex; align-items: center; gap: 10px; padding: 16px 16px 10px">
+<svg viewBox="8 56 240 156" width="37" height="24" aria-hidden="true"><path fill="#F2F0EA" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#F2F0EA" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#F2F0EA" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<h1 style="font-size: 24px">Calculadora</h1>
+</header>
+<main style="flex: 1; min-height: 0; overflow-y: auto; padding: 4px 16px 24px; display: flex; flex-direction: column; gap: 14px">
+<p style="font-size: 15px; line-height: 1.5; color: #A3A9B5">Esse frete paga a viagem? Coloque os números e veja quanto sobra.</p>
+<section aria-label="Números da viagem" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 16px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="valor" style="font-size: 14px; font-weight: 600">Valor do frete (R$)</label><input id="valor" name="valor" class="f" value="{{s.valor}}" onChange="{{campo}}"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="distancia" style="font-size: 14px; font-weight: 600">Distância (km)</label><input id="distancia" name="distancia" class="f" value="{{s.distancia}}" onChange="{{campo}}"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="consumo" style="font-size: 14px; font-weight: 600">Consumo (km/l)</label><input id="consumo" name="consumo" class="f" value="{{s.consumo}}" onChange="{{campo}}"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="diesel" style="font-size: 14px; font-weight: 600">Diesel (R$/l)</label><input id="diesel" name="diesel" class="f" value="{{s.diesel}}" onChange="{{campo}}"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pedagio" style="font-size: 14px; font-weight: 600">Pedágio (R$)</label><input id="pedagio" name="pedagio" class="f" value="{{s.pedagio}}" onChange="{{campo}}"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="outros" style="font-size: 14px; font-weight: 600">Outros custos (R$)</label><input id="outros" name="outros" class="f" value="{{s.outros}}" onChange="{{campo}}"></div>
+<label style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px; cursor: pointer"><input type="checkbox" name="volta" checked="{{s.volta}}" onChange="{{campo}}">Contar a volta vazio</label>
+</section>
+<section aria-labelledby="t-resultado" style="display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<h2 id="t-resultado" style="font-size: 18px; padding-bottom: 6px">Resultado</h2>
+<dl style="margin: 0; display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid #2A2F3A"><dt style="font-size: 15px; color: #A3A9B5">Diesel ({{kmTotal}} km)</dt><dd style="margin: 0; font-size: 15px">{{dieselFmt}}</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid #2A2F3A"><dt style="font-size: 15px; color: #A3A9B5">Pedágio e outros</dt><dd style="margin: 0; font-size: 15px">{{extrasFmt}}</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid #2A2F3A"><dt style="font-size: 15px; font-weight: 700">Custo da viagem</dt><dd style="margin: 0; font-size: 15px; font-weight: 700">{{custoFmt}}</dd></div>
+</dl>
+<div role="status" style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 10px; border-top: 1px solid #2A2F3A">
+<span style="font-size: 17px; font-weight: 700; color: {{cor}}">{{rotulo}}</span>
+<strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 38px; line-height: 1; color: {{cor}}"><span style="font-size: .55em">R$</span> {{resultado}}</strong>
+</div>
+<span style="font-size: 14px; color: #A3A9B5">{{porKm}}</span>
+</section>
+<button type="button" onClick="{{limpar}}" style="min-height: 48px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer">Limpar os números</button>
+</main>
+<nav aria-label="Menu do motorista" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 4px 12px; border-top: 1px solid #2A2F3A; background: #14171C">
+<a href="Motorista-Busca.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #A3A9B5; font-size: 12px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>Fretes</a>
+<a href="Motorista-Fretes.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #A3A9B5; font-size: 12px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7h12v9H2z"></path><path d="M14 10h4.5l3 3v3H14z"></path><circle cx="6" cy="18" r="2"></circle><circle cx="17.5" cy="18" r="2"></circle></svg>Meus fretes</a>
+<a href="Motorista-Calculadora.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #F2F0EA; font-size: 12px; font-weight: 700; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M8 7h8M8 11.5h.01M12 11.5h.01M16 11.5h.01M8 15.5h.01M12 15.5h.01M16 15.5v2.5"></path></svg>Calculadora</a>
+<a href="Motorista-Perfil.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #A3A9B5; font-size: 12px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 20.5c1.4-3.6 4.2-5.5 7.5-5.5s6.1 1.9 7.5 5.5"></path></svg>Perfil</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { valor: '380', distancia: '22', consumo: '8', diesel: '6,19', pedagio: '0', outros: '40', volta: true };
+  renderVals() {
+    const s = this.state;
+    const num = (t) => parseFloat(String(t).replace(/\./g, '').replace(',', '.')) || 0;
+    const brl = (v, d) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+    const distancia = num(s.distancia);
+    const km = distancia * (s.volta ? 2 : 1);
+    const consumo = num(s.consumo);
+    const diesel = consumo > 0 ? km / consumo * num(s.diesel) : 0;
+    const extras = num(s.pedagio) + num(s.outros);
+    const custo = diesel + extras;
+    const valor = num(s.valor);
+    const resultado = valor - custo;
+    const sobra = resultado >= 0;
+    return {
+      s,
+      campo: (e) => {
+        const t = e.target;
+        this.setState({ [t.name]: t.type === 'checkbox' ? t.checked : t.value });
+      },
+      kmTotal: km.toLocaleString('pt-BR'),
+      dieselFmt: brl(diesel),
+      extrasFmt: brl(extras),
+      custoFmt: brl(custo),
+      rotulo: sobra ? 'Sobra' : 'Falta',
+      resultado: Math.abs(Math.round(resultado)).toLocaleString('pt-BR'),
+      cor: sobra ? '#F2F0EA' : '#FF6B6B',
+      porKm: distancia > 0 && valor > 0 ? brl(valor / distancia, 2) + ' por km rodado com carga' : 'Preencha o valor e a distância.',
+      limpar: () => this.setState({ valor: '', distancia: '', consumo: '', pedagio: '', outros: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>

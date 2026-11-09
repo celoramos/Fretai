@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Criar conta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#FAFAF8;color:#1C1F24;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#1F5FAD}a:hover{color:#1C1F24}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #1F5FAD;outline-offset:2px}
+.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.m{font-family:"JetBrains Mono",ui-monospace,monospace}
+.f{width:100%;height:48px;padding:0 14px;border:1px solid #8A8F98;border-radius:12px;background:#FFFFFF;font-size:16px}
+.f::placeholder{color:#5B6270}
+.b{transition:filter .15s}.b:hover{filter:brightness(1.25)}
+input[type=checkbox],input[type=radio]{width:20px;height:20px;margin:0;flex:none;accent-color:#1C1F24}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column">
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 16px clamp(16px, 4vw, 48px); border-bottom: 1px solid #E6E4DF">
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #1C1F24">
+<svg viewBox="8 56 240 156" width="46" height="30" aria-hidden="true"><path fill="#2A2F38" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#2A2F38" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#2A2F38" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<span style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 26px; font-weight: 700">Fretaí</span>
+</a>
+<p style="font-size: 15px; color: #5B6270">Já tem conta? <a href="Main.dc.html" style="font-weight: 700">Entrar</a></p>
+</header>
+<main style="width: 100%; max-width: 640px; margin: 0 auto; padding: 40px 16px 64px; display: flex; flex-direction: column; gap: 24px">
+<h1 style="font-size: 44px">Criar conta</h1>
+<div role="group" aria-label="Como você vai usar o Fretaí" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 12px">
+<button type="button" aria-pressed="{{ehCliente}}" onClick="{{escolherCliente}}" style="display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; border-radius: 16px; border: {{bordaCliente}}; background: #FFFFFF; text-align: left; cursor: pointer">
+<strong style="font-size: 18px">Quero pedir fretes</strong>
+<span style="font-size: 15px; line-height: 1.45; color: #5B6270">Mudança, móveis, eletrodomésticos, material de obra.</span>
+</button>
+<button type="button" aria-pressed="{{ehMotorista}}" onClick="{{escolherMotorista}}" style="display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; border-radius: 16px; border: {{bordaMotorista}}; background: #FFFFFF; text-align: left; cursor: pointer">
+<strong style="font-size: 18px">Sou motorista</strong>
+<span style="font-size: 15px; line-height: 1.45; color: #5B6270">Tenho utilitário, van ou caminhão e quero fazer fretes.</span>
+</button>
+</div>
+<a href="{{destino}}" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; border: 1px solid #8A8F98; background: #FFFFFF; color: #1C1F24; font-size: 17px; font-weight: 600; text-decoration: none">Continuar com Google</a>
+<div aria-hidden="true" style="display: flex; align-items: center; gap: 12px; font-size: 14px; color: #5B6270"><span style="flex: 1; height: 1px; background: #E6E4DF"></span>ou com e-mail<span style="flex: 1; height: 1px; background: #E6E4DF"></span></div>
+<form onSubmit="{{semEnvio}}" style="display: flex; flex-direction: column; gap: 20px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div style="flex: 1 1 100%; display: flex; flex-direction: column; gap: 8px"><label for="nome" style="font-size: 15px; font-weight: 600">Nome completo</label><input id="nome" class="f"></div>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 8px"><label for="cpf" style="font-size: 15px; font-weight: 600">CPF</label><input id="cpf" class="f" placeholder="000.000.000-00"></div>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 8px"><label for="cel" style="font-size: 15px; font-weight: 600">Celular com WhatsApp</label><input id="cel" class="f" type="tel" placeholder="(00) 00000-0000"></div>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 8px"><label for="email" style="font-size: 15px; font-weight: 600">E-mail</label><input id="email" class="f" type="email" placeholder="voce@email.com"></div>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 8px"><label for="senha" style="font-size: 15px; font-weight: 600">Senha</label><input id="senha" class="f" type="password" placeholder="Pelo menos 8 caracteres"></div>
+</div>
+<sc-if value="{{ehMotorista}}" hint-placeholder-val="{{ false }}">
+<fieldset style="margin: 0; padding: 20px 0 0; border: 0; border-top: 1px solid #E6E4DF; display: flex; flex-direction: column; gap: 12px">
+<legend style="float: left; width: 100%; padding: 0; margin-bottom: 4px; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 22px; font-weight: 700">Seu veículo</legend>
+<sc-for list="{{veiculos}}" as="v" hint-placeholder-count="3">
+<label style="display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; border: {{v.borda}}; cursor: pointer">
+<input type="radio" name="veiculo" checked="{{v.on}}" onChange="{{v.pick}}" style="margin-top: 2px">
+<span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 16px">{{v.nome}}</strong><span style="font-size: 14px; line-height: 1.4; color: #5B6270">{{v.exemplo}}</span></span>
+</label>
+</sc-for>
+<p style="font-size: 14px; line-height: 1.45; color: #5B6270">Carro de passeio e moto não fazem frete no Fretaí.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 8px"><label for="placa" style="font-size: 15px; font-weight: 600">Placa</label><input id="placa" class="f m" placeholder="ABC1D23"></div>
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 8px"><label for="cnh" style="font-size: 15px; font-weight: 600">Número da CNH</label><input id="cnh" class="f"></div>
+</div>
+<p style="font-size: 14px; line-height: 1.45; color: #5B6270">A foto da CNH e o CRLV você envia pelo app. Um administrador confere antes do seu primeiro frete.</p>
+</fieldset>
+</sc-if>
+<label style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.45; cursor: pointer"><input type="checkbox">Li e aceito os termos de uso e a política de privacidade.</label>
+<a class="b" href="{{destino}}" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; text-decoration: none">Criar conta</a>
+</form>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"perfil":{"editor":"enum","options":["cliente","motorista"],"default":"cliente"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  state = { perfil: null, veiculo: 'VAN' };
+  componentDidUpdate(prev) {
+    if (prev && prev.perfil !== this.props.perfil && this.state.perfil !== null) this.setState({ perfil: null });
+  }
+  renderVals() {
+    const mot = (this.state.perfil || this.props.perfil || 'cliente') === 'motorista';
+    const on = '2px solid #1C1F24';
+    const off = '1px solid #E6E4DF';
+    const veiculos = [
+      ['UTILITARIO', 'Utilitário', 'Fiorino, Kangoo. Pequenos volumes e um ou dois eletrodomésticos.'],
+      ['VAN', 'Van ou furgão', 'Master, Ducato, Sprinter. Mudança de quitinete ou de um quarto.'],
+      ['CAMINHAO', 'Caminhão', '3/4, toco ou baú. Mudança de casa e material de obra.']
+    ].map(([k, nome, exemplo]) => ({ nome, exemplo, on: this.state.veiculo === k, borda: this.state.veiculo === k ? on : off, pick: () => this.setState({ veiculo: k }) }));
+    return {
+      ehCliente: !mot,
+      ehMotorista: mot,
+      bordaCliente: mot ? off : on,
+      bordaMotorista: mot ? on : off,
+      escolherCliente: () => this.setState({ perfil: 'cliente' }),
+      escolherMotorista: () => this.setState({ perfil: 'motorista' }),
+      veiculos,
+      destino: mot ? 'Motorista-Busca-PC.dc.html' : 'Cliente-Inicio-PC.dc.html',
+      semEnvio: (e) => { if (e && e.preventDefault) e.preventDefault(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

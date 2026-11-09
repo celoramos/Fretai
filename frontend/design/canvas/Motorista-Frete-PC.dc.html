@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Frete para o motorista no computador</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#14171C;color:#F2F0EA;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#6EA8F0}a:hover{color:#F2F0EA}
+button,input,textarea{font:inherit;color:inherit}
+input[type=radio]{width:20px;height:20px;margin:0;flex:none;accent-color:#FFC629}
+:focus-visible{outline:3px solid #FFC629;outline-offset:2px}
+.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f{width:100%;height:52px;padding:0 14px;border:1px solid #6B7280;border-radius:12px;background:#14171C;font-size:16px}
+.n:hover{background:#262B34}
+.b{transition:filter .15s}.b:hover{filter:brightness(.9)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.f::placeholder{color:#A3A9B5}
+.o:hover{border-color:#F2F0EA}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #14171C">
+<header style="border-bottom: 1px solid #2A2F3A">
+<div style="max-width: 1120px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<a href="Motorista-Busca-PC.dc.html" style="display: inline-flex; align-items: center; gap: 10px; color: #F2F0EA; text-decoration: none">
+<svg viewBox="8 56 240 156" width="46" height="30" aria-hidden="true"><path fill="#F2F0EA" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#F2F0EA" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#F2F0EA" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<span style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 24px; font-weight: 700">Fretaí</span>
+</a>
+<nav aria-label="Menu do motorista" style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px">
+<a href="Motorista-Busca-PC.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #F2F0EA; color: #14171C; font-size: 16px; font-weight: 700; text-decoration: none">Fretes</a>
+<a class="n" href="Motorista-Fretes-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; color: #F2F0EA; font-size: 16px; font-weight: 600; text-decoration: none">Meus fretes</a>
+<a class="n" href="Motorista-Calculadora-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; color: #F2F0EA; font-size: 16px; font-weight: 600; text-decoration: none">Calculadora</a>
+<a class="n" href="Motorista-Perfil-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; color: #F2F0EA; font-size: 16px; font-weight: 600; text-decoration: none">Perfil</a>
+<a href="Motorista-Perfil-PC.dc.html" aria-label="Seu perfil" style="display: grid; place-items: center; width: 44px; height: 44px; margin-left: 6px; border-radius: 50%; background: #2A2F3A; color: #F2F0EA; font-size: 15px; font-weight: 700; text-decoration: none">ES</a>
+</nav>
+</div>
+</header>
+<main style="width: 100%; max-width: 1120px; margin: 0 auto; padding: 28px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<a href="Motorista-Busca-PC.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; font-size: 15px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px"><path d="M15 5l-7 7 7 7"></path></svg>Fretes</a>
+<h1 style="font-size: 40px">Mudança de 1 quarto</h1>
+<p style="font-size: 17px; color: #A3A9B5">Sábado, 14/11 · coleta às 8h · Juliana M., pessoa física</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section aria-label="Rota" style="display: flex; flex-direction: column; gap: 8px; padding: 24px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 17px"><strong>Pituba</strong><strong style="text-align: right">Vilas do Atlântico</strong></div>
+<div role="img" aria-label="22 km de estrada" style="position: relative; display: grid; place-items: center; height: 32px; border-radius: 4px; background: #0A0C0F; box-shadow: 0 0 0 1px #4A5160">
+<div style="position: absolute; left: 10px; right: 10px; top: 14.5px; height: 3px; background: repeating-linear-gradient(90deg, #FFC629 0 14px, transparent 14px 28px)"></div>
+<span style="position: relative; padding: 0 10px; background: #0A0C0F; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 16px; font-weight: 700; line-height: 32px">22 km</span>
+</div>
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px; color: #A3A9B5"><span>Salvador</span><span>Lauro de Freitas</span></div>
+</section>
+<section aria-labelledby="t-carga" style="display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<h2 id="t-carga" style="font-size: 24px">O que vai</h2>
+<p style="font-size: 17px; line-height: 1.5">Geladeira, fogão, cama de casal, guarda-roupa desmontado e umas 15 caixas.</p>
+<p style="font-size: 15px; color: #A3A9B5">De 200 a 700 kg · van ou caminhão</p>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<div role="img" aria-label="Foto 1 da carga" style="height: 130px; border-radius: 12px; background: repeating-linear-gradient(135deg, #262B34 0 10px, #2A2F3A 10px 20px)"></div>
+<div role="img" aria-label="Foto 2 da carga" style="height: 130px; border-radius: 12px; background: repeating-linear-gradient(135deg, #262B34 0 10px, #2A2F3A 10px 20px)"></div>
+<div role="img" aria-label="Foto 3 da carga" style="height: 130px; border-radius: 12px; background: repeating-linear-gradient(135deg, #262B34 0 10px, #2A2F3A 10px 20px)"></div>
+</div>
+</section>
+<sc-if value="{{vEnderecos}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="t-end" style="display: flex; flex-direction: column; gap: 10px; padding: 24px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<h2 id="t-end" style="font-size: 24px">Endereços e contato</h2>
+<p style="font-size: 16px; line-height: 1.5">Coleta: Av. Paulo VI, 1200, ap. 302 · Pituba</p>
+<p style="font-size: 16px; line-height: 1.5">Entrega: Rua Praia de Guarajuba, 40 · Vilas do Atlântico</p>
+<p style="font-size: 16px; line-height: 1.5">Quem recebe: Juliana Matos · (71) 98877-1234</p>
+<button type="button" class="o" aria-haspopup="dialog" onClick="{{abrirChat}}" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; margin-top: 4px; padding: 0 20px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="M4 5h16v11H9l-5 4z"></path></svg>Mandar mensagem para a Juliana</button>
+</section>
+</sc-if>
+</div>
+<aside aria-label="Valor e ação" style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 48px; line-height: 1"><span style="font-size: .55em">R$</span> 380</strong><span style="font-size: 14px; color: #A3A9B5">oferta da cliente</span></div>
+<p style="font-size: 15px; line-height: 1.5; color: #A3A9B5">Quando vocês fecham, a cliente paga por Pix. O dinheiro fica guardado e vai para você depois da entrega confirmada.</p>
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid #2A2F3A">
+<sc-if value="{{vDisponivel}}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{semForm}}" hint-placeholder-val="{{ true }}">
+<button type="button" class="b" onClick="{{aceitar}}" style="min-height: 52px; border: 0; border-radius: 999px; background: #F2F0EA; color: #14171C; font-size: 17px; font-weight: 700; cursor: pointer">Aceitar por R$ 380</button>
+<button type="button" onClick="{{abrirForm}}" style="min-height: 48px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer">Propor outro valor</button>
+</sc-if>
+<sc-if value="{{comForm}}" hint-placeholder-val="{{ false }}">
+<label for="proposta" style="font-size: 15px; font-weight: 600">Seu valor (R$)</label>
+<input id="proposta" class="f" value="{{proposta}}" onChange="{{onProposta}}" style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 24px; font-weight: 700">
+<button type="button" class="b" onClick="{{enviarProposta}}" disabled="{{semValor}}" style="min-height: 52px; border: 0; border-radius: 999px; background: #F2F0EA; color: #14171C; font-size: 16px; font-weight: 700; cursor: pointer">Enviar proposta</button>
+<button type="button" onClick="{{fecharForm}}" style="min-height: 48px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer">Voltar</button>
+</sc-if>
+</sc-if>
+<sc-if value="{{vProposta}}" hint-placeholder-val="{{ false }}">
+<p role="status" style="font-size: 16px; font-weight: 600; color: #6EA8F0">{{textoProposta}}</p>
+<p style="font-size: 14px; line-height: 1.45; color: #A3A9B5">Se outro motorista aceitar os R$ 380 antes, o frete sai da lista.</p>
+<button type="button" onClick="{{retirar}}" style="min-height: 48px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer">Retirar proposta</button>
+</sc-if>
+<sc-if value="{{vFechado}}" hint-placeholder-val="{{ false }}">
+<p role="status" style="font-size: 16px; font-weight: 600; color: #6EA8F0">Fechado com Juliana. Esperando o Pix dela.</p>
+<p style="font-size: 14px; line-height: 1.45; color: #A3A9B5">Não saia para a coleta antes de aparecer “Pix confirmado”.</p>
+</sc-if>
+<sc-if value="{{vPixOk}}" hint-placeholder-val="{{ false }}">
+<p role="status" style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: #2FBF84"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Pix confirmado: R$ 380 guardado</p>
+<button type="button" class="b" onClick="{{iniciar}}" style="min-height: 52px; border: 0; border-radius: 999px; background: #F2F0EA; color: #14171C; font-size: 17px; font-weight: 700; cursor: pointer">Carreguei, iniciar viagem</button>
+</sc-if>
+<sc-if value="{{vTransito}}" hint-placeholder-val="{{ false }}">
+<p role="status" style="font-size: 16px; font-weight: 600; color: #6EA8F0">Na estrada desde 9h40</p>
+<a class="b" href="Motorista-Entrega-PC.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #F2F0EA; color: #14171C; font-size: 17px; font-weight: 700; text-decoration: none">Cheguei, registrar entrega</a>
+</sc-if>
+<sc-if value="{{vPodeDesistir}}" hint-placeholder-val="{{ false }}">
+<button type="button" aria-haspopup="dialog" onClick="{{pedirDesistir}}" style="align-self: center; min-height: 44px; padding: 0 12px; border: 0; background: transparent; color: #FF6B6B; font-size: 15px; font-weight: 600; text-decoration: underline; cursor: pointer">Desistir do frete</button>
+</sc-if>
+<sc-if value="{{vCancelado}}" hint-placeholder-val="{{ false }}">
+<p role="status" style="font-size: 16px; font-weight: 600; color: #FF6B6B">{{textoCancelado}}</p>
+<a class="b" href="Motorista-Busca-PC.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #F2F0EA; color: #14171C; font-size: 17px; font-weight: 700; text-decoration: none">Ver outros fretes</a>
+</sc-if>
+</div>
+</aside>
+</div>
+</main>
+<sc-if value="{{desistindo}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 24px; background: rgb(0 0 0 / .55)">
+<section role="alertdialog" aria-modal="true" aria-labelledby="t-desistir" aria-describedby="d-desistir" style="width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 14px; padding: 28px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<h2 id="t-desistir" style="font-size: 28px">Desistir do frete da Juliana?</h2>
+<p id="d-desistir" style="font-size: 16px; line-height: 1.5; color: #A3A9B5">{{avisoDesistir}}</p>
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column">
+<legend style="padding: 0 0 4px; font-size: 16px; font-weight: 600">Por que você vai desistir?</legend>
+<sc-for list="{{motivosCanc}}" as="mc" hint-placeholder-count="4">
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 16px; cursor: pointer"><input type="radio" name="motivo-desistencia" value="{{mc.valor}}" checked="{{mc.on}}" onChange="{{mc.pick}}">{{mc.nome}}</label>
+</sc-for>
+</fieldset>
+<sc-if value="{{motivoOutro}}" hint-placeholder-val="{{ false }}">
+<textarea class="f" aria-label="Motivo da desistência" placeholder="Conte em poucas palavras" maxlength="500" value="{{textoCanc}}" onChange="{{onTextoCanc}}" style="height: 84px; padding: 12px 14px; resize: vertical"></textarea>
+</sc-if>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding-top: 8px">
+<button type="button" onClick="{{confirmarDesistir}}" disabled="{{semMotivoCanc}}" style="min-height: 48px; padding: 0 22px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; color: #FF6B6B; font-size: 16px; font-weight: 600; cursor: pointer">Sim, desistir</button>
+<button type="button" class="b" onClick="{{manter}}" style="min-height: 48px; padding: 0 24px; border: 0; border-radius: 999px; background: #F2F0EA; color: #14171C; font-size: 16px; font-weight: 700; cursor: pointer">Continuar com o frete</button>
+</div>
+</section>
+</div>
+</sc-if>
+<sc-if value="{{chat}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; z-index: 40; display: flex; background: rgb(0 0 0 / .55)">
+<button type="button" aria-label="Fechar conversa" onClick="{{fecharChat}}" style="flex: 1; border: 0; background: transparent; cursor: pointer"></button>
+<section role="dialog" aria-modal="true" aria-labelledby="t-chat" style="width: 100%; max-width: 440px; display: flex; flex-direction: column; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<div style="display: flex; align-items: center; gap: 12px; padding: 18px 16px 14px 24px; border-bottom: 1px solid #2A2F3A">
+<span aria-hidden="true" style="display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%; background: #2A2F3A; font-size: 15px; font-weight: 700">JM</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><h2 id="t-chat" style="font-size: 20px">Juliana Matos</h2><span style="font-size: 14px; color: #A3A9B5">Mudança de 1 quarto · sáb, 14/11</span></div>
+<button type="button" onClick="{{fecharChat}}" aria-label="Fechar" style="display: grid; place-items: center; width: 44px; height: 44px; flex: none; border: 0; border-radius: 999px; background: #2A2F3A; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<div role="log" aria-label="Mensagens" style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 12px; padding: 20px 24px">
+<sc-if value="{{digitando}}" hint-placeholder-val="{{ false }}"><p role="status" style="align-self: flex-start; font-size: 14px; color: #A3A9B5">Juliana está digitando…</p></sc-if>
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="3">
+<div style="align-self: {{m.lado}}; max-width: 82%; display: flex; flex-direction: column; align-items: {{m.lado}}; gap: 4px">
+<p style="padding: 10px 14px; border-radius: {{m.raio}}; background: {{m.bg}}; color: {{m.fg}}; font-size: 15px; line-height: 1.4">{{m.texto}}</p>
+<span style="font-size: 12px; color: #A3A9B5">{{m.hora}}</span>
+</div>
+</sc-for>
+<p style="align-self: center; max-width: 320px; padding: 8px 12px; border-radius: 12px; background: #14171C; font-size: 13px; line-height: 1.4; color: #A3A9B5; text-align: center">Pagamento e comprovantes ficam no Fretaí, fora do chat. Não combine pagamento por fora.</p>
+</div>
+<form onSubmit="{{enviarMsg}}" style="display: flex; gap: 8px; align-items: center; padding: 14px 16px 18px 24px; border-top: 1px solid #2A2F3A">
+<input class="f" aria-label="Mensagem para a Juliana" placeholder="Escreva uma mensagem" autocomplete="off" value="{{texto}}" onChange="{{onTexto}}" style="flex: 1; min-width: 0; height: 48px">
+<button type="submit" aria-label="Enviar" disabled="{{semTexto}}" style="display: grid; place-items: center; width: 48px; height: 48px; flex: none; border: 0; border-radius: 999px; background: #F2F0EA; color: #14171C; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 22px; height: 22px"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"></path></svg></button>
+</form>
+</section>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"etapa":{"editor":"enum","options":["DISPONIVEL","PROPOSTA","FECHADO","PIX_CONFIRMADO","EM_TRANSITO"],"default":"DISPONIVEL"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  state = {
+    etapa: null, form: false, proposta: '420',
+    chat: false, texto: '', digitando: false, respostas: 0,
+    desistindo: false, motivoCanc: '', textoCanc: '', pixDevolvido: false,
+    msgs: [
+      { de: 'eu', texto: 'Boa noite, Juliana! Aqui é o Edvaldo. Sábado às 8h estou na Pituba. O prédio tem elevador?', hora: '08/11, 22:45' },
+      { de: 'ela', texto: 'Tem elevador de serviço. É no 3º andar, ap. 302.', hora: '08/11, 22:47' },
+      { de: 'eu', texto: 'Perfeito. Levo cinta e cobertor para proteger os móveis.', hora: '08/11, 22:48' }
+    ]
+  };
+  componentDidUpdate(prev) {
+    if (prev && prev.etapa !== this.props.etapa) {
+      clearTimeout(this.timer);
+      clearTimeout(this.tChat);
+      this.setState({ etapa: null, form: false, chat: false, digitando: false, desistindo: false, motivoCanc: '', textoCanc: '' });
+    }
+  }
+  componentWillUnmount() {
+    clearTimeout(this.timer);
+    clearTimeout(this.tChat);
+  }
+  renderVals() {
+    const s = this.state;
+    const etapa = s.etapa || this.props.etapa || 'DISPONIVEL';
+    const valor = parseFloat(String(s.proposta).replace(/\./g, '').replace(',', '.')) || 0;
+    return {
+      vDisponivel: etapa === 'DISPONIVEL',
+      semForm: !s.form,
+      comForm: s.form,
+      abrirForm: () => this.setState({ form: true }),
+      fecharForm: () => this.setState({ form: false }),
+      proposta: s.proposta,
+      onProposta: (e) => this.setState({ proposta: e.target.value }),
+      enviarProposta: () => this.setState({ etapa: 'PROPOSTA', form: false }),
+      aceitar: () => {
+        this.setState({ etapa: 'FECHADO', form: false });
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => this.setState({ etapa: 'PIX_CONFIRMADO' }), 2500);
+      },
+      vProposta: etapa === 'PROPOSTA',
+      textoProposta: 'Proposta enviada: ' + valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }) + '. A cliente decide.',
+      retirar: () => this.setState({ etapa: 'DISPONIVEL' }),
+      vFechado: etapa === 'FECHADO',
+      vPixOk: etapa === 'PIX_CONFIRMADO',
+      iniciar: () => this.setState({ etapa: 'EM_TRANSITO' }),
+      vTransito: etapa === 'EM_TRANSITO',
+      vEnderecos: etapa === 'FECHADO' || etapa === 'PIX_CONFIRMADO' || etapa === 'EM_TRANSITO',
+      semValor: valor <= 0,
+      vPodeDesistir: etapa === 'FECHADO' || etapa === 'PIX_CONFIRMADO',
+      pedirDesistir: () => this.setState({ desistindo: true }),
+      desistindo: s.desistindo,
+      avisoDesistir: 'A Juliana é avisada na hora' + (etapa === 'PIX_CONFIRMADO' ? ' e o Pix de R$ 380 volta para ela.' : '.') + ' Depois que a carga sai, não dá mais para desistir.',
+      motivosCanc: [['veiculo', 'Problema com o veículo'], ['dia', 'Não vou conseguir no dia'], ['carga', 'A carga é diferente do anunciado'], ['outro', 'Outro motivo']].map(([v, nome]) => ({ valor: v, nome, on: s.motivoCanc === v, pick: () => this.setState({ motivoCanc: v }) })),
+      motivoOutro: s.motivoCanc === 'outro',
+      textoCanc: s.textoCanc,
+      onTextoCanc: (e) => this.setState({ textoCanc: e.target.value }),
+      semMotivoCanc: !s.motivoCanc || (s.motivoCanc === 'outro' && !String(s.textoCanc).trim()),
+      manter: () => this.setState({ desistindo: false, motivoCanc: '', textoCanc: '' }),
+      confirmarDesistir: () => {
+        clearTimeout(this.timer);
+        this.setState({ etapa: 'CANCELADO', pixDevolvido: etapa === 'PIX_CONFIRMADO', desistindo: false, chat: false });
+      },
+      vCancelado: etapa === 'CANCELADO',
+      textoCancelado: 'Frete cancelado. A Juliana foi avisada' + (s.pixDevolvido ? ' e o Pix volta para ela.' : '.'),
+      chat: s.chat,
+      abrirChat: () => this.setState({ chat: true }),
+      fecharChat: () => this.setState({ chat: false }),
+      msgs: s.msgs.slice().reverse().map((m) => {
+        const eu = m.de === 'eu';
+        return { texto: m.texto, hora: m.hora, lado: eu ? 'flex-end' : 'flex-start', bg: eu ? '#F2F0EA' : '#2A2F3A', fg: eu ? '#14171C' : '#F2F0EA', raio: eu ? '16px 16px 4px 16px' : '16px 16px 16px 4px' };
+      }),
+      digitando: s.digitando,
+      texto: s.texto,
+      onTexto: (e) => this.setState({ texto: e.target.value }),
+      semTexto: !String(s.texto).trim(),
+      enviarMsg: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const t = String(this.state.texto).trim();
+        if (!t) return;
+        const agora = () => new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const respostas = ['Ótimo, obrigada!', 'Combinado.', 'Certo, estarei aqui.'];
+        this.setState({ msgs: this.state.msgs.concat({ de: 'eu', texto: t, hora: agora() }), texto: '', digitando: true });
+        clearTimeout(this.tChat);
+        this.tChat = setTimeout(() => {
+          const n = this.state.respostas;
+          this.setState({ msgs: this.state.msgs.concat({ de: 'ela', texto: respostas[n % respostas.length], hora: agora() }), digitando: false, respostas: n + 1 });
+        }, 1200);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

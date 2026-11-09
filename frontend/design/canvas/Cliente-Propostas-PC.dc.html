@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Seu pedido no computador</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#FAFAF8;color:#1C1F24;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#1F5FAD}a:hover{color:#1C1F24}
+button,textarea{font:inherit;color:inherit}
+button:disabled{opacity:.55;cursor:not-allowed}
+.f{width:100%;padding:12px 14px;border:1px solid #8A8F98;border-radius:12px;background:#FFFFFF;font-size:16px}
+.f::placeholder{color:#5B6270}
+input[type=radio]{width:20px;height:20px;margin:0;flex:none;accent-color:#1C1F24}
+:focus-visible{outline:3px solid #1F5FAD;outline-offset:2px}
+.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.m{font-family:"JetBrains Mono",ui-monospace,monospace}
+.b{transition:filter .15s}.b:hover{filter:brightness(1.25)}
+.n:hover{background:#F0EFEB}
+summary{list-style:none}summary::-webkit-details-marker{display:none}
+.dd[open]>summary .chev{transform:rotate(180deg)}
+</style>
+</helmet>
+<div style="position: relative; min-height: 100vh; display: flex; flex-direction: column; background: #FAFAF8">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E6E4DF">
+<div style="max-width: 1120px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<a href="Cliente-Inicio-PC.dc.html" style="display: inline-flex; align-items: center; gap: 10px; color: #1C1F24; text-decoration: none">
+<svg viewBox="8 56 240 156" width="46" height="30" aria-hidden="true"><path fill="#2A2F38" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#2A2F38" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#2A2F38" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<span style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 24px; font-weight: 700">Fretaí</span>
+</a>
+<nav aria-label="Principal" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<a class="n" href="Cliente-Inicio-PC.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #F0EFEB; color: #1C1F24; font-size: 16px; font-weight: 600; text-decoration: none">Meus fretes</a>
+<a class="b" href="Cliente-Pedido-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 16px; font-weight: 600; text-decoration: none">Pedir frete</a>
+<details style="position: relative">
+<summary aria-label="Sua conta" style="display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #E6E4DF; font-size: 15px; font-weight: 700; cursor: pointer">JM</summary>
+<div style="position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; width: 300px; display: flex; flex-direction: column; padding: 8px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .08), 0 16px 40px rgb(28 31 36 / .18)">
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 12px; margin-bottom: 6px; border-bottom: 1px solid #E6E4DF"><strong style="font-size: 16px">Juliana Matos</strong><span style="font-size: 14px; color: #5B6270">juliana.matos@email.com</span></div>
+<a class="n" href="Cliente-Acompanhar-PC.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 12px; color: #1C1F24; font-size: 16px; font-weight: 600; text-decoration: none">Frete em andamento</a>
+<details class="dd">
+<summary class="n" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer">Como o pagamento funciona<svg class="i chev" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; color: #5B6270"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="padding: 6px 12px 10px; font-size: 15px; line-height: 1.5; color: #5B6270">Você paga por Pix quando fecha com o motorista. O dinheiro fica guardado no Fretaí e vai para ele até 24 h depois da entrega, se nada chegar errado. Se você cancelar antes da saída, o Pix volta para você.</p>
+</details>
+<div style="height: 1px; margin: 6px 0; background: #E6E4DF"></div>
+<a class="n" href="Main.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 12px; color: #1C1F24; font-size: 16px; font-weight: 600; text-decoration: none">Sair</a>
+</div>
+</details>
+</nav>
+</div>
+</header>
+<main style="width: 100%; max-width: 1120px; margin: 0 auto; padding: 28px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<a href="Cliente-Inicio-PC.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; font-size: 15px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px"><path d="M15 5l-7 7 7 7"></path></svg>Meus fretes</a>
+<h1 style="font-size: 40px">Seu pedido</h1>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<section aria-label="Resumo do pedido" style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><strong style="font-size: 18px">Mudança de 1 quarto</strong><span style="font-size: 14px; color: #5B6270">sáb, 14/11 · Van</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px"><span>Pituba, Salvador</span><span style="text-align: right">Vilas do Atlântico, Lauro de Freitas</span></div>
+<div role="img" aria-label="22 km de estrada" style="position: relative; display: grid; place-items: center; height: 24px; border-radius: 4px; background: #2A2F38">
+<div style="position: absolute; left: 8px; right: 8px; top: 10.5px; height: 3px; background: repeating-linear-gradient(90deg, #FFC629 0 14px, transparent 14px 28px)"></div>
+<span style="position: relative; padding: 0 8px; background: #2A2F38; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 14px; font-weight: 700; line-height: 24px">22 km</span>
+</div>
+</div>
+<p style="font-size: 15px; line-height: 1.5; color: #5B6270">Geladeira, fogão, cama de casal, guarda-roupa desmontado e umas 15 caixas.</p>
+<p style="font-size: 16px; color: #5B6270">Você ofereceu <strong style="color: #1C1F24">R$ 380</strong></p>
+<sc-if value="{{ativo}}" hint-placeholder-val="{{ true }}">
+<button type="button" aria-haspopup="dialog" onClick="{{pedirCancelar}}" style="align-self: flex-start; min-height: 44px; padding: 0; border: 0; background: transparent; color: #C92A2A; font-size: 15px; font-weight: 600; text-decoration: underline; cursor: pointer">Cancelar pedido</button>
+</sc-if>
+</section>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<sc-if value="{{cancelado}}" hint-placeholder-val="{{ false }}">
+<section role="status" aria-labelledby="t-cancelado" style="display: flex; flex-direction: column; gap: 14px; padding: 28px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: #C92A2A"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #C92A2A"></span>Pedido cancelado</span>
+<h2 id="t-cancelado" style="font-size: 32px">Nenhum valor foi cobrado</h2>
+<p style="font-size: 16px; line-height: 1.5; color: #5B6270">Os motoristas não veem mais esse pedido, e quem tinha aceitado ou mandado proposta foi avisado.</p>
+<p style="font-size: 16px; color: #5B6270">Motivo: {{motivoFinal}}</p>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding-top: 18px; border-top: 1px solid #E6E4DF">
+<a class="b" href="Cliente-Pedido-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 28px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; text-decoration: none">Fazer outro pedido</a>
+<a href="Cliente-Inicio-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-size: 16px; font-weight: 600">Voltar para meus fretes</a>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{vProcurando}}" hint-placeholder-val="{{ false }}">
+<section style="display: flex; flex-direction: column; gap: 10px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: #5B6270"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #5B6270"></span>Procurando motorista</span>
+<p style="font-size: 16px; line-height: 1.5; color: #5B6270">Avisamos quem tem van ou caminhão perto da coleta. Você recebe uma notificação quando alguém aceitar ou mandar outro valor.</p>
+</section>
+</sc-if>
+<sc-if value="{{vAceitou}}" hint-placeholder-val="{{ true }}">
+<section aria-labelledby="t-achou" style="display: flex; flex-direction: column; gap: 18px; padding: 28px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #1F5FAD"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #1F5FAD"></span>Motorista encontrado</span>
+<h2 id="t-achou" style="font-size: 32px">Edvaldo aceitou seus R$ 380</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center">
+<div style="display: flex; gap: 14px; align-items: center">
+<span aria-hidden="true" style="display: grid; place-items: center; width: 56px; height: 56px; flex: none; border-radius: 50%; background: #E6E4DF; font-size: 18px; font-weight: 700">ES</span>
+<span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 18px">Edvaldo Santos</strong><span style="font-size: 15px; color: #5B6270">Nota 4,9 · 132 fretes · CNH e CRLV conferidos</span></span>
+</div>
+<span style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #5B6270">Van Renault Master <span class="m" style="padding: 1px 6px; border-radius: 4px; border: 1px solid #8A8F98; color: #1C1F24; font-size: 14px">RPX2G41</span></span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding-top: 18px; border-top: 1px solid #E6E4DF">
+<button type="button" class="b" onClick="{{pagarEdvaldo}}" style="min-height: 52px; padding: 0 28px; border: 0; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; cursor: pointer">Pagar R$ 380 com Pix</button>
+<p style="flex: 1 1 280px; font-size: 15px; line-height: 1.45; color: #5B6270">O dinheiro fica guardado até a entrega. Edvaldo só sai para a coleta quando vê o pagamento garantido.</p>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{vPropostas}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="t-prop" style="display: flex; flex-direction: column; gap: 14px">
+<h2 id="t-prop" style="font-size: 28px">Propostas de outro valor</h2>
+<p style="font-size: 16px; line-height: 1.5; color: #5B6270">Ninguém aceitou R$ 380 ainda. Você pode fechar com uma proposta ou esperar.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px">
+<sc-for list="{{propostas}}" as="p" hint-placeholder-count="2">
+<article style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<div style="display: flex; gap: 12px; align-items: center">
+<span aria-hidden="true" style="display: grid; place-items: center; width: 48px; height: 48px; flex: none; border-radius: 50%; background: #E6E4DF; font-size: 16px; font-weight: 700">{{p.ini}}</span>
+<span style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><strong style="font-size: 17px">{{p.nome}}</strong><span style="font-size: 14px; color: #5B6270">Nota {{p.nota}} · {{p.fretes}} fretes</span><span style="font-size: 14px; color: #5B6270">{{p.veiculo}}</span></span>
+<strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 30px">{{p.valorFmt}}</strong>
+</div>
+<div style="display: flex; gap: 8px">
+<button type="button" class="b" onClick="{{p.aceitar}}" style="flex: 1; min-height: 48px; border: 0; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 16px; font-weight: 600; cursor: pointer">Aceitar {{p.valorFmt}}</button>
+<button type="button" onClick="{{p.recusar}}" style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid #8A8F98; background: #FFFFFF; font-size: 16px; font-weight: 600; cursor: pointer">Recusar</button>
+</div>
+</article>
+</sc-for>
+</div>
+</section>
+</sc-if>
+</div>
+</div>
+</main>
+<sc-if value="{{folhaAberta}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; background: rgb(28 31 36 / .45)">
+<section role="dialog" aria-modal="true" aria-labelledby="t-pix" style="width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 16px; padding: 28px; border-radius: 16px; background: #FAFAF8">
+<sc-if value="{{naoPago}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+<h2 id="t-pix" style="font-size: 28px">{{tituloPix}}</h2>
+<button type="button" onClick="{{fechar}}" aria-label="Fechar" style="display: grid; place-items: center; width: 44px; height: 44px; flex: none; border: 0; border-radius: 999px; background: #E6E4DF; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center">
+<div role="img" aria-label="Espaço do QR Code do Pix" style="display: grid; place-items: center; width: 168px; height: 168px; flex: none; border-radius: 4px; border: 1px dashed #8A8F98; background: #FFFFFF; color: #5B6270; font-size: 14px; font-weight: 600; text-align: center">QR Code<br>do Pix</div>
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 15px; color: #5B6270">Valor</span>
+<strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 44px; line-height: 1"><span style="font-size: .55em">R$</span> {{valorPix}}</strong>
+<span style="font-size: 15px; line-height: 1.45; color: #5B6270">Fica guardado até a entrega. Se o frete for cancelado antes da saída, volta para você.</span>
+</div>
+</div>
+<code class="m" style="display: block; padding: 10px 12px; border-radius: 4px; border: 1px solid #E6E4DF; background: #FFFFFF; font-size: 14px; color: #5B6270; overflow-wrap: anywhere">[código Pix copia e cola gerado pelo banco]</code>
+<button type="button" class="b" onClick="{{copiar}}" style="min-height: 52px; border: 0; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; cursor: pointer">{{rotuloCopiar}}</button>
+<sc-if value="{{esperandoBanco}}" hint-placeholder-val="{{ false }}"><p role="status" style="font-size: 15px; color: #5B6270; text-align: center">Esperando o banco confirmar…</p></sc-if>
+</sc-if>
+<sc-if value="{{pago}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; flex-direction: column; gap: 10px">
+<span style="display: inline-flex; align-items: center; gap: 8px; color: #007A51; font-size: 18px; font-weight: 700"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Pix confirmado: {{valorFmt}} guardado</span>
+<h2 style="font-size: 30px">Fechado com {{primeiroNome}}</h2>
+<p style="font-size: 16px; line-height: 1.5; color: #5B6270">Ele já vê o pagamento garantido. No sábado, 14/11, ele vai até a coleta.</p>
+</div>
+<a class="b" href="Cliente-Acompanhar-PC.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; text-decoration: none">Acompanhar frete</a>
+</sc-if>
+</section>
+</div>
+</sc-if>
+<sc-if value="{{confirmando}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; background: rgb(28 31 36 / .45)">
+<section role="alertdialog" aria-modal="true" aria-labelledby="t-confirma" aria-describedby="d-confirma" style="width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 14px; padding: 28px; border-radius: 16px; background: #FAFAF8">
+<h2 id="t-confirma" style="font-size: 28px">Cancelar este pedido?</h2>
+<p id="d-confirma" style="font-size: 16px; line-height: 1.5; color: #5B6270">Os motoristas deixam de ver o pedido. Você ainda não pagou nada, então nada é cobrado.</p>
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column">
+<legend style="padding: 0 0 4px; font-size: 16px; font-weight: 600">Por que você quer cancelar?</legend>
+<sc-for list="{{motivosCanc}}" as="mc" hint-placeholder-count="4">
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 16px; cursor: pointer"><input type="radio" name="motivo-cancelamento" value="{{mc.valor}}" checked="{{mc.on}}" onChange="{{mc.pick}}">{{mc.nome}}</label>
+</sc-for>
+</fieldset>
+<sc-if value="{{motivoOutro}}" hint-placeholder-val="{{ false }}">
+<textarea class="f" aria-label="Motivo do cancelamento" placeholder="Conte em poucas palavras" maxlength="500" value="{{textoCanc}}" onChange="{{onTextoCanc}}" style="height: 84px; resize: vertical"></textarea>
+</sc-if>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding-top: 8px">
+<button type="button" onClick="{{confirmarCancelar}}" disabled="{{semMotivoCanc}}" style="min-height: 48px; padding: 0 22px; border-radius: 999px; border: 1px solid #8A8F98; background: #FFFFFF; color: #C92A2A; font-size: 16px; font-weight: 600; cursor: pointer">Sim, cancelar pedido</button>
+<button type="button" class="b" onClick="{{manter}}" style="min-height: 48px; padding: 0 24px; border: 0; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 16px; font-weight: 600; cursor: pointer">Manter o pedido</button>
+</div>
+</section>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"cenario":{"editor":"enum","options":["aceitou","propostas","procurando"],"default":"aceitou"},"$preview":{"width":1440,"height":950}}'>
+class Component extends DCLogic {
+  state = { escolhido: null, copiado: false, pago: false, recusadas: [], confirmando: false, cancelado: false, motivoCanc: '', textoCanc: '' };
+  componentDidUpdate(prev) {
+    if (prev && prev.cenario !== this.props.cenario) {
+      clearTimeout(this.timer);
+      this.setState({ escolhido: null, copiado: false, pago: false, recusadas: [], confirmando: false, cancelado: false, motivoCanc: '', textoCanc: '' });
+    }
+  }
+  componentWillUnmount() {
+    clearTimeout(this.timer);
+  }
+  renderVals() {
+    const s = this.state;
+    const cenario = this.props.cenario || 'aceitou';
+    const brl = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    const edvaldo = { id: 'd1', nome: 'Edvaldo Santos', valor: 380 };
+    const lista = [
+      { id: 'd2', nome: 'Jorge Amaral', ini: 'JA', nota: '4,6', fretes: 27, veiculo: 'Van Fiat Ducato', valor: 420 },
+      { id: 'd3', nome: 'Luciana Prado', ini: 'LP', nota: '4,8', fretes: 64, veiculo: 'Caminhão 3/4 Hyundai HR', valor: 450 }
+    ];
+    const abrir = (m) => () => this.setState({ escolhido: m, copiado: false, pago: false });
+    const propostas = lista.filter((p) => !s.recusadas.includes(p.id)).map((p) => ({
+      ...p,
+      valorFmt: brl(p.valor),
+      aceitar: abrir(p),
+      recusar: () => this.setState({ recusadas: this.state.recusadas.concat(p.id) })
+    }));
+    const m = s.escolhido;
+    return {
+      vProcurando: !s.cancelado && cenario === 'procurando',
+      vAceitou: !s.cancelado && cenario === 'aceitou',
+      vPropostas: !s.cancelado && cenario === 'propostas',
+      ativo: !s.cancelado,
+      cancelado: s.cancelado,
+      confirmando: s.confirmando,
+      pedirCancelar: () => this.setState({ confirmando: true }),
+      manter: () => this.setState({ confirmando: false, motivoCanc: '', textoCanc: '' }),
+      motivosCanc: [['nao-preciso', 'Não preciso mais do frete'], ['data', 'Vou mudar a data'], ['outro-jeito', 'Achei outro jeito de levar'], ['outro', 'Outro motivo']].map(([v, nome]) => ({ valor: v, nome, on: s.motivoCanc === v, pick: () => this.setState({ motivoCanc: v }) })),
+      motivoOutro: s.motivoCanc === 'outro',
+      textoCanc: s.textoCanc,
+      onTextoCanc: (e) => this.setState({ textoCanc: e.target.value }),
+      semMotivoCanc: !s.motivoCanc || (s.motivoCanc === 'outro' && !String(s.textoCanc).trim()),
+      motivoFinal: s.motivoCanc === 'outro' ? String(s.textoCanc).trim() : ({ 'nao-preciso': 'Não preciso mais do frete', data: 'Vou mudar a data', 'outro-jeito': 'Achei outro jeito de levar' })[s.motivoCanc] || '',
+      confirmarCancelar: () => this.setState({ confirmando: false, cancelado: true }),
+      propostas,
+      pagarEdvaldo: abrir(edvaldo),
+      folhaAberta: !!m,
+      naoPago: !s.pago,
+      pago: s.pago,
+      tituloPix: m ? 'Pague com Pix para fechar com ' + m.nome.split(' ')[0] : '',
+      valorPix: m ? m.valor.toLocaleString('pt-BR') : '',
+      valorFmt: m ? brl(m.valor) : '',
+      primeiroNome: m ? m.nome.split(' ')[0] : '',
+      rotuloCopiar: s.copiado ? 'Código copiado' : 'Copiar código Pix',
+      esperandoBanco: s.copiado && !s.pago,
+      copiar: () => {
+        this.setState({ copiado: true });
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => this.setState({ pago: true }), 1800);
+      },
+      fechar: () => { clearTimeout(this.timer); this.setState({ escolhido: null, copiado: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

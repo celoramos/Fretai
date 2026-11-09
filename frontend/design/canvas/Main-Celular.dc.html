@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Entrar no celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#FAFAF8;color:#1C1F24;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#1F5FAD}a:hover{color:#1C1F24}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #1F5FAD;outline-offset:2px}
+.f{width:100%;height:52px;padding:0 14px;border:1px solid #8A8F98;border-radius:12px;background:#FFFFFF;font-size:16px}
+.f::placeholder{color:#5B6270}
+.b{transition:filter .15s}.b:hover{filter:brightness(1.25)}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; overflow-y: auto; background: #FAFAF8">
+<div style="display: flex; flex-direction: column; gap: 22px; padding: 20px 16px 36px">
+<span style="display: inline-flex; align-items: center; gap: 8px">
+<svg viewBox="8 56 240 156" width="40" height="26" aria-hidden="true"><path fill="#2A2F38" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#2A2F38" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#2A2F38" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<span style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 24px; font-weight: 700">Fretaí</span>
+</span>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="font-size: 36px">Entrar</h1>
+<p style="font-size: 16px; line-height: 1.45; color: #5B6270">Peça um frete ou pegue o próximo, com o pagamento garantido.</p>
+</div>
+<form onSubmit="{{semEnvio}}" style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="email" style="font-size: 15px; font-weight: 600">E-mail</label><input id="email" class="f" type="email" placeholder="voce@email.com"></div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px"><label for="senha" style="font-size: 15px; font-weight: 600">Senha</label><button type="button" onClick="{{esqueci}}" style="min-height: 44px; padding: 0; border: 0; background: none; color: #1F5FAD; font-size: 15px; font-weight: 600; cursor: pointer">Esqueci a senha</button></div>
+<input id="senha" class="f" type="password" placeholder="Sua senha">
+<sc-if value="{{linkEnviado}}" hint-placeholder-val="{{ false }}"><p role="status" style="font-size: 14px; line-height: 1.45; color: #5B6270">Se esse e-mail tiver conta, enviamos um link para criar uma senha nova.</p></sc-if>
+</div>
+<a class="b" href="Cliente-Inicio.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; text-decoration: none">Entrar</a>
+<a href="Cliente-Inicio.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; border: 1px solid #8A8F98; background: #FFFFFF; color: #1C1F24; font-size: 17px; font-weight: 600; text-decoration: none">Continuar com Google</a>
+</form>
+<p style="font-size: 15px; color: #5B6270">Não tem conta? <a href="Cadastro-Celular.dc.html" style="font-weight: 700">Criar conta</a></p>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 14px; color: #5B6270">
+<span>Modo demonstração:</span>
+<a href="Cliente-Inicio.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 600">cliente</a>
+<a href="Motorista-Busca.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 600">motorista</a>
+</div>
+<section aria-labelledby="t-caminho" style="display: flex; flex-direction: column; gap: 16px; padding: 20px 16px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<h2 id="t-caminho" style="font-size: 24px">Como o dinheiro anda</h2>
+<ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 22px minmax(0, 1fr); column-gap: 14px">
+<li aria-hidden="true" style="grid-column: 1; grid-row: 1 / span 3; position: relative; border-radius: 4px; background: #2A2F38"><div style="position: absolute; top: 8px; bottom: 8px; left: 50%; width: 3px; margin-left: -1.5px; background: repeating-linear-gradient(180deg, #FFC629 0 14px, transparent 14px 28px)"></div></li>
+<li style="grid-column: 2; display: flex; flex-direction: column; gap: 4px; padding: 2px 0 18px"><span style="align-self: flex-start; padding: 1px 7px; border-radius: 4px; background: #2A2F38; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 14px; font-weight: 700">km 0</span><strong style="font-size: 16px">Fechou, pagou</strong><span style="font-size: 15px; line-height: 1.45; color: #5B6270">O Pix fica guardado. Ninguém recebe antes da hora.</span></li>
+<li style="grid-column: 2; display: flex; flex-direction: column; gap: 4px; padding: 0 0 18px"><span style="align-self: flex-start; padding: 1px 7px; border-radius: 4px; background: #2A2F38; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 14px; font-weight: 700">Saída</span><strong style="font-size: 16px">O motorista vê o Pix antes de carregar</strong></li>
+<li style="grid-column: 2; display: flex; flex-direction: column; gap: 4px; padding: 0 0 2px"><span style="align-self: flex-start; padding: 1px 7px; border-radius: 4px; background: #2A2F38; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 14px; font-weight: 700">Entrega</span><strong style="font-size: 16px">Chegou, liberou</strong><span style="font-size: 15px; line-height: 1.45; color: #5B6270">Foto, assinatura e GPS confirmam, e o dinheiro vai para o motorista.</span></li>
+</ol>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { link: false };
+  renderVals() {
+    return {
+      linkEnviado: this.state.link,
+      esqueci: () => this.setState({ link: true }),
+      semEnvio: (e) => { if (e && e.preventDefault) e.preventDefault(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

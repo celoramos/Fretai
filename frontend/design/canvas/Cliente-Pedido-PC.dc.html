@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Pedir frete no computador</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#FAFAF8;color:#1C1F24;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#1F5FAD}a:hover{color:#1C1F24}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #1F5FAD;outline-offset:2px}
+.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f{width:100%;height:48px;padding:0 14px;border:1px solid #8A8F98;border-radius:12px;background:#FFFFFF;font-size:16px}
+.f::placeholder{color:#5B6270}
+.b{transition:filter .15s}.b:hover{filter:brightness(1.25)}
+.n:hover{background:#F0EFEB}
+summary{list-style:none}summary::-webkit-details-marker{display:none}
+.dd[open]>summary .chev{transform:rotate(180deg)}
+.up:focus-within{outline:3px solid #1F5FAD;outline-offset:2px}
+input[type=radio]{width:20px;height:20px;margin:0;flex:none;accent-color:#1C1F24}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #FAFAF8">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E6E4DF">
+<div style="max-width: 1120px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<a href="Cliente-Inicio-PC.dc.html" style="display: inline-flex; align-items: center; gap: 10px; color: #1C1F24; text-decoration: none">
+<svg viewBox="8 56 240 156" width="46" height="30" aria-hidden="true"><path fill="#2A2F38" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#2A2F38" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#2A2F38" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<span style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 24px; font-weight: 700">Fretaí</span>
+</a>
+<nav aria-label="Principal" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<a class="n" href="Cliente-Inicio-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; color: #1C1F24; font-size: 16px; font-weight: 600; text-decoration: none">Meus fretes</a>
+<a href="Cliente-Pedido-PC.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 16px; font-weight: 600; text-decoration: none">Pedir frete</a>
+<details style="position: relative">
+<summary aria-label="Sua conta" style="display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #E6E4DF; font-size: 15px; font-weight: 700; cursor: pointer">JM</summary>
+<div style="position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; width: 300px; display: flex; flex-direction: column; padding: 8px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .08), 0 16px 40px rgb(28 31 36 / .18)">
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 12px; margin-bottom: 6px; border-bottom: 1px solid #E6E4DF"><strong style="font-size: 16px">Juliana Matos</strong><span style="font-size: 14px; color: #5B6270">juliana.matos@email.com</span></div>
+<a class="n" href="Cliente-Acompanhar-PC.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 12px; color: #1C1F24; font-size: 16px; font-weight: 600; text-decoration: none">Frete em andamento</a>
+<details class="dd">
+<summary class="n" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer">Como o pagamento funciona<svg class="i chev" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; color: #5B6270"><path d="M6 9l6 6 6-6"></path></svg></summary>
+<p style="padding: 6px 12px 10px; font-size: 15px; line-height: 1.5; color: #5B6270">Você paga por Pix quando fecha com o motorista. O dinheiro fica guardado no Fretaí e vai para ele até 24 h depois da entrega, se nada chegar errado. Se você cancelar antes da saída, o Pix volta para você.</p>
+</details>
+<div style="height: 1px; margin: 6px 0; background: #E6E4DF"></div>
+<a class="n" href="Main.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 12px; color: #1C1F24; font-size: 16px; font-weight: 600; text-decoration: none">Sair</a>
+</div>
+</details>
+</nav>
+</div>
+</header>
+<main style="width: 100%; max-width: 1120px; margin: 0 auto; padding: 28px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<a href="Cliente-Inicio-PC.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; font-size: 15px; font-weight: 600; text-decoration: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px"><path d="M15 5l-7 7 7 7"></path></svg>Meus fretes</a>
+<h1 style="font-size: 40px">Pedir frete</h1>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<form onSubmit="{{semEnvio}}" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section aria-labelledby="t-rota" style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<h2 id="t-rota" style="font-size: 24px">De onde e para onde</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="coleta" style="font-size: 15px; font-weight: 600">Endereço da coleta</label><input id="coleta" name="coleta" class="f" value="{{s.coleta}}" onChange="{{campo}}"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="entrega" style="font-size: 15px; font-weight: 600">Endereço da entrega</label><input id="entrega" name="entrega" class="f" value="{{s.entrega}}" onChange="{{campo}}"></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: #5B6270"><span>Pituba, Salvador</span><span style="text-align: right">Vilas do Atlântico, Lauro de Freitas</span></div>
+<div role="img" aria-label="22 km de estrada" style="position: relative; display: grid; place-items: center; height: 26px; border-radius: 4px; background: #2A2F38">
+<div style="position: absolute; left: 8px; right: 8px; top: 11.5px; height: 3px; background: repeating-linear-gradient(90deg, #FFC629 0 14px, transparent 14px 28px)"></div>
+<span style="position: relative; padding: 0 10px; background: #2A2F38; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 15px; font-weight: 700; line-height: 26px">22 km</span>
+</div>
+</div>
+<div style="max-width: 260px; display: flex; flex-direction: column; gap: 8px"><label for="data" style="font-size: 15px; font-weight: 600">Dia da coleta</label><input id="data" name="data" type="date" class="f" value="{{s.data}}" onChange="{{campo}}"></div>
+</section>
+<section aria-labelledby="t-carga" style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<h2 id="t-carga" style="font-size: 24px">O que vai levar</h2>
+<div role="group" aria-label="Tipo de frete" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{tipos}}" as="t" hint-placeholder-count="5">
+<button type="button" aria-pressed="{{t.on}}" onClick="{{t.pick}}" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: {{t.borda}}; background: {{t.bg}}; color: {{t.fg}}; font-size: 15px; font-weight: 600; cursor: pointer">{{t.nome}}</button>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="descricao" style="font-size: 15px; font-weight: 600">Conte o que vai no veículo</label><textarea id="descricao" name="descricao" class="f" value="{{s.descricao}}" onChange="{{campo}}" style="height: 96px; padding: 12px 14px; line-height: 1.45; resize: vertical"></textarea></div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end">
+<div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 8px"><label for="peso" style="font-size: 15px; font-weight: 600">Peso aproximado</label><select id="peso" name="peso" class="f" value="{{s.peso}}" onChange="{{campo}}"><option value="200">Até 200 kg</option><option value="700">De 200 a 700 kg</option><option value="1500">De 700 kg a 1,5 t</option><option value="5000">Mais de 1,5 t</option></select></div>
+<label class="up" for="fotos" style="flex: 1 1 240px; position: relative; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; border-radius: 12px; border: 1px dashed #8A8F98; background: #FFFFFF; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg><span style="font-size: 16px; font-weight: 600">{{textoFotos}}</span><span style="font-size: 14px; color: #5B6270">opcional</span><input id="fotos" type="file" accept="image/*" multiple onChange="{{fotos}}" style="position: absolute; width: 1px; height: 1px; opacity: 0"></label>
+</div>
+</section>
+<fieldset style="margin: 0; display: flex; flex-direction: column; gap: 14px; padding: 24px; border: 0; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<legend style="float: left; width: 100%; padding: 0; margin-bottom: 2px; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 24px; font-weight: 700">Qual veículo?</legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px">
+<sc-for list="{{veiculos}}" as="v" hint-placeholder-count="3">
+<label style="display: flex; gap: 12px; align-items: flex-start; padding: 16px; border-radius: 16px; border: {{v.borda}}; cursor: pointer">
+<input type="radio" name="veiculo" checked="{{v.on}}" onChange="{{v.pick}}" style="margin-top: 2px">
+<span style="display: flex; flex-direction: column; gap: 4px"><strong style="font-size: 17px">{{v.nome}}</strong><span style="font-size: 14px; line-height: 1.4; color: #5B6270">{{v.cabe}}</span><span style="font-size: 13px; color: #5B6270">{{v.exemplo}}</span></span>
+</label>
+</sc-for>
+</div>
+<p style="font-size: 14px; color: #5B6270">Carro de passeio e moto não fazem frete no Fretaí.</p>
+</fieldset>
+<section aria-labelledby="t-recebe" style="display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<h2 id="t-recebe" style="font-size: 24px">Quem recebe</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="recebedor" style="font-size: 15px; font-weight: 600">Nome</label><input id="recebedor" name="recebedor" class="f" value="{{s.recebedor}}" onChange="{{campo}}"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="telefone" style="font-size: 15px; font-weight: 600">Celular</label><input id="telefone" name="telefone" type="tel" class="f" value="{{s.telefone}}" onChange="{{campo}}"></div>
+</div>
+<p style="font-size: 14px; line-height: 1.45; color: #5B6270">É quem assina na entrega. Essa pessoa recebe um código para avisar se algo chegar errado.</p>
+</section>
+</form>
+<aside aria-labelledby="t-resumo" style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(28 31 36 / .06), 0 8px 24px rgb(28 31 36 / .08)">
+<h2 id="t-resumo" style="font-size: 24px">Seu pedido</h2>
+<dl style="margin: 0; display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #E6E4DF"><dt style="font-size: 15px; color: #5B6270">O quê</dt><dd style="margin: 0; font-size: 15px; font-weight: 600; text-align: right">{{tipoNome}}</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #E6E4DF"><dt style="font-size: 15px; color: #5B6270">Quando</dt><dd style="margin: 0; font-size: 15px; font-weight: 600">sáb, 14/11</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #E6E4DF"><dt style="font-size: 15px; color: #5B6270">Rota</dt><dd style="margin: 0; font-size: 15px; font-weight: 600; text-align: right">Pituba → Vilas do Atlântico · 22 km</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #E6E4DF; border-bottom: 1px solid #E6E4DF"><dt style="font-size: 15px; color: #5B6270">Veículo</dt><dd style="margin: 0; font-size: 15px; font-weight: 600">{{veiculoNome}}</dd></div>
+</dl>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="valor" style="font-size: 15px; font-weight: 600">Quanto você oferece</label>
+<div style="position: relative">
+<span aria-hidden="true" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-family: 'Barlow Semi Condensed', sans-serif; font-size: 18px; font-weight: 700; color: #5B6270">R$</span>
+<input id="valor" name="valor" class="f" value="{{s.valor}}" onChange="{{campo}}" style="height: 60px; padding-left: 52px; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 30px; font-weight: 700">
+</div>
+<p style="font-size: 14px; line-height: 1.45; color: #5B6270">O motorista pode aceitar esse valor ou mandar outro. Você só paga quando fechar com um deles, por Pix, e o dinheiro fica guardado até a entrega.</p>
+</div>
+<a class="b" href="Cliente-Propostas-PC.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; text-decoration: none">{{rotuloPedir}}</a>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1600}}'>
+class Component extends DCLogic {
+  state = {
+    tipo: 'MUDANCA',
+    coleta: 'Av. Paulo VI, 1200, ap. 302 · Pituba',
+    entrega: 'Rua Praia de Guarajuba, 40 · Vilas do Atlântico',
+    data: '2026-11-14',
+    descricao: 'Mudança de 1 quarto: geladeira, fogão, cama de casal, guarda-roupa desmontado e umas 15 caixas.',
+    peso: '700',
+    nFotos: 0,
+    veiculo: 'VAN',
+    recebedor: 'Juliana Matos',
+    telefone: '(71) 98877-1234',
+    valor: '380'
+  };
+  renderVals() {
+    const s = this.state;
+    const TIPOS = [['MUDANCA', 'Mudança'], ['MOVEIS', 'Móveis e eletros'], ['CAIXAS', 'Caixas e volumes'], ['OBRA', 'Material de obra'], ['OUTRO', 'Outro']];
+    const tipos = TIPOS.map(([k, nome]) => {
+      const on = s.tipo === k;
+      return { nome, on, bg: on ? '#1C1F24' : '#FFFFFF', fg: on ? '#FAFAF8' : '#1C1F24', borda: on ? '1px solid #1C1F24' : '1px solid #8A8F98', pick: () => this.setState({ tipo: k }) };
+    });
+    const VEIC = [
+      ['UTILITARIO', 'Utilitário', 'Pequenos volumes, um ou dois eletrodomésticos.', 'Fiorino, Kangoo'],
+      ['VAN', 'Van ou furgão', 'Mudança de quitinete ou de um quarto.', 'Master, Ducato, Sprinter'],
+      ['CAMINHAO', 'Caminhão', 'Mudança de casa, material de obra.', '3/4, toco, baú']
+    ];
+    const veiculos = VEIC.map(([k, nome, cabe, exemplo]) => ({ nome, cabe, exemplo, on: s.veiculo === k, borda: s.veiculo === k ? '2px solid #1C1F24' : '1px solid #E6E4DF', pick: () => this.setState({ veiculo: k }) }));
+    const valor = parseFloat(String(s.valor).replace(/\./g, '').replace(',', '.')) || 0;
+    return {
+      s,
+      tipos,
+      veiculos,
+      campo: (e) => this.setState({ [e.target.name]: e.target.value }),
+      fotos: (e) => this.setState({ nFotos: e.target.files ? e.target.files.length : 0 }),
+      textoFotos: s.nFotos ? s.nFotos + (s.nFotos > 1 ? ' fotos escolhidas' : ' foto escolhida') : 'Adicionar fotos',
+      tipoNome: TIPOS.find((t) => t[0] === s.tipo)[1],
+      veiculoNome: VEIC.find((v) => v[0] === s.veiculo)[1],
+      rotuloPedir: valor > 0 ? 'Pedir frete por ' + valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'Pedir frete',
+      semEnvio: (e) => { if (e && e.preventDefault) e.preventDefault(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

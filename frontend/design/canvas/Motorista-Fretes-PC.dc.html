@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Meus fretes no computador</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#14171C;color:#F2F0EA;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#6EA8F0}a:hover{color:#F2F0EA}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #FFC629;outline-offset:2px}
+.n:hover{background:#262B34}
+.c{transition:box-shadow .15s}.c:hover{box-shadow:0 0 0 1px #6B7280}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #14171C">
+<header style="border-bottom: 1px solid #2A2F3A">
+<div style="max-width: 1120px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<a href="Motorista-Busca-PC.dc.html" style="display: inline-flex; align-items: center; gap: 10px; color: #F2F0EA; text-decoration: none">
+<svg viewBox="8 56 240 156" width="46" height="30" aria-hidden="true"><path fill="#F2F0EA" d="M28 64H158A12 12 0 0 1 170 76V150A12 12 0 0 1 158 162H28A12 12 0 0 1 16 150V76A12 12 0 0 1 28 64Z"></path><path fill="#FFC629" d="M34 106H56V120H34Z M68 106H90V120H68Z M102 106H124V120H102Z M136 106H158V120H136Z"></path><path fill="#F2F0EA" d="M178 92H212Q218 92 222 97L238 120Q240 123 240 127V162H178Z M192 104L192 124L224 124L210 104Z"></path><path fill="#F2F0EA" d="M34 186A18 18 0 1 0 70 186A18 18 0 1 0 34 186Z M78 186A18 18 0 1 0 114 186A18 18 0 1 0 78 186Z M190 186A18 18 0 1 0 226 186A18 18 0 1 0 190 186Z"></path></svg>
+<span style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 24px; font-weight: 700">Fretaí</span>
+</a>
+<nav aria-label="Menu do motorista" style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px">
+<a class="n" href="Motorista-Busca-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; color: #F2F0EA; font-size: 16px; font-weight: 600; text-decoration: none">Fretes</a>
+<a href="Motorista-Fretes-PC.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #F2F0EA; color: #14171C; font-size: 16px; font-weight: 700; text-decoration: none">Meus fretes</a>
+<a class="n" href="Motorista-Calculadora-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; color: #F2F0EA; font-size: 16px; font-weight: 600; text-decoration: none">Calculadora</a>
+<a class="n" href="Motorista-Perfil-PC.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; color: #F2F0EA; font-size: 16px; font-weight: 600; text-decoration: none">Perfil</a>
+<a href="Motorista-Perfil-PC.dc.html" aria-label="Seu perfil" style="display: grid; place-items: center; width: 44px; height: 44px; margin-left: 6px; border-radius: 50%; background: #2A2F3A; color: #F2F0EA; font-size: 15px; font-weight: 700; text-decoration: none">ES</a>
+</nav>
+</div>
+</header>
+<main style="width: 100%; max-width: 1120px; margin: 0 auto; padding: 32px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+<h1 style="font-size: 40px">Meus fretes</h1>
+<section aria-label="Seu dinheiro" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A"><span style="font-size: 15px; color: #A3A9B5">A receber</span><strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 40px; line-height: 1; color: #2FBF84"><span style="font-size: .55em">R$</span> 380</strong><span style="font-size: 14px; color: #A3A9B5">guardado, sai depois da entrega</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A"><span style="font-size: 15px; color: #A3A9B5">Recebido em novembro</span><strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 40px; line-height: 1"><span style="font-size: .55em">R$</span> 460</strong><span style="font-size: 14px; color: #A3A9B5">2 fretes pagos</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A"><span style="font-size: 15px; color: #A3A9B5">Sua nota</span><strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 40px; line-height: 1">4,9</strong><span style="font-size: 14px; color: #A3A9B5">132 fretes · CNH e CRLV conferidos</span></div>
+</section>
+<div role="group" aria-label="Mostrar" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{abas}}" as="a" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{a.on}}" onClick="{{a.pick}}" style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: {{a.borda}}; background: {{a.bg}}; color: {{a.fg}}; font-size: 16px; font-weight: 600; cursor: pointer">{{a.nome}}</button>
+</sc-for>
+</div>
+<sc-if value="{{vAndamento}}" hint-placeholder-val="{{ true }}">
+<a class="c" href="Motorista-Frete-PC.dc.html" style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 20px 24px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A; color: #F2F0EA; text-decoration: none">
+<span style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 4px"><strong style="font-size: 18px">Mudança de 1 quarto</strong><span style="font-size: 15px; color: #A3A9B5">sáb, 14/11 · coleta às 8h</span></span>
+<span style="flex: 2 1 320px; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px"><span>Pituba</span><span>Vilas do Atlântico</span></span>
+<span role="img" aria-label="22 km de estrada" style="position: relative; display: grid; place-items: center; height: 24px; border-radius: 4px; background: #0A0C0F; box-shadow: 0 0 0 1px #4A5160"><span style="position: absolute; left: 8px; right: 8px; top: 10.5px; height: 3px; background: repeating-linear-gradient(90deg, #FFC629 0 14px, transparent 14px 28px)"></span><span style="position: relative; padding: 0 8px; background: #0A0C0F; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 14px; font-weight: 700; line-height: 24px">22 km</span></span>
+</span>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px"><strong style="font-family: 'Barlow Semi Condensed', sans-serif; font-size: 30px; line-height: 1"><span style="font-size: .55em">R$</span> 380</strong><span style="font-size: 15px; font-weight: 600; color: #2FBF84">Pix confirmado</span></span>
+</a>
+</sc-if>
+<sc-if value="{{vPropostas}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{temProposta}}" hint-placeholder-val="{{ true }}">
+<article style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 20px 24px; border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A">
+<span style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 4px"><strong style="font-size: 18px">Sofá e rack</strong><span style="font-size: 15px; color: #A3A9B5">Itapuã → Stella Maris · 6 km · amanhã</span></span>
+<p style="flex: 1 1 260px; font-size: 16px; font-weight: 600; color: #6EA8F0">Você propôs R$ 170 · a cliente decide</p>
+<button type="button" onClick="{{retirar}}" style="min-height: 48px; padding: 0 20px; border-radius: 999px; border: 1px solid #6B7280; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer">Retirar proposta</button>
+</article>
+</sc-if>
+<sc-if value="{{semProposta}}" hint-placeholder-val="{{ false }}"><p style="font-size: 16px; color: #A3A9B5">Nenhuma proposta esperando resposta.</p></sc-if>
+</sc-if>
+<sc-if value="{{vConcluidos}}" hint-placeholder-val="{{ false }}">
+<div style="border-radius: 16px; background: #1E222A; box-shadow: 0 0 0 1px #2A2F3A; overflow-x: auto">
+<div style="min-width: 640px">
+<div style="display: grid; grid-template-columns: minmax(200px, 2fr) minmax(180px, 2fr) 100px 110px 100px; gap: 16px; padding: 12px 24px; border-bottom: 1px solid #2A2F3A; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #A3A9B5"><span>Frete</span><span>Rota</span><span>Data</span><span>Valor</span><span>Situação</span></div>
+<sc-for list="{{concluidos}}" as="f" hint-placeholder-count="3">
+<div style="display: grid; grid-template-columns: minmax(200px, 2fr) minmax(180px, 2fr) 100px 110px 100px; gap: 16px; padding: 16px 24px; border-bottom: 1px solid #2A2F3A; font-size: 16px"><strong>{{f.titulo}}</strong><span>{{f.rota}}</span><span>{{f.data}}</span><strong>{{f.valor}}</strong><span style="color: #2FBF84; font-weight: 600">Pago</span></div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":950}}'>
+class Component extends DCLogic {
+  state = { aba: 'andamento', retirada: false };
+  renderVals() {
+    const s = this.state;
+    const nProp = s.retirada ? 0 : 1;
+    const abas = [['andamento', 'Em andamento (1)'], ['propostas', 'Propostas (' + nProp + ')'], ['concluidos', 'Concluídos (3)']].map(([k, nome]) => {
+      const on = s.aba === k;
+      return { nome, on, bg: on ? '#F2F0EA' : 'transparent', fg: on ? '#14171C' : '#F2F0EA', borda: on ? '1px solid #F2F0EA' : '1px solid #6B7280', pick: () => this.setState({ aba: k }) };
+    });
+    return {
+      abas,
+      vAndamento: s.aba === 'andamento',
+      vPropostas: s.aba === 'propostas',
+      vConcluidos: s.aba === 'concluidos',
+      temProposta: !s.retirada,
+      semProposta: s.retirada,
+      retirar: () => this.setState({ retirada: true }),
+      concluidos: [
+        { titulo: 'Armário e cama', rota: 'Federação → Barra', data: '05/11', valor: 'R$ 320' },
+        { titulo: 'Geladeira e fogão', rota: 'Brotas → Cabula', data: '02/11', valor: 'R$ 140' },
+        { titulo: 'Caixas e móveis', rota: 'Ondina → Imbuí', data: '29/10', valor: 'R$ 260' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

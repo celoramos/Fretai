@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fretaí · Pedir frete, passo 1</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#FAFAF8;color:#1C1F24;font-family:Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3{margin:0;font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;font-weight:700;line-height:1.1}
+p{margin:0}
+a{color:#1F5FAD}a:hover{color:#1C1F24}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #1F5FAD;outline-offset:2px}
+.i{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f{width:100%;height:48px;padding:0 14px;border:1px solid #8A8F98;border-radius:12px;background:#FFFFFF;font-size:16px}
+.f::placeholder{color:#5B6270}
+.b{transition:filter .15s}.b:hover{filter:brightness(1.25)}
+.up:focus-within{outline:3px solid #1F5FAD;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; background: #FAFAF8">
+<header style="display: flex; align-items: center; gap: 4px; padding: 8px 16px 6px 4px">
+<a href="Cliente-Inicio.dc.html" aria-label="Voltar" style="display: grid; place-items: center; width: 48px; height: 48px; border-radius: 999px; color: #1C1F24"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<h1 style="flex: 1; font-size: 22px">Pedir frete</h1>
+<span style="font-size: 14px; color: #5B6270">1 de 2</span>
+</header>
+<div aria-hidden="true" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 0 16px 6px"><span style="height: 4px; border-radius: 2px; background: #1C1F24"></span><span style="height: 4px; border-radius: 2px; background: #E6E4DF"></span></div>
+<form onSubmit="{{semEnvio}}" style="flex: 1; min-height: 0; overflow-y: auto; padding: 14px 16px 24px; display: flex; flex-direction: column; gap: 24px">
+<section aria-labelledby="t-rota" style="display: flex; flex-direction: column; gap: 14px">
+<h2 id="t-rota" style="font-size: 20px">De onde e para onde</h2>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="coleta" style="font-size: 15px; font-weight: 600">Endereço da coleta</label><input id="coleta" name="coleta" class="f" value="{{coleta}}" onChange="{{campo}}"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="entrega" style="font-size: 15px; font-weight: 600">Endereço da entrega</label><input id="entrega" name="entrega" class="f" value="{{entrega}}" onChange="{{campo}}"></div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: #5B6270"><span>Pituba, Salvador</span><span style="text-align: right">Vilas do Atlântico, Lauro de Freitas</span></div>
+<div role="img" aria-label="22 km de estrada" style="position: relative; display: grid; place-items: center; height: 24px; border-radius: 4px; background: #2A2F38">
+<div style="position: absolute; left: 8px; right: 8px; top: 10.5px; height: 3px; background: repeating-linear-gradient(90deg, #FFC629 0 14px, transparent 14px 28px)"></div>
+<span style="position: relative; padding: 0 8px; background: #2A2F38; color: #FFC629; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 14px; font-weight: 700; line-height: 24px">22 km</span>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="data" style="font-size: 15px; font-weight: 600">Dia da coleta</label><input id="data" name="data" type="date" class="f" value="{{data}}" onChange="{{campo}}"></div>
+</section>
+<section aria-labelledby="t-carga" style="display: flex; flex-direction: column; gap: 14px; padding-top: 20px; border-top: 1px solid #E6E4DF">
+<h2 id="t-carga" style="font-size: 20px">O que vai levar</h2>
+<div role="group" aria-label="Tipo de frete" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{tipos}}" as="t" hint-placeholder-count="5">
+<button type="button" aria-pressed="{{t.on}}" onClick="{{t.pick}}" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: {{t.borda}}; background: {{t.bg}}; color: {{t.fg}}; font-size: 15px; font-weight: 600; cursor: pointer">{{t.nome}}</button>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="descricao" style="font-size: 15px; font-weight: 600">Conte o que vai no veículo</label><textarea id="descricao" name="descricao" class="f" value="{{descricao}}" onChange="{{campo}}" style="height: 112px; padding: 12px 14px; line-height: 1.45; resize: none"></textarea></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="peso" style="font-size: 15px; font-weight: 600">Peso aproximado</label><select id="peso" name="peso" class="f" value="{{peso}}" onChange="{{campo}}"><option value="200">Até 200 kg</option><option value="700">De 200 a 700 kg</option><option value="1500">De 700 kg a 1,5 t</option><option value="5000">Mais de 1,5 t</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 15px; font-weight: 600">Fotos <span style="font-weight: 400; color: #5B6270">(opcional, ajudam o motorista a decidir)</span></span>
+<label class="up" for="fotos" style="position: relative; display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 0 16px; border-radius: 12px; border: 1px dashed #8A8F98; background: #FFFFFF; cursor: pointer">
+<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
+<span style="font-size: 16px; font-weight: 600">{{textoFotos}}</span>
+<input id="fotos" type="file" accept="image/*" multiple onChange="{{fotos}}" style="position: absolute; width: 1px; height: 1px; opacity: 0">
+</label>
+</div>
+</section>
+</form>
+<footer style="padding: 12px 16px 18px; border-top: 1px solid #E6E4DF; background: #FAFAF8">
+<a class="b" href="Cliente-Veiculo.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #1C1F24; color: #FAFAF8; font-size: 17px; font-weight: 600; text-decoration: none">Continuar</a>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = {
+    tipo: 'MUDANCA',
+    coleta: 'Av. Paulo VI, 1200, ap. 302 · Pituba',
+    entrega: 'Rua Praia de Guarajuba, 40 · Vilas do Atlântico',
+    data: '2026-11-14',
+    descricao: 'Mudança de 1 quarto: geladeira, fogão, cama de casal, guarda-roupa desmontado e umas 15 caixas.',
+    peso: '700',
+    nFotos: 0
+  };
+  renderVals() {
+    const s = this.state;
+    const tipos = [['MUDANCA', 'Mudança'], ['MOVEIS', 'Móveis e eletros'], ['CAIXAS', 'Caixas e volumes'], ['OBRA', 'Material de obra'], ['OUTRO', 'Outro']].map(([k, nome]) => {
+      const on = s.tipo === k;
+      return { nome, on, bg: on ? '#1C1F24' : '#FFFFFF', fg: on ? '#FAFAF8' : '#1C1F24', borda: on ? '1px solid #1C1F24' : '1px solid #8A8F98', pick: () => this.setState({ tipo: k }) };
+    });
+    return {
+      tipos,
+      coleta: s.coleta,
+      entrega: s.entrega,
+      data: s.data,
+      descricao: s.descricao,
+      peso: s.peso,
+      campo: (e) => this.setState({ [e.target.name]: e.target.value }),
+      fotos: (e) => this.setState({ nFotos: e.target.files ? e.target.files.length : 0 }),
+      textoFotos: s.nFotos ? s.nFotos + (s.nFotos > 1 ? ' fotos escolhidas' : ' foto escolhida') : 'Adicionar fotos',
+      semEnvio: (e) => { if (e && e.preventDefault) e.preventDefault(); }
+    };
+  }
+}
+</script>
+</body>
+</html>
