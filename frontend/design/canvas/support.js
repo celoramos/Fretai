@@ -18,8 +18,13 @@
   function avaliar(expr, escopo) {
     let f = compiladas.get(expr)
     if (!f) {
-      // `with` só funciona fora do modo estrito; o corpo de new Function não herda o 'use strict'.
-      f = new Function('__e', 'with (__e) { return (' + expr + '); }')
+      try {
+        // `with` só funciona fora do modo estrito; o corpo de new Function não herda o 'use strict'.
+        f = new Function('__e', 'with (__e) { return (' + expr + '); }')
+      } catch (erro) {
+        console.warn('[canvas] expressão que não compila:', JSON.stringify(expr), erro.message)
+        f = () => undefined
+      }
       compiladas.set(expr, f)
     }
     try {
@@ -32,7 +37,8 @@
 
   /** Atributo inteiro numa expressão só devolve o valor cru (função, booleano); misturado com texto vira texto. */
   function resolver(texto, escopo) {
-    const unica = texto.match(/^\s*\{\{([\s\S]*?)\}\}\s*$/)
+    // Uma expressão só: sem outro {{ ou }} no meio ("{{a}} · {{b}}" são duas, não uma).
+    const unica = texto.match(/^\s*\{\{((?:(?!\{\{|\}\})[\s\S])*)\}\}\s*$/)
     if (unica) return avaliar(unica[1], escopo)
     return texto.replace(EXPR, (_, expr) => {
       const v = avaliar(expr, escopo)
