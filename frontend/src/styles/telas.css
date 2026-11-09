@@ -39,8 +39,11 @@
   position: relative;
   display: grid;
   place-items: center;
-  min-height: calc(var(--alvo) + var(--esp-2));
+  align-content: center;
+  gap: var(--esp-1);
+  min-height: calc(var(--alvo) + var(--esp-4));
   color: var(--cor-texto-secundario);
+  font-size: var(--tam-detalhe);
   font-weight: var(--peso-medio);
   text-decoration: none;
   border-top: var(--borda-forte) solid transparent;
@@ -61,14 +64,13 @@
 .origem__aviso { color: var(--cor-alerta); font-size: var(--tam-detalhe); }
 .origem__aviso:empty { display: none; }
 
-.lista-cards { display: grid; border-bottom: var(--borda) solid var(--cor-linha); }
+.lista-cards { display: grid; gap: var(--esp-3); }
 .lista-cards--reserva { min-height: 60dvh; }
 
 .linha-frete {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--esp-1) var(--esp-3);
-  padding: var(--esp-4) var(--esp-1);
   color: var(--cor-texto);
   text-decoration: none;
 }
@@ -84,13 +86,8 @@
 .frete-m__numeros { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-3); }
 .frete-m__valor { display: grid; gap: var(--esp-3); justify-items: start; }
 
-/* Bloco: seção aberta, separada da anterior por uma linha fina e espaço. */
-.bloco {
-  display: grid;
-  gap: var(--esp-4);
-  padding-top: var(--esp-6);
-  border-top: var(--borda) solid var(--cor-linha);
-}
+/* Bloco: um assunto do detalhe, num cartão. */
+.bloco { display: grid; gap: var(--esp-4); }
 .bloco__titulo { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); font-weight: var(--peso-medio); }
 
 .acoes { display: grid; gap: var(--esp-3); }
@@ -98,13 +95,13 @@
 /* Rodapé fixo da negociação: a ação principal fica no alcance do polegar, acima da navegação. */
 .negociar {
   position: sticky;
-  bottom: calc(var(--alvo) + var(--esp-2));
+  bottom: calc(var(--alvo) + var(--esp-4));  /* altura da .nav-inferior */
   display: grid;
   gap: var(--esp-3);
   margin: 0 calc(var(--esp-4) * -1);
   padding: var(--esp-4);
   border-top: var(--borda) solid var(--cor-linha);
-  border-radius: var(--raio-sheet) var(--raio-sheet) 0 0;
+  border-radius: var(--raio-cartao) var(--raio-cartao) 0 0;
   background: var(--cor-superficie);
   z-index: 1;
 }
@@ -230,15 +227,8 @@
 }
 
 /* Comparador: uma coluna por proposta, lado a lado, mesma ordem de linhas para o olho comparar na horizontal. */
-/* As colunas se separam por uma linha fina à esquerda, não por caixa: o olho corre na horizontal. */
-.comparador { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--largura-proposta), 1fr)); gap: var(--esp-6); }
-.proposta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--esp-3);
-  padding-left: var(--esp-4);
-  border-left: var(--borda) solid var(--cor-linha);
-}
+.comparador { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--largura-proposta), 1fr)); gap: var(--esp-4); }
+.proposta { display: flex; flex-direction: column; gap: var(--esp-3); }
 .proposta__destaques { display: flex; flex-wrap: wrap; gap: var(--esp-1); min-height: var(--esp-6); }
 .proposta__destaque { font-size: var(--tam-legenda); font-weight: var(--peso-forte); line-height: var(--esp-6); }
 .proposta__destaque + .proposta__destaque::before { content: "/"; margin-right: var(--esp-1); color: var(--cor-texto-secundario); font-weight: var(--peso-normal); }

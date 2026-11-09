@@ -1,6 +1,6 @@
 /*
- * Fretaí: tokens de tema. Fonte: docs/briefing-design-figma.md, seção 4, reduzida a "folha":
- * tinta sobre fundo, uma cor de estado por vez, e o amarelo só na linha de rota.
+ * Fretaí: tokens de tema. Fonte: docs/briefing-design-figma.md, seção 4: tinta sobre fundo, conteúdo
+ * em cartões, uma cor de estado por vez, e o amarelo só na linha de rota.
  * Fora deste arquivo nenhuma regra digita cor, tamanho, raio ou duração; tudo passa por var(--...).
  *
  * Contrastes calculados pela fórmula WCAG 2.x (luminância relativa), nos pares que a árvore renderiza.
@@ -9,6 +9,8 @@
  *          perigo/fundo 5.22 · perigo/superfície 5.46 · info/fundo 6.09 · borda-campo/superfície 3.25
  *   escuro texto/fundo 15.76 · texto-sec/fundo 7.61 · garantido/fundo 7.62 · alerta/fundo 7.66
  *          perigo/fundo 6.47 · perigo/superfície 5.74 · info/fundo 7.29 · borda-campo/superfície 3.30
+ *   cartão claro (#FFFFFF): texto 16.52 · texto-sec 6.13 · garantido 5.38 · alerta 5.18 · perigo 5.46 · info 6.37
+ *   cartão escuro (superfície): texto 13.99 · texto-sec 6.76 · garantido 6.76 · alerta 6.80 · info 6.47
  *   ambos  botão primário (fundo sobre texto) 15.8 · faixa/asfalto 8.55 no claro, 12.46 no escuro
  */
 
@@ -16,9 +18,9 @@
   color-scheme: light;
 
   /* Cores, modo claro: padrão da empresa (escritório, várias abas). */
-  /* Fundo quase neutro: o creme de antes lia como papel, e a folha não quer textura. */
+  /* Fundo quase neutro: o creme de antes lia como papel. */
   --cor-fundo: #FAFAF8;
-  --cor-superficie: #FFFFFF;      /* só campo, barra fixa e folha de negociação: nada de card */
+  --cor-superficie: #FFFFFF;      /* cartão, campo e folha de negociação */
   --cor-linha: #E6E4DF;           /* só divisória decorativa; contorno de controle usa --cor-borda-campo */
   --cor-borda-campo: #8A8F98;
   --cor-texto: #1C1F24;
@@ -83,15 +85,16 @@
   --esp-8: 32px;
   --esp-12: 48px;
 
-  /* Raio: só campo e botão (4) e a folha de negociação (12). O raio de card saiu com os cards:
-     o conteúdo se separa por espaço e por uma linha fina, não por caixa. */
+  /* Raio. 4 fica no que imita sinalização (pista, marco de km, placa, código Pix, barra do medidor):
+     placa de rodovia tem canto quase vivo. O resto segue o desenho dos apps de entrega e corrida. */
   --raio-campo: 4px;
-  --raio-sheet: 12px;
+  /* Campo de texto e select: 3/4 do cartão, para o campo dentro do cartão ler como da mesma família. */
+  --raio-controle: 12px;
 
-  /* Sem sombra e sem caixa no app: a hierarquia é feita por tamanho, peso e espaço. Abstenção. */
-  /* Departure (2026-11-07), só nas telas públicas (início, entrar, cadastro): o dono do
-     produto pediu um site atraente e fácil, na linha de iFood, Uber e 99. Lá cada assunto vive num
-     cartão arredondado e a ação principal é pílula, que se acha com o polegar. */
+  /* Cartão e pílula (2026-11-07). O dono do produto pediu um site atraente e fácil, na linha de iFood,
+     Uber e 99. Começou nas telas públicas e foi para o app logado, para quem entra não sentir que
+     mudou de produto: cada frete, cada bloco do detalhe e cada proposta é um cartão, e todo botão,
+     filtro e seletor é pílula, que se acha com o polegar. */
   --raio-cartao: 16px;
   --raio-pilula: 999px;
   /* Sombra curta e uma longa, da cor do texto: o cartão sai do fundo claro sem borda. */

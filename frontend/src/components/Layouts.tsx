@@ -43,6 +43,19 @@ function BotaoSair() {
   )
 }
 
+/** Ícones da barra inferior, no traço do botão de tema. O rótulo vem sempre junto: ícone sozinho não diz. */
+function IconeNav({ tipo }: { tipo: 'buscar' | 'meus' }) {
+  return (
+    <svg className="nav-inferior__icone" viewBox="0 0 20 20" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      {tipo === 'buscar' ? (
+        <><circle cx="8.5" cy="8.5" r="5" /><path d="M12.2 12.2 17 17" /></>
+      ) : (
+        <><rect x="4" y="3" width="12" height="14" rx="2" /><path d="M7.5 7.5h5M7.5 10.5h5M7.5 13.5h3" /></>
+      )}
+    </svg>
+  )
+}
+
 function FaixaDemo() {
   if (!MODO_DEMO) return null
   return <p className="faixa-demo">Modo demonstração: dados de exemplo, nada é gravado.</p>
@@ -65,10 +78,10 @@ export function LayoutMotorista() {
       {/* Navegação no alcance do polegar. Carteira e Perfil entram quando as telas existirem. */}
       <nav className="nav-inferior" aria-label="Principal">
         <NavLink to="/motorista" end className="nav-inferior__item">
-          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}Fretes</>}
+          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="buscar" />Fretes</>}
         </NavLink>
         <NavLink to="/motorista/meus-fretes" className="nav-inferior__item">
-          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}Meus fretes</>}
+          {({ isActive }) => <>{isActive && <Indicador id="nav-motorista" forma="linha-topo" />}<IconeNav tipo="meus" />Meus fretes</>}
         </NavLink>
       </nav>
     </div>

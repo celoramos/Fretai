@@ -213,7 +213,7 @@ export function Cadastro() {
                 {erroGeral && <Aviso tom={problema.status === 409 ? 'alerta' : 'perigo'} titulo={problema.title}>{problema.detail}</Aviso>}
               </div>
 
-              <button type="submit" className="botao botao--primario botao--largo botao--pilula" disabled={enviando}>
+              <button type="submit" className="botao botao--primario botao--largo" disabled={enviando}>
                 {enviando ? 'Criando a conta…' : 'Criar conta'}
               </button>
               <p className="formulario__troca">Já tem conta? <Link to="/entrar">Entrar</Link></p>

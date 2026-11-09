@@ -63,12 +63,12 @@ function Lista({ itens, fretes, aba }: { itens: Proposta[]; fretes: Record<strin
     return <Vazio titulo={textos[aba]} acao={<Link to="/motorista" className="botao botao--primario">Procurar fretes</Link>} />
   }
   return (
-    <motion.ul key={aba} className="lista-linhas" variants={lista} initial="oculta" animate="visivel">
+    <motion.ul key={aba} className="lista-cartoes" variants={lista} initial="oculta" animate="visivel">
       {itens.map((p) => {
         const f = fretes[p.freteId]
         return (
           <motion.li key={p.id} variants={item}>
-            <Link to={`/motorista/fretes/${p.freteId}`} className="linha-frete">
+            <Link to={`/motorista/fretes/${p.freteId}`} className="linha-frete cartao">
               <span className="linha-frete__rota">{f ? `${f.coleta.cidade}/${f.coleta.uf} → ${f.entrega.cidade}/${f.entrega.uf}` : 'Frete'}</span>
               <span className="linha-frete__valor">R$&nbsp;{reais(p.valor)}</span>
               <span className="linha-frete__meta">

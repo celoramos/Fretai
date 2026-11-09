@@ -101,7 +101,7 @@ export function Vazio({ titulo, children, acao }: { titulo: string; children?: R
 /** Esqueleto no formato do conteúdo que vai chegar, para a página não pular. */
 export function Esqueleto({ linhas = 3 }: { linhas?: number }) {
   return (
-    <div className="esqueleto" aria-hidden="true">
+    <div className="esqueleto cartao" aria-hidden="true">
       {Array.from({ length: linhas }, (_, i) => (
         <span key={i} className="esqueleto__linha" />
       ))}

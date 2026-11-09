@@ -42,7 +42,7 @@ export function FreteMotorista() {
   return (
     <div className="frete-m">
       <Link to={meu ? '/motorista/meus-fretes' : '/motorista'} className="voltar">Voltar</Link>
-      <header className="frete-m__cabeca">
+      <header className="frete-m__cabeca cartao">
         <div className="frete-m__status">
           <StatusFreteEtiqueta status={frete.status} visao="motorista" />
           {garantido && <SeloGarantido />}
@@ -51,7 +51,7 @@ export function FreteMotorista() {
         <RotaLinha coleta={frete.coleta} entrega={frete.entrega} distanciaKm={frete.distanciaKm} estimada={frete.distanciaEstimada} grande />
       </header>
 
-      <section className="bloco frete-m__valor" aria-label="Valor">
+      <section className="bloco cartao frete-m__valor" aria-label="Valor">
         {valor == null || (frete.valorACombinar && !frete.valorAcordado) ? (
           <p className="card-frete__combinar">A combinar</p>
         ) : (
@@ -69,7 +69,7 @@ export function FreteMotorista() {
       </section>
 
       {meu && !aberto && (
-        <section className="bloco" aria-labelledby="andamento">
+        <section className="bloco cartao" aria-labelledby="andamento">
           <h2 id="andamento" className="bloco__titulo">Andamento</h2>
           <MedidorGarantia pagamento={pagamento} />
           <Acoes frete={frete} pagamento={pagamento} aoMudar={recarregar} />
@@ -77,7 +77,7 @@ export function FreteMotorista() {
         </section>
       )}
 
-      <section className="bloco" aria-labelledby="carga">
+      <section className="bloco cartao" aria-labelledby="carga">
         <h2 id="carga" className="bloco__titulo">Carga e coleta</h2>
         <dl className="ficha">
           <div><dt>Coleta</dt><dd>{dataCurta(frete.dataColeta)}{frete.feriado ? ` · feriado${frete.nomeFeriado ? ` (${frete.nomeFeriado})` : ''}` : ''}{frete.domingo ? ' · domingo' : ''}</dd></div>
@@ -94,7 +94,7 @@ export function FreteMotorista() {
         </dl>
       </section>
 
-      <section className="bloco" aria-labelledby="empresa">
+      <section className="bloco cartao" aria-labelledby="empresa">
         <h2 id="empresa" className="bloco__titulo">{frete.publicadoPorAgenciador ? 'Agenciador' : 'Empresa'}</h2>
         <Reputacao nome={frete.empresa?.razaoSocial ?? frete.cliente?.nome ?? 'Cliente pessoa física'} perfil={perfil ?? undefined} />
         {perfil && <p className="detalhe">Na plataforma desde {new Date(perfil.naPlataformaDesde).getFullYear()} · {perfil.fretesConcluidos} fretes concluídos</p>}

@@ -1,10 +1,9 @@
 /* Página pública. Só var(--...) daqui para baixo. Carrega junto com a rota (src/pages/Inicio.tsx),
-   então o app logado não paga por ela. Raio de cartão, pílula e sombra são a Departure registrada
-   em tokens.css: aqui o conteúdo vive em cartões, como nos apps de entrega e corrida. */
+   então o app logado não paga por ela. Cartão, pílula e sombra vêm de tokens.css, os mesmos do app. */
 
 .inicio { --alvo: var(--alvo-motorista); min-height: 100dvh; background: var(--cor-fundo); }
 
-.inicio__pilula { border-radius: var(--raio-pilula); padding: 0 var(--esp-6); }
+.inicio__pilula { padding: 0 var(--esp-6); }
 
 /* ---------- topo ---------- */
 .inicio__topo {
@@ -33,9 +32,8 @@
   padding: var(--esp-8) var(--esp-6) var(--esp-12);
 }
 .inicio__chamada { display: grid; gap: var(--esp-6); align-content: center; }
-.inicio__publico { justify-self: start; border-radius: var(--raio-pilula); }
+.inicio__publico { justify-self: start; }
 .inicio__publico .segmentado__opcao { padding: 0 var(--esp-6); border-radius: var(--raio-pilula); }
-.inicio__publico .segmentado__opcao + .segmentado__opcao { border-left: 0; }
 .inicio__texto { display: grid; gap: var(--esp-4); justify-items: start; }
 .inicio__titulo {
   font-family: var(--fonte-placa);

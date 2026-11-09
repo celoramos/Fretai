@@ -12,7 +12,7 @@
   min-height: var(--alvo);
   padding: 0 var(--esp-4);
   border: var(--borda) solid transparent;
-  border-radius: var(--raio-campo);
+  border-radius: var(--raio-pilula);
   font-weight: var(--peso-forte);
   text-decoration: none;
   cursor: pointer;
@@ -21,10 +21,8 @@
 .botao:disabled { cursor: not-allowed; opacity: var(--opac-desabilitado); }
 .botao--largo { width: 100%; }
 .botao--icone { padding: 0; width: var(--alvo); }
-/* Pílula: a ação principal das telas públicas (início, entrar, cadastro). Departure em tokens.css. */
-.botao--pilula { border-radius: var(--raio-pilula); }
 /* Botão do Google da demonstração. O oficial (Google Identity Services) desenha o próprio botão. */
-.botao--google { width: 100%; border-radius: var(--raio-pilula); }
+.botao--google { width: 100%; }
 .botao--google__demo { font-size: var(--tam-legenda); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
 .google-oficial { min-height: var(--alvo); display: grid; justify-items: center; }
 
@@ -54,7 +52,7 @@
   min-height: var(--alvo);
   padding: 0 var(--esp-3);
   border: var(--borda) solid var(--cor-borda-campo);
-  border-radius: var(--raio-campo);
+  border-radius: var(--raio-controle);
   background: var(--cor-superficie);
 }
 .campo__entrada:hover { border-color: var(--cor-texto); }
@@ -271,12 +269,8 @@
 .vazio__texto { color: var(--cor-texto-secundario); max-width: 40ch; }
 .vazio .botao { margin-top: var(--esp-2); }
 
-.esqueleto {
-  display: grid;
-  gap: var(--esp-3);
-  padding: var(--esp-6) 0;
-  border-top: var(--borda) solid var(--cor-linha);
-}
+/* O esqueleto tem a forma do cartão que vai chegar, para a página não pular. */
+.esqueleto { display: grid; gap: var(--esp-3); }
 .esqueleto__linha { height: var(--esp-4); border-radius: var(--raio-campo); background: var(--cor-linha); animation: pulso var(--dur-pulso) ease-in-out infinite alternate; }
 .esqueleto__linha:nth-child(2n) { width: 70%; }
 .esqueleto__linha:first-child { height: var(--esp-6); }
@@ -288,7 +282,7 @@
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
   border: var(--borda) solid var(--cor-borda-campo);
-  border-radius: var(--raio-campo);
+  border-radius: var(--raio-pilula);
   overflow: hidden;
 }
 .segmentado__opcao {
@@ -301,7 +295,6 @@
   font-size: var(--tam-corpo);
   cursor: pointer;
 }
-.segmentado__opcao + .segmentado__opcao { border-left: var(--borda) solid var(--cor-borda-campo); }
 .segmentado__opcao:hover { background: var(--cor-linha); }
 .segmentado__opcao:active { background: var(--cor-borda-campo); }
 .segmentado__opcao[aria-pressed="true"] { color: var(--cor-fundo); }
@@ -318,7 +311,7 @@
   min-height: var(--alvo);
   padding: 0 var(--esp-3);
   border: var(--borda) solid var(--cor-linha);
-  border-radius: var(--raio-campo);
+  border-radius: var(--raio-pilula);
   background: transparent;
   color: var(--cor-texto-secundario);
   font-weight: var(--peso-medio);
@@ -359,6 +352,17 @@
 .indicador--linha-topo { left: 0; right: 0; top: calc(var(--borda-forte) * -1); height: var(--borda-forte); z-index: 0; }
 .abas__n { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); font-variant-numeric: tabular-nums; }
 
+/* ---------- cartão ----------
+   Cada assunto num cartão, como nos apps de entrega e corrida: superfície, raio e sombra (tokens.css). */
+.cartao {
+  padding: var(--esp-4);
+  background: var(--cor-superficie);
+  border-radius: var(--raio-cartao);
+  box-shadow: var(--sombra-cartao);
+}
+.lista-cartoes { display: grid; gap: var(--esp-3); }
+@media (min-width: 900px) { .cartao { padding: var(--esp-6); } }
+
 /* ---------- listas e fichas ---------- */
 .ficha { display: grid; gap: var(--esp-2); }
 .ficha > div { display: grid; grid-template-columns: minmax(0, 10ch) minmax(0, 1fr); gap: var(--esp-3); }
@@ -388,20 +392,14 @@
 .tabela__rota { display: block; font-family: var(--fonte-placa); font-weight: var(--peso-placa); font-size: var(--tam-corpo); color: var(--cor-texto); text-decoration: none; }
 .tabela__sub { color: var(--cor-texto-secundario); }
 .tabela__rota-cel { display: grid; justify-items: start; gap: var(--esp-1); }
-.tabela__motorista { display: inline-flex; align-items: center; gap: var(--esp-2); }
+.tabela__motorista { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); }
+.tabela .tabela__data { white-space: nowrap; }
 
-/* ---------- frete na lista (motorista) ----------
-   Sem caixa: cada frete é um trecho entre linhas finas, como a lista de "Meus fretes". */
-.card-frete {
-  position: relative;
-  display: grid;
-  gap: var(--esp-3);
-  padding: var(--esp-6) 0;
-  border-top: var(--borda) solid var(--cor-linha);
-}
+/* ---------- frete na lista (motorista) ---------- */
+.card-frete { position: relative; display: grid; gap: var(--esp-3); }
 .card-frete:hover .rota__cidade { text-decoration: underline; }
 /* O link cobre o frete inteiro; o anel de foco aparece em volta dele, não num ponto invisível. */
-.card-frete__link { position: absolute; inset: 0; z-index: 1; }
+.card-frete__link { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
 .card-frete__perto { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
 .card-frete__dinheiro { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-2) var(--esp-3); }
 .card-frete__porkm { color: var(--cor-texto-secundario); font-variant-numeric: tabular-nums; font-weight: var(--peso-medio); }

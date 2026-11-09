@@ -120,7 +120,7 @@ export function Entrar() {
             )}
           </div>
 
-          <button type="submit" className="botao botao--primario botao--largo botao--pilula" disabled={enviando}>
+          <button type="submit" className="botao botao--primario botao--largo" disabled={enviando}>
             {enviando ? 'Entrando…' : 'Entrar'}
           </button>
 

@@ -59,7 +59,7 @@ export function FretesEmpresa() {
         <Vazio titulo={`Nada em “${filtro.rotulo}”.`} acao={<button type="button" className="botao botao--secundario" onClick={() => setParams({})}>Ver todos</button>} />
       )}
       {visiveis.length > 0 && (
-        <div className="tabela-rolagem">
+        <div className="tabela-rolagem cartao">
           <table className="tabela">
             <thead>
               <tr>
@@ -84,7 +84,7 @@ export function FretesEmpresa() {
                         {f.distanciaKm != null && <Km km={f.distanciaKm} />}
                       </div>
                     </td>
-                    <td>{dataCurta(f.dataColeta)}</td>
+                    <td className="tabela__data">{dataCurta(f.dataColeta)}</td>
                     <td className="tabela__num">{valor != null && !(f.valorACombinar && !f.valorAcordado) ? `R$ ${reais(valor)}` : 'A combinar'}</td>
                     <td><StatusFreteEtiqueta status={f.status} visao="empresa" /></td>
                     <td>{f.motorista ? <span className="tabela__motorista">{f.motorista.nome}{f.motorista.placa && <Placa placa={f.motorista.placa} />}</span> : <span className="tabela__sub">—</span>}</td>

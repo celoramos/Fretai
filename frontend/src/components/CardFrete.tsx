@@ -10,7 +10,7 @@ import { item } from '../movimento'
 export function CardFrete({ frete, distanciaOrigemKm, perfil }: { frete: Frete; distanciaOrigemKm: number; perfil?: PerfilEmpresa }) {
   const valor = frete.valorTotal ?? frete.valor
   return (
-    <motion.article className="card-frete" variants={item}>
+    <motion.article className="card-frete cartao" variants={item}>
       <Link to={`/motorista/fretes/${frete.id}`} className="card-frete__link">
         <span className="visualmente-oculto">Ver frete de {frete.coleta.cidade} para {frete.entrega.cidade}</span>
       </Link>

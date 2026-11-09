@@ -44,7 +44,7 @@ export function DetalheFreteEmpresa() {
   return (
     <div className="detalhe-e">
       <Link to="/empresa" className="voltar">Todos os fretes</Link>
-      <header className="detalhe-e__cabeca">
+      <header className="detalhe-e__cabeca cartao">
         <div className="detalhe-e__linha-status">
           <StatusFreteEtiqueta status={frete.status} visao="empresa" />
           {garantido && <SeloGarantido />}
@@ -113,7 +113,7 @@ function Comparador({ frete, propostas, aoMudar }: { frete: Frete; propostas: Pr
         </div>
       )}
       {respondidas.length > 0 && (
-        <section className="respondidas" aria-labelledby="respondidas">
+        <section className="respondidas cartao" aria-labelledby="respondidas">
           <h2 id="respondidas" className="bloco__titulo">Respondidas</h2>
           <ul className="lista-linhas">
             {respondidas.map((p) => (
@@ -149,7 +149,7 @@ function ColunaProposta({ frete, proposta: p, perfil, destaques, aoMudar }: { fr
   }
 
   return (
-    <article className="proposta" aria-labelledby={`prop-${p.id}`}>
+    <article className="proposta cartao" aria-labelledby={`prop-${p.id}`}>
       <p className="proposta__destaques">{destaques.map((d) => <span key={d} className="proposta__destaque">{d}</span>)}</p>
       <h3 id={`prop-${p.id}`} className="proposta__nome">{p.motorista.nome}</h3>
       <p className="proposta__reputacao">
@@ -238,7 +238,7 @@ function PainelPagamento({ frete, pagamento, aoMudar }: { frete: Frete; pagament
   }
   if (!pagamento) {
     return (
-      <div className="pagamento-e" aria-live="polite">
+      <div className="pagamento-e cartao" aria-live="polite">
         <Aviso tom="info" titulo="Gere o Pix para o motorista poder carregar.">
           O valor fica retido no provedor de pagamento. O adiantamento sai na saída e o saldo com o canhoto.
         </Aviso>
@@ -248,7 +248,7 @@ function PainelPagamento({ frete, pagamento, aoMudar }: { frete: Frete; pagament
     )
   }
   return (
-    <div className="pagamento-e">
+    <div className="pagamento-e cartao">
       <MedidorGarantia pagamento={pagamento} />
       {pagamento.status === 'PENDENTE' && (
         <div className="pix">
@@ -277,7 +277,7 @@ function PainelPagamento({ frete, pagamento, aoMudar }: { frete: Frete; pagament
 function Historico({ eventos }: { eventos: EventoFrete[] }) {
   if (eventos.length === 0) return <Vazio titulo="Nada registrado ainda.">Cada mudança de situação deste frete aparece aqui, com data, hora e quem fez.</Vazio>
   return (
-    <div className="tabela-rolagem">
+    <div className="tabela-rolagem cartao">
       <table className="tabela">
         <thead>
           <tr><th scope="col">Quando</th><th scope="col">Mudança</th><th scope="col">Quem</th><th scope="col">Observação</th></tr>
