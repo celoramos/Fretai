@@ -36,6 +36,8 @@
      asfalto dá 8.55. É o que faz a assinatura funcionar no claro. No escuro o asfalto muda (abaixo). */
   --cor-asfalto: #2A2F38;
   --cor-foco: #1F5FAD;
+  /* Corpo da carreta da marca (components/Marca.tsx): asfalto no claro, 12.86 sobre o fundo. */
+  --cor-marca: var(--cor-asfalto);
   --cor-neutro-medidor: #E6E4DF;
   /* Acostamento: borda da pista. No claro o asfalto já se separa do fundo (12.86), então some. */
   --cor-acostamento: transparent;
@@ -141,6 +143,8 @@
      a borda da pista; o tracejado sobre ele fica em 12.46. */
   --cor-asfalto: #0A0C0F;
   --cor-acostamento: #4A5160;
+  /* No escuro o asfalto (#0A0C0F) some no fundo; a carreta vira cor do texto, como a versão "escuro" do logo. */
+  --cor-marca: var(--cor-texto);
   --cor-neutro-medidor: #2A2F3A;
   /* No escuro sombra não aparece: o cartão se separa pela superfície mais clara e um contorno. */
   --sombra-cartao: 0 0 0 var(--borda) var(--cor-linha);
