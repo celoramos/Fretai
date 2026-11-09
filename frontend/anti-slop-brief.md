@@ -17,7 +17,7 @@ Campos dos DTOs da API (`src/api/tipos.ts`), rótulos de status da seção 6 do 
 
 ## Rota tomada
 
-**Folha** (tomada, substitui "Placa"): a linha de rota, uma faixa de asfalto com tracejado amarelo e o km no meio, continua como assinatura, e agora é a única coisa amarela da tela. Ela aparece inteira no card e no detalhe de cada frete. Nas listas aparece em miniatura, só o marco de km sobre asfalto. No login, vira a pista vertical que explica o caminho do dinheiro (km 0, saída, entrega). Também está no ícone. O resto é tipografia e espaço:
+**Folha** (tomada, substitui "Placa"; em 2026-11-07 o app trocou as linhas finas por cartões, ver "App logado"): a linha de rota, uma faixa de asfalto com tracejado amarelo e o km no meio, continua como assinatura, e agora é a única coisa amarela da tela. Ela aparece inteira no card e no detalhe de cada frete. Nas listas aparece em miniatura, só o marco de km sobre asfalto. No login, vira a pista vertical que explica o caminho do dinheiro (km 0, saída, entrega). Também está no ícone. O resto é tipografia e espaço:
 
 - a ação principal é tinta cheia;
 - estado é ponto e palavra;
@@ -32,13 +32,24 @@ Não tomadas:
 
 ## Página pública (2026-11-07)
 
-Pedido do dono do produto: um site atraente e fácil de entender, simples mas com informação suficiente, com os apps de entrega e corrida (iFood, Uber, 99) como referência e as mesmas cores. Isso muda a raiz 3 só na página pública: lá o conteúdo vive em cartões arredondados, a ação principal é pílula e há sombra no claro (Departure em `tokens.css`). O app logado continua na Folha até o redesenho das telas.
+Pedido do dono do produto: um site atraente e fácil de entender, simples mas com informação suficiente, com os apps de entrega e corrida (iFood, Uber, 99) como referência e as mesmas cores. Isso muda a raiz 3 só na página pública: lá o conteúdo vive em cartões arredondados, a ação principal é pílula e há sombra no claro (Departure em `tokens.css`). O app logado seguiu no mesmo dia (seção abaixo).
 
 Das referências vieram padrões, não a cara: a escolha de público no topo ("Sou motorista" / "Tenho carga"), a ação grande logo abaixo do título, o produto mostrado funcionando ao lado (um frete e um pagamento de exemplo, marcados "Exemplo") e as dúvidas em lista que abre. A assinatura continua a pista: em "Como o dinheiro anda" ela se desenha conforme a rolagem (GSAP, ScrollTrigger), parando em km 0, saída e entrega.
 
 Logo: a carreta-pista do dono do produto (2026-11-07), símbolo sem nome, em `src/components/Marca.tsx` e `design/marca/`. O nome ao lado é texto provisório.
 
 Colisão, testada contra a página de uma vitrine de fretes: foto de caminhão na abertura, números de tração ("+ de 500 mil motoristas"), três cartões com ícone e azul. Respostas: sem foto, a abertura é um frete de exemplo; nenhum número de tração, porque não existe nenhum; os cartões são quatro, um por proteção do inventário, cada um mostrando o pedaço real da interface no lugar de ícone.
+
+## App logado (2026-11-07)
+
+O motorista e a empresa passaram para o desenho da página pública, para quem entra não sentir que trocou de produto. Da Folha ficou a assinatura (rota em asfalto, km, placa) e a regra de cor: amarelo só na rota, estado só no texto. Mudou o resto:
+
+- cada frete da busca, cada item de "Meus fretes", cada bloco do detalhe, cada proposta, o pagamento e a tabela da empresa vivem num cartão (superfície, raio 16, sombra no claro e contorno no escuro);
+- todo botão, filtro e seletor de raio é pílula; campo de texto e select têm raio 12;
+- a barra de baixo do motorista ganhou ícone acima do rótulo, como nos apps de entrega;
+- pista, marco de km, placa e código Pix ficam com canto de 4, porque imitam sinalização.
+
+Os contrastes sobre o cartão estão calculados em `tokens.css`.
 
 ## Teste de colisão
 
