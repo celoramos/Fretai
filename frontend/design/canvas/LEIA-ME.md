@@ -10,5 +10,7 @@ Claude em 2026-11-09. O que implementar está em
 - O `data-props` do script lista as etapas que o canvas deixa ver (`etapa`, `cenario`).
 - Telas com `-PC` são do computador; sem `-PC`, do celular (390×844).
 - `canvas.json` é a organização do canvas (posição e título de cada tela).
-- Não rodam fora do canvas: servem de referência de layout, texto e comportamento.
-  Não importar no app.
+- Servem de referência de layout, texto e comportamento. Não importar no app.
+- `support.js` é um runtime mínimo, nosso, para abrir as telas no navegador sem o canvas: com
+  `npm run demo` rodando, `http://localhost:5173/design/canvas/<Tela>.dc.html`, e a etapa
+  pela URL (`?etapa=PAGO`, `?cenario=propostas`, `?perfil=motorista`).
