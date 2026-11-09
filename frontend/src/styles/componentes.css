@@ -629,3 +629,25 @@
   /* O canvas usa 40px no computador; o degrau mais perto da escala é o título (36 a partir de 1024px). */
   .cabecalho-pagina__titulo { font-size: var(--tam-titulo); }
 }
+
+/* ---------- opção em cartão ----------
+   Rádio com título e texto numa linha de cartão (tamanho do veículo no cadastro e no pedido). A escolhida
+   ganha o contorno de tinta, como no canvas. */
+.opcoes { display: grid; gap: var(--esp-3); }
+.opcao {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: var(--alvo);
+  padding: var(--esp-3) var(--esp-4);
+  background: var(--cor-superficie);
+  border: var(--borda) solid var(--cor-linha);
+  border-radius: var(--raio-controle);
+  cursor: pointer;
+}
+.opcao:hover { border-color: var(--cor-borda-campo); }
+.opcao:has(input:checked) { border-color: var(--cor-texto); box-shadow: inset 0 0 0 var(--borda) var(--cor-texto); }
+.opcao input { flex: none; width: var(--esp-6); height: var(--esp-6); margin: 0; accent-color: var(--cor-texto); }
+.opcao__texto { display: grid; gap: var(--esp-1); min-width: 0; }
+.opcao__texto strong { font-weight: var(--peso-forte); }
+.opcao__texto span { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }

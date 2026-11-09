@@ -272,43 +272,53 @@
 /* Senha nova: só a coluna do formulário, no meio. */
 .entrar--so-form { justify-items: center; }
 
-/* ---------- cadastro ---------- */
-/* Uma coluna no centro, como no login dos apps de corrida: um passo por vez (perfil, depois dados). */
-.cadastro { --alvo: var(--alvo-motorista); min-height: 100dvh; display: grid; place-items: start center; padding: var(--esp-8) var(--esp-6); }
-.cadastro__caixa { width: 100%; max-width: var(--largura-coluna-celular); display: grid; gap: var(--esp-6); }
-.cadastro__passo { display: grid; gap: var(--esp-4); }
-.cadastro__pergunta { font-size: var(--tam-bloco); margin-top: var(--esp-2); }
-.cadastro__perfis { display: grid; gap: var(--esp-3); }
+/* ---------- cadastro ----------
+   Como no canvas: barra de cima no computador, uma coluna no meio, os dois perfis lado a lado e o
+   formulário num cartão. No celular o botão Criar conta fica preso embaixo. */
+.cadastro { --alvo: var(--alvo-motorista); min-height: 100dvh; display: flex; flex-direction: column; }
+.cadastro .topo-app .formulario__troca { margin: 0; }
+.cadastro__caixa { flex: 1; width: 100%; max-width: var(--largura-coluna-celular); margin: 0 auto; display: grid; align-content: start; gap: var(--esp-4); padding: var(--esp-4) var(--esp-4) var(--esp-6); }
+.cadastro__perfis { display: grid; gap: var(--esp-3); min-width: 0; margin: 0; padding: 0; border: 0; }
 .cadastro__perfil {
   display: grid;
+  align-content: start;
   gap: var(--esp-1);
-  padding: var(--esp-4) var(--esp-6);
-  text-align: left;
+  padding: var(--esp-4);
   color: var(--cor-texto-secundario);
   background: var(--cor-superficie);
   border: var(--borda) solid var(--cor-linha);
   border-radius: var(--raio-cartao);
-  box-shadow: var(--sombra-cartao);
   cursor: pointer;
   transition: border-color var(--dur-curta) var(--curva);
 }
-.cadastro__perfil:hover { border-color: var(--cor-texto); }
-.cadastro__perfil-titulo { font-family: var(--fonte-placa); font-size: var(--tam-secao); font-weight: var(--peso-placa); color: var(--cor-texto); }
-.cadastro__voltar { justify-self: start; padding: 0 var(--esp-2); margin-left: calc(var(--esp-2) * -1); }
-.cadastro__grupo { display: grid; gap: var(--esp-4); border: 0; padding: 0; margin: 0; min-width: 0; }
-.cadastro__grupo legend { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); padding: 0; margin-bottom: var(--esp-4); }
-/* Sem linha entre os grupos: a borda de fieldset passa pela legend. O título do grupo já separa. */
-.cadastro__grupo + .cadastro__grupo { margin-top: var(--esp-4); }
+.cadastro__perfil:hover { border-color: var(--cor-borda-campo); }
+.cadastro__perfil:has(input:checked) { border-color: var(--cor-texto); box-shadow: inset 0 0 0 var(--borda) var(--cor-texto); }
+/* O rádio é invisível: o foco aparece no cartão inteiro. */
+.cadastro__perfil:has(input:focus-visible) { outline: var(--foco-largura) solid var(--cor-foco); outline-offset: var(--foco-recuo); }
+.cadastro__perfil-titulo { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); color: var(--cor-texto); }
+.cadastro__empresa { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.cadastro__cartao { display: grid; gap: var(--esp-4); }
+.cadastro__grupo { display: grid; gap: var(--esp-4); min-width: 0; margin: 0; padding: 0; border: 0; }
+/* Legenda flutuante: deixa de atravessar a borda do fieldset e vira o primeiro item do grid. */
+.cadastro__grupo legend { float: left; width: 100%; padding: 0; font-family: var(--fonte-placa); font-size: var(--tam-secao); font-weight: var(--peso-placa); }
+/* O fio entre os dados da pessoa e o veículo fica no topo do grupo, por cima da legenda. */
+.cadastro__veiculo { padding-top: var(--esp-6); background: linear-gradient(var(--cor-linha), var(--cor-linha)) top / 100% var(--borda) no-repeat; }
+.cadastro__par { display: grid; gap: var(--esp-4); }
 .cadastro__opcoes { display: grid; gap: var(--esp-2); }
 .cadastro__opcao { display: flex; align-items: center; gap: var(--esp-3); min-height: var(--alvo); cursor: pointer; }
 .cadastro__opcao input { width: var(--esp-6); height: var(--esp-6); accent-color: var(--cor-texto); }
 .cadastro__google { color: var(--cor-texto-secundario); }
 .cadastro__google strong { color: var(--cor-texto); }
 .campo__entrada--placa { font-family: var(--fonte-mono); text-transform: uppercase; }
-/* Pessoa física: entrada secundária, abaixo dos dois perfis grandes. */
-.cadastro__avulso { display: grid; gap: var(--esp-2); justify-items: start; margin-top: var(--esp-2); color: var(--cor-texto-secundario); }
-.cadastro__aceite { color: var(--cor-texto-secundario); font-size: var(--tam-detalhe); }
+.cadastro__aceite { display: flex; align-items: center; gap: var(--esp-3); min-height: var(--alvo); color: var(--cor-texto); cursor: pointer; }
+.cadastro__aceite input { flex: none; width: var(--esp-6); height: var(--esp-6); margin: 0; accent-color: var(--cor-texto); }
 .cadastro__aceite a { color: var(--cor-texto); }
+.cadastro__rodape { position: sticky; bottom: 0; padding: var(--esp-3) var(--esp-4) calc(var(--esp-3) + env(safe-area-inset-bottom)); background: var(--cor-fundo); border-top: var(--borda) solid var(--cor-linha); }
+@media (min-width: 900px) {
+  .cadastro__caixa { gap: var(--esp-6); padding: var(--esp-8) var(--esp-6) var(--esp-12); }
+  .cadastro__perfis, .cadastro__par { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .cadastro .cabecalho-pagina__voltar { display: none; }
+}
 
 .entrar__demo { display: grid; gap: var(--esp-2); padding-top: var(--esp-4); border-top: var(--borda) solid var(--cor-linha); font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
 .entrar__demo-botoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); }

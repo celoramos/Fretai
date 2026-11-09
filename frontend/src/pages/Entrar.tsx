@@ -154,7 +154,7 @@ export function Entrar() {
             <button type="submit" className="botao botao--primario botao--largo" disabled={enviando}>
               {enviando ? 'Entrando…' : 'Entrar'}
             </button>
-            {GOOGLE_DISPONIVEL && <BotaoGoogle texto="signin_with" aoReceber={comGoogle} />}
+            {GOOGLE_DISPONIVEL && <BotaoGoogle texto="continue_with" aoReceber={comGoogle} />}
 
             <p className="formulario__troca">Não tem conta? <Link to="/cadastro">Criar conta</Link></p>
 

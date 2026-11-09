@@ -32,7 +32,7 @@ function carregarGoogle(): Promise<GoogleId> {
   return script
 }
 
-export function BotaoGoogle({ texto, aoReceber }: { texto: 'signin_with' | 'signup_with'; aoReceber: (credencial: string) => void }) {
+export function BotaoGoogle({ texto, aoReceber }: { texto: 'signin_with' | 'signup_with' | 'continue_with'; aoReceber: (credencial: string) => void }) {
   const lugar = useRef<HTMLDivElement>(null)
   const { tema } = useSessao()
   const [falhou, setFalhou] = useState(false)
@@ -59,7 +59,7 @@ export function BotaoGoogle({ texto, aoReceber }: { texto: 'signin_with' | 'sign
     return (
       <button type="button" className="botao botao--secundario botao--google" onClick={() => aoReceber(CREDENCIAL_DEMO)}>
         <LogoGoogle />
-        {texto === 'signup_with' ? 'Cadastrar com Google' : 'Entrar com Google'}
+        {{ signin_with: 'Entrar com Google', signup_with: 'Cadastrar com Google', continue_with: 'Continuar com Google' }[texto]}
         <span className="botao--google__demo">demonstração</span>
       </button>
     )
