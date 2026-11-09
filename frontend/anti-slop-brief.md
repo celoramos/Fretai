@@ -36,7 +36,7 @@ Pedido do dono do produto: um site atraente e fácil de entender, simples mas co
 
 Das referências vieram padrões, não a cara: a escolha de público no topo ("Sou motorista" / "Tenho carga"), a ação grande logo abaixo do título, o produto mostrado funcionando ao lado (um frete e um pagamento de exemplo, marcados "Exemplo") e as dúvidas em lista que abre. A assinatura continua a pista: em "Como o dinheiro anda" ela se desenha conforme a rolagem (GSAP, ScrollTrigger), parando em km 0, saída e entrega.
 
-Logo: provisório em `src/components/Marca.tsx` até o dono do produto mandar o definitivo.
+Logo: a carreta-pista do dono do produto (2026-11-07), símbolo sem nome, em `src/components/Marca.tsx` e `design/marca/`. O nome ao lado é texto provisório.
 
 Colisão, testada contra a página de uma vitrine de fretes: foto de caminhão na abertura, números de tração ("+ de 500 mil motoristas"), três cartões com ícone e azul. Respostas: sem foto, a abertura é um frete de exemplo; nenhum número de tração, porque não existe nenhum; os cartões são quatro, um por proteção do inventário, cada um mostrando o pedaço real da interface no lugar de ícone.
 
