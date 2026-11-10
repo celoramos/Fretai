@@ -484,7 +484,8 @@
 .andamento__ver { color: var(--cor-info); }
 
 .anteriores ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--esp-3); }
-.anteriores__cabeca { display: none; }
+/* O cabeçalho de tabela só existe no computador; os concluídos do motorista (.meus-m__cabeca) usam o mesmo. */
+.anteriores__cabeca, .meus-m__cabeca { display: none; }
 .anterior { border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao); }
 .anterior__linha {
   width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
@@ -518,11 +519,12 @@
   /* Tabela: a mesma grade no cabeçalho e em cada linha; larga demais, rola dentro da caixa. */
   .anteriores { --colunas: minmax(200px, 2fr) minmax(180px, 2fr) 100px 100px 160px var(--esp-6); border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao); overflow-x: auto; }
   .anteriores ul { gap: 0; min-width: 700px; }
-  .anteriores__cabeca {
-    display: grid; grid-template-columns: var(--colunas); gap: var(--esp-4); min-width: 700px; padding: var(--esp-3) var(--esp-6);
+  .anteriores__cabeca, .meus-m__cabeca {
+    display: grid; grid-template-columns: var(--colunas); gap: var(--esp-4); padding: var(--esp-3) var(--esp-6);
     border-bottom: var(--borda) solid var(--cor-linha);
     font-size: var(--tam-legenda); font-weight: var(--peso-placa); letter-spacing: .06em; text-transform: uppercase; color: var(--cor-texto-secundario);
   }
+  .anteriores__cabeca { min-width: 700px; }
   .anterior { border-radius: 0; background: none; box-shadow: none; }
   .anterior + .anterior { border-top: var(--borda) solid var(--cor-linha); }
   .anterior__linha { grid-template-columns: var(--colunas); grid-template-areas: none; gap: var(--esp-4); padding: var(--esp-4) var(--esp-6); border-radius: 0; }
@@ -892,29 +894,51 @@ ol.legal__itens { list-style: decimal; }
 .meus-m__nota { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
 .meus-m__dinheiro .dinheiro__parado, .meus-m__extrato { grid-column: 1 / -1; }
 .meus-m__extrato { justify-self: start; display: inline-flex; align-items: center; min-height: var(--alvo); color: var(--cor-info); font-weight: var(--peso-forte); }
-.meus-m__abas .busca-m__raio { font-size: var(--tam-detalhe); padding: 0 var(--esp-2); }
+/* As abas levam o total entre parênteses. No celular cada pílula fica com a largura do próprio texto e a
+   sobra é repartida entre as três: em colunas iguais, "Em andamento (3)" quebrava em duas linhas. */
+.meus-m__abas { display: flex; }
+.meus-m__abas .busca-m__raio { flex: 1 1 auto; font-size: var(--tam-detalhe); padding: 0 var(--esp-2); }
 .meus-m__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--esp-3); }
 .meus-m__cartao { display: grid; gap: var(--esp-3); padding: var(--esp-4); border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); color: var(--cor-texto); text-decoration: none; }
 a.meus-m__cartao:hover .card-m__titulo, .meus-m__cartao a.card-m__titulo:hover { text-decoration: underline; }
 .meus-m__cartao a.card-m__titulo { color: var(--cor-texto); text-decoration: none; }
 .meus-m__situacao { color: var(--cor-info); font-weight: var(--peso-forte); }
 .meus-m__propos { color: var(--cor-info); font-weight: var(--peso-forte); }
-.meus-m__lista--tabela { gap: 0; border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
+/* Concluídos. No celular, uma linha por frete: o que foi e a rota de um lado, o valor e o desfecho do outro.
+   No computador vira a tabela do canvas (Motorista-Fretes-PC), com a mesma grade no cabeçalho e nas linhas;
+   o desenho do cabeçalho é o dos anteriores do cliente (.anteriores__cabeca, mais acima). */
+.meus-m__tabela { border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
+.meus-m__lista--tabela { gap: 0; }
 .meus-m__lista--tabela li + li { border-top: var(--borda) solid var(--cor-linha); }
-.meus-m__linha { display: flex; justify-content: space-between; align-items: center; gap: var(--esp-3); min-height: var(--alvo); padding: var(--esp-3) var(--esp-4); color: var(--cor-texto); text-decoration: none; }
-.meus-m__linha > span { display: grid; gap: 2px; min-width: 0; }
-.meus-m__linha > span:last-child { justify-items: end; flex: none; }
-.meus-m__linha > span > span { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
-.meus-m__linha .meus-m__pago { color: var(--cor-garantido); }
-.meus-m__linha:hover strong:first-child { text-decoration: underline; }
+.meus-m__linha {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "frete valor" "rota desfecho";
+  align-items: center; gap: var(--esp-1) var(--esp-3); min-height: var(--alvo); padding: var(--esp-3) var(--esp-4);
+  color: var(--cor-texto); text-decoration: none;
+}
+.meus-m__frete { grid-area: frete; min-width: 0; overflow-wrap: anywhere; }
+.meus-m__rota { grid-area: rota; min-width: 0; font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.meus-m__data { display: none; }
+.meus-m__valor { grid-area: valor; justify-self: end; }
+.meus-m__desfecho { grid-area: desfecho; justify-self: end; font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.meus-m__desfecho--pago { color: var(--cor-garantido); }
+.meus-m__linha:hover .meus-m__frete { text-decoration: underline; }
 @media (min-width: 900px) {
   .meus-m { gap: var(--esp-6); }
   .meus-m__titulo { font-size: var(--tam-display); }
   .meus-m__dinheiro { grid-template-columns: repeat(2, minmax(0, 1fr)) auto; align-items: center; padding: var(--esp-6); }
   .meus-m__extrato { grid-column: auto; }
-  .meus-m__abas { display: flex; }
-  .meus-m__abas .busca-m__raio { padding: 0 var(--esp-6); font-size: var(--tam-corpo); }
+  .meus-m__abas .busca-m__raio { flex: none; padding: 0 var(--esp-6); font-size: var(--tam-corpo); }
   .meus-m__lista:not(.meus-m__lista--tabela) { grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: var(--esp-4); }
+  /* As colunas do canvas: frete, rota, data, valor e situação. */
+  .meus-m__tabela { --colunas: minmax(200px, 2fr) minmax(180px, 2fr) 100px 110px 100px; }
+  .meus-m__linha { grid-template-columns: var(--colunas); grid-template-areas: none; gap: var(--esp-4); padding: var(--esp-4) var(--esp-6); }
+  .meus-m__lista--tabela li:last-child .meus-m__linha { border-radius: 0 0 var(--raio-cartao) var(--raio-cartao); }
+  .meus-m__linha:hover { background: var(--cor-fundo); }
+  .meus-m__frete, .meus-m__rota, .meus-m__valor, .meus-m__desfecho { grid-area: auto; justify-self: start; }
+  .meus-m__rota { font-size: var(--tam-corpo); color: var(--cor-texto); }
+  .meus-m__data-celular { display: none; }
+  .meus-m__data { display: block; }
+  .meus-m__desfecho { font-size: var(--tam-corpo); font-weight: var(--peso-forte); }
 }
 
 /* ---------- calculadora (Motorista-Calculadora) ---------- */

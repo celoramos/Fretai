@@ -126,23 +126,14 @@ function Lista({ itens, fretes, aba, aoMudar }: { itens: Proposta[]; fretes: Rec
     }
     return <Vazio titulo={textos[aba]} acao={<Link to="/motorista" className="botao botao--primario">Procurar fretes</Link>} />
   }
+  if (aba === 'concluidos') return <Concluidos itens={itens} fretes={fretes} />
   return (
-    <motion.ul key={aba} className={aba === 'concluidos' ? 'meus-m__lista meus-m__lista--tabela' : 'meus-m__lista'} variants={lista} initial="oculta" animate="visivel">
+    <motion.ul key={aba} className="meus-m__lista" variants={lista} initial="oculta" animate="visivel">
       {itens.map((p) => {
         const f = fretes[p.freteId]
         if (!f) return null
         const [origem, destino] = pontas(f)
         if (aba === 'propostas') return <PropostaAberta key={p.id} proposta={p} frete={f} aoMudar={aoMudar} />
-        if (aba === 'concluidos') {
-          return (
-            <motion.li key={p.id} variants={item}>
-              <Link to={`/motorista/fretes/${f.id}`} className="meus-m__linha">
-                <span><strong>{tituloDoFrete(f)}</strong><span>{origem} → {destino} · {diaMes(f.pagoEm ?? f.dataColeta)}</span></span>
-                <span><strong>R$&nbsp;{reais(p.valor)}</strong><span className={f.status === 'PAGO' ? 'meus-m__pago' : ''}>{f.status === 'PAGO' ? 'Pago' : 'Cancelado'}</span></span>
-              </Link>
-            </motion.li>
-          )
-        }
         return (
           <motion.li key={p.id} variants={item}>
             <Link to={`/motorista/fretes/${f.id}`} className="meus-m__cartao">
@@ -154,6 +145,39 @@ function Lista({ itens, fretes, aba, aoMudar }: { itens: Proposta[]; fretes: Rec
         )
       })}
     </motion.ul>
+  )
+}
+
+/**
+ * Os fretes que terminaram, pagos ou cancelados. No celular, uma linha por frete; no computador, a tabela do
+ * canvas, com o cabeçalho (que é só visual: cada linha já diz tudo para quem ouve). A data é a do desfecho:
+ * quando o saldo caiu ou quando o frete foi cancelado.
+ */
+function Concluidos({ itens, fretes }: { itens: Proposta[]; fretes: Record<string, Frete> }) {
+  return (
+    <div className="meus-m__tabela">
+      <div className="meus-m__cabeca" aria-hidden="true"><span>Frete</span><span>Rota</span><span>Data</span><span>Valor</span><span>Situação</span></div>
+      <motion.ul className="meus-m__lista meus-m__lista--tabela" variants={lista} initial="oculta" animate="visivel">
+        {itens.map((p) => {
+          const f = fretes[p.freteId]
+          if (!f) return null
+          const [origem, destino] = pontas(f)
+          const pago = f.status === 'PAGO'
+          const data = diaMes(f.pagoEm ?? f.concluidoEm ?? f.dataColeta)
+          return (
+            <motion.li key={p.id} variants={item}>
+              <Link to={`/motorista/fretes/${f.id}`} className="meus-m__linha">
+                <strong className="meus-m__frete">{tituloDoFrete(f)}</strong>
+                <span className="meus-m__rota">{origem} → {destino}<span className="meus-m__data-celular"> · {data}</span></span>
+                <span className="meus-m__data">{data}</span>
+                <strong className="meus-m__valor">R$&nbsp;{reais(p.valor)}</strong>
+                <span className={pago ? 'meus-m__desfecho meus-m__desfecho--pago' : 'meus-m__desfecho'}>{pago ? 'Pago' : 'Cancelado'}</span>
+              </Link>
+            </motion.li>
+          )
+        })}
+      </motion.ul>
+    </div>
   )
 }
 

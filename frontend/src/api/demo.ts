@@ -213,6 +213,23 @@ const fretes: Frete[] = [
     descricaoCarga: 'Farelo de soja', especieCarga: 'Granel', tipoCargaAntt: 'GRANEL_SOLIDO', pesoKg: 36000, dataColeta: data(2),
     veiculosAceitos: ['BITREM', 'RODOTREM'], carroceriasAceitas: ['GRANELEIRO'], exigeRastreador: false,
     preco: { coeficientesDeExemplo: true, eixosConsiderados: 7, pisoMinimo: 2980, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: null } }),
+  // Fretes que o motorista de exemplo já terminou, de outras empresas: enchem a aba Concluídos e o extrato
+  // (um pago há poucos dias, um pago no mês passado e um cancelado depois de fechado).
+  frete({ id: 'f20', coleta: limeira, entrega: santos, empresa: empresas[E3], valor: 3200, valorTotal: 3200, valorAcordado: 3200, adiantamentoPercentual: 40,
+    distanciaKm: 230, status: 'PAGO', descricaoCarga: 'Fardos de algodão', especieCarga: 'Fardos', exigeRastreador: false,
+    motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CAMINHAO', placa: 'ABC1D23' }, veiculo: resumoVeiculo('v1'),
+    criadoEm: iso(-9), aceitoEm: iso(-8.5), concluidoEm: iso(-6), pagoEm: iso(-5), dataColeta: data(-7),
+    preco: { ...exemplo, pisoMinimo: 2240, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 12.8 } }),
+  frete({ id: 'f21', coleta: sorocaba, entrega: curitiba, empresa: empresas[E2], publicadoPorAgenciador: true, valor: 4100, valorTotal: 4100, valorAcordado: 4100,
+    adiantamentoPercentual: 30, distanciaKm: 420, status: 'PAGO', descricaoCarga: 'Peças de reposição em caixas', especieCarga: 'Caixas', exigeRastreador: false,
+    motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CAMINHAO', placa: 'ABC1D23' }, veiculo: resumoVeiculo('v1'),
+    criadoEm: iso(-45), aceitoEm: iso(-44), concluidoEm: iso(-41), pagoEm: iso(-40), dataColeta: data(-42),
+    preco: { ...exemplo, pisoMinimo: 3890, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 9.9 } }),
+  frete({ id: 'f22', coleta: jundiai, entrega: bh, empresa: empresas[E2], publicadoPorAgenciador: true, valor: 6800, valorTotal: 6800, valorAcordado: 6800,
+    adiantamentoPercentual: 30, distanciaKm: 580, status: 'CANCELADO', descricaoCarga: 'Bobinas de aço', especieCarga: 'Bobinas', exigeRastreador: false,
+    motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CAMINHAO', placa: 'ABC1D23' }, veiculo: resumoVeiculo('v1'),
+    criadoEm: iso(-20), aceitoEm: iso(-19), concluidoEm: iso(-18), dataColeta: data(-17), motivoCancelamento: 'A carga não ficou pronta na data',
+    preco: { ...exemplo, pisoMinimo: 5310, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: 11.6 } }),
 ]
 
 /** Distância da base do motorista demo (Campinas) até a coleta de cada frete aberto. */
@@ -229,6 +246,9 @@ const propostas: Proposta[] = [
   proposta('p8', 'f12', M2, 'v6', 980, 0, -0.2),
   { ...proposta('p9', 'f13', M2, 'v6', 750, 30, -1.5), status: 'ACEITA', respondidaEm: iso(-0.1) },
   { ...proposta('p10', 'f14', M3, 'v5', 380, 30, -4.8), status: 'ACEITA', respondidaEm: iso(-4.5) },
+  { ...proposta('p11', 'f20', M1, 'v1', 3200, 40, -8.8), status: 'ACEITA', respondidaEm: iso(-8.5) },
+  { ...proposta('p12', 'f21', M1, 'v1', 4100, 30, -44.5), status: 'ACEITA', respondidaEm: iso(-44) },
+  { ...proposta('p13', 'f22', M1, 'v1', 6800, 30, -19.5), status: 'ACEITA', respondidaEm: iso(-19) },
 ]
 
 function proposta(id: string, freteId: string, motoristaId: string, veiculoId: string, valor: number, adiant: number, quando: number, obs: string | null = null): Proposta {
@@ -249,6 +269,10 @@ const pagamentos: Pagamento[] = [
   { ...pagamento('f14', 380, 30, 'ADIANTAMENTO_LIBERADO'), pagoEm: iso(-4.4), adiantamentoLiberadoEm: iso(-1), saldoLiberavelApos: iso(0.7) },
   { ...pagamento('f16', 680, 30, 'ADIANTAMENTO_LIBERADO'), pagoEm: iso(-2.4), adiantamentoLiberadoEm: iso(-0.1) },
   { ...pagamento('f17', 260, 30, 'LIBERADO'), pagoEm: iso(-15.4), adiantamentoLiberadoEm: iso(-14.5), saldoLiberadoEm: iso(-13) },
+  { ...pagamento('f20', 3200, 40, 'LIBERADO'), pagoEm: iso(-8.4), adiantamentoLiberadoEm: iso(-7), saldoLiberadoEm: iso(-5) },
+  { ...pagamento('f21', 4100, 30, 'LIBERADO'), pagoEm: iso(-43.9), adiantamentoLiberadoEm: iso(-42), saldoLiberadoEm: iso(-40) },
+  // Cancelado antes da saída: o Pix voltou para a empresa e nada foi para o motorista.
+  { ...pagamento('f22', 6800, 30, 'ESTORNADO'), pagoEm: iso(-18.8), estornadoEm: iso(-18) },
 ]
 
 function pagamento(freteId: string, total: number, adiant: number, status: Pagamento['status']): Pagamento {
@@ -276,6 +300,12 @@ const eventos: Record<string, EventoFrete[]> = {
     ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -14, 'Canhoto digital: recebido por Paula Andrade.'), ev('ENTREGUE', 'PAGO', null, -13)],
   f18: [ev(null, 'PUBLICADO', 'CLIENTE', -9), ev('PUBLICADO', 'CANCELADO', 'CLIENTE', -8.8, 'Vou mudar a data')],
   f19: [ev(null, 'PUBLICADO', 'EMPRESA', -0.4)],
+  f20: [ev(null, 'PUBLICADO', 'EMPRESA', -9), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -8.8), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -8.5),
+    ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -7), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -6, 'Canhoto digital: recebido por Sérgio Nunes.'), ev('ENTREGUE', 'PAGO', null, -5)],
+  f21: [ev(null, 'PUBLICADO', 'EMPRESA', -45), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -44.5), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -44),
+    ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -42), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -41, 'Canhoto digital: recebido por Débora Lins.'), ev('ENTREGUE', 'PAGO', null, -40)],
+  f22: [ev(null, 'PUBLICADO', 'EMPRESA', -20), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -19.5), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -19),
+    ev('ACEITO', 'CANCELADO', 'EMPRESA', -18, 'A carga não ficou pronta na data')],
   f8: [ev(null, 'PUBLICADO', 'EMPRESA', -3), ev('PUBLICADO', 'PROPOSTA_ENVIADA', 'MOTORISTA', -2.6), ev('PROPOSTA_ENVIADA', 'ACEITO', 'EMPRESA', -2.5),
     ev('ACEITO', 'EM_TRANSITO', 'MOTORISTA', -1), ev('EM_TRANSITO', 'ENTREGUE', 'MOTORISTA', -0.2, 'Canhoto digital: recebido por Carlos Mendes.')],
 }
