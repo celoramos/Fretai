@@ -171,6 +171,17 @@
 .rota--grande .rota__cidade { font-size: var(--tam-secao); }
 .rota--grande .rota__pista { height: var(--esp-8); }
 .rota--grande .rota__marco { font-size: var(--tam-corpo); }
+/* Bairro (frete de pessoa física): o lugar em texto corrido, sem a UF embaixo. */
+.rota__lugar { font-size: var(--tam-detalhe); overflow-wrap: break-word; }
+/* Empilhada: os dois nomes numa linha e a pista inteira embaixo, como nos cartões do canvas. */
+.rota--empilhada { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "origem destino" "pista pista"; row-gap: var(--esp-2); }
+.rota--empilhada .rota__ponta--origem { grid-area: origem; }
+.rota--empilhada .rota__ponta--destino { grid-area: destino; }
+.rota--empilhada .rota__pista { grid-area: pista; }
+/* Ícone de traço do canvas: a cor do texto em volta. */
+.icone-traco { width: var(--esp-6); height: var(--esp-6); flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* Placa em letra de máquina, como no documento. */
+.placa-mono { font-family: var(--fonte-mono); font-size: var(--tam-legenda); font-weight: var(--peso-medio); }
 
 /* ---------- dinheiro ---------- */
 .valor {
