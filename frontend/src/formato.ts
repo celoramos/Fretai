@@ -13,6 +13,8 @@ export function contratante(f: Pick<Frete, 'empresa' | 'cliente' | 'publicadoPor
   return { nome: f.cliente?.nome ?? 'Cliente', quem: 'o cliente' }
 }
 export const maiuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+/** O número com a palavra no singular ou no plural: "1 frete", "2 fretes". */
+export const contar = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`
 
 /** Iniciais do avatar, como no canvas: "Juliana Matos" vira JM; um nome só vira uma letra. */
 export function iniciais(nome: string | null | undefined) {

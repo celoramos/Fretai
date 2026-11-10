@@ -13,7 +13,7 @@ import { FretesDeVolta } from '../../components/FretesDeVolta'
 import { RotaLinha } from '../../components/RotaLinha'
 import { Aviso, ErroCarga, Esqueleto, Marcos } from '../../components/ui'
 import { exigenciaDoFrete, porQueNaoLeva, tituloDoFrete } from '../../compatibilidade'
-import { carga, contratante, diaDaSemana, faixaDoPeso, horaMinuto, maiuscula, porKm, reais } from '../../formato'
+import { carga, contar, contratante, diaDaSemana, faixaDoPeso, horaMinuto, maiuscula, porKm, reais } from '../../formato'
 import { useComputador } from '../../largura'
 import { useSessao } from '../../sessao'
 import { useTitulo } from '../../useTitulo'
@@ -123,7 +123,7 @@ export function FreteMotorista() {
             {frete.cliente
               ? <p>{abreviado(frete.cliente.nome)} · pessoa física</p>
               : <Reputacao nome={frete.empresa?.razaoSocial ?? quem.nome} perfil={perfil ?? undefined} />}
-            {perfil && <p className="frete-c__texto--menor">Na plataforma desde {new Date(perfil.naPlataformaDesde).getFullYear()} · {perfil.fretesConcluidos} fretes concluídos</p>}
+            {perfil && <p className="frete-c__texto--menor">Na plataforma desde {new Date(perfil.naPlataformaDesde).getFullYear()} · {contar(perfil.fretesConcluidos, 'frete concluído', 'fretes concluídos')}</p>}
             {fechado && (
               <div className="frete-m__enderecos">
                 <p>Coleta: {frete.coleta.enderecoCompleto}</p>

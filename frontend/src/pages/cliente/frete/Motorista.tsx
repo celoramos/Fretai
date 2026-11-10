@@ -1,11 +1,11 @@
 import type { Frete, PerfilMotorista } from '../../../api/tipos'
 import { Avatar } from '../../../components/Avatar'
-import { CATEGORIAS } from '../../../formato'
+import { CATEGORIAS, contar } from '../../../formato'
 
 /** Nota, fretes e documentos conferidos, como no canvas: "Nota 4,9 · 132 fretes · CNH e CRLV conferidos". */
 function reputacao(p: PerfilMotorista | undefined, comDocumentos: boolean) {
   if (!p) return null
-  const partes = [p.mediaNotas != null ? `Nota ${p.mediaNotas.toLocaleString('pt-BR', { minimumFractionDigits: 1 })}` : 'Sem nota ainda', `${p.fretesConcluidos} fretes`]
+  const partes = [p.mediaNotas != null ? `Nota ${p.mediaNotas.toLocaleString('pt-BR', { minimumFractionDigits: 1 })}` : 'Sem nota ainda', contar(p.fretesConcluidos, 'frete', 'fretes')]
   if (comDocumentos && p.documentosVerificados.length) partes.push(`${p.documentosVerificados.join(' e ')} conferidos`)
   return partes.join(' · ')
 }

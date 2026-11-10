@@ -11,7 +11,7 @@ import { useTitulo } from '../../useTitulo'
 import { PainelEntrega } from './PainelEntrega'
 import { RotaLinha } from '../../components/RotaLinha'
 import { Aviso, Etiqueta, ErroCarga, Esqueleto, Indicador, Marcos, Placa, StatusFreteEtiqueta, Vazio } from '../../components/ui'
-import { carroceria, dataCurta, dataHora, PAPEL, reais, STATUS_FRETE, STATUS_PROPOSTA, telefone, veiculo } from '../../formato'
+import { carroceria, contar, dataCurta, dataHora, PAPEL, reais, STATUS_FRETE, STATUS_PROPOSTA, telefone, veiculo } from '../../formato'
 
 const ABAS = [
   { id: 'propostas', rotulo: 'Propostas' },
@@ -217,7 +217,7 @@ function ColunaProposta({ frete, proposta: p, perfil, destaques, aoMudar }: { fr
       <p className="proposta__reputacao">
         {perfil ? (
           <>
-            {perfil.mediaNotas != null ? `★ ${perfil.mediaNotas.toFixed(1).replace('.', ',')}` : 'Sem avaliações'} · {perfil.fretesConcluidos} fretes
+            {perfil.mediaNotas != null ? `★ ${perfil.mediaNotas.toFixed(1).replace('.', ',')}` : 'Sem avaliações'} · {contar(perfil.fretesConcluidos, 'frete', 'fretes')}
           </>
         ) : 'Carregando reputação…'}
       </p>
