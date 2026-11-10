@@ -32,6 +32,7 @@ const Contestar = lazy(() => import('./pages/Contestar').then((m) => ({ default:
 /* O cliente pessoa física é a entrada secundária: as telas dele também vêm à parte. */
 const FretesCliente = lazy(() => import('./pages/cliente/FretesCliente').then((m) => ({ default: m.FretesCliente })))
 const PedirFrete = lazy(() => import('./pages/cliente/PedirFrete').then((m) => ({ default: m.PedirFrete })))
+const DadosCliente = lazy(() => import('./pages/cliente/DadosCliente').then((m) => ({ default: m.DadosCliente })))
 
 /* As filas do administrador também: só quem é admin baixa esse código. */
 const DocumentosAdmin = lazy(() => import('./pages/admin/DocumentosAdmin').then((m) => ({ default: m.DocumentosAdmin })))
@@ -77,6 +78,7 @@ export function App() {
         <Route index element={<Suspense fallback={null}><FretesCliente /></Suspense>} />
         <Route path="fretes/novo" element={<Suspense fallback={null}><PedirFrete /></Suspense>} />
         <Route path="fretes/:id" element={<FreteCliente />} />
+        <Route path="dados" element={<Suspense fallback={null}><DadosCliente /></Suspense>} />
       </Route>
       <Route path="/admin" element={<Protegida papel="ADMIN"><LayoutAdmin /></Protegida>}>
         <Route index element={<Suspense fallback={null}><DocumentosAdmin /></Suspense>} />

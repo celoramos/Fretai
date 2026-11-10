@@ -7,6 +7,7 @@ import type {
   AcessoDocumento,
   Avaliacao,
   Canhoto,
+  Cliente,
   Coeficiente,
   Documento,
   Empresa,
@@ -364,6 +365,10 @@ const motoristaDemo: Motorista = {
   id: M1, nome: 'João Batista Ferreira', email: 'motorista@demo.fretai', telefone: '(19) 99876-5432', tipoVeiculo: 'CAMINHAO',
   placa: 'ABC1D23', aceitaFeriado: true, temChavePix: true, criadoEm: '2025-06-01T12:00:00Z',
 }
+/** O cadastro do cliente de exemplo, que a tela "Meus dados" lê e corrige. O telefone vem só com dígitos, como na API. */
+const clienteDemo: Cliente = {
+  id: U_CLIENTE, nome: clientes[U_CLIENTE].nome, email: 'cliente@demo.fretai', telefone: telefones[U_CLIENTE], criadoEm: '2026-04-12T12:00:00Z',
+}
 const TELEFONE = /^(\+?55)?\s?\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/
 const PLACA = /^[A-Za-z]{3}-?\d[A-Za-z0-9]\d{2}$/
 /** As regras de VeiculoRequest: tipo obrigatório, modelo até 60, dados de caminhão conferidos só quando vêm. */
@@ -707,7 +712,7 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
   if (metodo === 'GET' && p === '/api/auth/eu') {
     const papel = token.replace('demo-', '').toUpperCase() as ContaDemo['papel']
     const id = { MOTORISTA: M1, EMPRESA: U_EMPRESA, CLIENTE: U_CLIENTE, ADMIN: U_ADMIN }[papel]
-    const nome = { MOTORISTA: motoristaDemo.nome, EMPRESA: 'Rafael Moreira', CLIENTE: 'Paula Andrade', ADMIN: 'Equipe Fretaí' }[papel]
+    const nome = { MOTORISTA: motoristaDemo.nome, EMPRESA: 'Rafael Moreira', CLIENTE: clienteDemo.nome, ADMIN: 'Equipe Fretaí' }[papel]
     const email = Object.entries(contas).find(([, c]) => c.papel === papel)?.[0] ?? ''
     return json({ id, papel, empresaId: papel === 'EMPRESA' ? E1 : null, nome, email })
   }
@@ -1053,6 +1058,23 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       motoristaDemo.aceitaFeriado = Boolean(b.aceitaFeriado)
       return json(motoristaDemo)
     }
+  }
+  if ((m = p.match(/^\/api\/clientes\/([^/]+)$/)) && (metodo === 'GET' || metodo === 'PUT')) {
+    if (token !== 'demo-cliente' || m[1] !== U_CLIENTE) return problema(403, 'Acesso negado', 'Seu usuário não tem permissão para este recurso.')
+    if (metodo === 'GET') return json(clienteDemo)
+    const erros: Record<string, string> = {}
+    const nome = String(b.nome ?? '').trim()
+    if (!nome) erros.nome = 'O nome é obrigatório.'
+    else if (nome.length < 2 || nome.length > 100) erros.nome = 'O nome deve ter entre 2 e 100 caracteres.'
+    if (!String(b.telefone ?? '').trim()) erros.telefone = 'O telefone é obrigatório.'
+    else if (!TELEFONE.test(String(b.telefone))) erros.telefone = 'Telefone inválido. Use DDD + número.'
+    if (Object.keys(erros).length) return invalido(erros)
+    const digitos = String(b.telefone).replace(/\D/g, '')
+    Object.assign(clienteDemo, { nome, telefone: digitos })
+    // Como na API: o nome novo aparece nos fretes, e o motorista de um frete fechado passa a receber o celular novo.
+    clientes[U_CLIENTE].nome = nome
+    telefones[U_CLIENTE] = digitos
+    return json(clienteDemo)
   }
   if (metodo === 'POST' && (m = p.match(/^\/api\/motoristas\/([^/]+)\/veiculos$/))) {
     const placa = String(b.placa ?? '').toUpperCase().replace('-', '')

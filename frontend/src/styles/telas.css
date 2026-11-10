@@ -939,7 +939,8 @@ a.meus-m__cartao:hover .card-m__titulo, .meus-m__cartao a.card-m__titulo:hover {
   .calc-m__resultado { padding: var(--esp-6); }
 }
 
-/* ---------- perfil do motorista (Motorista-Perfil) ---------- */
+/* ---------- perfil do motorista (Motorista-Perfil) ----------
+   Os dados do cliente (pages/cliente/DadosCliente) usam os mesmos blocos, numa coluna só (.dados-c, no fim). */
 .perfil-m { display: grid; gap: var(--esp-4); }
 .perfil-m__voce { display: flex; align-items: center; gap: var(--esp-3); padding: var(--esp-4); border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
 .perfil-m__voce strong { font-size: var(--tam-bloco); }
@@ -961,12 +962,19 @@ a.meus-m__cartao:hover .card-m__titulo, .meus-m__cartao a.card-m__titulo:hover {
 .perfil-m__pendente { color: var(--cor-alerta); font-weight: var(--peso-forte); }
 .perfil-m__sair { color: var(--cor-perigo); }
 .perfil-m .cabecalho-pagina .botao--icone { margin-left: auto; }
+/* Dados do cliente: um bloco só, então a linha que separa um bloco do seguinte não tem o que separar. */
+.dados-c .perfil-m__bloco { padding-bottom: 0; border-bottom: 0; }
+.dados-c__email { overflow-wrap: anywhere; }
 @media (min-width: 900px) {
   .perfil-m { gap: var(--esp-6); }
   .perfil-m__grade { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-6); }
   .perfil-m__bloco { padding: var(--esp-6); border: 0; border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
   .perfil-m__par { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .perfil-m__sair { justify-self: start; width: auto; }
+  /* Dados do cliente: um formulário só, na largura de leitura que a entrega e a conta da empresa já usam.
+     O bloco volta a ter o respiro de cartão que a regra de celular acima tirou. */
+  .dados-c { max-width: var(--largura-pagamento); }
+  .dados-c .perfil-m__bloco { padding-bottom: var(--esp-6); }
 }
 
 /* ---------- registrar entrega (Motorista-Entrega) ---------- */

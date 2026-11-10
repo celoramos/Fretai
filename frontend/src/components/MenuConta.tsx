@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { api } from '../api/cliente'
+import { api, CONTA_ATUALIZADA } from '../api/cliente'
 import type { Eu, Frete, Pagina } from '../api/tipos'
 import { useRecurso } from '../api/useRecurso'
 import { useComputador } from '../largura'
@@ -17,8 +17,8 @@ function freteEmAndamento(fretes: Frete[]) {
 }
 
 /**
- * O avatar do cliente e o menu da conta: nome e e-mail, o frete em andamento, pedir um frete, como o
- * pagamento funciona e sair. No celular é uma folha que sobe de baixo; no computador, um menu preso ao
+ * O avatar do cliente e o menu da conta: nome e e-mail, o frete em andamento, pedir um frete, os dados
+ * dele, como o pagamento funciona e sair. No celular é uma folha que sobe de baixo; no computador, um menu preso ao
  * avatar. Os dados chegam quando o menu abre: fechado, só o avatar precisa do nome.
  */
 export function MenuConta() {
@@ -31,7 +31,12 @@ export function MenuConta() {
   const botao = useRef<HTMLButtonElement>(null)
   const caixa = useRef<HTMLDivElement>(null)
 
-  const [eu] = useRecurso(() => api<Eu>('GET', '/api/auth/eu'), [tokens?.usuarioId])
+  const [eu, recarregarEu] = useRecurso(() => api<Eu>('GET', '/api/auth/eu'), [tokens?.usuarioId])
+  // O nome mudou na tela de dados: o avatar e o menu, que ficam na barra entre uma tela e outra, buscam de novo.
+  useEffect(() => {
+    window.addEventListener(CONTA_ATUALIZADA, recarregarEu)
+    return () => window.removeEventListener(CONTA_ATUALIZADA, recarregarEu)
+  }, [recarregarEu])
   const [fretes] = useRecurso(
     () => (aberto && tokens ? api<Pagina<Frete>>('GET', `/api/fretes/cliente/${tokens.usuarioId}`) : Promise.resolve(null)),
     [aberto, tokens?.usuarioId],
@@ -55,7 +60,9 @@ export function MenuConta() {
     }
   }, [aberto, computador])
 
-  const pessoa = eu.fase === 'pronto' ? eu.dados : null
+  // Fica com o último nome enquanto busca de novo: o avatar não pisca vazio depois de salvar os dados.
+  const [pessoa, setPessoa] = useState<Eu | null>(null)
+  if (eu.fase === 'pronto' && eu.dados !== pessoa) setPessoa(eu.dados)
   const emAndamento = fretes.fase === 'pronto' && fretes.dados ? freteEmAndamento(fretes.dados.content) : null
   const fechar = () => setAberto(false)
   const sairDaConta = () => sair().then(() => navegar('/entrar'))
@@ -87,6 +94,13 @@ export function MenuConta() {
     </Link>
   )
 
+  const linkDados = (
+    <Link to="/cliente/dados" className="conta__item" onClick={fechar}>
+      Meus dados
+      {!computador && <Seta para="direita" />}
+    </Link>
+  )
+
   if (computador) {
     return (
       <div className="conta conta--menu" ref={caixa}>
@@ -97,6 +111,7 @@ export function MenuConta() {
           {quem}
           <div className="conta__grupo">
             {linkAndamento}
+            {linkDados}
             {comoPaga}
           </div>
           <div className="conta__grupo">
@@ -120,6 +135,7 @@ export function MenuConta() {
             Pedir um frete
             <Seta para="direita" />
           </Link>
+          {linkDados}
           {comoPaga}
         </div>
         <button type="button" className="botao botao--secundario botao--largo conta__sair" onClick={sairDaConta}>Sair da conta</button>

@@ -360,6 +360,15 @@ export interface Avaliacao {
   criadaEm: string
 }
 
+/** GET e PUT /api/clientes/{id}: o cadastro do cliente pessoa física, que só ele abre. O CPF não volta; o telefone vem só com dígitos. */
+export interface Cliente {
+  id: string
+  nome: string
+  email: string
+  telefone: string
+  criadoEm: string
+}
+
 /** GET /api/motoristas/{id}. A chave Pix em si não volta: só se existe. */
 export interface Motorista {
   id: string

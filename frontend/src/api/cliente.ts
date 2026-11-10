@@ -2,6 +2,8 @@ import type { Problema, Tokens } from './tipos'
 
 const CHAVE_SESSAO = 'fretai.sessao'
 export const MODO_DEMO = import.meta.env.VITE_DEMO === 'true'
+/** Evento da janela: o nome de quem está logado mudou. Quem o mostra fora da página (o menu da conta) busca de novo. */
+export const CONTA_ATUALIZADA = 'fretai:conta-atualizada'
 
 export class ErroApi extends Error {
   readonly problema: Problema
