@@ -5,6 +5,7 @@ import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { Valor } from '../../components/Dinheiro'
 import { Cartao, ErroCarga, Esqueleto, Vazio } from '../../components/ui'
 import { dataCurta, dataHora, mesAno, reaisCentavos } from '../../formato'
+import { recebimentos } from '../../recebimentos'
 import { useTitulo } from '../../useTitulo'
 
 type Movimento = {
@@ -37,16 +38,15 @@ function separar(itens: { frete: Frete | null; pagamento: Pagamento }[]) {
       aReceber.push({ ...base, chave: `${p.id}-s`, parcela: 'Saldo', valor: p.valorSaldo, quando: null, condicao: 'depois da entrega e do prazo de contestação' })
     }
     if (p.status === 'ADIANTAMENTO_LIBERADO') {
-      if (adiantamento) recebidos.push({ ...base, chave: `${p.id}-a`, parcela: 'Adiantamento', valor: p.valorAdiantamento, quando: p.adiantamentoLiberadoEm })
       aReceber.push({
         ...base, chave: `${p.id}-s`, parcela: 'Saldo', valor: p.valorSaldo, quando: null, parado: p.saldoBloqueado,
         condicao: p.saldoBloqueado ? 'parado: a entrega foi contestada e está em análise'
           : p.saldoLiberavelApos ? `a partir de ${dataHora(p.saldoLiberavelApos)}` : 'depois da entrega e do prazo de contestação',
       })
     }
-    if (p.status === 'LIBERADO') {
-      if (adiantamento) recebidos.push({ ...base, chave: `${p.id}-a`, parcela: 'Adiantamento', valor: p.valorAdiantamento, quando: p.adiantamentoLiberadoEm })
-      recebidos.push({ ...base, chave: `${p.id}-s`, parcela: 'Saldo', valor: p.valorSaldo, quando: p.saldoLiberadoEm })
+    // O que já caiu vem de recebimentos(), a mesma conta do "Recebido no mês" de Meus fretes.
+    for (const r of recebimentos(p)) {
+      recebidos.push({ ...base, chave: `${p.id}-${r.parcela === 'Adiantamento' ? 'a' : 's'}`, parcela: r.parcela, valor: r.valor, quando: r.quando })
     }
   }
   recebidos.sort((a, z) => (z.quando ?? '').localeCompare(a.quando ?? ''))

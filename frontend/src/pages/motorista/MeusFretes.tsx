@@ -11,6 +11,7 @@ import { tituloDoFrete } from '../../compatibilidade'
 import { STATUS_FRETE, contratante, diaDaSemana, diaMes, quilometros, reais } from '../../formato'
 import { useComputador } from '../../largura'
 import { item, lista } from '../../movimento'
+import { recebidoNoMes } from '../../recebimentos'
 import { useTitulo } from '../../useTitulo'
 
 const ABAS = [
@@ -81,7 +82,8 @@ export function MeusFretes() {
 
 /**
  * O dinheiro: quanto está guardado esperando por ele e quanto caiu neste mês. É a pergunta que o motorista
- * faz antes de abrir qualquer frete. Verde só no dinheiro garantido ou pago, como no resto.
+ * faz antes de abrir qualquer frete. Verde só no dinheiro garantido ou pago, como no resto. "Recebido no
+ * mês" bate com o total do mês no Extrato: os dois somam as parcelas pela data em que saíram.
  */
 function SeuDinheiro({ dados }: { dados: Dados }) {
   let aReceber = 0
@@ -94,12 +96,8 @@ function SeuDinheiro({ dados }: { dados: Dados }) {
     }
   }
   const [agora] = useState(() => new Date())
-  const doMes = Object.values(dados.fretes).filter((f) => {
-    if (f.status !== 'PAGO' || !f.pagoEm) return false
-    const d = new Date(f.pagoEm)
-    return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear()
-  })
-  const recebido = doMes.reduce((t, f) => t + (f.valorAcordado ?? f.valorTotal ?? f.valor ?? 0), 0)
+  // A mesma conta do Extrato: adiantamento e saldo, cada um no mês em que caiu.
+  const noMes = recebidoNoMes(dados.pagamentos, agora)
   const mes = agora.toLocaleDateString('pt-BR', { month: 'long' })
   return (
     <section className="meus-m__dinheiro" aria-label="Seu dinheiro">
@@ -110,8 +108,8 @@ function SeuDinheiro({ dados }: { dados: Dados }) {
       </div>
       <div className="meus-m__parte">
         <span className="meus-m__rotulo">Recebido em {mes}</span>
-        <Valor valor={recebido} tamanho="grande" />
-        <span className="meus-m__nota">{doMes.length === 1 ? '1 frete pago' : `${doMes.length} fretes pagos`}</span>
+        <Valor valor={noMes.total} tamanho="grande" />
+        <span className="meus-m__nota">{noMes.fretes === 0 ? 'nada caiu ainda neste mês' : noMes.fretes === 1 ? 'de 1 frete' : `de ${noMes.fretes} fretes`}</span>
       </div>
       {parado > 0 && <p className="dinheiro__parado">R$&nbsp;{reais(parado)} parados por contestação da entrega, até a análise.</p>}
       <Link to="/motorista/extrato" className="meus-m__extrato">Ver extrato</Link>

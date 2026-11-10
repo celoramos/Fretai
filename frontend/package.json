@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "test": "node --test \"testes/*.test.ts\"",
     "preview": "vite preview",
     "demo": "vite --mode demo",
     "quadro": "node design/gerar-quadro.cjs",
