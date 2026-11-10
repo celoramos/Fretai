@@ -917,6 +917,28 @@ a.meus-m__cartao:hover .card-m__titulo, .meus-m__cartao a.card-m__titulo:hover {
   .meus-m__lista:not(.meus-m__lista--tabela) { grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: var(--esp-4); }
 }
 
+/* ---------- calculadora (Motorista-Calculadora) ---------- */
+.calc-m { display: grid; gap: var(--esp-4); }
+.calc-m__colunas { display: grid; gap: var(--esp-4); }
+.calc-m__numeros, .calc-m__resultado { display: grid; gap: var(--esp-3); align-content: start; }
+.calc-m__grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); }
+.calc-m__resultado { padding: var(--esp-4); border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
+.calc-m__resultado h2 { font-size: var(--tam-secao); }
+.calc-m__sobra { display: grid; gap: var(--esp-1); padding-top: var(--esp-3); border-top: var(--borda) solid var(--cor-linha); }
+.calc-m__sobra > span:first-child { font-weight: var(--peso-forte); color: var(--cor-garantido); }
+.calc-m__sobra .valor { color: var(--cor-garantido); }
+.calc-m__sobra--falta > span:first-child, .calc-m__sobra--falta .valor { color: var(--cor-perigo); }
+.calc-m__piso { display: grid; gap: var(--esp-3); padding: var(--esp-4); border-radius: var(--raio-cartao); border: var(--borda) solid var(--cor-linha); }
+.calc-m__piso[open] { gap: var(--esp-3); }
+.calc-m__piso summary { min-height: var(--alvo); display: flex; align-items: center; font-weight: var(--peso-forte); cursor: pointer; }
+.calc-m__piso > * + * { margin-top: var(--esp-3); }
+@media (min-width: 900px) {
+  .calc-m { gap: var(--esp-6); }
+  .calc-m__colunas { grid-template-columns: minmax(0, 1fr) var(--largura-proposta); align-items: start; gap: var(--esp-8); }
+  .calc-m__grade { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .calc-m__resultado { padding: var(--esp-6); }
+}
+
 /* ---------- registrar entrega (Motorista-Entrega) ---------- */
 .entrega-m { display: grid; gap: var(--esp-4); }
 .entrega-m__parte { display: grid; gap: var(--esp-3); padding-bottom: var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); }
