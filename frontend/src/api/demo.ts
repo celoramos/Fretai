@@ -392,7 +392,7 @@ const avaliacoes: Avaliacao[] = [
 // ---------- perfil do motorista ----------
 
 const motoristaDemo: Motorista = {
-  id: M1, nome: 'João Batista Ferreira', email: 'motorista@demo.fretai', telefone: '(19) 99876-5432', tipoVeiculo: 'CAMINHAO',
+  id: M1, nome: 'João Batista Ferreira', email: 'motorista@demo.fretai', telefone: telefones[M1], tipoVeiculo: 'CAMINHAO',
   placa: 'ABC1D23', aceitaFeriado: true, temChavePix: true, criadoEm: '2025-06-01T12:00:00Z',
 }
 /** O cadastro do cliente de exemplo, que a tela "Meus dados" lê e corrige. O telefone vem só com dígitos, como na API. */
@@ -1068,7 +1068,10 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
       if (nome.length < 2) erros.nome = 'O nome deve ter entre 2 e 100 caracteres.'
       if (!TELEFONE.test(String(b.telefone ?? ''))) erros.telefone = 'Telefone inválido. Use DDD + número.'
       if (Object.keys(erros).length) return invalido(erros)
-      Object.assign(motoristaDemo, { nome, telefone: String(b.telefone) })
+      // Como na API: o telefone fica só com dígitos, e é o número que quem contratou recebe depois do aceite.
+      const digitos = String(b.telefone).replace(/\D/g, '')
+      Object.assign(motoristaDemo, { nome, telefone: digitos })
+      telefones[M1] = digitos
       perfisMotorista[M1].nome = nome
       return json(motoristaDemo)
     }

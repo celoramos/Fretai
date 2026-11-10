@@ -7,7 +7,7 @@ import { Avatar } from '../../components/Avatar'
 import { CabecalhoPagina } from '../../components/CabecalhoPagina'
 import { BotaoTema } from '../../components/Layouts'
 import { Aviso, ErroCarga, Esqueleto } from '../../components/ui'
-import { CARROCERIAS, CATEGORIAS, ORDEM_CATEGORIAS, TIPOS_CAMINHAO } from '../../formato'
+import { CARROCERIAS, CATEGORIAS, ORDEM_CATEGORIAS, TIPOS_CAMINHAO, telefone as comMascara } from '../../formato'
 import { useComputador } from '../../largura'
 import { useSessao } from '../../sessao'
 import { useTitulo } from '../../useTitulo'
@@ -96,7 +96,8 @@ export function Perfil() {
 }
 
 function Contato({ motorista }: { motorista: Motorista }) {
-  const [telefone, setTelefone] = useState(motorista.telefone)
+  // A API guarda o telefone só com dígitos: o campo abre com o DDD entre parênteses, como a pessoa digita.
+  const [telefone, setTelefone] = useState(() => comMascara(motorista.telefone))
   const [enviando, setEnviando] = useState(false)
   const [salvo, setSalvo] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
