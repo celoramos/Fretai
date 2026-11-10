@@ -23,5 +23,3 @@ dist-ssr
 *.sln
 *.sw?
 
-# Quadro de design gerado (npm run quadro)
-design/fretai-design.html
