@@ -72,6 +72,18 @@ public class UsuarioService {
         return ClienteResponse.de(clienteRepository.save(cliente));
     }
 
+    @Transactional(readOnly = true)
+    public ClienteResponse buscarCliente(UUID clienteId) {
+        return ClienteResponse.de(carregarCliente(clienteId));
+    }
+
+    @Transactional
+    public ClienteResponse atualizarCliente(UUID clienteId, AtualizarContatoRequest request) {
+        Cliente cliente = carregarCliente(clienteId);
+        cliente.atualizarContato(request.nome().trim(), somenteDigitos(request.telefone()));
+        return ClienteResponse.de(cliente);
+    }
+
     @Transactional
     public MotoristaResponse cadastrarMotorista(CadastroMotoristaRequest request) {
         String cpf = somenteDigitos(request.cpf());
@@ -168,6 +180,12 @@ public class UsuarioService {
         if (usuarioRepository.existsByEmailIgnoreCase(email)) {
             throw new ConflitoException("Já existe um cadastro com esse e-mail.");
         }
+    }
+
+    private Cliente carregarCliente(UUID clienteId) {
+        return clienteRepository.findById(clienteId)
+                .filter(Cliente::isAtivo)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado."));
     }
 
     private Motorista carregarMotorista(UUID motoristaId) {

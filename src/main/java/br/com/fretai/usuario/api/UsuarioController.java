@@ -42,6 +42,20 @@ public class UsuarioController {
         return usuarioService.cadastrarCliente(request);
     }
 
+    /** O cadastro do cliente, para ele mesmo: é o que a tela "Meus dados" mostra. */
+    @GetMapping("/api/clientes/{id}")
+    @PreAuthorize("principal.ehOuAdmin(#id)")
+    public ClienteResponse buscarCliente(@PathVariable UUID id) {
+        return usuarioService.buscarCliente(id);
+    }
+
+    @PutMapping("/api/clientes/{id}")
+    @PreAuthorize("principal.ehOuAdmin(#id)")
+    public ClienteResponse atualizarCliente(@PathVariable UUID id,
+                                            @Valid @RequestBody AtualizarContatoRequest request) {
+        return usuarioService.atualizarCliente(id, request);
+    }
+
     @PostMapping("/api/motoristas")
     @ResponseStatus(HttpStatus.CREATED)
     public MotoristaResponse cadastrarMotorista(@Valid @RequestBody CadastroMotoristaRequest request) {
