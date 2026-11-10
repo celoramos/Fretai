@@ -285,6 +285,15 @@ export interface SolicitarFrete {
   tipoCarga: TipoCarga
 }
 
+/** GET /api/enderecos/cep/{cep}: o que o pedido mostra logo depois do CEP ("bairro, cidade"). */
+export interface ConsultaCep {
+  cep: string
+  logradouro: string | null
+  bairro: string | null
+  cidade: string
+  uf: string
+}
+
 export interface EnderecoPedido {
   cep: string
   numero: string | null

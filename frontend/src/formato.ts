@@ -62,6 +62,14 @@ export function hoje() {
 }
 export const dataCurta = (iso: string) =>
   new Date(iso.length === 10 ? `${iso}T12:00:00` : iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+const dataDe = (iso: string) => new Date(iso.length === 10 ? `${iso}T12:00:00` : iso)
+/** "sáb, 14/11", como nos cartões do canvas. */
+export const diaDaSemana = (iso: string) =>
+  `${dataDe(iso).toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}, ${diaMes(iso)}`
+/** "14/11". */
+export const diaMes = (iso: string) => dataDe(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+/** "15h40". */
+export const horaMinuto = (iso: string) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h')
 export const dataHora = (iso: string) =>
   new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 

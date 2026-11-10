@@ -5,7 +5,7 @@ import type { Avaliacao, Eu, Frete, Pagamento, Pagina, Proposta, TipoCarga } fro
 import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { RotaLinha, nomeDaPonta } from '../../components/RotaLinha'
 import { ErroCarga, Esqueleto, Vazio } from '../../components/ui'
-import { CATEGORIAS, TIPOS_CARGA } from '../../formato'
+import { CATEGORIAS, TIPOS_CARGA, diaDaSemana, diaMes, horaMinuto } from '../../formato'
 import { Valor } from '../../components/Dinheiro'
 import { useSessao } from '../../sessao'
 import { useTitulo } from '../../useTitulo'
@@ -26,15 +26,6 @@ const ATALHOS: { tipo: TipoCarga; icone: React.ReactNode }[] = [
 const Icone = ({ children, className = 'icone-traco' }: { children: React.ReactNode; className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" aria-hidden="true">{children}</svg>
 )
-
-/** "sáb, 14/11", como no canvas. */
-const diaDaSemana = (iso: string) => {
-  const d = new Date(iso.length === 10 ? `${iso}T12:00:00` : iso)
-  const semana = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')
-  return `${semana}, ${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`
-}
-const diaMes = (iso: string) => new Date(iso.length === 10 ? `${iso}T12:00:00` : iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-const hora = (iso: string) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h')
 
 /** O nome do frete: o tipo de carga que a pessoa marcou; sem ele, o começo da descrição. */
 function tituloDoFrete(f: Frete) {
@@ -201,7 +192,7 @@ function Anterior({ frete: f }: { frete: Frete }) {
             )}
             {pago && f.concluidoEm && (
               <span className="anterior__quando">
-                Entregue em {diaMes(f.concluidoEm)} às {hora(f.concluidoEm)}
+                Entregue em {diaMes(f.concluidoEm)} às {horaMinuto(f.concluidoEm)}
                 {avaliacoes.fase === 'pronto' && (minha ? ` · você deu nota ${minha.nota}` : ' · você não avaliou')}
               </span>
             )}

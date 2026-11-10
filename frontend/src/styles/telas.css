@@ -678,3 +678,71 @@ ol.legal__itens { list-style: decimal; }
 @media (min-width: 900px) {
   .piso__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* ---------- pedir frete (Cliente-Pedido, Cliente-Veiculo, Cliente-Pedido-PC) ----------
+   Celular: dois passos com a barra de progresso e o botão preso embaixo. Computador: os campos à
+   esquerda e o resumo com o valor e o botão à direita, parado enquanto a página rola. */
+.pedido { display: grid; gap: var(--esp-4); }
+.pedido__passo { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.pedido__progresso { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-2); margin-top: calc(var(--esp-4) * -1); }
+.pedido__barra { height: var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-linha); }
+.pedido__barra--feita { background: var(--cor-texto); }
+.pedido__corpo, .pedido__campos { display: grid; gap: var(--esp-6); min-width: 0; }
+.pedido__secao { display: grid; gap: var(--esp-4); min-width: 0; margin: 0; padding: 0; border: 0; }
+.pedido__secao + .pedido__secao { padding-top: var(--esp-6); border-top: var(--borda) solid var(--cor-linha); }
+.pedido__secao > h2, .pedido__secao > legend { float: left; width: 100%; padding: 0; font-family: var(--fonte-placa); font-weight: var(--peso-placa); line-height: var(--altura-titulo); font-size: var(--tam-secao); }
+.pedido__pontas { display: grid; gap: var(--esp-6); }
+.pedido__ponta { display: grid; gap: var(--esp-2); align-content: start; }
+.pedido__lugar { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.pedido__data { max-width: 100%; }
+.pedido__tipos { min-width: 0; margin: 0; padding: 0; border: 0; display: grid; gap: var(--esp-2); }
+.pedido__descricao { min-height: calc(var(--alvo-motorista) * 2.4); padding-block: var(--esp-3); resize: vertical; line-height: var(--altura-texto); }
+.pedido__par, .pedido__peso { display: grid; gap: var(--esp-4); align-items: start; }
+.pedido__opcional { font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+.pedido__enviar {
+  display: flex; align-items: center; gap: var(--esp-3); min-height: calc(var(--alvo-motorista) + var(--esp-4)); padding: 0 var(--esp-4);
+  border: var(--borda) dashed var(--cor-borda-campo); border-radius: var(--raio-controle); background: var(--cor-superficie);
+  font-weight: var(--peso-forte); cursor: pointer;
+}
+.pedido__enviar:hover { border-color: var(--cor-texto); }
+.pedido__enviar:has(:focus-visible) { outline: var(--foco-largura) solid var(--cor-foco); outline-offset: var(--foco-recuo); }
+.pedido__fotos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(var(--alvo-motorista) * 1.6), 1fr)); gap: var(--esp-2); }
+.pedido__foto { position: relative; aspect-ratio: 1; border-radius: var(--raio-controle); overflow: hidden; background: var(--cor-linha); }
+.pedido__foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pedido__tirar {
+  position: absolute; top: var(--esp-1); right: var(--esp-1); display: grid; place-items: center;
+  width: var(--alvo-motorista); height: var(--alvo-motorista); padding: 0; border: 0; border-radius: var(--raio-pilula);
+  background: transparent; color: var(--cor-fundo); cursor: pointer;
+}
+/* O xis sobre a foto: um disco de tinta atrás, para ler em cima de qualquer imagem. */
+.pedido__tirar .icone-traco { width: var(--esp-8); height: var(--esp-8); padding: var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-texto); }
+.pedido__reais { display: flex; align-items: center; gap: var(--esp-2); }
+.pedido__reais span { font-family: var(--fonte-placa); font-size: var(--tam-bloco); font-weight: var(--peso-placa); color: var(--cor-texto-secundario); }
+.pedido__reais input { flex: 1; min-width: 0; }
+.pedido__resumo { display: grid; gap: var(--esp-2); margin: 0; }
+.pedido__resumo div { display: flex; justify-content: space-between; gap: var(--esp-4); }
+.pedido__resumo dt { color: var(--cor-texto-secundario); }
+.pedido__resumo dd { margin: 0; text-align: right; font-weight: var(--peso-forte); }
+.pedido__rodape {
+  position: sticky; bottom: 0; z-index: 1; margin: 0 calc(var(--esp-4) * -1) calc(var(--esp-8) * -1);
+  padding: var(--esp-3) var(--esp-4) calc(var(--esp-3) + env(safe-area-inset-bottom));
+  background: var(--cor-fundo); border-top: var(--borda) solid var(--cor-linha);
+}
+@media (min-width: 900px) {
+  .pedido { gap: var(--esp-6); }
+  .pedido__topo { display: grid; gap: var(--esp-2); }
+  .pedido__topo .titulo-pagina { font-size: var(--tam-display); }
+  .pedido__corpo { grid-template-columns: minmax(0, 1fr) var(--largura-proposta); align-items: start; gap: var(--esp-6); }
+  .pedido__campos { gap: var(--esp-6); }
+  .pedido__secao, .pedido__secao + .pedido__secao {
+    padding: var(--esp-6); border: 0; border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao);
+  }
+  .pedido__pontas, .pedido__par { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pedido__veiculos .opcoes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pedido__lado {
+    position: sticky; top: var(--esp-6); display: grid; gap: var(--esp-4); padding: var(--esp-6);
+    border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao);
+  }
+  .pedido__lado h2 { font-size: var(--tam-secao); }
+  .pedido__lado .pedido__resumo { padding-bottom: var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); }
+}

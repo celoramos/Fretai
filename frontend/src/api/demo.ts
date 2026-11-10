@@ -697,6 +697,13 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
   if (metodo === 'GET' && p === '/api/calendario/verificacao') return json(verificarData(url.searchParams.get('data') ?? data(0)))
   if (!token) return problema(401, 'Não autenticado', 'Faça login de novo.')
 
+  if (metodo === 'GET' && p.startsWith('/api/enderecos/cep/')) {
+    const cep = decodeURIComponent(p.slice('/api/enderecos/cep/'.length))
+    if (!/^\d{5}-?\d{3}$/.test(cep)) return problema(400, 'Requisição inválida', 'CEP inválido. Deve conter 8 dígitos numéricos.')
+    if (/^9{5}/.test(cep)) return problema(422, 'Regra de negócio', 'CEP não encontrado.')
+    const [, cidade, uf] = REGIOES.find(([r]) => r.test(cep)) ?? REGIOES[0]
+    return json({ cep, logradouro: null, bairro: 'Centro', cidade, uf })
+  }
   if (metodo === 'GET' && p === '/api/auth/eu') {
     const papel = token.replace('demo-', '').toUpperCase() as ContaDemo['papel']
     const id = { MOTORISTA: M1, EMPRESA: U_EMPRESA, CLIENTE: U_CLIENTE, ADMIN: U_ADMIN }[papel]
