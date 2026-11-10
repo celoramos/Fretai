@@ -883,6 +883,40 @@ ol.legal__itens { list-style: decimal; }
   .frete-m__acoes { position: sticky; top: var(--esp-6); margin: 0; padding: var(--esp-6); border: 0; border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao); }
 }
 
+/* ---------- meus fretes (Motorista-Fretes) ---------- */
+.meus-m { display: grid; gap: var(--esp-4); }
+.meus-m__dinheiro { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3) var(--esp-4); padding: var(--esp-4); border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
+.meus-m__parte { display: grid; gap: var(--esp-1); align-content: start; }
+.meus-m__rotulo { font-size: var(--tam-detalhe); font-weight: var(--peso-forte); color: var(--cor-texto-secundario); }
+.meus-m__rotulo--garantido { color: var(--cor-garantido); }
+.meus-m__nota { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.meus-m__dinheiro .dinheiro__parado, .meus-m__extrato { grid-column: 1 / -1; }
+.meus-m__extrato { justify-self: start; display: inline-flex; align-items: center; min-height: var(--alvo); color: var(--cor-info); font-weight: var(--peso-forte); }
+.meus-m__abas .busca-m__raio { font-size: var(--tam-detalhe); padding: 0 var(--esp-2); }
+.meus-m__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--esp-3); }
+.meus-m__cartao { display: grid; gap: var(--esp-3); padding: var(--esp-4); border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); color: var(--cor-texto); text-decoration: none; }
+a.meus-m__cartao:hover .card-m__titulo, .meus-m__cartao a.card-m__titulo:hover { text-decoration: underline; }
+.meus-m__cartao a.card-m__titulo { color: var(--cor-texto); text-decoration: none; }
+.meus-m__situacao { color: var(--cor-info); font-weight: var(--peso-forte); }
+.meus-m__propos { color: var(--cor-info); font-weight: var(--peso-forte); }
+.meus-m__lista--tabela { gap: 0; border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
+.meus-m__lista--tabela li + li { border-top: var(--borda) solid var(--cor-linha); }
+.meus-m__linha { display: flex; justify-content: space-between; align-items: center; gap: var(--esp-3); min-height: var(--alvo); padding: var(--esp-3) var(--esp-4); color: var(--cor-texto); text-decoration: none; }
+.meus-m__linha > span { display: grid; gap: 2px; min-width: 0; }
+.meus-m__linha > span:last-child { justify-items: end; flex: none; }
+.meus-m__linha > span > span { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.meus-m__linha .meus-m__pago { color: var(--cor-garantido); }
+.meus-m__linha:hover strong:first-child { text-decoration: underline; }
+@media (min-width: 900px) {
+  .meus-m { gap: var(--esp-6); }
+  .meus-m__titulo { font-size: var(--tam-display); }
+  .meus-m__dinheiro { grid-template-columns: repeat(2, minmax(0, 1fr)) auto; align-items: center; padding: var(--esp-6); }
+  .meus-m__extrato { grid-column: auto; }
+  .meus-m__abas { display: flex; }
+  .meus-m__abas .busca-m__raio { padding: 0 var(--esp-6); font-size: var(--tam-corpo); }
+  .meus-m__lista:not(.meus-m__lista--tabela) { grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: var(--esp-4); }
+}
+
 /* ---------- registrar entrega (Motorista-Entrega) ---------- */
 .entrega-m { display: grid; gap: var(--esp-4); }
 .entrega-m__parte { display: grid; gap: var(--esp-3); padding-bottom: var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); }
