@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom'
 import { api, comoProblema } from '../../../api/cliente'
 import type { Frete, Pagamento, PerfilMotorista, Proposta } from '../../../api/tipos'
 import { useRecurso } from '../../../api/useRecurso'
-import { Avatar } from '../../../components/Avatar'
 import { CabecalhoPagina } from '../../../components/CabecalhoPagina'
 import { CancelarComMotivo } from '../../../components/CancelarComMotivo'
 import { FecharFolha, Folha } from '../../../components/Folha'
@@ -12,34 +11,13 @@ import { Aviso } from '../../../components/ui'
 import { CATEGORIAS, TIPOS_CARGA, diaDaSemana, reais } from '../../../formato'
 import { useComputador } from '../../../largura'
 import { pixPago, type DadosFrete } from './dados'
+import { Motorista } from './Motorista'
 
 const MOTIVOS = ['Não preciso mais do frete', 'Vou mudar a data', 'Achei outro jeito de levar']
 const CONSULTA_PIX_MS = 4000
 
 const primeiro = (nome: string) => nome.split(' ')[0]
 const brl = (v: number) => `R$ ${reais(v)}`
-
-/** Nota, fretes e documentos conferidos, como no canvas: "Nota 4,9 · 132 fretes · CNH e CRLV conferidos". */
-function reputacao(p: PerfilMotorista | undefined, comDocumentos: boolean) {
-  if (!p) return null
-  const partes = [p.mediaNotas != null ? `Nota ${p.mediaNotas.toLocaleString('pt-BR', { minimumFractionDigits: 1 })}` : 'Sem nota ainda', `${p.fretesConcluidos} fretes`]
-  if (comDocumentos && p.documentosVerificados.length) partes.push(`${p.documentosVerificados.join(' e ')} conferidos`)
-  return partes.join(' · ')
-}
-
-/** Quem vai levar: o nome do motorista e o veículo, com a placa em letra de máquina. */
-function Motorista({ nome, perfil, veiculo, documentos = false }: { nome: string; perfil?: PerfilMotorista; veiculo: Frete['veiculo']; documentos?: boolean }) {
-  return (
-    <div className="quem">
-      <Avatar nome={nome} grande />
-      <span className="quem__texto">
-        <strong>{nome}</strong>
-        {reputacao(perfil, documentos) && <span>{reputacao(perfil, documentos)}</span>}
-        {veiculo && <span>{CATEGORIAS[veiculo.categoria].nome.split(' ')[0]}{veiculo.modelo && ` ${veiculo.modelo}`} <span className="placa-mono">{veiculo.placa}</span></span>}
-      </span>
-    </div>
-  )
-}
 
 /*
  * O pedido antes do Pix, nas três situações do canvas: procurando motorista, propostas de outro valor e

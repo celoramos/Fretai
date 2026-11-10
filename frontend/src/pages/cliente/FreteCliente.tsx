@@ -4,7 +4,7 @@ import type { EventoFrete, Frete, Pagamento } from '../../api/tipos'
 import { ouNulo, useRecurso } from '../../api/useRecurso'
 import { ErroCarga, Esqueleto } from '../../components/ui'
 import { useTitulo } from '../../useTitulo'
-import { DetalheFrete } from '../contratante/DetalheFrete'
+import { Acompanhar } from './frete/Acompanhar'
 import { AntesDoPix } from './frete/AntesDoPix'
 import { pixPago, type DadosFrete } from './frete/dados'
 
@@ -30,8 +30,8 @@ export function FreteCliente() {
   const { frete, pagamento } = estado.dados
   const antes = ['PUBLICADO', 'PROPOSTA_ENVIADA'].includes(frete.status)
     || (frete.status === 'ACEITO' && !pixPago(pagamento))
-    || (frete.status === 'CANCELADO' && !pixPago(pagamento))
+    // Cancelado sem Pix pago diz que nada foi cobrado; cancelado depois do Pix (estornado) diz que ele volta.
+    || (frete.status === 'CANCELADO' && (pagamento == null || pagamento.status === 'PENDENTE'))
   if (antes) return <AntesDoPix dados={estado.dados} recarregar={recarregar} />
-  // Depois do Pix: a tela de acompanhar (tarefa 15). Até ela existir, o detalhe de hoje.
-  return <DetalheFrete />
+  return <Acompanhar dados={estado.dados} recarregar={recarregar} />
 }

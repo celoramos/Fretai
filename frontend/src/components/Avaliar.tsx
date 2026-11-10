@@ -77,7 +77,7 @@ export function Avaliar({ freteId, lado, nomeAvaliado }: { freteId: string; lado
           onChange={(e) => setComentario(e.target.value)} />
       </div>
       <div aria-live="polite">{problema && !erroNota && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}</div>
-      <button type="submit" className="botao botao--primario" disabled={enviando}>{enviando ? 'Enviando…' : 'Enviar avaliação'}</button>
+      <button type="submit" className="botao botao--primario" disabled={enviando || nota == null}>{enviando ? 'Enviando…' : 'Enviar avaliação'}</button>
     </form>
   )
 }
