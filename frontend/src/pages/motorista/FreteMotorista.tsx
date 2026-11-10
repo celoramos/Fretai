@@ -9,6 +9,7 @@ import { CancelarFrete } from '../../components/CancelarFrete'
 import { DocumentosDoMotorista } from '../../components/Documentos'
 import { FretesDeVolta } from '../../components/FretesDeVolta'
 import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
+import { porQueNaoLeva } from '../../compatibilidade'
 import { useTitulo } from '../../useTitulo'
 import { RotaLinha } from '../../components/RotaLinha'
 import { Aviso, ErroCarga, Esqueleto, Marcos, Placa, StatusFreteEtiqueta } from '../../components/ui'
@@ -245,7 +246,7 @@ function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | nul
     api<Veiculo[]>('GET', `/api/motoristas/${tokens.usuarioId}/veiculos`)
       .then((vs) => {
         setVeiculos(vs)
-        const compativel = vs.find((v) => compatibilidade(frete, v) == null)
+        const compativel = vs.find((v) => porQueNaoLeva(frete, v) == null)
         setVeiculoId(compativel?.id ?? '')
       })
       .catch(() => setVeiculos([]))
@@ -283,7 +284,7 @@ function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | nul
           {!veiculos && <option value="">Carregando a frota…</option>}
           {veiculos?.length === 0 && <option value="">Nenhum caminhão cadastrado</option>}
           {veiculos?.map((v) => {
-            const motivo = compatibilidade(frete, v)
+            const motivo = porQueNaoLeva(frete, v)
             return (
               <option key={v.id} value={v.id} disabled={motivo != null}>
                 {v.placa} · {veiculo(v.tipo)} {carroceria(v.carroceria)}{motivo ? ` (${motivo})` : ''}
@@ -340,12 +341,4 @@ function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | nul
       </div>
     </section>
   )
-}
-
-/** Por que este caminhão não serve para este frete; null quando serve. */
-function compatibilidade(frete: Frete, v: Veiculo): string | null {
-  if (frete.veiculosAceitos.length && (!v.tipo || !frete.veiculosAceitos.includes(v.tipo))) return 'tipo não aceito'
-  if (frete.carroceriasAceitas.length && (!v.carroceria || !frete.carroceriasAceitas.includes(v.carroceria))) return 'carroceria não aceita'
-  if (frete.exigeRastreador && !v.rastreador) return 'sem rastreador'
-  return null
 }

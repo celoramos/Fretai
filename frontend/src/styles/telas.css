@@ -801,3 +801,51 @@ ol.legal__itens { list-style: decimal; }
 .frete-c__cancelar-bloco { display: grid; justify-items: center; gap: var(--esp-1); text-align: center; }
 .frete-c__contestar { display: grid; gap: var(--esp-3); }
 .frete-c .canhoto__contestacao { display: grid; gap: var(--esp-3); justify-items: start; }
+
+/* ---------- fretes perto (Motorista-Busca) ----------
+   Topo com de onde (CEP ou GPS) e o raio; embaixo a lista, um cartão por frete. O frete que nenhum
+   veículo do motorista leva aparece apagado, sem link, com o motivo na cor de alerta. */
+.busca-m { display: grid; gap: var(--esp-4); }
+.busca-m__topo { display: grid; gap: var(--esp-3); }
+.busca-m__topo .cabecalho-pagina { margin-bottom: 0; }
+.busca-m__origem { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-3); }
+.busca-m__local { display: grid; gap: 2px; min-width: 0; }
+.busca-m__local > span { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.busca-m__botoes { display: flex; gap: var(--esp-2); flex: none; }
+.busca-m__aviso:empty { display: none; }
+.busca-m__aviso { color: var(--cor-alerta); font-weight: var(--peso-forte); }
+.busca-m__cep { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--esp-2); }
+.busca-m__cep .campo { flex: 1 1 180px; }
+.busca-m__cep .campo__erro { flex-basis: 100%; }
+.busca-m__raios { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-2); }
+.busca-m__raio {
+  min-height: var(--alvo); border: var(--borda) solid var(--cor-borda-campo); border-radius: var(--raio-pilula);
+  background: transparent; color: var(--cor-texto); font-size: var(--tam-corpo); font-weight: var(--peso-forte); cursor: pointer;
+}
+.busca-m__raio:hover { border-color: var(--cor-texto); }
+.busca-m__raio[aria-pressed="true"] { background: var(--cor-texto); border-color: var(--cor-texto); color: var(--cor-fundo); }
+.busca-m__resumo { color: var(--cor-texto-secundario); }
+.busca-m__lista { display: grid; gap: var(--esp-3); }
+
+.card-m { border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
+.card-m__link, .card-m--apagado { display: grid; gap: var(--esp-3); padding: var(--esp-4); color: var(--cor-texto); text-decoration: none; border-radius: inherit; }
+.card-m__link:hover .card-m__titulo { text-decoration: underline; }
+.card-m--apagado { opacity: var(--opac-desabilitado); }
+.card-m__topo { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--esp-3); }
+.card-m__titulo { font-size: var(--tam-bloco); line-height: 1.3; }
+.card-m__topo .valor { flex: none; }
+.card-m__rota { display: flex; align-items: center; gap: var(--esp-3); }
+.card-m__rota > span:not(.km) { min-width: 0; overflow-wrap: anywhere; }
+.card-m__meta { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.card-m__fim { display: flex; justify-content: space-between; gap: var(--esp-3); padding-top: var(--esp-3); border-top: var(--borda) solid var(--cor-linha); font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.card-m__nao-leva { font-size: var(--tam-detalhe); font-weight: var(--peso-forte); color: var(--cor-alerta); }
+@media (min-width: 900px) {
+  .busca-m { gap: var(--esp-6); }
+  .busca-m .cabecalho-pagina__titulo { font-size: var(--tam-display); }
+  .busca-m__topo { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+  .busca-m__topo .cabecalho-pagina, .busca-m__aviso, .busca-m__cep { grid-column: 1 / -1; }
+  .busca-m__raios { display: flex; }
+  .busca-m__raio { padding: 0 var(--esp-6); }
+  .busca-m__lista { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: var(--esp-4); }
+  .card-m__link, .card-m--apagado { padding: var(--esp-6) var(--esp-4) var(--esp-4); }
+}

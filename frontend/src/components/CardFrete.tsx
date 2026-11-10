@@ -1,52 +1,64 @@
 import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import type { Frete, PerfilEmpresa } from '../api/tipos'
-import { contratante, dataCurta, porKm, quilometros, veiculo } from '../formato'
-import { ChipPiso, Valor } from './Dinheiro'
-import { RotaLinha } from './RotaLinha'
+import { exigenciaDoFrete, tituloDoFrete } from '../compatibilidade'
+import { contratante, diaDaSemana, faixaDoPeso, quilometros } from '../formato'
 import { item } from '../movimento'
+import { ChipPiso, Valor } from './Dinheiro'
+import { nomeDaPonta } from './RotaLinha'
 
 /**
- * Em 2 segundos: de onde, para onde, quanto, e se quem contrata é sério.
- * referencia: de onde a distância é medida quando não é de onde o motorista está (ex.: o destino de
- * um frete, nas sugestões de volta).
+ * O frete na busca do motorista, como no canvas: o que é e quanto paga em cima, a rota com o km no meio,
+ * o dia e o peso, e embaixo a distância até ele e o veículo que o frete pede. naoLeva: o motivo de nenhum
+ * veículo dele levar este frete; o cartão aparece apagado, sem link. referencia: de onde a distância é
+ * medida quando não é de onde o motorista está (ex.: o destino de um frete, nas sugestões de volta).
  */
-export function CardFrete({ frete, distanciaOrigemKm, perfil, referencia }: { frete: Frete; distanciaOrigemKm: number; perfil?: PerfilEmpresa; referencia?: string }) {
+export function CardFrete({ frete, distanciaOrigemKm, perfil, referencia, naoLeva }: {
+  frete: Frete; distanciaOrigemKm: number; perfil?: PerfilEmpresa; referencia?: string; naoLeva?: string | null
+}) {
   const valor = frete.valorTotal ?? frete.valor
-  return (
-    <motion.article className="card-frete cartao" variants={item}>
-      <Link to={`/motorista/fretes/${frete.id}`} className="card-frete__link">
-        <span className="visualmente-oculto">Ver frete de {frete.coleta.cidade} para {frete.entrega.cidade}</span>
-      </Link>
-      <p className="card-frete__perto">{perto(distanciaOrigemKm, referencia)} · coleta {dataCurta(frete.dataColeta)}</p>
-      <RotaLinha coleta={frete.coleta} entrega={frete.entrega} distanciaKm={frete.distanciaKm} estimada={frete.distanciaEstimada} />
-
-      <div className="card-frete__dinheiro">
-        {frete.valorACombinar || valor == null ? (
-          <span className="card-frete__combinar">A combinar</span>
-        ) : (
-          <>
-            <Valor valor={valor} tamanho="grande" />
-            {frete.distanciaKm ? <span className="card-frete__porkm">R$&nbsp;{porKm(valor, frete.distanciaKm)}/km</span> : null}
-          </>
-        )}
-        <ChipPiso preco={frete.preco} valor={valor} />
+  const pontas = frete.cliente ? 'bairro' : 'cidade'
+  const origem = nomeDaPonta(frete.coleta, pontas)
+  const destino = nomeDaPonta(frete.entrega, pontas)
+  const meta = [diaDaSemana(frete.dataColeta), frete.pesoKg ? faixaDoPeso(frete.pesoKg) : null].filter(Boolean).join(' · ')
+  const conteudo = (
+    <>
+      <div className="card-m__topo">
+        <strong className="card-m__titulo">{tituloDoFrete(frete)}</strong>
+        {frete.valorACombinar || valor == null ? <span className="card-frete__combinar">A combinar</span> : <Valor valor={valor} tamanho="grande" />}
       </div>
-
-      {frete.preco?.acimaDaMedia && (
-        <p className="card-frete__fretao">Valor muito acima da média desta rota. Confira {contratante(frete).quem}.</p>
+      {naoLeva ? (
+        <span className="card-m__meta">{origem} → {destino} · {meta}</span>
+      ) : (
+        <>
+          <span className="card-m__rota">
+            <span>{origem}</span>
+            {frete.distanciaKm != null && <span className="km">{frete.distanciaEstimada ? '≈ ' : ''}{quilometros(frete.distanciaKm)}</span>}
+            <span>{destino}</span>
+          </span>
+          <span className="card-m__meta">{meta}</span>
+        </>
       )}
-
-      <ul className="card-frete__requisitos" aria-label="Requisitos">
-        <li>{frete.veiculosAceitos.map(veiculo).join(', ') || 'Qualquer veículo'}</li>
-        {frete.cliente && <li>Pessoa física</li>}
-        {frete.exigeRastreador && <li>Rastreador</li>}
-        {frete.complemento && <li>Complemento</li>}
-        {frete.publicadoPorAgenciador && <li className="card-frete__agenciador">Agenciador</li>}
-        {frete.feriado && <li>Feriado{frete.nomeFeriado ? `: ${frete.nomeFeriado}` : ''}</li>}
-      </ul>
-
-      <Reputacao nome={contratante(frete).nome} perfil={perfil} />
+      {!frete.cliente && (
+        <>
+          <ChipPiso preco={frete.preco} valor={valor} />
+          {frete.preco?.acimaDaMedia && <p className="card-frete__fretao">Valor muito acima da média desta rota. Confira {contratante(frete).quem}.</p>}
+          <Reputacao nome={contratante(frete).nome} perfil={perfil} />
+        </>
+      )}
+      {naoLeva ? (
+        <span className="card-m__nao-leva">{exigenciaDoFrete(frete)}: {naoLeva}</span>
+      ) : (
+        <span className="card-m__fim"><span>{perto(distanciaOrigemKm, referencia)}</span><span>{exigenciaDoFrete(frete)}</span></span>
+      )}
+    </>
+  )
+  if (naoLeva) {
+    return <motion.article className="card-m card-m--apagado" variants={item} aria-label={`${tituloDoFrete(frete)}. Seu veículo não leva este frete.`}>{conteudo}</motion.article>
+  }
+  return (
+    <motion.article className="card-m" variants={item}>
+      <Link to={`/motorista/fretes/${frete.id}`} className="card-m__link">{conteudo}</Link>
     </motion.article>
   )
 }
