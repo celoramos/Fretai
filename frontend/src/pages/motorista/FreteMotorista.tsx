@@ -1,304 +1,385 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api, comoProblema, ErroApi } from '../../api/cliente'
-import type { EventoFrete, Frete, Pagamento, Pagina, PerfilEmpresa, Problema, Proposta, Veiculo } from '../../api/tipos'
+import type { Contato, EventoFrete, FotoCarga, Frete, Pagamento, Pagina, PerfilEmpresa, Proposta, Veiculo } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
-import { Reputacao } from '../../components/CardFrete'
 import { Avaliar } from '../../components/Avaliar'
-import { CancelarFrete } from '../../components/CancelarFrete'
+import { CabecalhoPagina } from '../../components/CabecalhoPagina'
+import { CancelarComMotivo } from '../../components/CancelarComMotivo'
+import { Reputacao } from '../../components/CardFrete'
+import { ChipPiso, Valor } from '../../components/Dinheiro'
 import { DocumentosDoMotorista } from '../../components/Documentos'
 import { FretesDeVolta } from '../../components/FretesDeVolta'
-import { ChipPiso, MedidorGarantia, SeloGarantido, Valor } from '../../components/Dinheiro'
-import { porQueNaoLeva } from '../../compatibilidade'
-import { useTitulo } from '../../useTitulo'
 import { RotaLinha } from '../../components/RotaLinha'
-import { Aviso, ErroCarga, Esqueleto, Marcos, Placa, StatusFreteEtiqueta } from '../../components/ui'
-import { carga, carroceria, contratante, dataCurta, maiuscula, porKm, reais, veiculo } from '../../formato'
+import { Aviso, ErroCarga, Esqueleto, Marcos } from '../../components/ui'
+import { exigenciaDoFrete, porQueNaoLeva, tituloDoFrete } from '../../compatibilidade'
+import { carga, contratante, diaDaSemana, faixaDoPeso, horaMinuto, maiuscula, porKm, reais } from '../../formato'
+import { useComputador } from '../../largura'
 import { useSessao } from '../../sessao'
+import { useTitulo } from '../../useTitulo'
+import { linkWhatsApp } from '../../whatsapp'
 
 /** Erro de permissão ou ausência vira "não tem": quem não participa do frete não vê histórico nem cobrança. */
 const talvez = <T,>(p: Promise<T>) => p.catch((e) => (e instanceof ErroApi && [403, 404].includes(e.problema.status) ? null : Promise.reject(e)))
+const garantido = (p: Pagamento | null) => p != null && ['RETIDO', 'ADIANTAMENTO_LIBERADO', 'LIBERADO'].includes(p.status)
+const MOTIVOS = ['Problema com o veículo', 'Não vou conseguir no dia', 'A carga é diferente do anunciado']
+const CONSULTA_PIX_MS = 4000
+const brl = (v: number) => `R$ ${reais(v)}`
 
+/** Quem contratou, como o motorista fala: "Juliana" (pessoa física) ou o nome da empresa. */
+const nomeCurto = (f: Frete) => (f.cliente ? f.cliente.nome.split(' ')[0] : contratante(f).nome)
+
+/*
+ * O frete visto pelo motorista, como no canvas: rota, valor, o que vai (com as fotos) e quem contratou em
+ * cima; embaixo (ao lado, no computador) o que fazer agora: aceitar ou propor, esperar o Pix, sair,
+ * registrar a entrega ou desistir. Endereço completo, quem recebe e o WhatsApp só depois de fechar.
+ */
 export function FreteMotorista() {
   const { id = '' } = useParams()
   const { tokens } = useSessao()
+  const computador = useComputador()
   const [estado, recarregar] = useRecurso(async () => {
     const frete = await api<Frete>('GET', `/api/fretes/${id}`)
-    const [eventos, pagamento, perfil, minhas] = await Promise.all([
+    const [eventos, pagamento, perfil, minhas, fotos] = await Promise.all([
       talvez(api<EventoFrete[]>('GET', `/api/fretes/${id}/eventos`)),
       talvez(api<Pagamento>('GET', `/api/fretes/${id}/pagamento`)),
       frete.empresa ? talvez(api<PerfilEmpresa>('GET', `/api/empresas/${frete.empresa.id}/perfil`)) : null,
       talvez(api<Pagina<Proposta>>('GET', '/api/propostas/minhas?size=100')),
+      talvez(api<FotoCarga[]>('GET', `/api/fretes/${id}/fotos`)),
     ])
-    // A proposta que este motorista mandou e a empresa ainda não respondeu: no lugar de negociar de novo.
+    // A proposta que este motorista mandou e quem contratou ainda não respondeu: no lugar de negociar de novo.
     const minha = minhas?.content.find((p) => p.freteId === id && p.status === 'ENVIADA') ?? null
-    return { frete, eventos: eventos ?? [], pagamento, perfil, minha }
+    return { frete, eventos: eventos ?? [], pagamento, perfil, minha, fotos: fotos ?? [] }
   }, [id])
 
-  const titulo = estado.fase === 'pronto' ? `${estado.dados.frete.coleta.cidade} para ${estado.dados.frete.entrega.cidade}` : 'Frete'
-  useTitulo(titulo)
+  useTitulo(estado.fase === 'pronto' ? tituloDoFrete(estado.dados.frete) : 'Frete')
 
   if (estado.fase === 'carregando') return <div className="frete-m">{estado.mostrarEsqueleto && <><Esqueleto linhas={2} /><Esqueleto linhas={5} /></>}</div>
   if (estado.fase === 'erro') return <div className="frete-m"><ErroCarga problema={estado.problema} tentarDeNovo={recarregar} /></div>
 
-  const { frete, eventos, pagamento, perfil, minha } = estado.dados
+  const { frete, eventos, perfil, minha, fotos } = estado.dados
   const meu = frete.motorista?.id === tokens?.usuarioId
   const aberto = frete.status === 'PUBLICADO' || frete.status === 'PROPOSTA_ENVIADA'
+  const fechado = meu && ['ACEITO', 'EM_TRANSITO', 'ENTREGUE'].includes(frete.status)
   const valor = frete.valorAcordado ?? frete.valorTotal ?? frete.valor
-  const garantido = pagamento != null && ['RETIDO', 'ADIANTAMENTO_LIBERADO', 'LIBERADO'].includes(pagamento.status)
+  const quem = contratante(frete)
+  const titulo = tituloDoFrete(frete)
 
   return (
     <div className="frete-m">
-      <Link to={meu ? '/motorista/meus-fretes' : '/motorista'} className="voltar">Voltar</Link>
-      <header className="frete-m__cabeca cartao">
-        <div className="frete-m__status">
-          <StatusFreteEtiqueta status={frete.status} visao="motorista" />
-          {garantido && <SeloGarantido />}
+      {computador
+        ? <div className="pedido__topo"><Link to={meu ? '/motorista/meus-fretes' : '/motorista'} className="voltar">{meu ? 'Meus fretes' : 'Fretes perto'}</Link><h1 className="titulo-pagina">{titulo}</h1></div>
+        : <CabecalhoPagina titulo={titulo} voltar={meu ? '/motorista/meus-fretes' : '/motorista'} />}
+
+      <div className="frete-m__colunas">
+        <div className="frete-m__corpo">
+          <section className="frete-m__bloco" aria-label="Rota">
+            <RotaLinha coleta={frete.coleta} entrega={frete.entrega} distanciaKm={frete.distanciaKm} estimada={frete.distanciaEstimada} grande />
+            <p className="frete-m__quando">
+              {maiuscula(diaDaSemana(frete.dataColeta))}
+              {frete.feriado ? ` · feriado${frete.nomeFeriado ? ` (${frete.nomeFeriado})` : ''}` : ''}{frete.domingo ? ' · domingo' : ''}
+            </p>
+          </section>
+
+          <section className="frete-m__bloco" aria-label="Valor">
+            {valor == null || (frete.valorACombinar && !frete.valorAcordado) ? (
+              <p className="card-frete__combinar">A combinar</p>
+            ) : (
+              <div className="frete-m__numeros">
+                <Valor valor={valor} tamanho="grande" />
+                <span className="frete-m__de">{frete.valorAcordado ? 'valor fechado' : `oferta ${frete.cliente ? 'de quem pediu' : `d${quem.quem}`}`}</span>
+                {frete.distanciaKm ? <span className="card-frete__porkm">R$&nbsp;{porKm(valor, frete.distanciaKm)}/km</span> : null}
+              </div>
+            )}
+            <ChipPiso preco={frete.preco} valor={valor} />
+            {aberto && <p className="frete-c__texto--menor">Quando vocês fecham, {quem.quem} paga por Pix. O dinheiro fica guardado e vai para você depois da entrega confirmada.</p>}
+            {frete.distanciaKm != null && (
+              <Link className="frete-m__conta" to={`/motorista/calculadora?${new URLSearchParams(Object.entries({
+                km: String(frete.distanciaKm), valor: valor != null ? String(valor) : '', carga: frete.tipoCargaAntt ?? '',
+                eixos: frete.preco?.eixosConsiderados != null ? String(frete.preco.eixosConsiderados) : '',
+              }).filter(([, v]) => v))}`}>Esse frete paga a viagem? Fazer a conta</Link>
+            )}
+            {frete.preco?.acimaDaMedia && (
+              <Aviso tom="alerta" titulo="Valor muito acima da média desta rota.">Golpe comum: valor alto para atrair motorista. Confira {quem.quem} antes de carregar.</Aviso>
+            )}
+          </section>
+
+          <section className="frete-m__bloco" aria-labelledby="t-carga">
+            <h2 id="t-carga">O que vai</h2>
+            {frete.descricaoCarga && <p>{frete.descricaoCarga}{frete.especieCarga ? ` · ${frete.especieCarga}` : ''}</p>}
+            <p className="frete-c__texto--menor">
+              {[frete.pesoKg != null ? faixaDoPeso(frete.pesoKg) : null, exigenciaDoFrete(frete).toLowerCase(), frete.tipoCargaAntt ? carga(frete.tipoCargaAntt) : null,
+                frete.exigeRastreador ? 'rastreador obrigatório' : null].filter(Boolean).join(' · ')}
+            </p>
+            {fotos.length > 0 && (
+              <ul className="frete-m__fotos" aria-label="Fotos da carga">
+                {fotos.map((f, i) => <li key={f.id}><a href={f.url} target="_blank" rel="noreferrer"><img src={f.url} alt={`Foto ${i + 1} da carga`} /></a></li>)}
+              </ul>
+            )}
+          </section>
+
+          <section className="frete-m__bloco" aria-labelledby="t-quem">
+            <h2 id="t-quem">{frete.cliente ? 'Cliente' : frete.publicadoPorAgenciador ? 'Agenciador' : 'Empresa'}</h2>
+            {frete.cliente
+              ? <p>{abreviado(frete.cliente.nome)} · pessoa física</p>
+              : <Reputacao nome={frete.empresa?.razaoSocial ?? quem.nome} perfil={perfil ?? undefined} />}
+            {perfil && <p className="frete-c__texto--menor">Na plataforma desde {new Date(perfil.naPlataformaDesde).getFullYear()} · {perfil.fretesConcluidos} fretes concluídos</p>}
+            {fechado && (
+              <div className="frete-m__enderecos">
+                <p>Coleta: {frete.coleta.enderecoCompleto}</p>
+                <p>Entrega: {frete.entrega.enderecoCompleto}</p>
+                {frete.nomeDestinatario && <p>Quem recebe: {frete.nomeDestinatario}{frete.telefoneDestinatario && <> · <a href={`tel:${frete.telefoneDestinatario.replace(/\D/g, '')}`}>{frete.telefoneDestinatario}</a></>}</p>}
+                <WhatsApp freteId={frete.id} nome={nomeCurto(frete)} />
+              </div>
+            )}
+          </section>
+
+          {meu && !aberto && frete.status !== 'CANCELADO' && (
+            <section className="frete-m__bloco" aria-labelledby="t-andamento">
+              <h2 id="t-andamento">Andamento</h2>
+              <Marcos status={frete.status} eventos={eventos} visao="motorista" orientacao="vertical" motivoCancelamento={frete.motivoCancelamento} />
+            </section>
+          )}
+
+          {meu && (frete.status === 'ENTREGUE' || frete.status === 'PAGO') && (
+            <section className="frete-m__bloco" aria-labelledby="t-avaliacao">
+              <h2 id="t-avaliacao">Como foi com {nomeCurto(frete)}?</h2>
+              <Avaliar freteId={frete.id} lado="MOTORISTA" nomeAvaliado={quem.nome} />
+            </section>
+          )}
+
+          {tokens && !frete.cliente && (minha || (meu && (frete.status === 'ACEITO' || frete.status === 'EM_TRANSITO'))) && (
+            <section className="frete-m__bloco" aria-labelledby="t-documentos">
+              <h2 id="t-documentos">Seus documentos para {quem.nome}</h2>
+              <DocumentosDoMotorista freteId={frete.id} motoristaId={tokens.usuarioId} />
+            </section>
+          )}
+
+          {meu && ['EM_TRANSITO', 'ENTREGUE', 'PAGO'].includes(frete.status) && <FretesDeVolta frete={frete} />}
         </div>
-        <h1 className="visualmente-oculto">Frete de {titulo}</h1>
-        <RotaLinha coleta={frete.coleta} entrega={frete.entrega} distanciaKm={frete.distanciaKm} estimada={frete.distanciaEstimada} grande />
-      </header>
 
-      <section className="bloco cartao frete-m__valor" aria-label="Valor">
-        {valor == null || (frete.valorACombinar && !frete.valorAcordado) ? (
-          <p className="card-frete__combinar">A combinar</p>
-        ) : (
-          <div className="frete-m__numeros">
-            <Valor valor={valor} tamanho="grande" />
-            {frete.distanciaKm ? <span className="card-frete__porkm">R$&nbsp;{porKm(valor, frete.distanciaKm)}/km</span> : null}
-          </div>
-        )}
-        <ChipPiso preco={frete.preco} valor={valor} />
-        {frete.distanciaKm != null && (
-          <Link className="frete-m__conta" to={`/motorista/calculadora?${new URLSearchParams(Object.entries({
-            km: String(frete.distanciaKm), valor: valor != null ? String(valor) : '', carga: frete.tipoCargaAntt ?? '',
-            eixos: frete.preco?.eixosConsiderados != null ? String(frete.preco.eixosConsiderados) : '',
-          }).filter(([, v]) => v))}`}>Esse frete paga a viagem? Fazer a conta</Link>
-        )}
-        {frete.preco?.acimaDaMedia && (
-          <Aviso tom="alerta" titulo="Valor muito acima da média desta rota.">
-            Golpe comum: valor alto para atrair motorista. Confira {contratante(frete).quem} antes de carregar.
-          </Aviso>
-        )}
-      </section>
-
-      {meu && !aberto && (
-        <section className="bloco cartao" aria-labelledby="andamento">
-          <h2 id="andamento" className="bloco__titulo">Andamento</h2>
-          <MedidorGarantia pagamento={pagamento} />
-          <Acoes frete={frete} pagamento={pagamento} aoMudar={recarregar} />
-          <Marcos status={frete.status} eventos={eventos} visao="motorista" orientacao="vertical" motivoCancelamento={frete.motivoCancelamento} />
-        </section>
-      )}
-
-      {meu && (frete.status === 'ENTREGUE' || frete.status === 'PAGO') && (
-        <section className="bloco cartao" aria-labelledby="avaliacao">
-          <h2 id="avaliacao" className="bloco__titulo">Avaliação</h2>
-          <Avaliar freteId={frete.id} lado="MOTORISTA" nomeAvaliado={contratante(frete).nome} />
-        </section>
-      )}
-
-      {tokens && (minha || (meu && (frete.status === 'ACEITO' || frete.status === 'EM_TRANSITO'))) && (
-        <section className="bloco cartao" aria-labelledby="documentos">
-          <h2 id="documentos" className="bloco__titulo">Seus documentos para {contratante(frete).nome}</h2>
-          <DocumentosDoMotorista freteId={frete.id} motoristaId={tokens.usuarioId} />
-        </section>
-      )}
-
-      {meu && ['EM_TRANSITO', 'ENTREGUE', 'PAGO'].includes(frete.status) && <FretesDeVolta frete={frete} />}
-
-      <section className="bloco cartao" aria-labelledby="carga">
-        <h2 id="carga" className="bloco__titulo">Carga e coleta</h2>
-        <dl className="ficha">
-          <div><dt>Coleta</dt><dd>{dataCurta(frete.dataColeta)}{frete.feriado ? ` · feriado${frete.nomeFeriado ? ` (${frete.nomeFeriado})` : ''}` : ''}{frete.domingo ? ' · domingo' : ''}</dd></div>
-          {frete.descricaoCarga && <div><dt>Carga</dt><dd>{frete.descricaoCarga}{frete.especieCarga ? ` · ${frete.especieCarga}` : ''}</dd></div>}
-          {frete.tipoCargaAntt && <div><dt>Tipo ANTT</dt><dd>{carga(frete.tipoCargaAntt)}</dd></div>}
-          {frete.pesoKg != null && <div><dt>Peso</dt><dd>{reais(frete.pesoKg)}&nbsp;kg</dd></div>}
-          <div><dt>Veículos</dt><dd>{frete.veiculosAceitos.map(veiculo).join(', ') || 'Qualquer'}</dd></div>
-          <div><dt>Carroceria</dt><dd>{frete.carroceriasAceitas.map(carroceria).join(', ') || 'Qualquer'}</dd></div>
-          <div><dt>Rastreador</dt><dd>{frete.exigeRastreador ? 'Obrigatório' : 'Não exige'}</dd></div>
-          {meu && <div><dt>Retirada</dt><dd>{frete.coleta.enderecoCompleto}</dd></div>}
-          {meu && <div><dt>Entrega</dt><dd>{frete.entrega.enderecoCompleto}{frete.nomeDestinatario ? ` · ${frete.nomeDestinatario}` : ''}</dd></div>}
-          {meu && frete.telefoneDestinatario && <div><dt>Contato</dt><dd><a href={`tel:${frete.telefoneDestinatario.replace(/\D/g, '')}`}>{frete.telefoneDestinatario}</a></dd></div>}
-          {meu && frete.veiculo && <div><dt>Seu caminhão</dt><dd><Placa placa={frete.veiculo.placa} /></dd></div>}
-        </dl>
-      </section>
-
-      <section className="bloco cartao" aria-labelledby="empresa">
-        <h2 id="empresa" className="bloco__titulo">{frete.cliente ? 'Cliente pessoa física' : frete.publicadoPorAgenciador ? 'Agenciador' : 'Empresa'}</h2>
-        <Reputacao nome={frete.empresa?.razaoSocial ?? contratante(frete).nome} perfil={perfil ?? undefined} />
-        {frete.cliente && <p className="detalhe">Frete avulso, sem histórico de empresa. O Pix é pago antes da coleta, como em qualquer frete do Fretaí.</p>}
-        {perfil && <p className="detalhe">Na plataforma desde {new Date(perfil.naPlataformaDesde).getFullYear()} · {perfil.fretesConcluidos} fretes concluídos</p>}
-      </section>
-
-      {meu && frete.status === 'ACEITO' && <CancelarFrete frete={frete} pago={garantido} aoCancelar={recarregar} />}
-
-      {aberto && !meu && (minha
-        ? <MinhaProposta proposta={minha} quem={contratante(frete).quem} aoMudar={recarregar} />
-        : <Negociar frete={frete} valor={valor} aoMudar={recarregar} />)}
+        <aside className="frete-m__acoes" aria-label="O que fazer">
+          <Acoes dados={estado.dados} meu={meu} aberto={aberto} aoMudar={recarregar} />
+        </aside>
+      </div>
     </div>
   )
 }
 
-function Acoes({ frete, pagamento, aoMudar }: { frete: Frete; pagamento: Pagamento | null; aoMudar: () => void }) {
-  const [enviando, setEnviando] = useState(false)
-  const [problema, setProblema] = useState<Problema | null>(null)
+/** "Juliana M.": o motorista vê o primeiro nome e a inicial do sobrenome antes do endereço. */
+function abreviado(nome: string) {
+  const partes = nome.trim().split(/\s+/)
+  return partes.length > 1 ? `${partes[0]} ${partes[partes.length - 1][0]}.` : partes[0]
+}
+
+/** O WhatsApp de quem contratou, depois de fechar. O pagamento fica no Fretaí, fora da conversa. */
+function WhatsApp({ freteId, nome }: { freteId: string; nome: string }) {
+  const [contato] = useRecurso(() => talvez(api<Contato>('GET', `/api/fretes/${freteId}/contato`)), [freteId])
+  if (contato.fase !== 'pronto' || !contato.dados) return null
+  return (
+    <div className="frete-c__zap">
+      <a className="botao botao--secundario botao--largo" href={linkWhatsApp(contato.dados.telefone)} target="_blank" rel="noreferrer">Chamar {nome} no WhatsApp</a>
+      <p className="frete-c__texto--menor">Pagamento e comprovantes ficam no Fretaí, fora do WhatsApp. Não combine pagamento por fora.</p>
+    </div>
+  )
+}
+
+type Dados = { frete: Frete; eventos: EventoFrete[]; pagamento: Pagamento | null; minha: Proposta | null }
+
+function Acoes({ dados, meu, aberto, aoMudar }: { dados: Dados; meu: boolean; aberto: boolean; aoMudar: () => void }) {
+  const { frete, eventos } = dados
+  const [pagamento, setPagamento] = useState(dados.pagamento)
+  const [desistindo, setDesistindo] = useState(false)
+  const [cancelando, setCancelando] = useState(false)
+  const [erroCancelar, setErroCancelar] = useState<string | null>(null)
+  const [desistiu, setDesistiu] = useState<{ pix: boolean } | null>(null)
+  const [iniciando, setIniciando] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+  const nome = nomeCurto(frete)
+  const pago = garantido(pagamento)
+
+  // Fechado e sem Pix: a tela pergunta ao Fretaí a cada 4 s, só enquanto está aberta.
+  const esperandoPix = meu && frete.status === 'ACEITO' && !pago
+  useEffect(() => {
+    if (!esperandoPix) return
+    const t = setInterval(() => talvez(api<Pagamento>('GET', `/api/fretes/${frete.id}/pagamento`)).then((p) => p && setPagamento(p)).catch(() => undefined), CONSULTA_PIX_MS)
+    return () => clearInterval(t)
+  }, [esperandoPix, frete.id])
 
   async function iniciar() {
-    setEnviando(true)
-    setProblema(null)
+    setIniciando(true)
+    setErro(null)
     try {
       await api('POST', `/api/fretes/${frete.id}/inicio`)
       aoMudar()
     } catch (e) {
-      setProblema(comoProblema(e))
-    } finally {
-      setEnviando(false)
+      setErro(comoProblema(e).detail)
+      setIniciando(false)
     }
   }
 
-  if (frete.status === 'ACEITO') {
-    const semGarantia = !pagamento || pagamento.status === 'PENDENTE'
+  async function desistir(motivo: string) {
+    setCancelando(true)
+    setErroCancelar(null)
+    try {
+      await api('POST', `/api/fretes/${frete.id}/cancelamento`, { motivo })
+      setDesistindo(false)
+      setDesistiu({ pix: pago })
+    } catch (e) {
+      setErroCancelar(comoProblema(e).detail)
+    } finally {
+      setCancelando(false)
+    }
+  }
+
+  if (desistiu) {
     return (
-      <div className="acoes" aria-live="polite">
-        {semGarantia ? (
-          <Aviso tom="alerta" titulo={`${maiuscula(contratante(frete).quem)} ainda não pagou o Pix.`}>Espere o “Pagamento garantido” antes de carregar.</Aviso>
-        ) : (
-          <Aviso tom="garantido" titulo="O dinheiro já está guardado. Pode carregar." />
-        )}
-        {problema && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}
-        <button type="button" className="botao botao--primario botao--largo" onClick={iniciar} disabled={enviando}>
-          {enviando ? 'Iniciando…' : 'Iniciar viagem'}
-        </button>
+      <div className="frete-m__painel" role="status">
+        <p className="frete-m__estado frete-m__estado--perigo">Frete cancelado. Avisamos {nome}{desistiu.pix ? ', e o Pix volta para quem pagou.' : '.'}</p>
+        <Link to="/motorista" className="botao botao--primario botao--largo">Ver outros fretes</Link>
       </div>
     )
   }
-  if (frete.status === 'EM_TRANSITO') {
+
+  if (aberto && !meu) return dados.minha ? <MinhaProposta proposta={dados.minha} frete={frete} aoMudar={aoMudar} /> : <Negociar frete={frete} aoMudar={aoMudar} />
+  if (!meu) return null
+
+  if (frete.status === 'ACEITO') {
+    const valor = pagamento?.valorTotal ?? frete.valorAcordado ?? frete.valor
     return (
-      <div className="acoes">
-        <p className="detalhe">Na entrega: foto, assinatura de quem recebeu e GPS a até 500 m do destino. É isso que libera o saldo.</p>
-        <Link to={`/motorista/fretes/${frete.id}/entrega`} className="botao botao--primario botao--largo">Registrar entrega</Link>
+      <div className="frete-m__painel" aria-live="polite">
+        {pago ? (
+          <>
+            <p className="frete-m__estado frete-m__estado--garantido">
+              <svg className="icone-traco" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+              Pix confirmado: {valor != null ? brl(valor) : 'valor'} guardado
+            </p>
+            {erro && <Aviso tom="perigo" titulo="Não deu para iniciar.">{erro}</Aviso>}
+            <button type="button" className="botao botao--primario botao--largo" onClick={iniciar} disabled={iniciando}>{iniciando ? 'Iniciando…' : 'Carreguei, iniciar viagem'}</button>
+          </>
+        ) : (
+          <>
+            <p className="frete-m__estado frete-m__estado--info">Fechado com {nome}. Esperando o Pix.</p>
+            <p className="frete-c__texto--menor">Não saia para a coleta antes de aparecer “Pix confirmado”.</p>
+          </>
+        )}
+        <button type="button" className="botao botao--fantasma frete-c__cancelar" aria-haspopup="dialog" onClick={() => setDesistindo(true)}>Desistir do frete</button>
+        <CancelarComMotivo
+          aberta={desistindo}
+          titulo={`Desistir do frete de ${nome}?`}
+          texto={`Avisamos ${nome} na hora${pago && valor != null ? `, e o Pix de ${brl(valor)} volta para quem pagou` : ''}. Depois que a carga sai, não dá mais para desistir.`}
+          pergunta="Por que você vai desistir?"
+          motivos={MOTIVOS}
+          rotuloConfirmar="Sim, desistir do frete"
+          rotuloManter="Continuar com o frete"
+          enviando={cancelando}
+          erro={erroCancelar}
+          aoConfirmar={desistir}
+          aoFechar={() => setDesistindo(false)}
+        />
+      </div>
+    )
+  }
+
+  if (frete.status === 'EM_TRANSITO') {
+    const saiu = [...eventos].reverse().find((e) => e.para === 'EM_TRANSITO')?.ocorridoEm
+    return (
+      <div className="frete-m__painel">
+        <p className="frete-m__estado frete-m__estado--info" role="status">{saiu ? `Na estrada desde ${horaMinuto(saiu)}` : 'Na estrada'}</p>
+        <p className="frete-c__texto--menor">Na entrega: foto, assinatura de quem recebeu e GPS a até 500 m do destino. É isso que libera o pagamento.</p>
+        <Link to={`/motorista/fretes/${frete.id}/entrega`} className="botao botao--primario botao--largo">Cheguei, registrar entrega</Link>
       </div>
     )
   }
   return null
 }
 
-/** A proposta enviada fica no rodapé, onde estavam os botões de negociar: valor, adiantamento e retirar. */
-/** quem: como chamar quem contratou ("a empresa", "o cliente"). */
-function MinhaProposta({ proposta, quem, aoMudar }: { proposta: Proposta; quem: string; aoMudar: () => void }) {
+/** A proposta enviada fica onde estavam os botões de negociar, com retirar. */
+function MinhaProposta({ proposta, frete, aoMudar }: { proposta: Proposta; frete: Frete; aoMudar: () => void }) {
   const [fase, setFase] = useState<'parado' | 'confirmar' | 'enviando'>('parado')
-  const [problema, setProblema] = useState<Problema | null>(null)
+  const [erro, setErro] = useState<string | null>(null)
+  const quem = contratante(frete).quem
+  const oferta = frete.valorTotal ?? frete.valor
 
   async function retirar() {
     setFase('enviando')
-    setProblema(null)
+    setErro(null)
     try {
       await api('POST', `/api/propostas/${proposta.id}/retirada`)
       aoMudar()
     } catch (e) {
-      setProblema(comoProblema(e))
+      setErro(comoProblema(e).detail)
       setFase('parado')
     }
   }
 
   return (
-    <section className="negociar" aria-labelledby="minha-titulo">
-      <h2 id="minha-titulo" className="bloco__titulo">Sua proposta</h2>
-      <div className="minha">
-        <Valor valor={proposta.valor} tamanho="grande" />
-        <p className="detalhe">
-          {proposta.adiantamentoPercentual}% na saída (R$&nbsp;{reais(proposta.valorAdiantamento)}) · enviada {dataCurta(proposta.criadaEm)}
-        </p>
-        <p>Aguardando {quem} responder. Você recebe aviso quando houver resposta.</p>
-      </div>
-      <div aria-live="polite">{problema && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}</div>
-      <div className="negociar__botoes">
-        {fase === 'confirmar' ? (
-          <>
-            <p className="proposta__confirmar">Retirar a proposta? {maiuscula(quem)} deixa de ver o seu valor.</p>
-            <button type="button" className="botao botao--perigo botao--largo" onClick={retirar}>Retirar proposta</button>
-            <button type="button" className="botao botao--fantasma botao--largo" onClick={() => setFase('parado')}>Manter</button>
-          </>
-        ) : (
-          <button type="button" className="botao botao--secundario botao--largo" disabled={fase === 'enviando'} onClick={() => setFase('confirmar')}>
-            {fase === 'enviando' ? 'Retirando…' : 'Retirar proposta'}
-          </button>
-        )}
-      </div>
-    </section>
+    <div className="frete-m__painel">
+      <p className="frete-m__estado frete-m__estado--info" role="status">Proposta enviada: {brl(proposta.valor)}. {maiuscula(quem)} decide.</p>
+      {oferta != null && <p className="frete-c__texto--menor">Se outro motorista aceitar os {brl(oferta)} antes, o frete sai da lista.</p>}
+      {erro && <Aviso tom="perigo" titulo="Não deu para retirar.">{erro}</Aviso>}
+      {fase === 'confirmar' ? (
+        <>
+          <p>Retirar a proposta? {maiuscula(quem)} deixa de ver o seu valor.</p>
+          <button type="button" className="botao botao--perigo botao--largo" onClick={retirar}>Retirar proposta</button>
+          <button type="button" className="botao botao--fantasma botao--largo" onClick={() => setFase('parado')}>Manter</button>
+        </>
+      ) : (
+        <button type="button" className="botao botao--secundario botao--largo" disabled={fase === 'enviando'} onClick={() => setFase('confirmar')}>
+          {fase === 'enviando' ? 'Retirando…' : 'Retirar proposta'}
+        </button>
+      )}
+    </div>
   )
 }
 
-function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | null; aoMudar: () => void }) {
+/** Aceitar pelo valor ou propor outro. O aceite vai com o primeiro veículo que leva o frete. */
+function Negociar({ frete, aoMudar }: { frete: Frete; aoMudar: () => void }) {
   const { tokens } = useSessao()
-  const [veiculos, setVeiculos] = useState<Veiculo[] | null>(null)
-  const [veiculoId, setVeiculoId] = useState('')
-  const [modo, setModo] = useState<'escolha' | 'proposta'>('escolha')
+  const [veiculos] = useRecurso(() => api<Veiculo[]>('GET', `/api/motoristas/${tokens?.usuarioId ?? ''}/veiculos`).catch(() => [] as Veiculo[]), [tokens?.usuarioId])
+  const [propondo, setPropondo] = useState(false)
+  const valor = frete.valorTotal ?? frete.valor
   const [proposto, setProposto] = useState(valor != null ? String(valor) : '')
   const [adiantamento, setAdiantamento] = useState(40)
-  const [enviando, setEnviando] = useState(false)
-  // Deu certo, a tela recarrega e mostra a proposta ou o frete fechado; aqui só sobra a falha.
+  const [enviando, setEnviando] = useState<'aceite' | 'proposta' | null>(null)
+  const travado = useRef(false)
   const [falha, setFalha] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!tokens) return
-    api<Veiculo[]>('GET', `/api/motoristas/${tokens.usuarioId}/veiculos`)
-      .then((vs) => {
-        setVeiculos(vs)
-        const compativel = vs.find((v) => porQueNaoLeva(frete, v) == null)
-        setVeiculoId(compativel?.id ?? '')
-      })
-      .catch(() => setVeiculos([]))
-  }, [tokens, frete])
-
+  const lista = veiculos.fase === 'pronto' ? veiculos.dados : null
+  const leva = lista?.find((v) => porQueNaoLeva(frete, v) == null) ?? null
   const numero = Number(proposto.replace(/\./g, '').replace(',', '.'))
   const valido = Number.isFinite(numero) && numero > 0
 
   async function executar(acao: 'aceite' | 'proposta', e?: FormEvent) {
     e?.preventDefault()
-    setEnviando(true)
+    if (travado.current) return
+    travado.current = true
+    setEnviando(acao)
     setFalha(null)
     try {
-      if (acao === 'aceite') {
-        await api('POST', `/api/fretes/${frete.id}/aceite`, { motoristaId: tokens?.usuarioId, veiculoId: veiculoId || null })
-        aoMudar()
-      } else {
-        await api('POST', `/api/fretes/${frete.id}/propostas`, { motoristaId: tokens?.usuarioId, veiculoId: veiculoId || null, valor: numero, adiantamentoPercentual: adiantamento })
-        aoMudar()
-      }
+      if (acao === 'aceite') await api('POST', `/api/fretes/${frete.id}/aceite`, { motoristaId: tokens?.usuarioId, veiculoId: leva?.id ?? null })
+      else await api('POST', `/api/fretes/${frete.id}/propostas`, { motoristaId: tokens?.usuarioId, veiculoId: leva?.id ?? null, valor: numero, adiantamentoPercentual: adiantamento })
+      aoMudar()
     } catch (erro) {
-      const p = erro instanceof ErroApi ? erro.problema : null
-      setFalha(p ? `${p.title}. ${p.detail}` : String(erro))
-    } finally {
-      setEnviando(false)
+      setFalha(comoProblema(erro).detail)
+      travado.current = false
+      setEnviando(null)
     }
   }
 
+  const semVeiculo = lista != null && !leva
   return (
-    <section className="negociar" aria-labelledby="negociar-titulo">
-      <h2 id="negociar-titulo" className="visualmente-oculto">Fechar este frete</h2>
-      <div className="campo">
-        <label htmlFor="veiculo" className="campo__rotulo">Com qual caminhão</label>
-        <select id="veiculo" className="campo__entrada" value={veiculoId} onChange={(e) => setVeiculoId(e.target.value)} disabled={!veiculos}>
-          {!veiculos && <option value="">Carregando a frota…</option>}
-          {veiculos?.length === 0 && <option value="">Nenhum caminhão cadastrado</option>}
-          {veiculos?.map((v) => {
-            const motivo = porQueNaoLeva(frete, v)
-            return (
-              <option key={v.id} value={v.id} disabled={motivo != null}>
-                {v.placa} · {veiculo(v.tipo)} {carroceria(v.carroceria)}{motivo ? ` (${motivo})` : ''}
-              </option>
-            )
-          })}
-        </select>
-      </div>
-
-      {modo === 'proposta' && (
-        <form className="negociar__proposta" id="form-proposta" onSubmit={(e) => executar('proposta', e)}>
+    <div className="frete-m__painel">
+      {semVeiculo && (
+        <p className="frete-m__estado frete-m__estado--alerta">
+          Cadastre um veículo: este frete precisa de {exigenciaDoFrete(frete).toLowerCase()}. <Link to="/motorista/perfil">Ir para o perfil</Link>
+        </p>
+      )}
+      {propondo ? (
+        <form className="frete-m__proposta" onSubmit={(e) => executar('proposta', e)} noValidate>
           <div className="campo">
             <label htmlFor="valor-proposta" className="campo__rotulo">Seu valor (R$)</label>
-            <input id="valor-proposta" inputMode="decimal" className="campo__entrada campo__entrada--numero" value={proposto} onChange={(e) => setProposto(e.target.value)} />
+            <input id="valor-proposta" inputMode="decimal" className="campo__entrada campo__entrada--numero" value={proposto} onChange={(e) => setProposto(e.target.value)} autoFocus />
             {valido && frete.distanciaKm ? (
               <p className="campo__ajuda">
                 R$&nbsp;{porKm(numero, frete.distanciaKm)}/km
@@ -306,39 +387,32 @@ function Negociar({ frete, valor, aoMudar }: { frete: Frete; valor: number | nul
               </p>
             ) : null}
           </div>
-          <div className="campo">
-            <label htmlFor="adiantamento" className="campo__rotulo">Adiantamento na saída: {adiantamento}%</label>
-            <input id="adiantamento" type="range" min={0} max={100} step={10} value={adiantamento} onChange={(e) => setAdiantamento(Number(e.target.value))} className="faixa-deslizante" />
-            {valido && (
-              <p className="campo__ajuda campo__ajuda--numeros">
-                RR$&nbsp;{reais((numero * adiantamento) / 100)} na saída e Rna saída · R$&nbsp;nbsp;{reais(numero - (numero * adiantamento) / 100)} na entreganbsp;{reais((numero * adiantamento) / 100)} na saída · RR$&nbsp;{reais((numero * adiantamento) / 100)} na saída e Rna saída · R$&nbsp;nbsp;{reais(numero - (numero * adiantamento) / 100)} na entreganbsp;{reais(numero - (numero * adiantamento) / 100)} na entrega
-              </p>
-            )}
-          </div>
+          {!frete.cliente && (
+            <div className="campo">
+              <label htmlFor="adiantamento" className="campo__rotulo">Adiantamento na saída: {adiantamento}%</label>
+              <input id="adiantamento" type="range" min={0} max={100} step={10} value={adiantamento} onChange={(e) => setAdiantamento(Number(e.target.value))} className="faixa-deslizante" />
+              {valido && (
+                <p className="campo__ajuda campo__ajuda--numeros">
+                  R$&nbsp;{reais((numero * adiantamento) / 100)} na saída e R$&nbsp;{reais(numero - (numero * adiantamento) / 100)} na entrega
+                </p>
+              )}
+            </div>
+          )}
+          {falha && <Aviso tom="perigo" titulo="Não deu certo.">{falha}</Aviso>}
+          <button type="submit" className="botao botao--primario botao--largo" disabled={!valido || semVeiculo || enviando != null}>{enviando === 'proposta' ? 'Enviando…' : 'Enviar proposta'}</button>
+          <button type="button" className="botao botao--fantasma botao--largo" onClick={() => setPropondo(false)}>Voltar</button>
         </form>
-      )}
-
-      <p aria-live="polite" className="negociar__erro">{falha}</p>
-
-      <div className="negociar__botoes">
-        {modo === 'escolha' ? (
-          <>
-            {valor != null && !frete.valorACombinar && (
-              <button type="button" className="botao botao--primario botao--largo" disabled={enviando || !veiculoId} onClick={() => executar('aceite')}>
-                {enviando ? 'Aceitando…' : `Aceitar por R$ ${reais(valor)}`}
-              </button>
-            )}
-            <button type="button" className="botao botao--secundario botao--largo" onClick={() => setModo('proposta')}>Fazer proposta</button>
-          </>
-        ) : (
-          <>
-            <button type="submit" form="form-proposta" className="botao botao--primario botao--largo" disabled={enviando}>
-              {enviando ? 'Enviando…' : 'Enviar proposta'}
+      ) : (
+        <>
+          {falha && <Aviso tom="perigo" titulo="Não deu certo.">{falha}</Aviso>}
+          {valor != null && !frete.valorACombinar && (
+            <button type="button" className="botao botao--primario botao--largo" disabled={lista == null || semVeiculo || enviando != null} onClick={() => executar('aceite')}>
+              {enviando === 'aceite' ? 'Aceitando…' : `Aceitar por ${brl(valor)}`}
             </button>
-            <button type="button" className="botao botao--fantasma botao--largo" onClick={() => setModo('escolha')}>Voltar</button>
-          </>
-        )}
-      </div>
-    </section>
+          )}
+          <button type="button" className="botao botao--secundario botao--largo" onClick={() => setPropondo(true)}>Propor outro valor</button>
+        </>
+      )}
+    </div>
   )
 }
