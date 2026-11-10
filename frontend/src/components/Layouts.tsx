@@ -171,7 +171,8 @@ export function LayoutEmpresa() {
 /**
  * Cliente pessoa física, como no canvas. No computador, a barra de cima em toda tela: marca, Meus fretes,
  * Pedir frete e o avatar com o menu da conta. No celular a barra só aparece no início (marca e avatar);
- * as outras telas têm o próprio cabeçalho, com o caminho de volta.
+ * as outras telas têm o próprio cabeçalho, com o caminho de volta. O botão de tema não está no canvas e
+ * fica ao lado do avatar, como na barra do motorista: o cliente já trocava de tema antes do redesign.
  */
 export function LayoutCliente() {
   const { pathname } = useLocation()
@@ -186,6 +187,7 @@ export function LayoutCliente() {
             <Link to="/cliente" className="pilula-nav pilula-nav--clara" aria-current={noInicio ? 'page' : undefined}>Meus fretes</Link>
             <Link to="/cliente/fretes/novo" className="pilula-nav pilula-nav--escura">Pedir frete</Link>
           </nav>
+          <BotaoTema />
           <MenuConta />
         </div>
       </header>
