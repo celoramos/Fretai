@@ -882,3 +882,29 @@ ol.legal__itens { list-style: decimal; }
   .frete-m__colunas { grid-template-columns: minmax(0, 1fr) var(--largura-proposta); align-items: start; gap: var(--esp-8); }
   .frete-m__acoes { position: sticky; top: var(--esp-6); margin: 0; padding: var(--esp-6); border: 0; border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao); }
 }
+
+/* ---------- registrar entrega (Motorista-Entrega) ---------- */
+.entrega-m { display: grid; gap: var(--esp-4); }
+.entrega-m__parte { display: grid; gap: var(--esp-3); padding-bottom: var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); }
+.entrega-m__parte h2 { font-size: var(--tam-secao); }
+.entrega-m__foto { width: 100%; max-height: calc(var(--alvo-motorista) * 5); object-fit: cover; border-radius: var(--raio-controle); }
+.entrega-m__camera:has(:focus-visible) { outline: var(--foco-largura) solid var(--cor-foco); outline-offset: var(--foco-recuo); }
+.entrega-m__gps { display: grid; gap: var(--esp-2); }
+.entrega-m__fim { display: grid; gap: var(--esp-2); }
+.entrega-m__falta { text-align: center; font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.entrega-m__feito { display: grid; justify-items: center; gap: var(--esp-3); padding: var(--esp-6) 0; text-align: center; }
+.entrega-m__feito h2 { font-size: var(--tam-titulo); }
+.entrega-m__ok { width: var(--esp-12); height: var(--esp-12); padding: var(--esp-2); border-radius: var(--raio-pilula); color: var(--cor-fundo); background: var(--cor-garantido); }
+.entrega-m__nota { display: grid; justify-items: center; gap: var(--esp-2); }
+.entrega-m__nota h3 { font-size: var(--tam-secao); }
+.entrega-m__estrelas { display: flex; gap: var(--esp-1); }
+.entrega-m__estrela { display: grid; place-items: center; width: var(--alvo-motorista); height: var(--alvo-motorista); padding: 0; border: 0; background: transparent; color: var(--cor-texto-secundario); cursor: pointer; }
+.entrega-m__estrela svg { width: var(--esp-8); height: var(--esp-8); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.entrega-m__estrela[aria-pressed="true"] { color: var(--cor-texto); }
+.entrega-m__estrela[aria-pressed="true"] svg { fill: currentColor; }
+.entrega-m__estrela:disabled { cursor: default; }
+@media (min-width: 900px) {
+  .entrega-m { max-width: var(--largura-pagamento); gap: var(--esp-6); }
+  .entrega-m .pedido__topo .titulo-pagina { font-size: var(--tam-display); }
+  .entrega-m__fim { position: static; padding: 0; background: none; box-shadow: none; }
+}

@@ -9,19 +9,27 @@ export function distanciaKm(a: { lat: number; lng: number }, b: { lat: number; l
   return 2 * R * Math.asin(Math.sqrt(h))
 }
 
-/** Posição atual do aparelho. Rejeita com a mensagem que o motorista precisa ler. */
+const ESPERA_MS = 10_000
+const SEM_RESPOSTA = 'Não deu para pegar o GPS agora. Vá para perto de uma janela ou área aberta e tente de novo.'
+
+/**
+ * Posição atual do aparelho. Rejeita com a mensagem que o motorista precisa ler. Desiste em 10 s,
+ * também quando a pessoa nunca responde à pergunta do navegador (o timeout do GPS só conta depois dela).
+ */
 export function posicaoAtual(): Promise<{ lat: number; lng: number; precisaoM: number }> {
   return new Promise((resolver, rejeitar) => {
     if (!('geolocation' in navigator)) {
       rejeitar(new Error('Este aparelho não informa a localização.'))
       return
     }
+    const desistir = window.setTimeout(() => rejeitar(new Error(SEM_RESPOSTA)), ESPERA_MS)
     navigator.geolocation.getCurrentPosition(
-      (p) => resolver({ lat: p.coords.latitude, lng: p.coords.longitude, precisaoM: p.coords.accuracy }),
-      (e) => rejeitar(new Error(e.code === e.PERMISSION_DENIED
-        ? 'A localização está bloqueada. Libere nas configurações do navegador.'
-        : 'Não deu para pegar o GPS agora. Vá para perto de uma janela ou área aberta e tente de novo.')),
-      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 30_000 },
+      (p) => { window.clearTimeout(desistir); resolver({ lat: p.coords.latitude, lng: p.coords.longitude, precisaoM: p.coords.accuracy }) },
+      (e) => {
+        window.clearTimeout(desistir)
+        rejeitar(new Error(e.code === e.PERMISSION_DENIED ? 'A localização está bloqueada. Libere nas configurações do navegador.' : SEM_RESPOSTA))
+      },
+      { enableHighAccuracy: true, timeout: ESPERA_MS, maximumAge: 30_000 },
     )
   })
 }
