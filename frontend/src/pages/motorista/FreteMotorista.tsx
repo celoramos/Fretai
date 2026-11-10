@@ -144,7 +144,7 @@ export function FreteMotorista() {
           {meu && (frete.status === 'ENTREGUE' || frete.status === 'PAGO') && (
             <section className="frete-m__bloco" aria-labelledby="t-avaliacao">
               <h2 id="t-avaliacao">Como foi com {nomeCurto(frete)}?</h2>
-              <Avaliar freteId={frete.id} lado="MOTORISTA" nomeAvaliado={quem.nome} />
+              <Avaliar freteId={frete.id} lado="MOTORISTA" nomeAvaliado={quem.nome} perguntaNoTitulo />
             </section>
           )}
 

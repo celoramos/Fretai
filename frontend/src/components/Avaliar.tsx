@@ -12,8 +12,10 @@ const SIGNIFICADO: Record<number, string> = { 1: 'Muito ruim', 2: 'Ruim', 3: 'No
  * Avaliação depois da entrega. A reputação dos dois lados é o que dá confiança no próximo frete,
  * então a nota pede um toque só; o comentário é opcional. Quem já avaliou vê o que deu, sem editar
  * (a API aceita uma avaliação por lado).
+ * perguntaNoTitulo: a seção em volta já pergunta "Como foi com …?" no título. A legenda continua lá para
+ * quem ouve, porque o grupo de estrelas precisa de nome, mas não aparece de novo na tela.
  */
-export function Avaliar({ freteId, lado, nomeAvaliado }: { freteId: string; lado: Avaliacao['lado']; nomeAvaliado: string }) {
+export function Avaliar({ freteId, lado, nomeAvaliado, perguntaNoTitulo = false }: { freteId: string; lado: Avaliacao['lado']; nomeAvaliado: string; perguntaNoTitulo?: boolean }) {
   const [estado, recarregar] = useRecurso(() => api<Avaliacao[]>('GET', `/api/fretes/${freteId}/avaliacoes`), [freteId])
   const [nota, setNota] = useState<number | null>(null)
   const [comentario, setComentario] = useState('')
@@ -58,7 +60,7 @@ export function Avaliar({ freteId, lado, nomeAvaliado }: { freteId: string; lado
   return (
     <form className="avaliar" onSubmit={enviar} noValidate>
       <fieldset className="avaliar__notas" aria-describedby={erroNota ? 'erro-nota' : undefined}>
-        <legend className="avaliar__titulo">Como foi com {nomeAvaliado}?</legend>
+        <legend className={perguntaNoTitulo ? 'visualmente-oculto' : 'avaliar__titulo'}>Como foi com {nomeAvaliado}?</legend>
         <div className="avaliar__estrelas">
           {NOTAS.map((n) => (
             <label key={n} className="avaliar__estrela">

@@ -109,7 +109,7 @@ export function Acompanhar({ dados, recarregar }: { dados: DadosFrete; recarrega
           {frete.status === 'PAGO' && quem && (
             <section className="frete-c__cartao" aria-labelledby="t-avaliar">
               <h2 id="t-avaliar">Como foi com {nome}?</h2>
-              <Avaliar freteId={frete.id} lado="CONTRATANTE" nomeAvaliado={quem.nome} />
+              <Avaliar freteId={frete.id} lado="CONTRATANTE" nomeAvaliado={quem.nome} perguntaNoTitulo />
             </section>
           )}
         </div>
