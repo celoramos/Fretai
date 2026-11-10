@@ -125,6 +125,16 @@ As telas do cliente pessoa física e do motorista seguem o canvas de design (`de
 - **O código de quem recebe não aparece para o cliente.** A API guarda só o hash; a tela explica que o código foi mandado a quem recebe.
 - **Textos sem gênero.** "Esperando o Pix", "Avisamos Paula": o app não sabe o gênero de quem contrata.
 
-## Fora deste corte
+## Dados do cliente e acertos em Meus fretes (2026-11-10)
 
-A tela de dados do cliente, porque a API ainda não lê nem edita o cadastro dele. A navegação mostra só o que existe.
+A tela de dados do cliente não está no canvas. A API passou a ler e a corrigir o cadastro dele, e a tela usa os blocos do perfil do motorista (o cartão de quem é e um bloco com o formulário), numa coluna só e na largura de leitura da entrega. Fica no menu da conta, como "Meus dados". Decisões:
+
+- **E-mail como texto.** No perfil do motorista o canvas desenha o e-mail num campo que não aceita digitação. Aqui ele aparece no cartão de cima, do jeito que a conta da empresa mostra o que não se edita: um campo a menos no caminho do Tab.
+- **"Dados salvos." na tinta.** Verde continua só no dinheiro garantido ou pago.
+- **Botão de tema de volta para o cliente.** Ele trocava de tema antes do redesign, pela barra de escritório, e a barra do canvas ficou sem o botão. Voltou ao lado do avatar, como na barra do motorista, e no cabeçalho de "Meus dados" no celular.
+
+Em Meus fretes do motorista:
+
+- **"Recebido no mês" é a conta do Extrato.** Adiantamento e saldo contam cada um no mês em que caíram (`src/recebimentos.ts`, com teste). Antes o resumo somava o frete inteiro no mês do saldo, e os dois números podiam discordar. A legenda diz de quantos fretes o dinheiro veio.
+- **Concluídos em tabela no computador,** com as cinco colunas do canvas e o cabeçalho que os anteriores do cliente já usam. A data é a do desfecho: quando o saldo caiu ou quando o frete foi cancelado.
+- **As três abas dividem a largura pelo texto.** Em colunas iguais, "Em andamento (3)" quebrava em duas linhas a 390 px.

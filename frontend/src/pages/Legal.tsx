@@ -10,7 +10,9 @@ import { useTitulo } from '../useTitulo'
  * Não é parecer jurídico: um advogado precisa revisar antes de publicar.
  */
 
-const ATUALIZADA_EM = '7 de novembro de 2026'
+/** Cada página tem a sua data: os termos prometem que ela muda quando o texto deles muda, não o da outra. */
+const PRIVACIDADE_ATUALIZADA_EM = '10 de novembro de 2026'
+const TERMOS_ATUALIZADOS_EM = '7 de novembro de 2026'
 
 /** Fato que falta. Fica visível de propósito: a página não está pronta sem ele. */
 function Lacuna({ children }: { children: ReactNode }) {
@@ -21,7 +23,7 @@ function Lacuna({ children }: { children: ReactNode }) {
   )
 }
 
-function Pagina({ titulo, children }: { titulo: string; children: ReactNode }) {
+function Pagina({ titulo, atualizadaEm, children }: { titulo: string; atualizadaEm: string; children: ReactNode }) {
   useTitulo(titulo)
   return (
     <div className="legal">
@@ -30,7 +32,7 @@ function Pagina({ titulo, children }: { titulo: string; children: ReactNode }) {
       </header>
       <main className="legal__texto" id="conteudo">
         <h1>{titulo}</h1>
-        <p className="legal__data">Atualizada em {ATUALIZADA_EM}.</p>
+        <p className="legal__data">Atualizada em {atualizadaEm}.</p>
         <p className="legal__rascunho">
           Rascunho escrito a partir do que o sistema faz hoje. Ainda precisa da revisão de um advogado.
         </p>
@@ -47,7 +49,7 @@ function Pagina({ titulo, children }: { titulo: string; children: ReactNode }) {
 
 export function Privacidade() {
   return (
-    <Pagina titulo="Privacidade">
+    <Pagina titulo="Privacidade" atualizadaEm={PRIVACIDADE_ATUALIZADA_EM}>
       <section>
         <h2>Quem cuida dos seus dados</h2>
         <Lacuna>o nome da empresa que opera o Fretaí (razão social), o CNPJ e o endereço.</Lacuna>
@@ -148,6 +150,10 @@ export function Privacidade() {
           <li>saber com quem seus dados foram compartilhados;</li>
           <li>apagar seus dados e retirar o consentimento, quando o uso depender dele.</li>
         </ul>
+        <p>
+          Parte disso você mesmo corrige no app: o cliente muda o nome e o celular em Meus dados, o motorista muda o
+          celular no Perfil e a empresa muda o nome fantasia e o telefone em Empresa.
+        </p>
         <p>Você também pode reclamar na Autoridade Nacional de Proteção de Dados (ANPD).</p>
         <Lacuna>o canal para fazer esses pedidos e em quantos dias a resposta chega.</Lacuna>
       </section>
@@ -157,7 +163,7 @@ export function Privacidade() {
 
 export function Termos() {
   return (
-    <Pagina titulo="Termos de uso">
+    <Pagina titulo="Termos de uso" atualizadaEm={TERMOS_ATUALIZADOS_EM}>
       <section>
         <h2>Quem oferece o serviço</h2>
         <Lacuna>o nome da empresa que opera o Fretaí (razão social), o CNPJ e o endereço.</Lacuna>

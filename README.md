@@ -181,12 +181,13 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 | Método | Caminho | O que faz |
 |---|---|---|
 | POST | `/api/clientes` | público; cadastra cliente pessoa física |
+| GET / PUT | `/api/clientes/{id}` | cadastro do cliente: leitura e correção de nome e telefone (só o próprio) |
 | POST | `/api/empresas` | público; cadastra empresa (razão social lida da Receita) e o responsável |
 | GET | `/api/empresas` | lista empresas ativas, paginado |
 | GET / PUT / DELETE | `/api/empresas/{id}` | detalhe, edição e desativação (só a própria empresa) |
 | GET | `/api/empresas/{cnpj}` | público; dados de um CNPJ na Receita |
 | POST | `/api/motoristas` | público; cadastra motorista |
-| GET | `/api/motoristas` | lista motoristas (empresa e admin) |
+| GET | `/api/motoristas` | lista motoristas (empresa e admin); telefone e e-mail só vão para o admin |
 | GET / PUT / DELETE | `/api/motoristas/{id}` | detalhe, edição e desativação (só o próprio) |
 | PATCH | `/api/motoristas/{id}/preferencias` | aceita ou não frete em feriado |
 | PUT | `/api/motoristas/{id}/chave-pix` | chave Pix para receber |
@@ -294,7 +295,7 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 .\mvnw.cmd verify
 ```
 
-São cerca de 180 testes. Os de domínio e de service usam JUnit 5 e Mockito. Os de integração sobem a aplicação inteira contra um H2 em modo PostgreSQL com as mesmas migrations, passam pela segurança de verdade (login, tokens) e simulam só as integrações externas.
+São cerca de 250 testes. Os de domínio e de service usam JUnit 5 e Mockito. Os de integração sobem a aplicação inteira contra um H2 em modo PostgreSQL com as mesmas migrations, passam pela segurança de verdade (login, tokens) e simulam só as integrações externas.
 
 Os testes que precisam de PostGIS de verdade (`PostgresSchemaTest`, `BuscaPorRaioPostgisTest`) usam Testcontainers com a imagem `postgis/postgis` e são pulados quando não há Docker.
 
@@ -303,6 +304,7 @@ Os testes que precisam de PostGIS de verdade (`PostgresSchemaTest`, `BuscaPorRai
 - Toda mudança no banco é um novo arquivo em `db/migration` (ou `db/vendor/postgresql`). Arquivos que já rodaram não são editados.
 - Dinheiro e peso são `BigDecimal`, nunca `double`.
 - Entidades não são devolvidas pela API: a resposta sempre passa por um DTO, e nenhum DTO de resposta tem senha, CPF ou chave Pix.
+- Telefone e e-mail de uma pessoa só saem para ela mesma e para o administrador. O outro lado do frete recebe o telefone por `/api/fretes/{id}/contato`, depois do aceite.
 - CPF, CNPJ, telefone e placa são guardados sem máscara.
 - Excluir pela API desativa; o histórico continua.
 
@@ -315,4 +317,4 @@ Os testes que precisam de PostGIS de verdade (`PostgresSchemaTest`, `BuscaPorRai
 - `CategoriaVeiculo.suporta(pesoKg)` (fluxo de pessoa física) ainda aceita qualquer peso.
 - Limite de tentativas de login em memória: com mais de uma instância, trocar por Redis.
 - **Aviso de documento recusado:** o motorista vê a recusa e o motivo no app, mas o WhatsApp ainda não tem um modelo de mensagem para ela.
-- Interface web: o front em [`frontend/`](frontend/README.md) cobre os quatro papéis (motorista, empresa, cliente pessoa física e administrador) e roda sem a API no modo demo, onde as telas foram testadas. O cliente ainda não tem tela de dados, porque a API não lê nem edita o cadastro dele.
+- Interface web: o front em [`frontend/`](frontend/README.md) cobre os quatro papéis (motorista, empresa, cliente pessoa física e administrador) e roda sem a API no modo demo, onde as telas foram testadas.

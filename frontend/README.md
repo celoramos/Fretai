@@ -14,7 +14,7 @@ No modo demo a senha é `demo123`, com `motorista@demo.fretai`, `empresa@demo.fr
 
 No modo demo também dá para testar o Google: o botão "Entrar com Google (demonstração)" simula a conta `voce@gmail.com`. As contas criadas no demo ficam no `localStorage` do navegador.
 
-O modo demo emula também os endpoints do redesign: consulta de CEP, fotos da carga, contato depois do aceite, senha nova por link (o e-mail vai para o `localStorage`) e o Pix, que confirma na terceira consulta. As telas do canvas abrem em `http://localhost:5173/design/canvas/<Tela>.dc.html`.
+O modo demo emula também os endpoints do redesign: consulta de CEP, fotos da carga, contato depois do aceite, senha nova por link (o e-mail vai para o `localStorage`), os dados do cliente e o Pix, que confirma na terceira consulta. O motorista de exemplo tem fretes em andamento, uma proposta aberta e três concluídos (dois pagos e um cancelado). As telas do canvas abrem em `http://localhost:5173/design/canvas/<Tela>.dc.html`.
 
 ### Login com Google de verdade
 
@@ -35,7 +35,7 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 | Motorista · Fretes perto (CEP ou GPS, raio 10/25/50 km; frete que o veículo não leva aparece apagado) | `GET /api/fretes/busca`, `GET /api/enderecos/cep/{cep}`, `GET /api/motoristas/{id}/veiculos`, `GET /api/empresas/{id}/perfil` |
 | Motorista · Frete (fotos da carga, aceitar com o veículo que leva, propor e retirar, esperar o Pix, iniciar viagem, desistir com motivo, WhatsApp depois de fechar, fretes de volta, avaliar) | `GET /api/fretes/{id}`, `/eventos`, `/pagamento`, `/fotos`, `/contato`, `/retorno`, `POST /aceite`, `/propostas`, `/inicio`, `/cancelamento`, `POST /api/propostas/{id}/retirada`, `/avaliacoes` |
 | Motorista · Registrar entrega (foto, assinatura, localização; envio diz o que falta; nota para quem contratou) | `POST /api/fretes/{id}/canhoto` (multipart), `POST /api/fretes/{id}/avaliacoes` |
-| Motorista · Meus fretes (a receber, recebido no mês, três abas com o total) | `GET /api/propostas/minhas`, `GET /api/fretes/{id}`, `/pagamento`, `POST /api/propostas/{id}/retirada` |
+| Motorista · Meus fretes (a receber, recebido no mês pela data de cada parcela, três abas com o total, concluídos em tabela no computador) | `GET /api/propostas/minhas`, `GET /api/fretes/{id}`, `/pagamento`, `POST /api/propostas/{id}/retirada` |
 | Motorista · Extrato (adiantamentos e saldos, a receber e recebidos por mês) | `GET /api/propostas/minhas`, `GET /api/fretes/{id}`, `GET /api/fretes/{id}/pagamento` |
 | Motorista · Calculadora (conta no aparelho, com a volta vazio; piso ANTT opcional) | `POST /api/calculadora/frete` |
 | Motorista · Perfil (contato, chave Pix com o tipo, veículos por tamanho e dados de caminhão, base por CEP e raio, feriado, documentos, tema e sair) | `GET`/`PUT /api/motoristas/{id}`, `PUT /chave-pix`, `PUT /base`, `PATCH /preferencias`, `POST`/`PUT`/`DELETE /api/motoristas/{id}/veiculos`, `GET /api/motoristas/{id}/perfil` |
@@ -47,6 +47,7 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 | Cliente · Pedir frete (dois passos no celular, uma página no computador; CEP com bairro e cidade, tipo, peso em faixas, até 5 fotos, tamanho do veículo) | `POST /api/fretes`, `POST /api/fretes/{id}/fotos`, `GET /api/enderecos/cep/{cep}`, `GET /api/calendario/verificacao` |
 | Cliente · Frete antes do Pix (procurando, propostas, aceitou; Pix com QR e copia e cola; cancelar com motivo) | `GET /api/fretes/{id}/propostas`, `POST /api/propostas/{id}/aceite`, `/recusa`, `POST`/`GET /api/fretes/{id}/pagamento`, `/cancelamento`, `GET /api/motoristas/{id}/perfil` |
 | Cliente · Acompanhar (etapas, WhatsApp do motorista, canhoto e contestação, nota, cancelar antes da saída) | `GET /api/fretes/{id}/eventos`, `/contato`, `/canhoto`, `POST /canhoto/contestacao`, `/avaliacoes`, `/cancelamento` |
+| Cliente · Meus dados (nome e celular; o e-mail aparece e não muda por ali), pelo menu da conta | `GET`/`PUT /api/clientes/{id}`, `GET /api/auth/eu` |
 | Empresa · Pagamentos (Pix pagos, em garantia, a pagar, devolvidos, e o repasse de cada frete) | `GET /api/fretes/empresa/{empresaId}`, `GET /api/fretes/{id}/pagamento` |
 | Empresa · Dados da empresa (como o motorista vê, nome fantasia e telefone, cadastro da Receita) | `GET`/`PUT /api/empresas/{id}`, `GET /api/empresas/{id}/perfil` |
 | Administrador · Documentos para verificar (verificar ou recusar com motivo) | `GET /api/documentos/pendentes`, `POST /api/documentos/{id}/link`, `POST /api/documentos/{id}/verificacao`, `POST /api/documentos/{id}/recusa`, `GET /api/motoristas/{id}/perfil` |
@@ -57,7 +58,13 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 
 Formulário preenchido pergunta antes de sair, seja por link do app, voltar do navegador ou fechar a aba.
 
-Ainda não implementado: a tela de dados do cliente pessoa física, porque a API ainda não lê nem edita o cadastro dele.
+## Testes
+
+```bash
+npm test
+```
+
+As contas que não dependem de tela ficam em módulos sem React e têm teste em `testes/`: hoje, o que já caiu para o motorista e o "recebido no mês" (`src/recebimentos.ts`). Roda com o `node --test`, sem dependência nova; o Node executa o TypeScript direto, então precisa do Node 22.18 ou mais novo.
 
 ## Design
 
