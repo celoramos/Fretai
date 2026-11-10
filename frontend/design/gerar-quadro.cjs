@@ -248,15 +248,19 @@ let html = `<!DOCTYPE html>
     <div class="q-pilha"><p class="q-rotulo">Proposta, no comparador</p><div style="max-width:var(--largura-proposta)">${prop}</div></div>
     <div class="q-pilha"><p class="q-rotulo">Card de frete</p>${pecas.card.replace(/<a class="card-frete__link"[\s\S]*?<\/a>/, "")}</div>`) + lado("", `<div class="q-pilha"><p class="q-rotulo">Marcos da viagem</p>${pecas.marcosV}</div>`, true))}
 
-  ${sec(7, "Motorista, no celular", "390 px, mostrado a 85%. Escuro é o padrão: cabine, noite, bateria.", `
+  ${sec(7, "Motorista, no celular", "390 px, mostrado a 85%. Escuro é o padrão: cabine, noite, bateria. Telas do canvas do redesign (2026-11-09).", `
   <div class="q-telas">
-    ${tela("busca", "escuro", 390, 0.85, "Fretes perto de você · escuro")}
-    ${tela("freteM0", "escuro", 390, 0.85, "Detalhe do frete, em negociação · escuro")}
-    ${tela("busca", "claro", 390, 0.85, "Fretes perto de você · claro")}
-    ${tela("freteM2", "claro", 390, 0.85, "Detalhe do frete, aberto · claro")}
-    ${tela("meusFretes", "escuro", 390, 0.85, "Meus fretes, com o km nas listas · escuro")}
-    ${tela("entrar", "escuro", 390, 0.85, "Entrar, com a pista vertical · escuro")}
-    ${tela("extrato", "escuro", 390, 0.85, "Extrato, a receber e recebidos por mês · escuro")}
+    ${tela("busca", "escuro", 390, 0.85, "Fretes perto, com raio, GPS e CEP · escuro")}
+    ${tela("freteM0", "escuro", 390, 0.85, "Frete disponível, aceitar ou propor · escuro")}
+    ${tela("freteM1", "escuro", 390, 0.85, "Frete fechado, Pix confirmado · escuro")}
+    ${tela("freteM2", "escuro", 390, 0.85, "Frete na estrada · escuro")}
+    ${tela("entregaM", "escuro", 390, 0.85, "Registrar entrega · escuro")}
+    ${tela("meusFretes", "escuro", 390, 0.85, "Meus fretes, em três abas · escuro")}
+    ${tela("calculadoraM", "escuro", 390, 0.85, "Calculadora, com a volta vazio · escuro")}
+    ${tela("perfilM", "escuro", 390, 0.85, "Perfil · escuro")}
+    ${tela("busca", "claro", 390, 0.85, "Fretes perto · claro")}
+    ${tela("entrar", "escuro", 390, 0.85, "Entrar · escuro")}
+    ${tela("extrato", "escuro", 390, 0.85, "Extrato · escuro")}
   </div>`)}
 
   ${sec(8, "Empresa, no escritório", "1280 px, mostrado a 75%. Claro é o padrão: várias abas, tabela, comparador lado a lado.", `
@@ -270,12 +274,14 @@ let html = `<!DOCTYPE html>
     ${tela("entrar", "claro", 1280, 0.75, "Entrar · claro")}
   </div>`)}
 
-  ${sec(9, "Cliente pessoa física, no celular", "390 px, mostrado a 85%. Entrada secundária: um cartão por frete, com o próximo passo, e alvo de 48 px. Claro é o padrão.", `
+  ${sec(9, "Cliente pessoa física, no celular", "390 px, mostrado a 85%. Alvo de 48 px. Claro é o padrão. Telas do canvas do redesign (2026-11-09).", `
   <div class="q-telas">
-    ${tela("fretesC", "claro", 390, 0.85, "Seus fretes, com o próximo passo · claro")}
-    ${tela("detalheC", "claro", 390, 0.85, "Frete com propostas e o resumo do pedido · claro")}
-    ${tela("pedirC", "claro", 390, 0.85, "Pedir frete · claro")}
-    ${tela("cadastro", "claro", 390, 0.85, "Criar conta, com a entrada de pessoa física · claro")}
+    ${tela("fretesC", "claro", 390, 0.85, "Início, com atalhos, em andamento e anteriores · claro")}
+    ${tela("pedirC", "claro", 390, 0.85, "Pedir frete, passo 1 · claro")}
+    ${tela("detalheC", "claro", 390, 0.85, "Propostas de outro valor · claro")}
+    ${tela("aceitoC", "claro", 390, 0.85, "Motorista aceitou, pagar com Pix · claro")}
+    ${tela("acompanharC", "claro", 390, 0.85, "Acompanhar, com o canhoto · claro")}
+    ${tela("cadastro", "claro", 390, 0.85, "Criar conta · claro")}
   </div>`)}
 
   ${sec(10, "Administrador, no escritório", "1280 px, mostrado a 75%. Três filas, na ordem do que trava dinheiro. Ação sem volta pede confirmação ou motivo.", `

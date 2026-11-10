@@ -171,7 +171,10 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 | POST | `/api/auth/google` | público; entra com o ID token do botão do Google (404 CADASTRO_NECESSARIO se não tem conta) |
 | POST | `/api/auth/refresh` | público; troca o refresh token por um par novo |
 | POST | `/api/auth/logout` | revoga o refresh token |
-| GET | `/api/auth/eu` | quem está logado |
+| GET | `/api/auth/eu` | quem está logado, com nome e e-mail |
+| POST | `/api/auth/senha/link` | público; manda ao e-mail um link de senha nova (uso único, prazo curto) |
+| POST | `/api/auth/senha/nova` | público; troca a senha com o token do link |
+| GET | `/api/enderecos/cep/{cep}` | bairro, cidade e UF do CEP, para o formulário mostrar antes de enviar |
 
 **Cadastros**
 
@@ -202,6 +205,8 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 | GET | `/api/fretes/busca` | busca por raio: origem (lat/lng ou CEP), raio, destino, veículo, carroceria, filtros SIM/NAO/AMBOS |
 | GET / PUT | `/api/fretes/{id}` | detalhe (com piso ANTT e alertas) / edição pela empresa antes de propostas |
 | GET | `/api/fretes/{id}/eventos` | trilha de auditoria |
+| POST / GET | `/api/fretes/{id}/fotos` | fotos da carga do pedido do cliente (até 5, JPEG ou PNG, antes de fechar) / lista |
+| GET | `/api/fretes/{id}/contato` | nome e telefone do outro lado, só depois do aceite e enquanto o frete anda |
 | GET | `/api/fretes/{id}/retorno` | sugestões de frete de volta para o motorista |
 | POST / GET | `/api/fretes/{id}/propostas` | envia proposta / lista (motorista vê só as dele) |
 | GET | `/api/propostas/minhas` | propostas do motorista logado |

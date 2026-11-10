@@ -14,6 +14,8 @@ No modo demo a senha é `demo123`, com `motorista@demo.fretai`, `empresa@demo.fr
 
 No modo demo também dá para testar o Google: o botão "Entrar com Google (demonstração)" simula a conta `voce@gmail.com`. As contas criadas no demo ficam no `localStorage` do navegador.
 
+O modo demo emula também os endpoints do redesign: consulta de CEP, fotos da carga, contato depois do aceite, senha nova por link (o e-mail vai para o `localStorage`) e o Pix, que confirma na terceira consulta. As telas do canvas abrem em `http://localhost:5173/design/canvas/<Tela>.dc.html`.
+
 ### Login com Google de verdade
 
 1. No Google Cloud Console, crie um "ID do cliente OAuth" do tipo **Aplicativo da Web** e adicione `http://localhost:5173` (e o domínio de produção) em **Origens JavaScript autorizadas**.
@@ -30,19 +32,21 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 |---|---|
 | Entrar (e-mail e senha, ou Google) | `POST /api/auth/login`, `/google`, `/refresh`, `/logout` |
 | Criar conta (motorista, empresa ou cliente pessoa física, com senha ou com Google) | `POST /api/motoristas`, `POST /api/empresas`, `POST /api/clientes`, `GET /api/empresas/{cnpj}` |
-| Motorista · Fretes perto de você (CEP ou GPS, raio 50/100/200 km) | `GET /api/fretes/busca`, `GET /api/empresas/{id}/perfil` |
-| Motorista · Frete (detalhe, aceitar, proposta, retirar a proposta, andamento, iniciar viagem, cancelar, fretes de volta, avaliar a empresa) | `GET /api/fretes/{id}`, `/eventos`, `/pagamento`, `/retorno`, `POST /aceite`, `/propostas`, `/inicio`, `/cancelamento`, `POST /api/propostas/{id}/retirada`, `GET`/`POST /api/fretes/{id}/avaliacoes`, `GET /api/motoristas/{id}/veiculos` |
-| Motorista · Registrar entrega (foto, assinatura, GPS) | `POST /api/fretes/{id}/canhoto` (multipart) |
-| Motorista · Meus fretes (com o resumo do dinheiro) | `GET /api/propostas/minhas`, `GET /api/fretes/{id}/pagamento` |
+| Motorista · Fretes perto (CEP ou GPS, raio 10/25/50 km; frete que o veículo não leva aparece apagado) | `GET /api/fretes/busca`, `GET /api/enderecos/cep/{cep}`, `GET /api/motoristas/{id}/veiculos`, `GET /api/empresas/{id}/perfil` |
+| Motorista · Frete (fotos da carga, aceitar com o veículo que leva, propor e retirar, esperar o Pix, iniciar viagem, desistir com motivo, WhatsApp depois de fechar, fretes de volta, avaliar) | `GET /api/fretes/{id}`, `/eventos`, `/pagamento`, `/fotos`, `/contato`, `/retorno`, `POST /aceite`, `/propostas`, `/inicio`, `/cancelamento`, `POST /api/propostas/{id}/retirada`, `/avaliacoes` |
+| Motorista · Registrar entrega (foto, assinatura, localização; envio diz o que falta; nota para quem contratou) | `POST /api/fretes/{id}/canhoto` (multipart), `POST /api/fretes/{id}/avaliacoes` |
+| Motorista · Meus fretes (a receber, recebido no mês, três abas com o total) | `GET /api/propostas/minhas`, `GET /api/fretes/{id}`, `/pagamento`, `POST /api/propostas/{id}/retirada` |
 | Motorista · Extrato (adiantamentos e saldos, a receber e recebidos por mês) | `GET /api/propostas/minhas`, `GET /api/fretes/{id}`, `GET /api/fretes/{id}/pagamento` |
-| Motorista · Calculadora ("esse frete paga a viagem?") | `POST /api/calculadora/frete` |
-| Motorista · Perfil (chave Pix, caminhões, base dos avisos, feriado, contato) | `GET`/`PUT /api/motoristas/{id}`, `PUT /chave-pix`, `PUT /base`, `PATCH /preferencias`, `POST`/`DELETE /api/motoristas/{id}/veiculos`, `GET /api/motoristas/{id}/perfil` |
+| Motorista · Calculadora (conta no aparelho, com a volta vazio; piso ANTT opcional) | `POST /api/calculadora/frete` |
+| Motorista · Perfil (contato, chave Pix com o tipo, veículos por tamanho e dados de caminhão, base por CEP e raio, feriado, documentos, tema e sair) | `GET`/`PUT /api/motoristas/{id}`, `PUT /chave-pix`, `PUT /base`, `PATCH /preferencias`, `POST`/`PUT`/`DELETE /api/motoristas/{id}/veiculos`, `GET /api/motoristas/{id}/perfil` |
 | Empresa · Fretes (precisa de você, filtros por situação) | `GET /api/fretes/empresa/{empresaId}`, `GET /api/fretes/{id}/pagamento` |
 | Empresa · Publicar e editar frete (editar só antes da primeira proposta) | `POST /api/fretes/empresa/{empresaId}`, `PUT /api/fretes/{id}`, `GET /api/calendario/verificacao` |
-| Empresa e cliente · Frete (comparador de propostas, Pix, entrega com canhoto e contestação, avaliar o motorista, histórico, cancelar; no do cliente, o resumo do pedido) | `GET /api/fretes/{id}/propostas`, `POST /api/propostas/{id}/aceite`, `/recusa`, `POST /api/fretes/{id}/pagamento`, `GET /api/fretes/{id}/canhoto`, `POST /canhoto/contestacao`, `/avaliacoes`, `/cancelamento`, `GET /api/motoristas/{id}/perfil` |
+| Empresa · Frete (comparador de propostas, Pix, entrega com canhoto e contestação, avaliar o motorista, histórico, cancelar) | `GET /api/fretes/{id}/propostas`, `POST /api/propostas/{id}/aceite`, `/recusa`, `POST /api/fretes/{id}/pagamento`, `GET /api/fretes/{id}/canhoto`, `POST /canhoto/contestacao`, `/avaliacoes`, `/cancelamento`, `GET /api/motoristas/{id}/perfil` |
 | Documentos do motorista (enviar CNH, CRLV e comprovantes; quem contratou abre por link temporário; o motorista vê quem abriu e o motivo de uma recusa) | `POST`/`GET /api/fretes/{id}/documentos` (multipart), `POST /api/documentos/{id}/link`, `GET /api/documentos/{id}/acessos` |
-| Cliente · Seus fretes (um cartão por frete, com o próximo passo) | `GET /api/fretes/cliente/{clienteId}`, `GET /api/fretes/{id}/propostas`, `GET /api/fretes/{id}/pagamento` |
-| Cliente · Pedir frete (de onde, para onde, quem recebe, quando, o quê, por quanto) | `POST /api/fretes`, `GET /api/calendario/verificacao` |
+| Cliente · Início (atalhos do que levar, frete em andamento, anteriores que abrem com a nota dada e "Pedir de novo") | `GET /api/auth/eu`, `GET /api/fretes/cliente/{clienteId}`, `/propostas`, `/pagamento`, `/avaliacoes` |
+| Cliente · Pedir frete (dois passos no celular, uma página no computador; CEP com bairro e cidade, tipo, peso em faixas, até 5 fotos, tamanho do veículo) | `POST /api/fretes`, `POST /api/fretes/{id}/fotos`, `GET /api/enderecos/cep/{cep}`, `GET /api/calendario/verificacao` |
+| Cliente · Frete antes do Pix (procurando, propostas, aceitou; Pix com QR e copia e cola; cancelar com motivo) | `GET /api/fretes/{id}/propostas`, `POST /api/propostas/{id}/aceite`, `/recusa`, `POST`/`GET /api/fretes/{id}/pagamento`, `/cancelamento`, `GET /api/motoristas/{id}/perfil` |
+| Cliente · Acompanhar (etapas, WhatsApp do motorista, canhoto e contestação, nota, cancelar antes da saída) | `GET /api/fretes/{id}/eventos`, `/contato`, `/canhoto`, `POST /canhoto/contestacao`, `/avaliacoes`, `/cancelamento` |
 | Empresa · Pagamentos (Pix pagos, em garantia, a pagar, devolvidos, e o repasse de cada frete) | `GET /api/fretes/empresa/{empresaId}`, `GET /api/fretes/{id}/pagamento` |
 | Empresa · Dados da empresa (como o motorista vê, nome fantasia e telefone, cadastro da Receita) | `GET`/`PUT /api/empresas/{id}`, `GET /api/empresas/{id}/perfil` |
 | Administrador · Documentos para verificar (verificar ou recusar com motivo) | `GET /api/documentos/pendentes`, `POST /api/documentos/{id}/link`, `POST /api/documentos/{id}/verificacao`, `POST /api/documentos/{id}/recusa`, `GET /api/motoristas/{id}/perfil` |

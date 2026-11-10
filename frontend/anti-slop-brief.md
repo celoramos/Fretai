@@ -113,6 +113,18 @@ O cliente pessoa física pede um frete avulso: uma mudança, uma entrega. Decis�
 
 Recusar documento: o motivo é o passo deliberado, e sem motivo não se recusa. O motorista lê o motivo junto do documento; quem contratou não vê o arquivo recusado.
 
+## Redesign do cliente e do motorista pelo canvas (2026-11-09)
+
+As telas do cliente pessoa física e do motorista seguem o canvas de design (`design/canvas/`), com os valores trocados pelos tokens. Desvios do canvas, registrados:
+
+- **WhatsApp no lugar da conversa.** O canvas desenha um chat; a API não tem mensagens. Depois de fechar, cada lado tem "Chamar {nome} no WhatsApp", com o aviso de não combinar pagamento por fora.
+- **Endereço por CEP.** O canvas tem um campo de endereço livre; a API tira cidade, coordenadas e distância do CEP. O pedido pede CEP, número e complemento, e mostra "bairro, cidade" logo depois do CEP.
+- **Peso em faixas.** Como no canvas, quatro faixas; "Mais de 1,5 t" abre o peso em kg, porque a API guarda o número.
+- **Número da CNH fora do cadastro.** A CNH vai como documento em cada frete fechado, conferida por um administrador; o número não é pedido no cadastro.
+- **E-mail só leitura no Perfil.** O e-mail é a entrada na conta e não muda por ali; o celular muda.
+- **O código de quem recebe não aparece para o cliente.** A API guarda só o hash; a tela explica que o código foi mandado a quem recebe.
+- **Textos sem gênero.** "Esperando o Pix", "Avisamos Paula": o app não sabe o gênero de quem contrata.
+
 ## Fora deste corte
 
 A tela de dados do cliente, porque a API ainda não lê nem edita o cadastro dele. A navegação mostra só o que existe.

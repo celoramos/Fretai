@@ -78,6 +78,18 @@ export function Privacidade() {
             <dd>Para o motorista saber com quem está negociando. Os dados do CNPJ são conferidos na base pública da Receita, pela BrasilAPI.</dd>
           </div>
           <div>
+            <dt>Fotos da carga, se você mandar no pedido</dt>
+            <dd>Até cinco fotos do que vai no veículo. Os motoristas que veem o pedido veem as fotos antes de aceitar, para decidir se o veículo leva. Base: execução do contrato.</dd>
+          </div>
+          <div>
+            <dt>Seu e-mail, quando você pede uma senha nova</dt>
+            <dd>Mandamos para ele um link que vale por pouco tempo e serve uma vez só. Base: execução do contrato e segurança.</dd>
+          </div>
+          <div>
+            <dt>Seu telefone para o outro lado do frete</dt>
+            <dd>O motorista e quem contratou só recebem o telefone um do outro depois que o frete fecha, para combinar a coleta e a entrega pelo WhatsApp. Antes disso, ninguém vê. Endereço completo e quem recebe também só aparecem depois de fechar.</dd>
+          </div>
+          <div>
             <dt>Sua localização, quando você toca em "Usar minha localização"</dt>
             <dd>Só para mostrar fretes perto de você. O navegador pede sua permissão antes.</dd>
           </div>
