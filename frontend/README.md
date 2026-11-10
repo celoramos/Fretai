@@ -33,7 +33,7 @@ No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precis
 | Entrar (e-mail e senha, ou Google) | `POST /api/auth/login`, `/google`, `/refresh`, `/logout` |
 | Criar conta (motorista, empresa ou cliente pessoa física, com senha ou com Google) | `POST /api/motoristas`, `POST /api/empresas`, `POST /api/clientes`, `GET /api/empresas/{cnpj}` |
 | Motorista · Fretes perto (CEP ou GPS, raio 10/25/50 km; frete que o veículo não leva aparece apagado) | `GET /api/fretes/busca`, `GET /api/enderecos/cep/{cep}`, `GET /api/motoristas/{id}/veiculos`, `GET /api/empresas/{id}/perfil` |
-| Motorista · Frete (fotos da carga, aceitar com o veículo que leva, propor e retirar, esperar o Pix, iniciar viagem, desistir com motivo, WhatsApp depois de fechar, fretes de volta, avaliar) | `GET /api/fretes/{id}`, `/eventos`, `/pagamento`, `/fotos`, `/contato`, `/retorno`, `POST /aceite`, `/propostas`, `/inicio`, `/cancelamento`, `POST /api/propostas/{id}/retirada`, `/avaliacoes` |
+| Motorista · Frete (fotos da carga, aceitar com o veículo que leva, propor e retirar, esperar o Pix, iniciar viagem, desistir com motivo, WhatsApp depois de fechar, fretes de volta, avaliar; fora da vitrine, diz o que aconteceu: cancelado e por quem, fechado com outro motorista, saldo a cair ou parado por contestação, pago com cada parcela) | `GET /api/fretes/{id}`, `/eventos`, `/pagamento`, `/fotos`, `/contato`, `/retorno`, `POST /aceite`, `/propostas`, `/inicio`, `/cancelamento`, `POST /api/propostas/{id}/retirada`, `/avaliacoes` |
 | Motorista · Registrar entrega (foto, assinatura, localização; envio diz o que falta; nota para quem contratou) | `POST /api/fretes/{id}/canhoto` (multipart), `POST /api/fretes/{id}/avaliacoes` |
 | Motorista · Meus fretes (a receber, recebido no mês pela data de cada parcela, três abas com o total, concluídos em tabela no computador) | `GET /api/propostas/minhas`, `GET /api/fretes/{id}`, `/pagamento`, `POST /api/propostas/{id}/retirada` |
 | Motorista · Extrato (adiantamentos e saldos, a receber e recebidos por mês) | `GET /api/propostas/minhas`, `GET /api/fretes/{id}`, `GET /api/fretes/{id}/pagamento` |
@@ -64,7 +64,7 @@ Formulário preenchido pergunta antes de sair, seja por link do app, voltar do n
 npm test
 ```
 
-As contas que não dependem de tela ficam em módulos sem React e têm teste em `testes/`: hoje, o que já caiu para o motorista e o "recebido no mês" (`src/recebimentos.ts`). Roda com o `node --test`, sem dependência nova; o Node executa o TypeScript direto, então precisa do Node 22.18 ou mais novo.
+As contas que não dependem de tela ficam em módulos sem React e têm teste em `testes/`: o que já caiu para o motorista e o "recebido no mês" (`src/recebimentos.ts`), a conta da calculadora (`src/calculo.ts`), o link do WhatsApp (`src/whatsapp.ts`) e os formatos de telefone, peso, valor e contagem (`src/formato.ts`). Roda com o `node --test`, sem dependência nova; o Node executa o TypeScript direto, então precisa do Node 22.18 ou mais novo.
 
 ## Design
 

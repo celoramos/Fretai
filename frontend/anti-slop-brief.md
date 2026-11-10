@@ -138,3 +138,12 @@ Em Meus fretes do motorista:
 - **"Recebido no mês" é a conta do Extrato.** Adiantamento e saldo contam cada um no mês em que caíram (`src/recebimentos.ts`, com teste). Antes o resumo somava o frete inteiro no mês do saldo, e os dois números podiam discordar. A legenda diz de quantos fretes o dinheiro veio.
 - **Concluídos em tabela no computador,** com as cinco colunas do canvas e o cabeçalho que os anteriores do cliente já usam. A data é a do desfecho: quando o saldo caiu ou quando o frete foi cancelado.
 - **As três abas dividem a largura pelo texto.** Em colunas iguais, "Em andamento (3)" quebrava em duas linhas a 390 px.
+
+No frete do motorista, o canvas para em "na estrada". O que vem depois não tinha painel, e a tela ficava sem botão e sem explicação. Agora o painel "o que fazer" diz o que aconteceu:
+
+- **Cancelado:** quem cancelou (pelo último evento do frete), o motivo e, se houve Pix, que ele voltou para quem pagou. Quem não participa lê só que o frete foi cancelado.
+- **Fechado com outro motorista,** para quem chega por um link antigo.
+- **Entregue:** o saldo guardado e a partir de quando cai. Com contestação, por que parou e quem decide.
+- **Pago:** o total e cada parcela com a data, com centavos, porque ali a soma tem de bater. Verde só nesses dois, que são dinheiro.
+
+A pergunta "Como foi com …?" aparecia duas vezes (o título da seção e a legenda das estrelas). Fica o título; a legenda continua para quem ouve.
