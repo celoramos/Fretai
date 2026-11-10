@@ -1,21 +1,49 @@
-import { useState, type FormEvent } from 'react'
-import { api, comoProblema, MODO_DEMO } from '../../api/cliente'
-import type { Motorista, NovoVeiculo, PerfilMotorista, Problema, Veiculo } from '../../api/tipos'
+import { useState, type FormEvent, type ReactNode } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { api, comoProblema } from '../../api/cliente'
+import type { CategoriaVeiculo, Motorista, NovoVeiculo, PerfilMotorista, Veiculo } from '../../api/tipos'
 import { useRecurso } from '../../api/useRecurso'
-import { Aviso, Cartao, ErroCarga, Esqueleto, Placa } from '../../components/ui'
-import { CARROCERIAS, carroceria, TIPOS_CAMINHAO, veiculo } from '../../formato'
-import { posicaoAtual } from '../../geo'
+import { Avatar } from '../../components/Avatar'
+import { CabecalhoPagina } from '../../components/CabecalhoPagina'
+import { BotaoTema } from '../../components/Layouts'
+import { Aviso, ErroCarga, Esqueleto } from '../../components/ui'
+import { CARROCERIAS, CATEGORIAS, ORDEM_CATEGORIAS, TIPOS_CAMINHAO } from '../../formato'
+import { useComputador } from '../../largura'
 import { useSessao } from '../../sessao'
 import { useTitulo } from '../../useTitulo'
 
+const RAIOS = [10, 25, 50] as const
+const PLACA = /^[A-Z]{3}\d[A-Z0-9]\d{2}$/
+const PLACA_INVALIDA = 'Placa inválida. Use o formato ABC1234 ou ABC1D23.'
+
+/** O tipo de chave Pix só ajuda a pessoa a digitar e a conferir o formato; a API recebe a chave. */
+const TIPOS_PIX = {
+  CELULAR: { rotulo: 'Celular', exemplo: '(71) 98877-1234', modo: 'tel', valida: (s: string) => /^\d{10,11}$/.test(s.replace(/\D/g, '').replace(/^55(?=\d{10,11}$)/, '')) },
+  CPF: { rotulo: 'CPF', exemplo: '000.000.000-00', modo: 'numeric', valida: (s: string) => s.replace(/\D/g, '').length === 11 },
+  EMAIL: { rotulo: 'E-mail', exemplo: 'voce@email.com', modo: 'email', valida: (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim()) },
+  ALEATORIA: { rotulo: 'Chave aleatória', exemplo: '123e4567-e89b-12d3-a456-426614174000', modo: 'text', valida: (s: string) => /^[0-9a-f-]{32,36}$/i.test(s.trim()) },
+} as const
+type TipoPix = keyof typeof TIPOS_PIX
+
+function Bloco({ id, titulo, children }: { id: string; titulo: string; children: ReactNode }) {
+  return (
+    <section className="perfil-m__bloco" aria-labelledby={id}>
+      <h2 id={id}>{titulo}</h2>
+      {children}
+    </section>
+  )
+}
+
 /*
- * Perfil do motorista: o que a empresa vê dele (reputação e documentos), para onde vai o dinheiro
- * (chave Pix), com que caminhões ele roda e quando quer ser avisado. Um cartão por assunto, na ordem
- * do que mais trava um frete: sem chave Pix o dinheiro não tem para onde ir, sem caminhão não há aceite.
+ * O perfil do motorista, como no canvas: quem ele é (nota, fretes e documentos), contato, a chave Pix
+ * onde o dinheiro cai, os veículos com que roda, os avisos de frete novo e os documentos. No celular,
+ * o tema e o Sair ficam aqui, porque o motorista não tem barra de cima.
  */
 export function Perfil() {
   useTitulo('Perfil')
-  const { tokens } = useSessao()
+  const computador = useComputador()
+  const { tokens, sair } = useSessao()
+  const navegar = useNavigate()
   const id = tokens?.usuarioId ?? ''
   const [estado, recarregar] = useRecurso(async () => {
     const [motorista, reputacao, veiculos] = await Promise.all([
@@ -26,345 +54,349 @@ export function Perfil() {
     return { motorista, reputacao, veiculos }
   }, [id])
 
-  if (estado.fase === 'carregando') return <div className="perfil">{estado.mostrarEsqueleto && <><Esqueleto linhas={2} /><Esqueleto linhas={3} /><Esqueleto linhas={4} /></>}</div>
-  if (estado.fase === 'erro') return <div className="perfil"><ErroCarga problema={estado.problema} tentarDeNovo={recarregar} /></div>
+  if (estado.fase === 'carregando') return <div className="perfil-m">{estado.mostrarEsqueleto && <><Esqueleto linhas={2} /><Esqueleto linhas={3} /><Esqueleto linhas={4} /></>}</div>
+  if (estado.fase === 'erro') return <div className="perfil-m"><ErroCarga problema={estado.problema} tentarDeNovo={recarregar} /></div>
 
   const { motorista, reputacao, veiculos } = estado.dados
+  const docs = reputacao?.documentosVerificados ?? []
   return (
-    <div className="perfil">
-      <header className="perfil__cabeca">
-        <h1 className="busca__titulo">{motorista.nome}</h1>
-        {reputacao && (
-          <p className="perfil__reputacao">
-            <span>{reputacao.mediaNotas != null ? `★ ${reputacao.mediaNotas.toFixed(1).replace('.', ',')}` : 'Sem avaliações ainda'}</span>
-            <span>{reputacao.fretesConcluidos} {reputacao.fretesConcluidos === 1 ? 'frete concluído' : 'fretes concluídos'}</span>
-            {['CNH', 'CRLV'].map((d) => (
-              <span key={d} className={reputacao.documentosVerificados.includes(d) ? 'doc doc--ok' : 'doc'}>
-                {d} {reputacao.documentosVerificados.includes(d) ? 'verificada' : 'pendente'}
-              </span>
-            ))}
-          </p>
-        )}
-      </header>
+    <div className="perfil-m">
+      {computador ? <h1 className="titulo-pagina meus-m__titulo">Perfil</h1> : <CabecalhoPagina titulo="Perfil"><BotaoTema /></CabecalhoPagina>}
 
-      <ChavePix motorista={motorista} aoSalvar={recarregar} />
-      <Caminhoes motoristaId={motorista.id} veiculos={veiculos} aoMudar={recarregar} />
-      <Avisos motorista={motorista} aoMudar={recarregar} />
-      <Contato motorista={motorista} aoSalvar={recarregar} />
+      <section className="perfil-m__voce" aria-label="Você">
+        <Avatar nome={motorista.nome} grande />
+        <span className="quem__texto">
+          <strong>{motorista.nome}</strong>
+          {reputacao && <span>{reputacao.mediaNotas != null ? `Nota ${reputacao.mediaNotas.toLocaleString('pt-BR', { minimumFractionDigits: 1 })}` : 'Sem nota ainda'} · {reputacao.fretesConcluidos} {reputacao.fretesConcluidos === 1 ? 'frete' : 'fretes'}</span>}
+          <span className={docs.length >= 2 ? 'perfil-m__docs perfil-m__docs--ok' : 'perfil-m__docs'}>
+            {docs.length >= 2 ? 'CNH e CRLV conferidos' : docs.length === 1 ? `${docs[0]} conferida; falta ${docs[0] === 'CNH' ? 'o CRLV' : 'a CNH'}` : 'Documentos ainda não conferidos'}
+          </span>
+        </span>
+      </section>
+
+      <div className="perfil-m__grade">
+        <Contato motorista={motorista} />
+        <ChavePix motorista={motorista} />
+        <Veiculos motoristaId={motorista.id} veiculos={veiculos} aoMudar={recarregar} />
+        <Avisos motorista={motorista} />
+        <Bloco id="t-docs" titulo="Documentos">
+          <ul className="perfil-m__lista">
+            {['CNH', 'CRLV'].map((d) => (
+              <li key={d} className="perfil-m__linha"><span>{d}</span><span className={docs.includes(d) ? 'perfil-m__ok' : 'perfil-m__pendente'}>{docs.includes(d) ? 'Conferido' : 'Pendente'}</span></li>
+            ))}
+          </ul>
+          <p className="frete-c__texto--menor">A CNH e o CRLV vão em cada frete fechado, pela tela do frete. Um administrador confere antes do primeiro frete.</p>
+          <Link to="/motorista/meus-fretes" className="botao botao--secundario">Enviar pelos meus fretes</Link>
+        </Bloco>
+      </div>
+
+      <button type="button" className="botao botao--secundario botao--largo perfil-m__sair" onClick={async () => { await sair(); navegar('/entrar') }}>Sair</button>
     </div>
   )
 }
 
-function ChavePix({ motorista, aoSalvar }: { motorista: Motorista; aoSalvar: () => void }) {
-  const [editando, setEditando] = useState(!motorista.temChavePix)
-  const [chave, setChave] = useState('')
+function Contato({ motorista }: { motorista: Motorista }) {
+  const [telefone, setTelefone] = useState(motorista.telefone)
   const [enviando, setEnviando] = useState(false)
-  const [problema, setProblema] = useState<Problema | null>(null)
+  const [salvo, setSalvo] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
 
   async function salvar(e: FormEvent) {
     e.preventDefault()
-    setProblema(null)
-    if (!chave.trim()) {
-      setProblema({ title: '', detail: '', status: 400, erros: { chavePix: 'Informe a chave Pix: CPF, telefone, e-mail ou chave aleatória.' } })
-      return
-    }
+    setErro(null)
+    setSalvo(false)
     setEnviando(true)
     try {
-      await api('PUT', `/api/motoristas/${motorista.id}/chave-pix`, { chavePix: chave.trim() })
-      aoSalvar()
+      await api('PUT', `/api/motoristas/${motorista.id}`, { nome: motorista.nome, telefone: telefone.trim() })
+      setSalvo(true)
     } catch (falha) {
-      setProblema(comoProblema(falha))
+      const p = comoProblema(falha)
+      setErro(p.erros?.telefone ?? p.detail)
+    } finally {
       setEnviando(false)
     }
   }
 
-  const erro = problema?.erros?.chavePix
   return (
-    <Cartao id="titulo-pix" titulo="Onde você recebe">
-      {motorista.temChavePix ? (
-        <p className="perfil__ok">Chave Pix cadastrada. Adiantamento e saldo caem nela.</p>
-      ) : (
-        <Aviso tom="alerta" titulo="Falta a chave Pix.">Sem ela, o adiantamento e o saldo dos fretes não têm para onde ir.</Aviso>
-      )}
-      {editando ? (
-        <form className="perfil__form" onSubmit={salvar} noValidate>
+    <Bloco id="t-contato" titulo="Contato">
+      <form className="perfil-m__form" onSubmit={salvar} noValidate>
+        <div className="campo">
+          <label htmlFor="celular" className="campo__rotulo">Celular com WhatsApp</label>
+          <input id="celular" type="tel" className="campo__entrada" autoComplete="tel" value={telefone} onChange={(e) => { setTelefone(e.target.value); setSalvo(false) }}
+            aria-invalid={erro ? true : undefined} aria-describedby={erro ? 'celular-erro' : undefined} />
+          {erro && <p id="celular-erro" className="campo__erro">{erro}</p>}
+        </div>
+        <div className="campo">
+          <label htmlFor="email" className="campo__rotulo">E-mail</label>
+          <input id="email" type="email" className="campo__entrada" value={motorista.email} readOnly aria-describedby="email-ajuda" />
+          <p id="email-ajuda" className="campo__ajuda">O e-mail é a sua entrada no Fretaí e não muda por aqui.</p>
+        </div>
+        <button type="submit" className="botao botao--secundario" disabled={enviando}>{enviando ? 'Salvando…' : 'Salvar contato'}</button>
+        {salvo && <p role="status" className="perfil-m__ok">Contato salvo.</p>}
+      </form>
+    </Bloco>
+  )
+}
+
+function ChavePix({ motorista }: { motorista: Motorista }) {
+  const [tipo, setTipo] = useState<TipoPix>('CELULAR')
+  const [chave, setChave] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [salva, setSalva] = useState(motorista.temChavePix)
+  const [acabouDeSalvar, setAcabouDeSalvar] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+  const t = TIPOS_PIX[tipo]
+
+  async function salvar(e: FormEvent) {
+    e.preventDefault()
+    setErro(null)
+    setAcabouDeSalvar(false)
+    if (!t.valida(chave)) return setErro(`Confira a chave: não parece ${tipo === 'EMAIL' ? 'um e-mail' : tipo === 'ALEATORIA' ? 'uma chave aleatória' : `um ${t.rotulo.toLowerCase()}`}.`)
+    setEnviando(true)
+    try {
+      await api('PUT', `/api/motoristas/${motorista.id}/chave-pix`, { chavePix: chave.trim() })
+      setSalva(true)
+      setAcabouDeSalvar(true)
+      setChave('')
+    } catch (falha) {
+      const p = comoProblema(falha)
+      setErro(p.erros?.chavePix ?? p.detail)
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  return (
+    <Bloco id="t-pix" titulo="Chave Pix para receber">
+      {!salva && <Aviso tom="alerta" titulo="Falta a chave Pix.">Sem ela, o dinheiro dos fretes não tem para onde ir.</Aviso>}
+      {salva && !acabouDeSalvar && <p className="frete-c__texto--menor">Você já tem uma chave cadastrada. Por segurança ela não volta para a tela; salve outra para trocar.</p>}
+      <form className="perfil-m__form" onSubmit={salvar} noValidate>
+        <div className="perfil-m__par">
           <div className="campo">
-            <label htmlFor="chave-pix" className="campo__rotulo">{motorista.temChavePix ? 'Nova chave Pix' : 'Chave Pix'}</label>
-            <input id="chave-pix" className="campo__entrada" maxLength={77} autoComplete="off" spellCheck={false} value={chave}
-              onChange={(e) => setChave(e.target.value)} placeholder="seu@email.com.br"
-              aria-invalid={erro ? true : undefined} aria-describedby={erro ? 'chave-pix-erro' : 'chave-pix-ajuda'} />
-            {erro
-              ? <p id="chave-pix-erro" className="campo__erro">{erro}</p>
-              : <p id="chave-pix-ajuda" className="campo__ajuda">CPF, telefone, e-mail ou chave aleatória. Por segurança, ela não volta para a tela depois de salva.</p>}
+            <label htmlFor="tipoPix" className="campo__rotulo">Tipo de chave</label>
+            <select id="tipoPix" className="campo__entrada" value={tipo} onChange={(e) => { setTipo(e.target.value as TipoPix); setErro(null) }}>
+              {(Object.keys(TIPOS_PIX) as TipoPix[]).map((k) => <option key={k} value={k}>{TIPOS_PIX[k].rotulo}</option>)}
+            </select>
           </div>
-          {problema && !erro && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}
-          <div className="perfil__botoes">
-            <button type="submit" className="botao botao--primario" disabled={enviando}>{enviando ? 'Salvando…' : 'Salvar chave'}</button>
-            {motorista.temChavePix && <button type="button" className="botao botao--fantasma" onClick={() => setEditando(false)}>Cancelar</button>}
+          <div className="campo">
+            <label htmlFor="chavePix" className="campo__rotulo">Chave</label>
+            <input id="chavePix" className="campo__entrada" inputMode={t.modo} autoComplete="off" spellCheck={false} maxLength={77} placeholder={t.exemplo}
+              value={chave} onChange={(e) => setChave(e.target.value)} aria-invalid={erro ? true : undefined} aria-describedby={erro ? 'chavePix-erro' : undefined} />
+            {erro && <p id="chavePix-erro" className="campo__erro">{erro}</p>}
           </div>
-        </form>
-      ) : (
-        <button type="button" className="botao botao--secundario perfil__acao" onClick={() => setEditando(true)}>Trocar chave Pix</button>
-      )}
-    </Cartao>
+        </div>
+        <button type="submit" className="botao botao--secundario" disabled={enviando}>{enviando ? 'Salvando…' : 'Salvar chave Pix'}</button>
+        {acabouDeSalvar && <p role="status" className="perfil-m__ok">Chave salva. O dinheiro dos fretes vai para ela.</p>}
+      </form>
+    </Bloco>
   )
 }
 
-function Caminhoes({ motoristaId, veiculos, aoMudar }: { motoristaId: string; veiculos: Veiculo[]; aoMudar: () => void }) {
-  const [adicionando, setAdicionando] = useState(veiculos.length === 0)
+function Veiculos({ motoristaId, veiculos, aoMudar }: { motoristaId: string; veiculos: Veiculo[]; aoMudar: () => void }) {
+  const [novo, setNovo] = useState(false)
   return (
-    <Cartao id="titulo-caminhoes" titulo="Seus caminhões">
-      {veiculos.length === 0 && !adicionando && <p>Nenhum caminhão cadastrado. Sem caminhão não dá para aceitar frete.</p>}
-      {veiculos.length > 0 && (
-        <ul className="perfil__caminhoes">
-          {veiculos.map((v) => <LinhaCaminhao key={v.id} motoristaId={motoristaId} veiculo={v} aoRemover={aoMudar} />)}
-        </ul>
-      )}
-      {adicionando
-        ? <NovoCaminhao motoristaId={motoristaId} aoSalvar={aoMudar} aoCancelar={veiculos.length ? () => setAdicionando(false) : undefined} />
-        : <button type="button" className="botao botao--secundario perfil__acao" onClick={() => setAdicionando(true)}>Adicionar caminhão</button>}
-    </Cartao>
+    <Bloco id="t-veic" titulo="Veículos">
+      {veiculos.length === 0 && <p className="frete-c__texto">Cadastre um veículo para poder aceitar fretes.</p>}
+      {veiculos.length > 0 && <ul className="perfil-m__lista">{veiculos.map((v) => <LinhaVeiculo key={v.id} motoristaId={motoristaId} veiculo={v} aoMudar={aoMudar} />)}</ul>}
+      {novo
+        ? <NovoVeiculoForm motoristaId={motoristaId} aoSalvar={() => { setNovo(false); aoMudar() }} aoCancelar={() => setNovo(false)} />
+        : <button type="button" className="botao botao--secundario" onClick={() => setNovo(true)}>Adicionar veículo</button>}
+    </Bloco>
   )
 }
 
-function LinhaCaminhao({ motoristaId, veiculo: v, aoRemover }: { motoristaId: string; veiculo: Veiculo; aoRemover: () => void }) {
-  const [fase, setFase] = useState<'parado' | 'confirmar' | 'enviando'>('parado')
-  const [problema, setProblema] = useState<Problema | null>(null)
+function LinhaVeiculo({ motoristaId, veiculo: v, aoMudar }: { motoristaId: string; veiculo: Veiculo; aoMudar: () => void }) {
+  const [fase, setFase] = useState<'parado' | 'confirmar' | 'enviando' | 'completar'>('parado')
+  const [erro, setErro] = useState<string | null>(null)
+  const incompleto = v.categoria === 'CAMINHAO' && (!v.tipo || !v.carroceria || !v.numeroEixos)
 
   async function remover() {
     setFase('enviando')
-    setProblema(null)
+    setErro(null)
     try {
       await api('DELETE', `/api/motoristas/${motoristaId}/veiculos/${v.id}`)
-      aoRemover()
+      aoMudar()
     } catch (falha) {
-      setProblema(comoProblema(falha))
+      setErro(comoProblema(falha).detail)
       setFase('parado')
     }
   }
 
   return (
-    <li className="perfil__caminhao">
-      <div className="perfil__caminhao-dados">
-        <Placa placa={v.placa} />
-        <span>{veiculo(v.tipo)} · {carroceria(v.carroceria)} · {v.numeroEixos} eixos{v.rastreador ? ' · rastreador' : ''}</span>
-      </div>
-      <div className="perfil__caminhao-acoes" aria-live="polite">
-        {problema && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}
+    <li className="perfil-m__veiculo">
+      <div className="perfil-m__linha">
+        <span className="quem__texto"><strong>{v.modelo ?? CATEGORIAS[v.categoria].nome}</strong><span>{CATEGORIAS[v.categoria].nome} <span className="placa-mono">{v.placa}</span></span></span>
         {fase === 'confirmar' ? (
-          <>
-            <span className="proposta__confirmar">Remover {v.placa}?</span>
-            <button type="button" className="botao botao--perigo" onClick={remover}>Remover</button>
+          <span className="perfil-m__acoes">
+            <button type="button" className="botao botao--perigo" onClick={remover}>Remover {v.placa}</button>
             <button type="button" className="botao botao--fantasma" onClick={() => setFase('parado')}>Manter</button>
-          </>
+          </span>
         ) : (
-          <button type="button" className="botao botao--fantasma" disabled={fase === 'enviando'} onClick={() => setFase('confirmar')}
-            aria-label={`Remover o caminhão ${v.placa}`}>
+          <button type="button" className="botao botao--fantasma" disabled={fase === 'enviando'} onClick={() => setFase('confirmar')} aria-label={`Remover o veículo ${v.placa}`}>
             {fase === 'enviando' ? 'Removendo…' : 'Remover'}
           </button>
         )}
       </div>
+      {erro && <p className="campo__erro" role="alert">{erro}</p>}
+      {incompleto && fase !== 'completar' && (
+        <button type="button" className="botao botao--fantasma perfil-m__completar" onClick={() => setFase('completar')}>Completar dados do caminhão</button>
+      )}
+      {fase === 'completar' && <DadosCaminhao motoristaId={motoristaId} veiculo={v} aoSalvar={aoMudar} aoCancelar={() => setFase('parado')} />}
     </li>
   )
 }
 
-function NovoCaminhao({ motoristaId, aoSalvar, aoCancelar }: { motoristaId: string; aoSalvar: () => void; aoCancelar?: () => void }) {
+function NovoVeiculoForm({ motoristaId, aoSalvar, aoCancelar }: { motoristaId: string; aoSalvar: () => void; aoCancelar: () => void }) {
+  const [categoria, setCategoria] = useState<CategoriaVeiculo>('VAN')
+  const [modelo, setModelo] = useState('')
   const [placa, setPlaca] = useState('')
-  const [rntrc, setRntrc] = useState('')
-  const [tipo, setTipo] = useState('CARRETA')
-  const [carroceriaEscolhida, setCarroceria] = useState('SIDER')
-  const [eixos, setEixos] = useState(5)
-  const [rastreador, setRastreador] = useState(false)
   const [enviando, setEnviando] = useState(false)
-  const [problema, setProblema] = useState<Problema | null>(null)
+  const [erro, setErro] = useState<string | null>(null)
 
   async function salvar(e: FormEvent) {
     e.preventDefault()
-    setProblema(null)
+    setErro(null)
+    const p = placa.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
+    if (!PLACA.test(p)) return setErro(PLACA_INVALIDA)
     setEnviando(true)
-    const pedido: NovoVeiculo = { placa: placa.trim().toUpperCase(), categoria: 'CAMINHAO', rntrc: rntrc.trim(), tipo, carroceria: carroceriaEscolhida, numeroEixos: eixos, rastreador }
+    const pedido: NovoVeiculo = { placa: p, categoria, modelo: modelo.trim() || null, rastreador: false }
     try {
       await api('POST', `/api/motoristas/${motoristaId}/veiculos`, pedido)
       aoSalvar()
     } catch (falha) {
-      setProblema(comoProblema(falha))
+      const pr = comoProblema(falha)
+      setErro(pr.erros?.placa ?? pr.detail)
       setEnviando(false)
     }
   }
 
-  const erro = (c: string) => problema?.erros?.[c]
   return (
-    <form className="perfil__form perfil__novo" onSubmit={salvar} noValidate aria-label="Novo caminhão">
-      <div className="publicar__linha">
-        <div className="campo">
-          <label htmlFor="placa-nova" className="campo__rotulo">Placa</label>
-          <input id="placa-nova" className="campo__entrada campo__entrada--placa" maxLength={8} autoComplete="off" spellCheck={false}
-            value={placa} onChange={(e) => setPlaca(e.target.value)} placeholder="ABC1D23"
-            aria-invalid={erro('placa') ? true : undefined} aria-describedby={erro('placa') ? 'placa-nova-erro' : undefined} />
-          {erro('placa') && <p id="placa-nova-erro" className="campo__erro">{erro('placa')}</p>}
-        </div>
-        <div className="campo">
-          <label htmlFor="rntrc-novo" className="campo__rotulo">RNTRC</label>
-          <input id="rntrc-novo" className="campo__entrada" inputMode="numeric" maxLength={9} autoComplete="off" value={rntrc}
-            onChange={(e) => setRntrc(e.target.value.replace(/\D/g, ''))} placeholder="045821937"
-            aria-invalid={erro('rntrc') ? true : undefined} aria-describedby={erro('rntrc') ? 'rntrc-novo-erro' : undefined} />
-          {erro('rntrc') && <p id="rntrc-novo-erro" className="campo__erro">{erro('rntrc')}</p>}
-        </div>
-      </div>
-      <div className="publicar__linha">
-        <div className="campo">
-          <label htmlFor="tipo-novo" className="campo__rotulo">Tipo</label>
-          {/* Trocar o tipo sugere os eixos dele; quem tem eixo a mais ou a menos corrige ao lado. */}
-          <select id="tipo-novo" className="campo__entrada" value={tipo}
-            onChange={(e) => { setTipo(e.target.value); setEixos(TIPOS_CAMINHAO.find((t) => t.valor === e.target.value)?.eixos ?? eixos) }}>
-            {TIPOS_CAMINHAO.map((t) => <option key={t.valor} value={t.valor}>{t.rotulo}</option>)}
-          </select>
-        </div>
-        <div className="campo">
-          <label htmlFor="eixos-novo" className="campo__rotulo">Eixos</label>
-          <select id="eixos-novo" className="campo__entrada" value={eixos} onChange={(e) => setEixos(Number(e.target.value))}>
-            {[2, 3, 4, 5, 6, 7, 8, 9].map((n) => <option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-      </div>
+    <form className="perfil-m__form perfil-m__novo" onSubmit={salvar} noValidate aria-label="Novo veículo">
       <div className="campo">
-        <label htmlFor="carroceria-nova" className="campo__rotulo">Carroceria</label>
-        <select id="carroceria-nova" className="campo__entrada" value={carroceriaEscolhida} onChange={(e) => setCarroceria(e.target.value)}>
-          {CARROCERIAS.map((c) => <option key={c.valor} value={c.valor}>{c.rotulo}</option>)}
+        <label htmlFor="novoCategoria" className="campo__rotulo">Tipo</label>
+        <select id="novoCategoria" className="campo__entrada" value={categoria} onChange={(e) => setCategoria(e.target.value as CategoriaVeiculo)}>
+          {ORDEM_CATEGORIAS.map((c) => <option key={c} value={c}>{CATEGORIAS[c].nome}</option>)}
         </select>
       </div>
-      <label className="opcao">
-        <input type="checkbox" checked={rastreador} onChange={(e) => setRastreador(e.target.checked)} />
-        <span>Tem rastreador</span>
-      </label>
-      {problema && !problema.erros && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}
-      <div className="perfil__botoes">
-        <button type="submit" className="botao botao--primario" disabled={enviando}>{enviando ? 'Salvando…' : 'Salvar caminhão'}</button>
-        {aoCancelar && <button type="button" className="botao botao--fantasma" onClick={aoCancelar}>Cancelar</button>}
+      <div className="perfil-m__par">
+        <div className="campo">
+          <label htmlFor="novoModelo" className="campo__rotulo">Modelo</label>
+          <input id="novoModelo" className="campo__entrada" maxLength={60} placeholder="Ex.: Fiat Fiorino" value={modelo} onChange={(e) => setModelo(e.target.value)} />
+        </div>
+        <div className="campo">
+          <label htmlFor="novaPlaca" className="campo__rotulo">Placa</label>
+          <input id="novaPlaca" className="campo__entrada campo__entrada--placa" maxLength={8} autoComplete="off" spellCheck={false} placeholder="ABC1D23"
+            value={placa} onChange={(e) => setPlaca(e.target.value)} aria-invalid={erro ? true : undefined} aria-describedby={erro ? 'novaPlaca-erro' : undefined} />
+          {erro && <p id="novaPlaca-erro" className="campo__erro" role="alert">{erro}</p>}
+        </div>
+      </div>
+      <p className="frete-c__texto--menor">Carro de passeio e moto não fazem frete no Fretaí.</p>
+      <div className="perfil-m__acoes">
+        <button type="submit" className="botao botao--primario" disabled={enviando}>{enviando ? 'Salvando…' : 'Salvar veículo'}</button>
+        <button type="button" className="botao botao--fantasma" onClick={aoCancelar}>Cancelar</button>
       </div>
     </form>
   )
 }
 
-const RAIOS = [50, 100, 200, 300] as const
-
-function Avisos({ motorista, aoMudar }: { motorista: Motorista; aoMudar: () => void }) {
-  const [raio, setRaio] = useState<number>(100)
-  const [base, setBase] = useState<{ fase: 'parado' } | { fase: 'buscando' } | { fase: 'salvo'; raio: number } | { fase: 'erro'; texto: string }>({ fase: 'parado' })
-  const [feriado, setFeriado] = useState(motorista.aceitaFeriado)
-  const [salvandoFeriado, setSalvandoFeriado] = useState(false)
-  const [erroFeriado, setErroFeriado] = useState<string | null>(null)
-
-  async function salvarBase() {
-    setBase({ fase: 'buscando' })
-    try {
-      // Na demonstração a base é Campinas, a mesma da busca de exemplo, sem pedir o GPS.
-      const p = MODO_DEMO ? { lat: -22.9, lng: -47.06 } : await posicaoAtual()
-      await api('PUT', `/api/motoristas/${motorista.id}/base`, { latitude: p.lat, longitude: p.lng, raioKm: raio })
-      setBase({ fase: 'salvo', raio })
-    } catch (falha) {
-      setBase({ fase: 'erro', texto: comoProblema(falha).detail })
-    }
-  }
-
-  async function mudarFeriado(valor: boolean) {
-    setFeriado(valor)
-    setSalvandoFeriado(true)
-    setErroFeriado(null)
-    try {
-      await api('PATCH', `/api/motoristas/${motorista.id}/preferencias`, { aceitaFeriado: valor })
-      aoMudar()
-    } catch (falha) {
-      setFeriado(!valor)
-      setErroFeriado(comoProblema(falha).detail || 'Não deu para salvar. Tente de novo.')
-    } finally {
-      setSalvandoFeriado(false)
-    }
-  }
-
-  return (
-    <Cartao id="titulo-avisos" titulo="Avisos de frete novo">
-      <p>Quando aparecer frete perto da sua base, você recebe aviso. A base é onde você estiver ao salvar.</p>
-      <div className="campo">
-        <span className="campo__rotulo" id="raio-rotulo">Até que distância</span>
-        <div className="escolhas" role="radiogroup" aria-labelledby="raio-rotulo">
-          {RAIOS.map((r) => (
-            <label key={r} className="escolha">
-              <input type="radio" name="raio-aviso" className="escolha__caixa" checked={raio === r} onChange={() => setRaio(r)} />
-              <span>{r} km</span>
-            </label>
-          ))}
-        </div>
-      </div>
-      <div aria-live="polite" className="perfil__estado">
-        {base.fase === 'salvo' && <p className="perfil__ok">Base salva. Você recebe aviso de frete a até {base.raio} km dela.</p>}
-        {base.fase === 'erro' && <Aviso tom="alerta" titulo="Não deu para salvar a base.">{base.texto}</Aviso>}
-      </div>
-      <button type="button" className="botao botao--secundario perfil__acao" onClick={salvarBase} disabled={base.fase === 'buscando'}>
-        {base.fase === 'buscando' ? 'Pegando sua localização…' : 'Usar onde estou como base'}
-      </button>
-
-      <div className="perfil__feriado">
-        <label className="opcao">
-          <input type="checkbox" checked={feriado} disabled={salvandoFeriado} onChange={(e) => mudarFeriado(e.target.checked)} />
-          <span>Pego frete em feriado</span>
-        </label>
-        <p className="campo__ajuda" aria-live="polite">
-          {erroFeriado ?? (feriado ? 'Você pode fechar frete com coleta em feriado.' : 'Frete com coleta em feriado não fecha com você.')}
-        </p>
-      </div>
-    </Cartao>
-  )
-}
-
-function Contato({ motorista, aoSalvar }: { motorista: Motorista; aoSalvar: () => void }) {
-  const [nome, setNome] = useState(motorista.nome)
-  const [telefone, setTelefone] = useState(motorista.telefone)
+/** Os dados que o frete de empresa exige do caminhão: RNTRC, tipo, carroceria, eixos e rastreador. */
+function DadosCaminhao({ motoristaId, veiculo: v, aoSalvar, aoCancelar }: { motoristaId: string; veiculo: Veiculo; aoSalvar: () => void; aoCancelar: () => void }) {
+  const [rntrc, setRntrc] = useState('')
+  const [tipo, setTipo] = useState(v.tipo ?? 'TRES_QUARTOS')
+  const [carroceria, setCarroceria] = useState(v.carroceria ?? 'BAU')
+  const [eixos, setEixos] = useState(v.numeroEixos ?? TIPOS_CAMINHAO.find((t) => t.valor === tipo)?.eixos ?? 2)
+  const [rastreador, setRastreador] = useState(v.rastreador)
   const [enviando, setEnviando] = useState(false)
-  const [problema, setProblema] = useState<Problema | null>(null)
-  const alterado = nome !== motorista.nome || telefone !== motorista.telefone
+  const [erro, setErro] = useState<string | null>(null)
 
   async function salvar(e: FormEvent) {
     e.preventDefault()
-    setProblema(null)
+    setErro(null)
     setEnviando(true)
+    const pedido: NovoVeiculo = { placa: v.placa, categoria: 'CAMINHAO', modelo: v.modelo, rntrc: rntrc.trim() || null, tipo, carroceria, numeroEixos: eixos, rastreador }
     try {
-      await api('PUT', `/api/motoristas/${motorista.id}`, { nome: nome.trim(), telefone: telefone.trim() })
+      await api('PUT', `/api/motoristas/${motoristaId}/veiculos/${v.id}`, pedido)
       aoSalvar()
     } catch (falha) {
-      setProblema(comoProblema(falha))
+      setErro(comoProblema(falha).detail)
       setEnviando(false)
     }
   }
 
-  const erro = (c: string) => problema?.erros?.[c]
   return (
-    <Cartao id="titulo-contato" titulo="Seus dados">
-      <form className="perfil__form" onSubmit={salvar} noValidate>
+    <form className="perfil-m__form perfil-m__novo" onSubmit={salvar} noValidate aria-label={`Dados do caminhão ${v.placa}`}>
+      <div className="perfil-m__par">
         <div className="campo">
-          <label htmlFor="nome-motorista" className="campo__rotulo">Nome</label>
-          <input id="nome-motorista" className="campo__entrada" autoComplete="name" maxLength={100} value={nome} onChange={(e) => setNome(e.target.value)}
-            aria-invalid={erro('nome') ? true : undefined} aria-describedby={erro('nome') ? 'nome-motorista-erro' : undefined} />
-          {erro('nome') && <p id="nome-motorista-erro" className="campo__erro">{erro('nome')}</p>}
+          <label htmlFor={`rntrc-${v.id}`} className="campo__rotulo">RNTRC</label>
+          <input id={`rntrc-${v.id}`} className="campo__entrada" inputMode="numeric" maxLength={9} value={rntrc} onChange={(e) => setRntrc(e.target.value.replace(/\D/g, ''))} placeholder="045821937" />
         </div>
         <div className="campo">
-          <label htmlFor="telefone-motorista" className="campo__rotulo">Telefone (WhatsApp)</label>
-          <input id="telefone-motorista" type="tel" className="campo__entrada" autoComplete="tel" value={telefone} onChange={(e) => setTelefone(e.target.value)}
-            aria-invalid={erro('telefone') ? true : undefined} aria-describedby={erro('telefone') ? 'telefone-motorista-erro' : undefined} />
-          {erro('telefone') && <p id="telefone-motorista-erro" className="campo__erro">{erro('telefone')}</p>}
+          <label htmlFor={`tipo-${v.id}`} className="campo__rotulo">Tipo</label>
+          <select id={`tipo-${v.id}`} className="campo__entrada" value={tipo}
+            onChange={(e) => { setTipo(e.target.value); setEixos(TIPOS_CAMINHAO.find((t) => t.valor === e.target.value)?.eixos ?? eixos) }}>
+            {TIPOS_CAMINHAO.map((t) => <option key={t.valor} value={t.valor}>{t.rotulo}</option>)}
+          </select>
         </div>
-        <dl className="ficha ficha--compacta">
-          <div><dt>E-mail</dt><dd>{motorista.email}</dd></div>
-        </dl>
-        <p className="campo__ajuda">CPF e e-mail não mudam por aqui: são a sua identidade na plataforma.</p>
-        {problema && !problema.erros && <Aviso tom="perigo" titulo={problema.title}>{problema.detail}</Aviso>}
-        {alterado && (
-          <div className="perfil__botoes">
-            <button type="submit" className="botao botao--primario" disabled={enviando}>{enviando ? 'Salvando…' : 'Salvar dados'}</button>
-            <button type="button" className="botao botao--fantasma" onClick={() => { setNome(motorista.nome); setTelefone(motorista.telefone) }}>Desfazer</button>
-          </div>
-        )}
+        <div className="campo">
+          <label htmlFor={`carroceria-${v.id}`} className="campo__rotulo">Carroceria</label>
+          <select id={`carroceria-${v.id}`} className="campo__entrada" value={carroceria} onChange={(e) => setCarroceria(e.target.value)}>
+            {CARROCERIAS.map((c) => <option key={c.valor} value={c.valor}>{c.rotulo}</option>)}
+          </select>
+        </div>
+        <div className="campo">
+          <label htmlFor={`eixos-${v.id}`} className="campo__rotulo">Eixos</label>
+          <select id={`eixos-${v.id}`} className="campo__entrada" value={eixos} onChange={(e) => setEixos(Number(e.target.value))}>
+            {[2, 3, 4, 5, 6, 7, 8, 9].map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+      </div>
+      <label className="opcao"><input type="checkbox" checked={rastreador} onChange={(e) => setRastreador(e.target.checked)} /><span>Tem rastreador</span></label>
+      {erro && <p className="campo__erro" role="alert">{erro}</p>}
+      <div className="perfil-m__acoes">
+        <button type="submit" className="botao botao--primario" disabled={enviando}>{enviando ? 'Salvando…' : 'Salvar dados do caminhão'}</button>
+        <button type="button" className="botao botao--fantasma" onClick={aoCancelar}>Cancelar</button>
+      </div>
+    </form>
+  )
+}
+
+function Avisos({ motorista }: { motorista: Motorista }) {
+  const [cep, setCep] = useState('')
+  const [raio, setRaio] = useState<number>(25)
+  const [feriado, setFeriado] = useState(motorista.aceitaFeriado)
+  const [estado, setEstado] = useState<{ fase: 'parado' | 'salvando' } | { fase: 'salvo'; texto: string } | { fase: 'erro'; texto: string }>({ fase: 'parado' })
+
+  async function salvar(e: FormEvent) {
+    e.preventDefault()
+    const d = cep.replace(/\D/g, '')
+    if (d && d.length !== 8) return setEstado({ fase: 'erro', texto: 'Digite os 8 números do CEP.' })
+    setEstado({ fase: 'salvando' })
+    try {
+      if (d) await api('PUT', `/api/motoristas/${motorista.id}/base`, { cep: `${d.slice(0, 5)}-${d.slice(5)}`, raioKm: raio })
+      if (feriado !== motorista.aceitaFeriado) await api('PATCH', `/api/motoristas/${motorista.id}/preferencias`, { aceitaFeriado: feriado })
+      setEstado({ fase: 'salvo', texto: `${d ? `Você recebe aviso de frete a até ${raio} km do CEP ${d.slice(0, 5)}-${d.slice(5)}.` : 'Preferências salvas.'} ${feriado ? 'Frete em feriado também.' : 'Frete em feriado, não.'}` })
+    } catch (falha) {
+      setEstado({ fase: 'erro', texto: comoProblema(falha).detail })
+    }
+  }
+
+  return (
+    <Bloco id="t-avisos" titulo="Avisos de frete novo">
+      <form className="perfil-m__form" onSubmit={salvar} noValidate>
+        <div className="campo">
+          <label htmlFor="base" className="campo__rotulo">Sua base (CEP)</label>
+          <input id="base" inputMode="numeric" autoComplete="postal-code" className="campo__entrada campo__entrada--cep" placeholder="00000-000" value={cep} onChange={(e) => setCep(e.target.value)} />
+        </div>
+        <div className="busca-m__raios" role="group" aria-label="Raio dos avisos">
+          {RAIOS.map((r) => <button key={r} type="button" className="busca-m__raio" aria-pressed={raio === r} onClick={() => setRaio(r)}>{r} km</button>)}
+        </div>
+        <label className="cadastro__aceite"><input type="checkbox" checked={feriado} onChange={(e) => setFeriado(e.target.checked)} /><span>Aceito frete em feriado</span></label>
+        <button type="submit" className="botao botao--secundario" disabled={estado.fase === 'salvando'}>{estado.fase === 'salvando' ? 'Salvando…' : 'Salvar avisos'}</button>
+        <div aria-live="polite">
+          {estado.fase === 'salvo' && <p role="status" className="perfil-m__ok">{estado.texto}</p>}
+          {estado.fase === 'erro' && <p className="campo__erro" role="alert">{estado.texto}</p>}
+        </div>
       </form>
-    </Cartao>
+    </Bloco>
   )
 }

@@ -939,6 +939,36 @@ a.meus-m__cartao:hover .card-m__titulo, .meus-m__cartao a.card-m__titulo:hover {
   .calc-m__resultado { padding: var(--esp-6); }
 }
 
+/* ---------- perfil do motorista (Motorista-Perfil) ---------- */
+.perfil-m { display: grid; gap: var(--esp-4); }
+.perfil-m__voce { display: flex; align-items: center; gap: var(--esp-3); padding: var(--esp-4); border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
+.perfil-m__voce strong { font-size: var(--tam-bloco); }
+.perfil-m__docs { font-weight: var(--peso-forte); color: var(--cor-alerta); }
+.perfil-m__docs--ok { color: var(--cor-garantido); }
+.perfil-m__grade { display: grid; gap: var(--esp-4); }
+.perfil-m__bloco { display: grid; gap: var(--esp-3); align-content: start; padding-bottom: var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); }
+.perfil-m__bloco h2 { font-size: var(--tam-secao); }
+.perfil-m__form { display: grid; gap: var(--esp-3); justify-items: stretch; }
+.perfil-m__form > .botao { justify-self: start; }
+.perfil-m__par { display: grid; gap: var(--esp-3); }
+.perfil-m__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--esp-2); }
+.perfil-m__linha { display: flex; justify-content: space-between; align-items: center; gap: var(--esp-3); min-height: var(--alvo); }
+.perfil-m__veiculo { display: grid; gap: var(--esp-2); padding: var(--esp-3); border-radius: var(--raio-controle); border: var(--borda) solid var(--cor-linha); }
+.perfil-m__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
+.perfil-m__completar { justify-self: start; color: var(--cor-info); }
+.perfil-m__novo { padding: var(--esp-3); border-radius: var(--raio-controle); border: var(--borda) dashed var(--cor-borda-campo); }
+.perfil-m__ok { color: var(--cor-garantido); font-weight: var(--peso-forte); }
+.perfil-m__pendente { color: var(--cor-alerta); font-weight: var(--peso-forte); }
+.perfil-m__sair { color: var(--cor-perigo); }
+.perfil-m .cabecalho-pagina .botao--icone { margin-left: auto; }
+@media (min-width: 900px) {
+  .perfil-m { gap: var(--esp-6); }
+  .perfil-m__grade { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-6); }
+  .perfil-m__bloco { padding: var(--esp-6); border: 0; border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao), inset 0 0 0 var(--borda) var(--cor-linha); }
+  .perfil-m__par { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .perfil-m__sair { justify-self: start; width: auto; }
+}
+
 /* ---------- registrar entrega (Motorista-Entrega) ---------- */
 .entrega-m { display: grid; gap: var(--esp-4); }
 .entrega-m__parte { display: grid; gap: var(--esp-3); padding-bottom: var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); }
