@@ -42,7 +42,7 @@ class ConsultaCepIntegrationTest {
     @Test
     @DisplayName("CEP conhecido: bairro, cidade e UF")
     void cepConhecido() throws Exception {
-        cliente("31415926590", "cep.ok@email.com");
+        cliente("57721566401", "cep.ok@email.com");
         when(enderecoGateway.buscarPorCep("41810-000"))
                 .thenReturn(new Endereco("41810-000", "Av. Paulo VI", "Pituba", "Salvador", "BA"));
 
@@ -58,7 +58,7 @@ class ConsultaCepIntegrationTest {
     @Test
     @DisplayName("CEP que não existe: 422")
     void cepQueNaoExiste() throws Exception {
-        cliente("27182818396", "cep.nao@email.com");
+        cliente("66260701500", "cep.nao@email.com");
         when(enderecoGateway.buscarPorCep("99999-999")).thenThrow(new CepNaoEncontradoException("CEP não encontrado."));
 
         mvc.perform(get("/api/enderecos/cep/99999-999").with(Login.como(mvc, "cep.nao@email.com")))
