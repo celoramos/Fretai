@@ -148,7 +148,7 @@ export function FreteMotorista() {
             </section>
           )}
 
-          {tokens && !frete.cliente && (minha || (meu && (frete.status === 'ACEITO' || frete.status === 'EM_TRANSITO'))) && (
+          {tokens && (minha || (meu && (frete.status === 'ACEITO' || frete.status === 'EM_TRANSITO'))) && (
             <section className="frete-m__bloco" aria-labelledby="t-documentos">
               <h2 id="t-documentos">Seus documentos para {quem.nome}</h2>
               <DocumentosDoMotorista freteId={frete.id} motoristaId={tokens.usuarioId} />
