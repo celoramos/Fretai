@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api, comoProblema, ErroApi } from '../../api/cliente'
 import type { Contato, EventoFrete, FotoCarga, Frete, Pagamento, Pagina, PerfilEmpresa, Proposta, Veiculo } from '../../api/tipos'
@@ -13,8 +13,9 @@ import { FretesDeVolta } from '../../components/FretesDeVolta'
 import { RotaLinha } from '../../components/RotaLinha'
 import { Aviso, ErroCarga, Esqueleto, Marcos } from '../../components/ui'
 import { exigenciaDoFrete, porQueNaoLeva, tituloDoFrete } from '../../compatibilidade'
-import { carga, contar, contratante, diaDaSemana, faixaDoPeso, horaMinuto, maiuscula, porKm, reais } from '../../formato'
+import { carga, contar, contratante, dataHora, diaDaSemana, diaMes, faixaDoPeso, horaMinuto, maiuscula, porKm, reais, reaisCentavos } from '../../formato'
 import { useComputador } from '../../largura'
+import { recebimentos } from '../../recebimentos'
 import { useSessao } from '../../sessao'
 import { useTitulo } from '../../useTitulo'
 import { linkWhatsApp } from '../../whatsapp'
@@ -242,7 +243,17 @@ function Acoes({ dados, meu, aberto, aoMudar }: { dados: Dados; meu: boolean; ab
   }
 
   if (aberto && !meu) return dados.minha ? <MinhaProposta proposta={dados.minha} frete={frete} aoMudar={aoMudar} /> : <Negociar frete={frete} aoMudar={aoMudar} />
-  if (!meu) return null
+  // Daqui para baixo o frete saiu da vitrine. Quem abre um frete cancelado, ou fechado com outro motorista
+  // (por um link antigo ou pela lista de Concluídos), tem de ler o que aconteceu, e não uma tela sem botão.
+  if (frete.status === 'CANCELADO') {
+    return (
+      <Encerrado tom="perigo" texto={quemCancelou(frete, eventos, meu)}>
+        {meu && frete.motivoCancelamento && <p className="frete-c__texto--menor">Motivo: {frete.motivoCancelamento}</p>}
+        {meu && pagamento?.status === 'ESTORNADO' && <p className="frete-c__texto--menor">O Pix voltou para quem pagou.</p>}
+      </Encerrado>
+    )
+  }
+  if (!meu) return <Encerrado tom="info" texto="Este frete já foi fechado com outro motorista." />
 
   if (frete.status === 'ACEITO') {
     const valor = pagamento?.valorTotal ?? frete.valorAcordado ?? frete.valor
@@ -251,7 +262,7 @@ function Acoes({ dados, meu, aberto, aoMudar }: { dados: Dados; meu: boolean; ab
         {pago ? (
           <>
             <p className="frete-m__estado frete-m__estado--garantido">
-              <svg className="icone-traco" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+              <Certo />
               Pix confirmado: {valor != null ? brl(valor) : 'valor'} guardado
             </p>
             {erro && <Aviso tom="perigo" titulo="Não deu para iniciar.">{erro}</Aviso>}
@@ -291,7 +302,70 @@ function Acoes({ dados, meu, aberto, aoMudar }: { dados: Dados; meu: boolean; ab
       </div>
     )
   }
+
+  // Entregue: a pergunta do motorista é quando o saldo cai. Com contestação, por que não caiu.
+  if (frete.status === 'ENTREGUE') {
+    const saldo = pagamento?.valorSaldo ?? 0
+    if (pagamento?.saldoBloqueado) {
+      return (
+        <div className="frete-m__painel">
+          <p className="frete-m__estado frete-m__estado--alerta" role="status">Entrega contestada: o saldo de {brl(saldo)} fica parado até a análise.</p>
+          <p className="frete-c__texto--menor">Um administrador do Fretaí confere a foto, a assinatura e o GPS do canhoto e decide.</p>
+        </div>
+      )
+    }
+    if (saldo <= 0) return <div className="frete-m__painel"><p className="frete-m__estado frete-m__estado--info" role="status">Entrega registrada.</p></div>
+    return (
+      <div className="frete-m__painel">
+        <p className="frete-m__estado frete-m__estado--garantido" role="status"><Certo />Entrega registrada: saldo de {brl(saldo)} guardado</p>
+        <p className="frete-c__texto--menor">
+          {pagamento?.saldoLiberavelApos
+            ? `Cai na sua chave Pix a partir de ${dataHora(pagamento.saldoLiberavelApos)}, se ninguém contestar a entrega.`
+            : 'Cai na sua chave Pix depois do prazo de contestação.'}
+        </p>
+      </div>
+    )
+  }
+
+  // Pago: o que caiu e quando, com centavos, porque aqui o total tem de bater com as parcelas.
+  if (frete.status === 'PAGO') {
+    const parcelas = pagamento ? recebimentos(pagamento) : []
+    const total = parcelas.reduce((t, r) => t + r.valor, 0)
+    return (
+      <div className="frete-m__painel">
+        <p className="frete-m__estado frete-m__estado--garantido"><Certo />{parcelas.length > 0 ? `Frete pago: R$ ${reaisCentavos(total)}` : 'Frete pago'}</p>
+        {parcelas.length > 1 && (
+          <dl className="ficha ficha--compacta">
+            {parcelas.map((r) => <div key={r.parcela}><dt>{r.parcela}</dt><dd>R$&nbsp;{reaisCentavos(r.valor)}{r.quando ? ` em ${diaMes(r.quando)}` : ''}</dd></div>)}
+          </dl>
+        )}
+        {parcelas.length === 1 && parcelas[0].quando && <p className="frete-c__texto--menor">Caiu na sua chave Pix em {diaMes(parcelas[0].quando)}.</p>}
+        <Link to="/motorista/extrato" className="frete-m__conta">Ver no extrato</Link>
+      </div>
+    )
+  }
   return null
+}
+
+const Certo = () => <svg className="icone-traco" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+
+/** O frete saiu da vitrine: uma linha que diz por quê, o detalhe que houver e o caminho de volta à busca. */
+function Encerrado({ tom, texto, children }: { tom: 'info' | 'perigo'; texto: string; children?: ReactNode }) {
+  return (
+    <div className="frete-m__painel">
+      <p className={`frete-m__estado frete-m__estado--${tom}`}>{texto}</p>
+      {children}
+      <Link to="/motorista" className="botao botao--primario botao--largo">Ver outros fretes</Link>
+    </div>
+  )
+}
+
+/** Quem cancelou, pelo último evento do frete. Para quem não participa, só o fato: o histórico não é dele. */
+function quemCancelou(frete: Frete, eventos: EventoFrete[], meu: boolean) {
+  const autor = meu ? [...eventos].reverse().find((e) => e.para === 'CANCELADO')?.autorPapel : null
+  if (autor === 'MOTORISTA') return 'Você desistiu deste frete.'
+  if (autor === 'CLIENTE' || autor === 'EMPRESA') return `${nomeCurto(frete)} cancelou este frete.`
+  return 'Este frete foi cancelado.'
 }
 
 /** A proposta enviada fica onde estavam os botões de negociar, com retirar. */
