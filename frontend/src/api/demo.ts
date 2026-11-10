@@ -73,7 +73,8 @@ const perfisEmpresa: Record<string, PerfilEmpresa> = {
 const perfisMotorista: Record<string, PerfilMotorista> = {
   [M1]: { id: M1, nome: 'João Batista Ferreira', naPlataformaDesde: '2025-06-01T12:00:00Z', mediaNotas: 4.9, quantidadeAvaliacoes: 58, fretesConcluidos: 61, documentosVerificados: ['CNH', 'CRLV'] },
   [M2]: { id: M2, nome: 'Marcos Vinícius Rocha', naPlataformaDesde: '2026-02-14T12:00:00Z', mediaNotas: 4.6, quantidadeAvaliacoes: 21, fretesConcluidos: 23, documentosVerificados: ['CNH', 'CRLV'] },
-  [M3]: { id: M3, nome: 'Ana Paula Siqueira', naPlataformaDesde: '2026-09-30T12:00:00Z', mediaNotas: null, quantidadeAvaliacoes: 0, fretesConcluidos: 0, documentosVerificados: ['CNH'] },
+  // Motorista nova: um frete terminado (f17) e a nota que a cliente deu por ele, para o perfil bater com a tela do frete.
+  [M3]: { id: M3, nome: 'Ana Paula Siqueira', naPlataformaDesde: '2026-09-30T12:00:00Z', mediaNotas: 5, quantidadeAvaliacoes: 1, fretesConcluidos: 1, documentosVerificados: ['CNH'] },
 }
 
 const caminhao = (modelo: string) => ({ categoria: 'CAMINHAO' as const, modelo })
@@ -213,9 +214,10 @@ const fretes: Frete[] = [
     descricaoCarga: 'Farelo de soja', especieCarga: 'Granel', tipoCargaAntt: 'GRANEL_SOLIDO', pesoKg: 36000, dataColeta: data(2),
     veiculosAceitos: ['BITREM', 'RODOTREM'], carroceriasAceitas: ['GRANELEIRO'], exigeRastreador: false,
     preco: { coeficientesDeExemplo: true, eixosConsiderados: 7, pisoMinimo: 2980, abaixoDoPiso: false, acimaDaMedia: false, mediaRotaPorKm: null } }),
-  // Fretes que o motorista de exemplo já terminou, de outras empresas: enchem a aba Concluídos e o extrato
-  // (um pago há poucos dias, um pago no mês passado e um cancelado depois de fechado).
-  frete({ id: 'f20', coleta: limeira, entrega: santos, empresa: empresas[E3], valor: 3200, valorTotal: 3200, valorAcordado: 3200, adiantamentoPercentual: 40,
+  // Fretes que o motorista de exemplo já terminou, de outro contratante: enchem a aba Concluídos e o extrato
+  // (um pago há poucos dias, um pago no mês passado e um cancelado depois de fechado). São todos da Rota
+  // Norte, que já tem fretes concluídos no perfil; a Grãos do Cerrado continua sendo a empresa sem histórico.
+  frete({ id: 'f20', coleta: limeira, entrega: santos, empresa: empresas[E2], publicadoPorAgenciador: true, valor: 3200, valorTotal: 3200, valorAcordado: 3200, adiantamentoPercentual: 40,
     distanciaKm: 230, status: 'PAGO', descricaoCarga: 'Fardos de algodão', especieCarga: 'Fardos', exigeRastreador: false,
     motorista: { id: M1, nome: 'João Batista Ferreira', tipoVeiculo: 'CAMINHAO', placa: 'ABC1D23' }, veiculo: resumoVeiculo('v1'),
     criadoEm: iso(-9), aceitoEm: iso(-8.5), concluidoEm: iso(-6), pagoEm: iso(-5), dataColeta: data(-7),
