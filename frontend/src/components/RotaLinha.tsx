@@ -2,6 +2,7 @@ import { motion, useReducedMotion, type Variants } from 'motion/react'
 import type { Endereco } from '../api/tipos'
 import { quilometros } from '../formato'
 import { CURVA, DUR_MEDIA, DUR_ROTA } from '../movimento'
+import { nomeDaPonta, type Pontas } from '../ponta'
 
 /*
  * A pista abre da origem para o destino, como estrada sendo percorrida; o km aparece quando a pista
@@ -20,16 +21,6 @@ const destino: Variants = {
   fechada: { opacity: 0 },
   aberta: { opacity: 1, transition: { duration: DUR_MEDIA, ease: CURVA, delay: DUR_ROTA * 0.75 } },
 }
-
-/**
- * Como cada ponta é dita. cidade: a cidade em destaque e a UF embaixo (frete de empresa, entre cidades).
- * bairro: só o bairro (frete de pessoa física, dentro da cidade). bairro-cidade: "Pituba, Salvador".
- * Sem bairro (o motorista que não fechou só recebe bairro e cidade), cai para a cidade.
- */
-type Pontas = 'cidade' | 'bairro' | 'bairro-cidade'
-
-export const nomeDaPonta = (e: Endereco, pontas: Pontas) =>
-  pontas === 'cidade' || !e.bairro ? e.cidade : pontas === 'bairro' ? e.bairro : `${e.bairro}, ${e.cidade}`
 
 /**
  * A assinatura do Fretaí: origem e destino ligados por uma faixa de asfalto com tracejado amarelo,

@@ -12,3 +12,13 @@ export const enderecoDe = (p: Ponta): EnderecoPedido => ({
   complemento: p.complemento.trim() || null,
   pontoReferencia: p.pontoReferencia.trim() || null,
 })
+
+/**
+ * Como cada ponta é dita. cidade: a cidade em destaque e a UF embaixo (frete de empresa, entre cidades).
+ * bairro: só o bairro (frete de pessoa física, dentro da cidade). bairro-cidade: "Pituba, Salvador".
+ * Sem bairro (o motorista que não fechou só recebe bairro e cidade), cai para a cidade.
+ */
+export type Pontas = 'cidade' | 'bairro' | 'bairro-cidade'
+
+export const nomeDaPonta = (e: Endereco, pontas: Pontas) =>
+  pontas === 'cidade' || !e.bairro ? e.cidade : pontas === 'bairro' ? e.bairro : `${e.bairro}, ${e.cidade}`

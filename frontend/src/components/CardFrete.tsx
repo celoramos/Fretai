@@ -5,7 +5,7 @@ import { exigenciaDoFrete, tituloDoFrete } from '../compatibilidade'
 import { contratante, diaDaSemana, faixaDoPeso, quilometros } from '../formato'
 import { item } from '../movimento'
 import { ChipPiso, Valor } from './Dinheiro'
-import { nomeDaPonta } from './RotaLinha'
+import { nomeDaPonta } from '../ponta'
 
 /**
  * O frete na busca do motorista, como no canvas: o que é e quanto paga em cima, a rota com o km no meio,
