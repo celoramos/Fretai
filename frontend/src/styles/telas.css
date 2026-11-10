@@ -746,3 +746,51 @@ ol.legal__itens { list-style: decimal; }
   .pedido__lado h2 { font-size: var(--tam-secao); }
   .pedido__lado .pedido__resumo { padding-bottom: var(--esp-4); border-bottom: var(--borda) solid var(--cor-linha); }
 }
+
+/* ---------- frete do cliente (Cliente-Propostas, Cliente-Acompanhar) ----------
+   O resumo do pedido e, ao lado no computador, o que fazer agora: esperar, escolher uma proposta ou pagar. */
+.frete-c { display: grid; gap: var(--esp-4); }
+.frete-c__colunas { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--esp-4); }
+.frete-c__resumo, .frete-c__cartao, .proposta-c {
+  display: grid; gap: var(--esp-3); padding: var(--esp-4);
+  border-radius: var(--raio-cartao); background: var(--cor-superficie); box-shadow: var(--sombra-cartao);
+}
+.frete-c__resumo { flex: 1 1 340px; min-width: 0; }
+.frete-c__principal { flex: 999 1 560px; min-width: 0; display: grid; gap: var(--esp-4); }
+.frete-c__titulo { display: flex; justify-content: space-between; align-items: baseline; gap: var(--esp-2); }
+.frete-c__titulo strong { font-size: var(--tam-bloco); }
+.frete-c__titulo span { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.frete-c__oferta { padding-top: var(--esp-3); border-top: var(--borda) solid var(--cor-linha); }
+.frete-c__cartao h2, .frete-c__propostas h2 { font-size: var(--tam-secao); }
+.frete-c__estado { display: inline-flex; align-items: center; font-size: var(--tam-detalhe); font-weight: var(--peso-forte); }
+.frete-c__estado--info { color: var(--cor-info); }
+.frete-c__estado--garantido { color: var(--cor-garantido); }
+.frete-c__estado--neutro { color: var(--cor-texto-secundario); }
+.frete-c__texto { color: var(--cor-texto-secundario); text-wrap: pretty; }
+.frete-c__texto--menor { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.frete-c__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
+.frete-c__propostas { display: grid; gap: var(--esp-3); }
+.frete-c__lista { display: grid; gap: var(--esp-3); }
+.frete-c__cancelar { justify-self: center; color: var(--cor-perigo); }
+.quem { display: flex; align-items: center; gap: var(--esp-3); min-width: 0; }
+.quem__texto { display: grid; gap: var(--esp-1); min-width: 0; }
+.quem__texto > span { font-size: var(--tam-detalhe); color: var(--cor-texto-secundario); }
+.proposta-c__topo { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--esp-3); }
+.proposta-c__valor { font-family: var(--fonte-placa); font-size: var(--tam-secao); font-weight: var(--peso-placa); white-space: nowrap; }
+.proposta-c__acoes { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--esp-2); }
+.pix-c__qr { justify-self: center; width: 200px; height: 200px; padding: var(--esp-2); border-radius: var(--raio-controle); background: var(--cor-papel); }
+.pix-c__qr--vazio { display: grid; place-items: center; color: var(--cor-tinta); text-align: center; border: var(--borda) dashed var(--cor-borda-campo); }
+.pix-c__valor { display: grid; justify-items: center; gap: var(--esp-1); text-align: center; }
+.pix-c__valor strong { font-family: var(--fonte-placa); font-size: var(--tam-titulo); font-weight: var(--peso-placa); }
+.pix-c__espera { text-align: center; color: var(--cor-texto-secundario); font-weight: var(--peso-forte); }
+.pix-c__pago { display: grid; gap: var(--esp-3); }
+.reenviar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); margin-top: var(--esp-2); }
+.reenviar .botao:has(:focus-visible) { outline: var(--foco-largura) solid var(--cor-foco); outline-offset: var(--foco-recuo); }
+@media (min-width: 900px) {
+  .frete-c { gap: var(--esp-6); }
+  .frete-c .pedido__topo .titulo-pagina { font-size: var(--tam-display); }
+  .frete-c__colunas { gap: var(--esp-6); }
+  .frete-c__resumo, .frete-c__cartao, .proposta-c { padding: var(--esp-6); }
+  .frete-c__lista { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: var(--esp-4); }
+  .frete-c__cancelar { justify-self: start; }
+}

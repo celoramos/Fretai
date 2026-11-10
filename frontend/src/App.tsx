@@ -5,6 +5,7 @@ import { LayoutAdmin, LayoutCliente, LayoutEmpresa, LayoutMotorista } from './co
 import { INICIO } from './inicio'
 import { DadosEmpresa } from './pages/empresa/DadosEmpresa'
 import { DetalheFrete } from './pages/contratante/DetalheFrete'
+import { FreteCliente } from './pages/cliente/FreteCliente'
 import { FretesEmpresa } from './pages/empresa/FretesEmpresa'
 import { PagamentosEmpresa } from './pages/empresa/PagamentosEmpresa'
 import { EditarFrete, PublicarFrete } from './pages/empresa/PublicarFrete'
@@ -75,7 +76,7 @@ export function App() {
       <Route path="/cliente" element={<Protegida papel="CLIENTE"><LayoutCliente /></Protegida>}>
         <Route index element={<Suspense fallback={null}><FretesCliente /></Suspense>} />
         <Route path="fretes/novo" element={<Suspense fallback={null}><PedirFrete /></Suspense>} />
-        <Route path="fretes/:id" element={<DetalheFrete />} />
+        <Route path="fretes/:id" element={<FreteCliente />} />
       </Route>
       <Route path="/admin" element={<Protegida papel="ADMIN"><LayoutAdmin /></Protegida>}>
         <Route index element={<Suspense fallback={null}><DocumentosAdmin /></Suspense>} />
