@@ -7,6 +7,7 @@ import br.com.fretai.shared.exception.ConflitoException;
 import br.com.fretai.shared.exception.RecursoNaoEncontradoException;
 import br.com.fretai.shared.exception.RegraNegocioException;
 import br.com.fretai.shared.seguranca.IdentidadeGoogle;
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import br.com.fretai.shared.seguranca.VerificadorGoogle;
 import br.com.fretai.usuario.application.dto.AtualizarContatoRequest;
 import br.com.fretai.usuario.application.dto.BaseMotoristaRequest;
@@ -125,9 +126,11 @@ public class UsuarioService {
         return MotoristaResponse.de(carregarMotorista(motoristaId));
     }
 
+    /** Só o administrador recebe telefone e e-mail: para os outros, o contato sai pelo frete, depois do aceite. */
     @Transactional(readOnly = true)
-    public Page<MotoristaResponse> listarMotoristas(Pageable pageable) {
-        return motoristaRepository.findByAtivoTrue(pageable).map(MotoristaResponse::de);
+    public Page<MotoristaResponse> listarMotoristas(Pageable pageable, UsuarioLogado quem) {
+        Page<MotoristaResponse> pagina = motoristaRepository.findByAtivoTrue(pageable).map(MotoristaResponse::de);
+        return quem.isAdmin() ? pagina : pagina.map(MotoristaResponse::semContato);
     }
 
     @Transactional

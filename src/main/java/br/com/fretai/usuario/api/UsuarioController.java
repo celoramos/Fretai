@@ -1,5 +1,6 @@
 package br.com.fretai.usuario.api;
 
+import br.com.fretai.shared.seguranca.UsuarioLogado;
 import br.com.fretai.usuario.application.UsuarioService;
 import br.com.fretai.usuario.application.dto.AtualizarContatoRequest;
 import br.com.fretai.usuario.application.dto.BaseMotoristaRequest;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -62,14 +64,18 @@ public class UsuarioController {
         return usuarioService.cadastrarMotorista(request);
     }
 
+    /** A empresa vê quem está na plataforma, sem telefone nem e-mail: o contato sai pelo frete, depois do aceite. */
     @GetMapping("/api/motoristas")
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPRESA')")
     public Page<MotoristaResponse> listarMotoristas(
-            @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
-        return usuarioService.listarMotoristas(pageable);
+            @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable,
+            @AuthenticationPrincipal UsuarioLogado usuario) {
+        return usuarioService.listarMotoristas(pageable, usuario);
     }
 
+    /** O cadastro traz telefone e e-mail, então só abre para o próprio motorista e para o administrador. */
     @GetMapping("/api/motoristas/{id}")
+    @PreAuthorize("principal.ehOuAdmin(#id)")
     public MotoristaResponse buscarMotorista(@PathVariable UUID id) {
         return usuarioService.buscarMotorista(id);
     }

@@ -15,4 +15,9 @@ public record MotoristaResponse(UUID id, String nome, String email, String telef
                 motorista.getTelefone(), motorista.getTipoVeiculo(), motorista.getPlaca(),
                 motorista.isAceitaFeriado(), motorista.getChavePix() != null, motorista.getCriadoEm());
     }
+
+    /** Para quem só lista: telefone e e-mail saem pelo contato do frete, depois do aceite. */
+    public MotoristaResponse semContato() {
+        return new MotoristaResponse(id, nome, null, null, tipoVeiculo, placa, aceitaFeriado, temChavePix, criadoEm);
+    }
 }
