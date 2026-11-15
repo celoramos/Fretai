@@ -17,12 +17,15 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -135,9 +138,43 @@ class FreteControllerTest {
     }
 
     @Test
-    @DisplayName("ID malformado na URL → 400")
+    @DisplayName("ID malformado na URL → 400 dizendo qual valor está errado")
     void idMalformado() throws Exception {
         mvc.perform(get("/api/fretes/nao-e-uuid"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Requisição inválida"))
+                .andExpect(jsonPath("$.detail").value("O valor informado em \"id\" está em formato inválido."));
+    }
+
+    @Test
+    @DisplayName("JSON quebrado → 400 em português")
+    void jsonQuebrado() throws Exception {
+        mvc.perform(post("/api/fretes").contentType(MediaType.APPLICATION_JSON).content("{\"coleta\": "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Requisição inválida"))
+                .andExpect(jsonPath("$.detail").value("Não foi possível ler os dados enviados. Confira o formato."));
+        verifyNoInteractions(freteService);
+    }
+
+    @Test
+    @DisplayName("Status que não existe → 400 com os que existem, sem nome de classe")
+    void statusDesconhecido() throws Exception {
+        mvc.perform(get("/api/fretes").param("status", "voando"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value(containsString("PUBLICADO, PROPOSTA_ENVIADA")))
+                .andExpect(jsonPath("$.detail").value(not(containsString("br.com.fretai"))));
+    }
+
+    @Test
+    @DisplayName("Erro que ninguém previu → 500 no mesmo formato, sem contar o que houve por dentro")
+    void erroInesperado() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(freteService.buscar(eq(id), any())).thenThrow(new NullPointerException("frete.motorista é nulo"));
+
+        mvc.perform(get("/api/fretes/{id}", id))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.title").value("Erro interno"))
+                .andExpect(jsonPath("$.detail").value("Algo deu errado do nosso lado. Tente de novo em instantes."));
     }
 }

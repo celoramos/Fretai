@@ -1,6 +1,8 @@
 package br.com.fretai.frete.domain;
 
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 /** As transições permitidas entre estes status estão em {@link MaquinaEstadosFrete}. */
 public enum StatusFrete {
@@ -28,6 +30,15 @@ public enum StatusFrete {
      */
     public static StatusFrete de(String valor) {
         String nome = valor.trim().toUpperCase(Locale.ROOT);
-        return "PENDENTE".equals(nome) ? PUBLICADO : valueOf(nome);
+        if ("PENDENTE".equals(nome)) {
+            return PUBLICADO;
+        }
+        try {
+            return valueOf(nome);
+        } catch (IllegalArgumentException e) {
+            // A mensagem do valueOf traz o nome da classe; esta vai para quem chamou a API.
+            throw new IllegalArgumentException("Status de frete desconhecido. Use um de: "
+                    + Arrays.stream(values()).map(Enum::name).collect(Collectors.joining(", ")) + ".");
+        }
     }
 }

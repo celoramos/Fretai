@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
@@ -19,13 +20,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
@@ -135,6 +140,55 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 "Um ou mais campos estão inválidos.");
         problema.setProperty("erros", erros);
         return ResponseEntity.badRequest().body(problema);
+    }
+
+    /** JSON quebrado, ou um campo com tipo que não bate (texto onde vai número, enum que não existe). */
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+                                                                  HttpHeaders headers, HttpStatusCode status,
+                                                                  WebRequest request) {
+        return ResponseEntity.badRequest().body(problema(HttpStatus.BAD_REQUEST, "Requisição inválida",
+                "Não foi possível ler os dados enviados. Confira o formato."));
+    }
+
+    /** Valor da URL que não vira o tipo esperado, como um id que não é UUID. O valor em si não volta na resposta. */
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
+                                                        HttpStatusCode status, WebRequest request) {
+        String nome = ex instanceof MethodArgumentTypeMismatchException doMetodo ? doMetodo.getName()
+                : ex.getPropertyName();
+        String detalhe = nome == null ? "Um dos valores informados está em formato inválido."
+                : "O valor informado em \"" + nome + "\" está em formato inválido.";
+        return ResponseEntity.badRequest().body(problema(HttpStatus.BAD_REQUEST, "Requisição inválida", detalhe));
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex,
+                                                                          HttpHeaders headers, HttpStatusCode status,
+                                                                          WebRequest request) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(status,
+                "O arquivo enviado passa do tamanho máximo permitido.");
+        problema.setTitle("Arquivo grande demais");
+        return ResponseEntity.status(status).body(problema);
+    }
+
+    /** Chegou a um controller sem estar autenticado (rota pública que chama algo protegido). */
+    @ExceptionHandler(AuthenticationException.class)
+    ResponseEntity<ProblemDetail> naoAutenticado(AuthenticationException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).header(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
+                .body(problema(HttpStatus.UNAUTHORIZED, "Não autenticado",
+                        "Envie um access token válido no cabeçalho Authorization: Bearer <token>."));
+    }
+
+    /**
+     * O que ninguém previu. Sem este método a resposta sairia no formato padrão do Spring Boot, diferente
+     * do resto da API. O detalhe fica no log: a resposta não conta nada de dentro do sistema.
+     */
+    @ExceptionHandler(Exception.class)
+    ProblemDetail erroInesperado(Exception e) {
+        log.error("Erro inesperado", e);
+        return problema(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno",
+                "Algo deu errado do nosso lado. Tente de novo em instantes.");
     }
 
     private static ProblemDetail problema(HttpStatus status, String titulo, String detalhe) {

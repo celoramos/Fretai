@@ -254,13 +254,14 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 
 | Status | Quando |
 |---|---|
-| 400 | campo inválido (a resposta traz `erros` por campo), ordenação por campo inexistente |
+| 400 | campo inválido (a resposta traz `erros` por campo), JSON ilegível, id ou status em formato inválido, ordenação por campo inexistente |
 | 401 | sem token, token inválido, login errado, webhook sem token válido |
 | 403 | recurso de outra pessoa ou papel sem permissão |
 | 404 | não existe (ou link de arquivo inválido/expirado) |
 | 409 | duplicado, transição de status inválida, edição concorrente |
 | 422 | regra de negócio: CEP inexistente, veículo incompatível, GPS longe do destino, arquivo em formato não aceito |
 | 429 | muitas tentativas de login (com `Retry-After`) |
+| 500 | erro que ninguém previu: mesmo formato, sem detalhe interno (o detalhe vai para o log) |
 | 503 | serviço externo fora do ar |
 
 ## Decisões técnicas
