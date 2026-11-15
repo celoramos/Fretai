@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,9 @@ class AsaasGatewayPagamento implements GatewayPagamento {
 
     private static final Logger log = LoggerFactory.getLogger(AsaasGatewayPagamento.class);
     static final String CABECALHO_TOKEN = "asaas-access-token";
+    /** Status da cobrança no Asaas: ainda não paga (a vencida continua pagável). */
+    private static final Set<String> ABERTA = Set.of("PENDING", "OVERDUE");
+    private static final Set<String> JA_DEVOLVIDA = Set.of("REFUNDED", "REFUND_REQUESTED", "REFUND_IN_PROGRESS");
 
     private final RestClient api;
     private final JsonMapper json;
@@ -103,9 +107,23 @@ class AsaasGatewayPagamento implements GatewayPagamento {
                 .retrieve().body(Id.class)).id();
     }
 
+    /**
+     * O Asaas só estorna o que recebeu: cobrança ainda aberta é excluída, e o QR Code deixa de valer.
+     * Quem diz em que pé a cobrança está é ele, não o nosso banco, que pode estar um webhook atrás.
+     * Excluída ou já devolvida, não há o que fazer: é a nova tentativa de um estorno que tinha passado.
+     */
     @Override
     public void estornar(String cobrancaId) {
-        chamar(() -> api.post().uri("/payments/{id}/refund", cobrancaId).retrieve().toBodilessEntity());
+        Situacao cobranca = chamar(() -> api.get().uri("/payments/{id}", cobrancaId).retrieve().body(Situacao.class));
+        String status = cobranca == null || cobranca.status() == null ? "" : cobranca.status();
+        if ((cobranca != null && Boolean.TRUE.equals(cobranca.deleted())) || JA_DEVOLVIDA.contains(status)) {
+            return;
+        }
+        if (ABERTA.contains(status)) {
+            chamar(() -> api.delete().uri("/payments/{id}", cobrancaId).retrieve().toBodilessEntity());
+        } else {
+            chamar(() -> api.post().uri("/payments/{id}/refund", cobrancaId).retrieve().toBodilessEntity());
+        }
     }
 
     /** O Asaas manda o token configurado no painel no cabeçalho asaas-access-token. */
@@ -156,6 +174,11 @@ class AsaasGatewayPagamento implements GatewayPagamento {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     record QrCode(String encodedImage, String payload) {
+    }
+
+    /** O que interessa de GET /payments/{id}. */
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    record Situacao(String status, Boolean deleted) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

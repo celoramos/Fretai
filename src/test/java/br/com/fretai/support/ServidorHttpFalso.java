@@ -20,6 +20,7 @@ public final class ServidorHttpFalso implements AutoCloseable {
     private final List<URI> requisicoes = new ArrayList<>();
     private final List<String> userAgents = new ArrayList<>();
     private final List<String> corpos = new ArrayList<>();
+    private final List<String> chamadas = new ArrayList<>();
     private volatile int status = 200;
     private volatile String corpo = "{}";
 
@@ -32,6 +33,7 @@ public final class ServidorHttpFalso implements AutoCloseable {
         servidor.createContext("/", troca -> {
             String recebido = new String(troca.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             synchronized (requisicoes) {
+                chamadas.add(troca.getRequestMethod() + " " + troca.getRequestURI().getPath());
                 requisicoes.add(troca.getRequestURI());
                 userAgents.add(troca.getRequestHeaders().getFirst("User-Agent"));
                 corpos.add(recebido);
@@ -60,6 +62,13 @@ public final class ServidorHttpFalso implements AutoCloseable {
     public List<URI> requisicoes() {
         synchronized (requisicoes) {
             return List.copyOf(requisicoes);
+        }
+    }
+
+    /** Método e caminho de cada requisição, na ordem: "DELETE /payments/pay_1". */
+    public List<String> chamadas() {
+        synchronized (requisicoes) {
+            return List.copyOf(chamadas);
         }
     }
 

@@ -274,7 +274,7 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 
 **Consulta externa guardada com prazo e com teto.** CEP e ponto no mapa ficam 30 dias em cache, feriados 7, CNPJ um dia (a situação cadastral muda), e cada cache tem um número máximo de entradas (Caffeine). A consulta de CNPJ é pública: sem teto, um CNPJ diferente por requisição encheria a memória.
 
-**O Asaas só sobe em sandbox.** Com o profile `asaas`, a aplicação se recusa a iniciar se a URL não for a do sandbox.
+**O Asaas só sobe em sandbox.** Com o profile `asaas`, a aplicação se recusa a iniciar se a URL não for a do sandbox. No cancelamento, quem diz em que pé a cobrança está é o Asaas: a que ainda não foi paga é excluída (ele não estorna o que não recebeu), a paga é devolvida, e a que já foi devolvida numa tentativa anterior fica como está.
 
 **Escrow: honestidade sobre o limite.** Nesta versão, com o Asaas, o valor fica na conta da plataforma no PSP e sai por transferência Pix. Para custódia de verdade em produção, em que a plataforma não detém o dinheiro nem contabilmente, é preciso usar subcontas com split ou a conta escrow do PSP. Isso exige contrato com o PSP e não foi implementado.
 
