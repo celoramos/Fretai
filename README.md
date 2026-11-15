@@ -44,6 +44,19 @@ docker compose up -d postgres minio
 
 Fora do compose a aplicação usa o disco local (`./dados/arquivos`) para documentos e o PSP falso, sem precisar de nenhuma chave.
 
+### Front-end
+
+O compose não sobe o front. Ele fica em [`frontend/`](frontend/README.md) e precisa de Node.js:
+
+```bash
+cd frontend
+npm install
+npm run dev    # http://localhost:5173, falando com a API em http://localhost:8080
+npm run demo   # sem a API: dados de exemplo em memória, senha demo123
+```
+
+No `npm run dev`, o Vite repassa `/api` para a API, então o backend não precisa de CORS. Os usuários do modo demo e o login com Google estão no [README do front](frontend/README.md).
+
 O arquivo [`requisicoes/fluxo-completo.http`](requisicoes/fluxo-completo.http) percorre o fluxo inteiro, do cadastro da empresa até a avaliação, passando pelo pagamento retido e pelo saldo liberado. Abra no IntelliJ e rode em ordem.
 
 ### Configuração
@@ -56,14 +69,21 @@ Nada de segredo no código: tudo sensível vem de variável de ambiente. O model
 | `FRETAI_JWT_SEGREDO` | assinatura dos tokens (32+ bytes) | segredo aleatório a cada subida |
 | `FRETAI_GOOGLE_CLIENT_ID` | login e cadastro com Google (ID do cliente OAuth, tipo Aplicativo da Web) | `/api/auth/google` responde 422 |
 | `FRETAI_ADMIN_EMAIL`, `_SENHA`, `_CPF` | primeiro administrador | nenhum administrador |
+| `FRETAI_URL_FRONT` | endereço do app; o link de senha nova aponta para `{url}/nova-senha` | `http://localhost:5173` |
+| `FRETAI_EMAIL_HABILITADO`, `FRETAI_EMAIL_REMETENTE` | envio do link de senha nova por e-mail; o remetente tem de ser um que o SMTP aceita | o link sai só no log: em produção, ninguém recupera a senha |
+| `SPRING_MAIL_HOST`, `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD` | servidor SMTP (STARTTLS na 587, timeout de 5 s) | — |
 | `FRETAI_ARQUIVOS_PROVEDOR` | `local` ou `s3` | `local` |
+| `FRETAI_ARQUIVOS_SEGREDO` | assinatura dos links de arquivo do provedor `local` | segredo aleatório a cada subida: os links caem ao reiniciar |
 | `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_BUCKET` | S3/MinIO | — |
 | `ASAAS_CHAVE`, `ASAAS_WEBHOOK_TOKEN` | PSP Asaas (sandbox), com o profile `asaas` | PSP falso |
+| `FRETAI_FAKE_WEBHOOK_TOKEN` | token do webhook do PSP falso | `fake-dev` (veja o aviso abaixo) |
 | `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` | WhatsApp Cloud API, com `fretai.whatsapp.habilitado=true` | notificações no log |
 | `FRETAI_JANELA_CONTESTACAO` | prazo para contestar a entrega | 24 h |
 | `GRAPHHOPPER_CHAVE` | distância de estrada | linha reta × 1,3 |
 
 Outros números de negócio ficam em `application.yml`, como o raio do canhoto, o fator de suspeita do "fretão" e o raio do frete de retorno.
+
+> **Fora da sua máquina, nunca suba sem o profile `asaas`.** Sem ele, o PSP ativo é o falso, e o webhook público `/api/webhooks/pagamentos` aceita o token `fake-dev`, que está no código. Quem conhece o token marca cobranças como pagas. O mesmo vale para `FRETAI_JWT_SEGREDO` e `FRETAI_ARQUIVOS_SEGREDO`: sem eles, cada reinício derruba todas as sessões e os links de arquivo.
 
 ## Arquitetura
 
