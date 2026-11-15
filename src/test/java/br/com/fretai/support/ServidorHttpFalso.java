@@ -19,6 +19,7 @@ public final class ServidorHttpFalso implements AutoCloseable {
     private final HttpServer servidor;
     private final List<URI> requisicoes = new ArrayList<>();
     private final List<String> userAgents = new ArrayList<>();
+    private final List<String> corpos = new ArrayList<>();
     private volatile int status = 200;
     private volatile String corpo = "{}";
 
@@ -29,9 +30,11 @@ public final class ServidorHttpFalso implements AutoCloseable {
             throw new UncheckedIOException(e);
         }
         servidor.createContext("/", troca -> {
+            String recebido = new String(troca.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             synchronized (requisicoes) {
                 requisicoes.add(troca.getRequestURI());
                 userAgents.add(troca.getRequestHeaders().getFirst("User-Agent"));
+                corpos.add(recebido);
             }
             byte[] bytes = corpo.getBytes(StandardCharsets.UTF_8);
             troca.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
@@ -63,6 +66,13 @@ public final class ServidorHttpFalso implements AutoCloseable {
     public String ultimoUserAgent() {
         synchronized (requisicoes) {
             return userAgents.getLast();
+        }
+    }
+
+    /** O corpo da última requisição, para conferir o que um client de POST mandou. */
+    public String ultimoCorpo() {
+        synchronized (requisicoes) {
+            return corpos.getLast();
         }
     }
 
