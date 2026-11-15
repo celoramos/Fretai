@@ -6,7 +6,7 @@ import { CabecalhoPagina } from '../../components/CabecalhoPagina'
 import { CamposPonta } from '../../components/CamposPonta'
 import { SairSemSalvar } from '../../components/SairSemSalvar'
 import { Aviso, Campo } from '../../components/ui'
-import { CATEGORIAS, FAIXAS_PESO, ORDEM_CATEGORIAS, TIPOS_CARGA, dataCurta, diaDaSemana, hoje, lerReais, reais } from '../../formato'
+import { CAPACIDADE_KG, CATEGORIAS, FAIXAS_PESO, ORDEM_CATEGORIAS, TIPOS_CARGA, dataCurta, diaDaSemana, hoje, lerReais, levaCategoria, reais, suportaPeso } from '../../formato'
 import { useComputador } from '../../largura'
 import { PONTA_VAZIA, enderecoDe, pontaDe, type Ponta } from '../../ponta'
 import { useSessao } from '../../sessao'
@@ -38,6 +38,7 @@ const MAIS = 'mais'
 /** Os campos do passo 1 no celular, com os nomes da validação da API (SolicitarFreteRequest). */
 const DO_PASSO_1 = ['coleta', 'coleta.cep', 'entrega', 'entrega.cep', 'dataColeta', 'tipoCarga', 'descricaoCarga', 'pesoKg']
 /** Campos que mostram o próprio erro; o resto sobe para o aviso do fim, para não sumir. */
+const kg = (n: number) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(n)
 const DESENHADOS = new Set([...DO_PASSO_1, 'categoriaVeiculo', 'nomeDestinatario', 'telefoneDestinatario', 'valor', 'fotos'])
 
 const soDigitos = (s: string) => s.replace(/\D/g, '')
@@ -246,6 +247,10 @@ export function PedirFrete() {
   const rotuloPedir = enviando ? 'Pedindo…' : Number.isFinite(valor) && valor > 0 ? `Pedir frete por R$ ${reais(valor)}` : 'Pedir frete'
   const mostra1 = computador || passo === 1
   const mostra2 = computador || passo === 2
+  // O tamanho escolhido não leva o peso: aponta o menor que leva (CategoriaVeiculo.suporta da API).
+  const peso = pesoDe(r)
+  const pequeno = Number.isFinite(peso) && peso > 0 && !suportaPeso(r.categoria, peso)
+  const maiorQueLeva = ORDEM_CATEGORIAS.find((c) => levaCategoria(c, r.categoria) && suportaPeso(c, peso))
   const lugar = (l: ReturnType<typeof useLugar>) => (l ? l.texto ?? 'CEP não encontrado' : null)
   const rota = lugarColeta?.texto && lugarEntrega?.texto ? `${lugarColeta.texto.split(',')[0]} → ${lugarEntrega.texto.split(',')[0]}` : null
 
@@ -376,6 +381,16 @@ export function PedirFrete() {
                   ))}
                 </div>
                 {erro('categoriaVeiculo') && <p className="campo__erro">{erro('categoriaVeiculo')}</p>}
+                <div aria-live="polite">
+                  {pequeno && maiorQueLeva && (
+                    <Aviso tom="alerta" titulo={`${CATEGORIAS[r.categoria].nome} leva até ${kg(CAPACIDADE_KG[r.categoria]!)} kg.`}
+                      acao={<button type="button" className="botao botao--secundario" onClick={() => muda('categoria')(maiorQueLeva)}>
+                        Pedir {CATEGORIAS[maiorQueLeva].nome.toLowerCase()}
+                      </button>}>
+                      Sua carga {r.faixa === MAIS ? 'tem' : 'pode chegar a'} {kg(peso)} kg. Assim, só {maiorQueLeva === 'CAMINHAO' ? 'caminhão' : 'van ou caminhão'} vai poder aceitar o frete.
+                    </Aviso>
+                  )}
+                </div>
                 <p className="campo__ajuda">Carro de passeio e moto não fazem frete no Fretaí.</p>
               </fieldset>
 
