@@ -88,6 +88,12 @@
 			<artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId>
 		</dependency>
 
+		<!-- E-mail do link de senha nova (só usado com fretai.email.habilitado=true) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
 		<!-- Documentos em S3/MinIO (só usado com fretai.arquivos.provedor=s3).
 		     Cliente HTTP do próprio JDK: sem Netty nem Apache HttpClient a mais no classpath. -->
 		<dependency>

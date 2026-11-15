@@ -32,6 +32,18 @@ spring:
       pageable:
         # Ninguém baixa a base inteira numa requisição.
         max-page-size: 100
+  mail:
+    # O servidor SMTP vem de SPRING_MAIL_HOST, SPRING_MAIL_PORT, SPRING_MAIL_USERNAME e SPRING_MAIL_PASSWORD.
+    properties:
+      mail:
+        smtp:
+          # Em milissegundos. Sem limite, um servidor de e-mail que não responde prende a thread para sempre.
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls:
+            # Usa TLS quando o servidor oferece (porta 587).
+            enable: true
   flyway:
     # db/migration roda em qualquer banco (inclusive o H2 dos testes).
     # db/vendor/postgresql só no PostgreSQL: PostGIS, colunas geography e índices espaciais.
@@ -51,6 +63,11 @@ fretai:
   front:
     # Onde o app abre: o link de senha nova aponta para {url}/nova-senha.
     url: ${FRETAI_URL_FRONT:http://localhost:5173}
+  # Link de senha nova por e-mail. Desligado = o link sai no log (LogCorreioSenha), só para desenvolvimento.
+  email:
+    habilitado: ${FRETAI_EMAIL_HABILITADO:false}
+    # Endereço que aparece como remetente; tem de ser um que o servidor SMTP aceita enviar.
+    remetente: ${FRETAI_EMAIL_REMETENTE:}
   login:
     # Depois de 5 senhas erradas para o mesmo e-mail e IP, espera até 15 minutos.
     maximo-falhas: 5
@@ -146,6 +163,10 @@ management:
     web:
       exposure:
         include: health,info
+  health:
+    mail:
+      # O health não abre conexão com o servidor de e-mail: SMTP fora do ar não derruba a API.
+      enabled: false
 
 springdoc:
   swagger-ui:
