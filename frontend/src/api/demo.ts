@@ -906,6 +906,12 @@ export async function responderDemo(metodo: string, caminho: string, corpo: unkn
         const exigencia = { UTILITARIO: 'qualquer veículo', VAN: 'van, furgão ou caminhão', CAMINHAO: 'caminhão' }[f.categoriaVeiculo]
         return problema(422, 'Regra de negócio', `Este frete precisa de ${exigencia}.`)
       }
+      const teto = { UTILITARIO: 700, VAN: 1500, CAMINHAO: null }[v.categoria]
+      if (f.cliente && teto != null && f.pesoKg != null && f.pesoKg > teto) {
+        const comArtigo = { UTILITARIO: 'Um utilitário', VAN: 'Uma van ou furgão', CAMINHAO: 'Um caminhão' }[v.categoria]
+        const kg = (n: number) => new Intl.NumberFormat('pt-BR').format(n)
+        return problema(422, 'Regra de negócio', `${comArtigo} leva até ${kg(teto)} kg, e esta carga tem ${kg(f.pesoKg)} kg.`)
+      }
       return null
     }
     if (metodo === 'POST' && sub === '/propostas') {

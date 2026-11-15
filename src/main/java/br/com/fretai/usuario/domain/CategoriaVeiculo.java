@@ -8,16 +8,23 @@ import java.math.BigDecimal;
  * produto), por isso não estão aqui.
  */
 public enum CategoriaVeiculo {
-    UTILITARIO("Utilitário", "qualquer veículo"),
-    VAN("Van ou furgão", "van, furgão ou caminhão"),
-    CAMINHAO("Caminhão", "caminhão");
+    /** Fiorino, Kangoo: até 700 kg, o topo da faixa "De 200 a 700 kg" do pedido. */
+    UTILITARIO("Utilitário", "um utilitário", "qualquer veículo", new BigDecimal("700")),
+    /** Master, Ducato, Sprinter: até 1,5 t, o topo da faixa "De 700 kg a 1,5 t". */
+    VAN("Van ou furgão", "uma van ou furgão", "van, furgão ou caminhão", new BigDecimal("1500")),
+    /** Do 3/4 em diante: o peso não barra, porque a capacidade varia demais de um caminhão para outro. */
+    CAMINHAO("Caminhão", "um caminhão", "caminhão", null);
 
     private final String descricao;
+    private final String comArtigo;
     private final String exigencia;
+    private final BigDecimal capacidadeKg;
 
-    CategoriaVeiculo(String descricao, String exigencia) {
+    CategoriaVeiculo(String descricao, String comArtigo, String exigencia, BigDecimal capacidadeKg) {
         this.descricao = descricao;
+        this.comArtigo = comArtigo;
         this.exigencia = exigencia;
+        this.capacidadeKg = capacidadeKg;
     }
 
     public String getDescricao() {
@@ -34,19 +41,21 @@ public enum CategoriaVeiculo {
         return exigida == null || compareTo(exigida) >= 0;
     }
 
+    /** "Um utilitário", "uma van ou furgão": para a frase "... leva até N kg". */
+    public String comArtigo() {
+        return comArtigo;
+    }
+
+    /** Peso máximo em kg, ou nulo quando o tamanho não tem teto (caminhão). */
+    public BigDecimal capacidadeKg() {
+        return capacidadeKg;
+    }
+
     /**
-     * Diz se este tipo de veículo consegue levar uma carga com esse peso.
-     * É chamado quando o motorista tenta aceitar um frete: se retornar false,
-     * o aceite é recusado.
-     *
-     * TODO(você): definir a capacidade de cada veículo. Pontos para decidir:
-     *  - Qual o limite em kg de cada tipo? (ex.: moto ~20kg, Fiorino ~650kg...)
-     *  - O limite fica fixo aqui no enum (simples) ou por motorista, já que
-     *    duas vans podem ter capacidades bem diferentes (mais fiel à realidade)?
-     *  - Só peso basta, ou volume (m³) também importa? Um colchão é leve mas
-     *    não cabe numa moto.
+     * Diz se este tamanho de veículo leva uma carga com esse peso. O teto é fixo por tamanho, não por
+     * veículo: o cadastro não pede a capacidade de cada um. Peso não informado não barra.
      */
     public boolean suporta(BigDecimal pesoKg) {
-        return true;
+        return pesoKg == null || capacidadeKg == null || pesoKg.compareTo(capacidadeKg) <= 0;
     }
 }

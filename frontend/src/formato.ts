@@ -177,6 +177,13 @@ export const ORDEM_CATEGORIAS: CategoriaVeiculo[] = ['UTILITARIO', 'VAN', 'CAMIN
 export const levaCategoria = (doVeiculo: CategoriaVeiculo, exigida: CategoriaVeiculo | null) =>
   exigida == null || ORDEM_CATEGORIAS.indexOf(doVeiculo) >= ORDEM_CATEGORIAS.indexOf(exigida)
 
+/** A regra de CategoriaVeiculo.suporta da API: peso máximo de cada tamanho; caminhão não tem teto. */
+export const CAPACIDADE_KG: Record<CategoriaVeiculo, number | null> = { UTILITARIO: 700, VAN: 1500, CAMINHAO: null }
+export const suportaPeso = (doVeiculo: CategoriaVeiculo, pesoKg: number | null) => {
+  const teto = CAPACIDADE_KG[doVeiculo]
+  return pesoKg == null || teto == null || pesoKg <= teto
+}
+
 export const TIPOS_CARGA: Record<TipoCarga, string> = {
   MUDANCA: 'Mudança',
   MOVEIS: 'Móveis e eletros',

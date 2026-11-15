@@ -279,7 +279,7 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 | 403 | recurso de outra pessoa ou papel sem permissão |
 | 404 | não existe (ou link de arquivo inválido/expirado) |
 | 409 | duplicado, transição de status inválida, edição concorrente |
-| 422 | regra de negócio: CEP inexistente, veículo incompatível, GPS longe do destino, arquivo em formato não aceito |
+| 422 | regra de negócio: CEP inexistente, veículo incompatível ou que não leva o peso (utilitário até 700 kg, van até 1,5 t), GPS longe do destino, arquivo em formato não aceito |
 | 429 | muitas tentativas de login (com `Retry-After`) |
 | 500 | erro que ninguém previu: mesmo formato, sem detalhe interno (o detalhe vai para o log) |
 | 503 | serviço externo fora do ar |
@@ -337,7 +337,6 @@ Os testes que precisam de PostGIS de verdade (`PostgresSchemaTest`, `BuscaPorRai
 - **Verificado só em teste local:** as integrações Asaas, WhatsApp e S3/MinIO foram escritas a partir da documentação pública e não rodaram contra os serviços reais. A busca por raio e os avisos por proximidade só rodam com PostGIS; os testes deles existem, mas são pulados sem Docker.
 - **Custódia real do pagamento** (split/escrow do PSP), como descrito acima.
 - **Contestação procedente:** o saldo fica bloqueado; o acerto (estorno parcial, etc.) ainda é manual.
-- `CategoriaVeiculo.suporta(pesoKg)` (fluxo de pessoa física) ainda aceita qualquer peso.
 - Limite de tentativas de login em memória: com mais de uma instância, trocar por Redis.
 - **Aviso de documento recusado:** o motorista vê a recusa e o motivo no app, mas o WhatsApp ainda não tem um modelo de mensagem para ela.
 - Interface web: o front em [`frontend/`](frontend/README.md) cobre os quatro papéis (motorista, empresa, cliente pessoa física e administrador) e roda sem a API no modo demo, onde as telas foram testadas.

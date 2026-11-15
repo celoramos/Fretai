@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { contar, faixaDoPeso, iniciais, lerReais, telefone } from '../src/formato.ts'
+import { contar, faixaDoPeso, iniciais, lerReais, suportaPeso, telefone } from '../src/formato.ts'
 
 describe('contar: o número com a palavra no singular ou no plural', () => {
   it('um é singular: "1 frete", nunca "1 fretes"', () => {
@@ -66,5 +66,16 @@ describe('faixaDoPeso: o peso do pedido dito como a faixa escolhida', () => {
   it('acima de 1,5 t, o peso em toneladas', () => {
     assert.equal(faixaDoPeso(2500), '2,5 t')
     assert.equal(faixaDoPeso(27000), '27 t')
+  })
+})
+
+describe('suportaPeso: o teto de cada tamanho, igual ao CategoriaVeiculo.suporta da API', () => {
+  it('utilitário até 700 kg, van até 1,5 t, caminhão sem teto; sem peso, não barra', () => {
+    assert.equal(suportaPeso('UTILITARIO', 700), true)
+    assert.equal(suportaPeso('UTILITARIO', 701), false)
+    assert.equal(suportaPeso('VAN', 1500), true)
+    assert.equal(suportaPeso('VAN', 1501), false)
+    assert.equal(suportaPeso('CAMINHAO', 30000), true)
+    assert.equal(suportaPeso('UTILITARIO', null), true)
   })
 })

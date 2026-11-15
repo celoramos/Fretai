@@ -32,12 +32,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Version;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -355,14 +357,24 @@ public class Frete {
     }
 
     /**
-     * Frete de pessoa física: o veículo tem que ser do tamanho pedido ou maior. Vale no aceite e também na
-     * proposta, para o cliente não fechar com quem não leva a carga. Sem veículo escolhido, vale o tipo
-     * que o motorista declarou no cadastro.
+     * Frete de pessoa física: o veículo tem que ser do tamanho pedido ou maior e levar o peso da carga.
+     * Vale no aceite e também na proposta, para o cliente não fechar com quem não leva a carga. Sem veículo
+     * escolhido, vale o tipo que o motorista declarou no cadastro.
      */
     public void exigirVeiculoDoTamanho(Motorista candidato, Veiculo veiculo) {
+        if (empresa != null) {
+            return;
+        }
         CategoriaVeiculo doCandidato = veiculo != null ? veiculo.getCategoria() : candidato.getTipoVeiculo();
-        if (empresa == null && !doCandidato.leva(categoriaVeiculo)) {
+        if (!doCandidato.leva(categoriaVeiculo)) {
             throw new RegraNegocioException("Este frete precisa de " + categoriaVeiculo.exigencia() + ".");
+        }
+        if (!doCandidato.suporta(pesoKg)) {
+            NumberFormat kg = NumberFormat.getNumberInstance(Locale.forLanguageTag("pt-BR"));
+            String comArtigo = doCandidato.comArtigo();
+            throw new RegraNegocioException(Character.toUpperCase(comArtigo.charAt(0)) + comArtigo.substring(1)
+                    + " leva até " + kg.format(doCandidato.capacidadeKg()) + " kg, e esta carga tem "
+                    + kg.format(pesoKg) + " kg.");
         }
     }
 
@@ -517,10 +529,6 @@ public class Frete {
             }
         } else {
             exigirVeiculoDoTamanho(candidato, caminhao);
-            if (!candidato.getTipoVeiculo().suporta(pesoKg)) {
-                throw new RegraNegocioException("O veículo " + candidato.getTipoVeiculo().getDescricao()
-                        + " não suporta uma carga de " + pesoKg + " kg.");
-            }
         }
     }
 

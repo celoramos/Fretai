@@ -1,5 +1,5 @@
 import type { CategoriaVeiculo, Frete, Veiculo } from './api/tipos'
-import { CATEGORIAS, TIPOS_CARGA, levaCategoria, veiculo } from './formato'
+import { CAPACIDADE_KG, CATEGORIAS, TIPOS_CARGA, levaCategoria, suportaPeso, veiculo } from './formato'
 
 /** O tamanho que o frete de pessoa física pede, como o canvas escreve no cartão. */
 export const EXIGE: Record<CategoriaVeiculo, string> = {
@@ -14,7 +14,10 @@ export const EXIGE: Record<CategoriaVeiculo, string> = {
  */
 export function porQueNaoLeva(frete: Frete, v: Veiculo): string | null {
   if (frete.cliente) {
-    return levaCategoria(v.categoria, frete.categoriaVeiculo) ? null : `sua ${CATEGORIAS[v.categoria].nome.split(' ')[0].toLowerCase()} não leva esse frete`
+    const nome = CATEGORIAS[v.categoria].nome.split(' ')[0].toLowerCase()
+    if (!levaCategoria(v.categoria, frete.categoriaVeiculo)) return `sua ${nome} não leva esse frete`
+    if (!suportaPeso(v.categoria, frete.pesoKg)) return `sua ${nome} leva até ${CAPACIDADE_KG[v.categoria]} kg`
+    return null
   }
   if (frete.veiculosAceitos.length && (!v.tipo || !frete.veiculosAceitos.includes(v.tipo))) return 'tipo não aceito'
   if (frete.carroceriasAceitas.length && (!v.carroceria || !frete.carroceriasAceitas.includes(v.carroceria))) return 'carroceria não aceita'
