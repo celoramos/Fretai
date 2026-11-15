@@ -15,4 +15,9 @@ public interface TokenSenhaRepository extends JpaRepository<TokenSenha, UUID> {
     @Modifying
     @Query("UPDATE TokenSenha t SET t.usadoEm = :agora WHERE t.usuarioId = :usuarioId AND t.usadoEm IS NULL")
     int invalidarAbertos(UUID usuarioId, Instant agora);
+
+    /** Link vencido não troca a senha de ninguém, usado ou não: já pode sair do banco. */
+    @Modifying
+    @Query("DELETE FROM TokenSenha t WHERE t.expiraEm < :agora")
+    int apagarVencidos(Instant agora);
 }

@@ -279,7 +279,7 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 
 **Reações a eventos nunca derrubam quem as provocou.** Liberar adiantamento, agendar saldo e notificar rodam depois do commit, numa transação programática nova dentro de try/catch. Se o PSP cair na hora da saída, a saída vale e o job de liberação tenta o adiantamento de novo. Se cair na hora do cancelamento, o frete cancela e o mesmo job tenta o estorno até passar, inclusive quando o Pix é pago depois, com a cobrança ainda aberta no PSP.
 
-**JWT curto, refresh longo e rotativo.** O access token dura 15 min e não é guardado. O refresh token é opaco, guardado só como SHA-256 e trocado a cada uso; se um token já usado reaparecer, todas as sessões do usuário caem (sinal de roubo). O login roda BCrypt mesmo para e-mail inexistente, para o tempo de resposta não revelar quem tem conta.
+**JWT curto, refresh longo e rotativo.** O access token dura 15 min e não é guardado. O refresh token é opaco, guardado só como SHA-256 e trocado a cada uso; se um token já usado reaparecer, todas as sessões do usuário caem (sinal de roubo). Refresh tokens e links de senha vencidos saem do banco por um job (a cada 6 h, `FRETAI_INTERVALO_LIMPEZA_TOKENS`); o revogado que ainda não venceu fica, porque é ele que denuncia o reuso. O login roda BCrypt mesmo para e-mail inexistente, para o tempo de resposta não revelar quem tem conta.
 
 **Autorização em dois níveis.** `@PreAuthorize` nas rotas que levam o id do dono na URL; checagem de dono no service quando o dono é do recurso (ex.: só a empresa que publicou edita o frete).
 

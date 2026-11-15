@@ -43,6 +43,8 @@ fretai:
     segredo: ${FRETAI_JWT_SEGREDO:}
     validade-acesso: 15m
     validade-refresh: 30d
+    # De quanto em quanto tempo os refresh tokens e os links de senha vencidos saem do banco.
+    intervalo-limpeza: ${FRETAI_INTERVALO_LIMPEZA_TOKENS:6h}
   google:
     # Client ID OAuth (tipo "Aplicativo da Web") do Google Cloud. Sem ele, entrar com Google responde 422.
     client-id: ${FRETAI_GOOGLE_CLIENT_ID:}
