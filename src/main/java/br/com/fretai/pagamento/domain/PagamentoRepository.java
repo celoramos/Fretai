@@ -14,6 +14,8 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, UUID> {
 
     Optional<Pagamento> findByCobrancaId(String cobrancaId);
 
+    boolean existsByFreteIdAndStatusNot(UUID freteId, StatusPagamento status);
+
     /** Saldos com janela de contestação vencida e sem bloqueio: o job libera. */
     @Query("""
             SELECT p FROM Pagamento p

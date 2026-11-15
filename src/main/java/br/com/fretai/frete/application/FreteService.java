@@ -10,6 +10,7 @@ import br.com.fretai.frete.domain.EnderecoFrete;
 import br.com.fretai.frete.domain.EventosFrete;
 import br.com.fretai.frete.domain.Frete;
 import br.com.fretai.frete.domain.FreteRepository;
+import br.com.fretai.frete.domain.GarantiaDoFrete;
 import br.com.fretai.frete.domain.PropostaRepository;
 import br.com.fretai.frete.domain.StatusFrete;
 import br.com.fretai.shared.exception.AcessoNegadoException;
@@ -45,18 +46,20 @@ public class FreteService {
     private final VeiculoRepository veiculoRepository;
     private final PropostaRepository propostaRepository;
     private final PreparacaoFrete preparacao;
+    private final GarantiaDoFrete garantia;
     private final ApplicationEventPublisher eventos;
 
     public FreteService(FreteRepository freteRepository, ClienteRepository clienteRepository,
                         MotoristaRepository motoristaRepository, VeiculoRepository veiculoRepository,
                         PropostaRepository propostaRepository, PreparacaoFrete preparacao,
-                        ApplicationEventPublisher eventos) {
+                        GarantiaDoFrete garantia, ApplicationEventPublisher eventos) {
         this.freteRepository = freteRepository;
         this.clienteRepository = clienteRepository;
         this.motoristaRepository = motoristaRepository;
         this.veiculoRepository = veiculoRepository;
         this.propostaRepository = propostaRepository;
         this.preparacao = preparacao;
+        this.garantia = garantia;
         this.eventos = eventos;
     }
 
@@ -162,6 +165,11 @@ public class FreteService {
     public FreteResponse concluirEntrega(UUID freteId, UsuarioLogado quem) {
         return transicionar(freteId, frete -> {
             exigir(quem.isAdmin() || frete.ehMotoristaDoFrete(quem), "Só o motorista do frete conclui a entrega.");
+            // Fora de EM_TRANSITO quem responde é a máquina de estados, logo abaixo.
+            if (frete.getStatus() == StatusFrete.EM_TRANSITO && garantia.dependeDoCanhoto(freteId)) {
+                throw new RegraNegocioException("Este frete tem pagamento com garantia: confirme a entrega pelo "
+                        + "canhoto digital, que libera o saldo.");
+            }
             frete.concluir(Autor.de(quem));
             eventos.publishEvent(new EventosFrete.FreteEntregue(freteId));
         });

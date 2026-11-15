@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -38,6 +39,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -59,6 +61,8 @@ class PagamentoIntegrationTest {
     @MockitoBean private RotaGateway rotaGateway;
     @MockitoBean private FeriadoGateway feriadoGateway;
     @MockitoBean private EmpresaGateway empresaGateway;
+
+    private static final byte[] PNG = {(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 9, 9};
 
     private static RequestPostProcessor empresa;
     private static RequestPostProcessor motorista;
@@ -138,8 +142,21 @@ class PagamentoIntegrationTest {
         assertTrue(psp.transferencias().stream().anyMatch(t -> t.valor().compareTo(new BigDecimal("4000.00")) == 0
                 && t.chavePix().equals("recebe@email.com")));
 
-        // Entrega e canhoto (Fase 10 faz isto pela API); janela de contestação já vencida.
-        mvc.perform(post("/api/fretes/{id}/conclusao", freteId).with(motorista)).andExpect(status().isOk());
+        // Com o dinheiro retido, a entrega só se confirma pelo canhoto: concluir sem ele deixaria o saldo preso.
+        mvc.perform(post("/api/fretes/{id}/conclusao", freteId).with(motorista))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.detail").value(
+                        "Este frete tem pagamento com garantia: confirme a entrega pelo canhoto digital, que libera o saldo."));
+        mvc.perform(get("/api/fretes/{id}", freteId).with(motorista)).andExpect(jsonPath("$.status").value("EM_TRANSITO"));
+
+        mvc.perform(multipart("/api/fretes/{id}/canhoto", freteId)
+                        .file(new MockMultipartFile("foto", "foto.png", "image/png", PNG))
+                        .file(new MockMultipartFile("assinatura", "assinatura.png", "image/png", PNG))
+                        .param("nomeRecebedor", "Joana Recebedora")
+                        .param("latitude", "-23.5505").param("longitude", "-46.6333").with(motorista))
+                .andExpect(status().isCreated());
+        // O canhoto agendou o saldo para depois da janela de contestação; aqui ela já venceu.
+        assertFalse(pagamentoService.liberarSaldo(UUID.fromString(cobranca)), "antes da janela o saldo não sai");
         pagamentoService.agendarSaldo(UUID.fromString(freteId), Instant.now().minusSeconds(1));
         assertTrue(pagamentoService.liberarSaldo(UUID.fromString(cobranca)));
 

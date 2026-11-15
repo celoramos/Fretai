@@ -213,7 +213,7 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 | GET | `/api/propostas/minhas` | propostas do motorista logado |
 | POST | `/api/propostas/{id}/aceite`, `/recusa`, `/retirada` | responde ou retira |
 | POST | `/api/fretes/{id}/aceite` | aceite direto pelo valor anunciado |
-| POST | `/api/fretes/{id}/inicio`, `/conclusao`, `/cancelamento` | transições |
+| POST | `/api/fretes/{id}/inicio`, `/conclusao`, `/cancelamento` | transições; `/conclusao` só vale no frete sem cobrança (com pagamento retido, a entrega se confirma pelo canhoto, que libera o saldo) |
 
 **Preço**
 

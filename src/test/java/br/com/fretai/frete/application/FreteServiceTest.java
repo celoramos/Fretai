@@ -18,6 +18,7 @@ import br.com.fretai.frete.domain.TipoCarga;
 import br.com.fretai.veiculo.domain.VeiculoRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import br.com.fretai.frete.domain.FreteRepository;
+import br.com.fretai.frete.domain.GarantiaDoFrete;
 import br.com.fretai.frete.domain.StatusFrete;
 import br.com.fretai.rota.domain.Rota;
 import br.com.fretai.rota.domain.RotaGateway;
@@ -61,6 +62,7 @@ class FreteServiceTest {
     @Mock private PropostaRepository propostaRepository;
     @Mock private ApplicationEventPublisher eventos;
     @Mock private AvaliacaoPrecoFrete avaliacaoPreco;
+    @Mock private GarantiaDoFrete garantia;
 
     private FreteService freteService;
 
@@ -72,7 +74,7 @@ class FreteServiceTest {
         freteService = new FreteService(freteRepository, clienteRepository, motoristaRepository,
                 veiculoRepository, propostaRepository,
                 new PreparacaoFrete(enderecoGateway, geocodificacaoGateway, rotaGateway, calendarioService,
-                        new BigDecimal("20"), avaliacaoPreco), eventos);
+                        new BigDecimal("20"), avaliacaoPreco), garantia, eventos);
         cliente = new Cliente("52998224725", "Carlos Silva", "carlos@email.com", "hash", "11999998888");
     }
 
