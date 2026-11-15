@@ -68,10 +68,14 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Cache (consulta de CEP) -->
+		<!-- Cache das consultas externas (CEP, geocodificação, CNPJ, feriados), com validade e teto de tamanho -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
 		</dependency>
 
 		<!-- Segurança: login com JWT (access token assinado por HMAC) e BCrypt nas senhas -->

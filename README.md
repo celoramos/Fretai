@@ -272,6 +272,8 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 
 **Toda integração atrás de interface, com uma implementação local.** PSP (`FakeGatewayPagamento` / `AsaasGatewayPagamento`), arquivos (`LocalArmazenamentoArquivos` / `S3ArmazenamentoArquivos`) e notificação (`LogNotificador` / `WhatsAppCloudNotificador`). O padrão sempre é a versão local: o projeto roda e testa sem nenhuma chave.
 
+**Consulta externa guardada com prazo e com teto.** CEP e ponto no mapa ficam 30 dias em cache, feriados 7, CNPJ um dia (a situação cadastral muda), e cada cache tem um número máximo de entradas (Caffeine). A consulta de CNPJ é pública: sem teto, um CNPJ diferente por requisição encheria a memória.
+
 **O Asaas só sobe em sandbox.** Com o profile `asaas`, a aplicação se recusa a iniciar se a URL não for a do sandbox.
 
 **Escrow: honestidade sobre o limite.** Nesta versão, com o Asaas, o valor fica na conta da plataforma no PSP e sai por transferência Pix. Para custódia de verdade em produção, em que a plataforma não detém o dinheiro nem contabilmente, é preciso usar subcontas com split ou a conta escrow do PSP. Isso exige contrato com o PSP e não foi implementado.
