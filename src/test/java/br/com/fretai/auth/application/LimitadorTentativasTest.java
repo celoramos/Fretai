@@ -67,4 +67,45 @@ class LimitadorTentativasTest {
 
         assertDoesNotThrow(() -> limitador.verificar("k"));
     }
+
+    @Test
+    @DisplayName("Chave que ninguém consulta de novo some quando as falhas dela saem da janela")
+    void chaveAbandonadaNaoFicaGuardada() {
+        // Qualquer um manda e-mails inventados sem login: cada um vira uma chave.
+        for (int i = 0; i < 1000; i++) {
+            limitador.registrarFalha("ip|inventado" + i + "@x.com");
+        }
+        assertEquals(1000, limitador.chavesGuardadas());
+
+        relogio.avancar(Duration.ofMinutes(16));
+        limitador.registrarFalha("ip|a@b.com");
+
+        assertEquals(1, limitador.chavesGuardadas(), "só fica a chave que ainda tem falha dentro da janela");
+    }
+
+    @Test
+    @DisplayName("A faxina não solta quem ainda está bloqueado")
+    void faxinaMantemBloqueio() {
+        for (int i = 0; i < 3; i++) {
+            limitador.registrarFalha("ip|a@b.com");
+        }
+        relogio.avancar(Duration.ofMinutes(10));
+        limitador.registrarFalha("ip|outro@b.com");
+
+        assertEquals(2, limitador.chavesGuardadas());
+        MuitasTentativasException e = assertThrows(MuitasTentativasException.class,
+                () -> limitador.verificar("ip|a@b.com"));
+        assertEquals(Duration.ofMinutes(5), e.getEsperar());
+    }
+
+    @Test
+    @DisplayName("Consultar uma chave com as falhas vencidas já a descarta")
+    void consultaDescartaChaveVencida() {
+        limitador.registrarFalha("k");
+        relogio.avancar(Duration.ofMinutes(15));
+
+        limitador.verificar("k");
+
+        assertEquals(0, limitador.chavesGuardadas());
+    }
 }
