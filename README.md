@@ -277,7 +277,7 @@ Todos exigem `Authorization: Bearer <accessToken>`, exceto os marcados como púb
 
 **Webhooks idempotentes.** O id do evento do PSP é chave primária de `webhook_recebido` e é gravado antes de qualquer efeito. Reenvio vira no-op, e dois reenvios simultâneos esbarram na chave. O token é comparado em tempo constante.
 
-**Reações a eventos nunca derrubam quem as provocou.** Liberar adiantamento, agendar saldo e notificar rodam depois do commit, numa transação programática nova dentro de try/catch. Se o PSP cair na hora da saída, a saída vale e o job de liberação tenta o adiantamento de novo.
+**Reações a eventos nunca derrubam quem as provocou.** Liberar adiantamento, agendar saldo e notificar rodam depois do commit, numa transação programática nova dentro de try/catch. Se o PSP cair na hora da saída, a saída vale e o job de liberação tenta o adiantamento de novo. Se cair na hora do cancelamento, o frete cancela e o mesmo job tenta o estorno até passar, inclusive quando o Pix é pago depois, com a cobrança ainda aberta no PSP.
 
 **JWT curto, refresh longo e rotativo.** O access token dura 15 min e não é guardado. O refresh token é opaco, guardado só como SHA-256 e trocado a cada uso; se um token já usado reaparecer, todas as sessões do usuário caem (sinal de roubo). O login roda BCrypt mesmo para e-mail inexistente, para o tempo de resposta não revelar quem tem conta.
 

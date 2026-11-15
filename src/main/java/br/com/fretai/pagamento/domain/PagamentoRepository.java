@@ -29,6 +29,14 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, UUID> {
                                      br.com.fretai.frete.domain.StatusFrete.ENTREGUE)""")
     List<Pagamento> adiantamentosAtrasados();
 
+    /** Frete cancelado, mas a cobrança segue aberta ou paga (PSP fora do ar na hora): o job tenta o estorno de novo. */
+    @Query("""
+            SELECT p FROM Pagamento p
+            WHERE p.status IN (br.com.fretai.pagamento.domain.StatusPagamento.PENDENTE,
+                               br.com.fretai.pagamento.domain.StatusPagamento.RETIDO)
+              AND p.frete.status = br.com.fretai.frete.domain.StatusFrete.CANCELADO""")
+    List<Pagamento> estornosAtrasados();
+
     /** Base do "% em dia": cobranças da empresa que já venceram (pagas ou não), menos as canceladas. */
     @Query("""
             SELECT p FROM Pagamento p

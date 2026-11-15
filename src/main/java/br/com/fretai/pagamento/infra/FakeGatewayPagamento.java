@@ -2,6 +2,7 @@ package br.com.fretai.pagamento.infra;
 
 import br.com.fretai.pagamento.domain.GatewayPagamento;
 import br.com.fretai.pagamento.domain.WebhookInvalidoException;
+import br.com.fretai.shared.exception.ServicoExternoIndisponivelException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -38,6 +39,7 @@ public class FakeGatewayPagamento implements GatewayPagamento {
     private final Set<String> cobrancas = ConcurrentHashMap.newKeySet();
     private final Set<String> estornadas = ConcurrentHashMap.newKeySet();
     private final List<Transferencia> transferencias = new CopyOnWriteArrayList<>();
+    private volatile boolean foraDoAr;
 
     FakeGatewayPagamento(JsonMapper json, @Value("${fretai.pagamento.fake.webhook-token}") String tokenWebhook) {
         this.json = json;
@@ -51,6 +53,7 @@ public class FakeGatewayPagamento implements GatewayPagamento {
 
     @Override
     public CobrancaPix criarCobrancaPix(NovaCobranca cobranca) {
+        exigirNoAr();
         String id = "fake_cob_" + UUID.randomUUID();
         cobrancas.add(id);
         String copiaECola = "00020126FAKE" + cobranca.referencia() + "5204000053039865406" + cobranca.valor();
@@ -60,12 +63,14 @@ public class FakeGatewayPagamento implements GatewayPagamento {
 
     @Override
     public String transferirPix(Transferencia transferencia) {
+        exigirNoAr();
         transferencias.add(transferencia);
         return "fake_trf_" + UUID.randomUUID();
     }
 
     @Override
     public void estornar(String cobrancaId) {
+        exigirNoAr();
         estornadas.add(cobrancaId);
     }
 
@@ -85,6 +90,21 @@ public class FakeGatewayPagamento implements GatewayPagamento {
             throw new IllegalArgumentException("Webhook incompleto: idEvento, tipo e cobrancaId são obrigatórios.");
         }
         return Optional.of(new NotificacaoPagamento(evento.idEvento(), evento.tipo(), evento.cobrancaId()));
+    }
+
+    /**
+     * Para os testes simularem o PSP fora do ar: enquanto ligado, cobrança, transferência e estorno
+     * falham como falharia a rede. O webhook continua chegando, porque é o PSP quem chama.
+     */
+    public void foraDoAr(boolean foraDoAr) {
+        this.foraDoAr = foraDoAr;
+    }
+
+    private void exigirNoAr() {
+        if (foraDoAr) {
+            throw new ServicoExternoIndisponivelException("PSP indisponível",
+                    "Não foi possível falar com o provedor de pagamento. Tente de novo.", null);
+        }
     }
 
     /** Para os testes conferirem o que "saiu" do PSP. */

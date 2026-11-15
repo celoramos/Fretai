@@ -15,7 +15,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  * do commit de quem a provocou, numa transação nova: a saída, o cancelamento
  * ou o canhoto valem mesmo se a parte do PSP falhar. A transação é programática
  * para que nem um rollback interno escape do try/catch e vire erro para quem
- * já teve sucesso. Adiantamento que falhou é tentado de novo pelo job.
+ * já teve sucesso. Adiantamento e estorno que falharam são tentados de novo pelo job.
  */
 @Component
 class ReacoesAoFrete {

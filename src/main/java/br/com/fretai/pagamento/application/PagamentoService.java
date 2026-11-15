@@ -133,8 +133,14 @@ public class PagamentoService {
         if (notificacao.tipo() == GatewayPagamento.TipoNotificacao.PAGAMENTO_CONFIRMADO) {
             if (pagamento.getStatus() == StatusPagamento.PENDENTE) {
                 pagamento.confirmarRecebimento(Instant.now());
-                eventos.publishEvent(new EventosPagamento.PagamentoRetido(pagamento.getFrete().getId(),
-                        pagamento.getValorTotal()));
+                if (pagamento.getFrete().getStatus() == StatusFrete.CANCELADO) {
+                    // A cobrança não pôde ser cancelada no PSP e foi paga depois: ninguém é avisado para
+                    // carregar, e o job devolve o valor.
+                    log.warn("Pix do frete cancelado {} recebido; o valor será devolvido.", pagamento.getFrete().getId());
+                } else {
+                    eventos.publishEvent(new EventosPagamento.PagamentoRetido(pagamento.getFrete().getId(),
+                            pagamento.getValorTotal()));
+                }
             } else if (pagamento.getStatus() == StatusPagamento.ESTORNADO) {
                 // Pagou depois de cancelado: devolve.
                 gateway.estornar(pagamento.getCobrancaId());
@@ -151,10 +157,19 @@ public class PagamentoService {
     /** Cancelado antes da saída: cancela a cobrança (ou devolve, se já foi paga). */
     @Transactional
     public void estornarDoFrete(UUID freteId) {
-        vigente(freteId).ifPresent(p -> {
-            gateway.estornar(p.getCobrancaId());
-            p.estornar();
-        });
+        vigente(freteId).ifPresent(this::estornar);
+    }
+
+    /**
+     * Só chama o PSP se ainda há o que desfazer: depois que o adiantamento saiu, pedir o estorno
+     * devolveria ao pagador um dinheiro que já está com o motorista.
+     */
+    private void estornar(Pagamento pagamento) {
+        if (pagamento.getStatus() != StatusPagamento.PENDENTE && pagamento.getStatus() != StatusPagamento.RETIDO) {
+            return;
+        }
+        gateway.estornar(pagamento.getCobrancaId());
+        pagamento.estornar();
     }
 
     void liberarAdiantamento(Pagamento pagamento) {
@@ -231,6 +246,19 @@ public class PagamentoService {
     @Transactional
     public void retentarAdiantamento(UUID pagamentoId) {
         pagamentoRepository.findById(pagamentoId).ifPresent(this::liberarAdiantamento);
+    }
+
+    /** Fretes cancelados com o PSP fora do ar: o valor continua preso até o estorno passar. */
+    @Transactional(readOnly = true)
+    public List<UUID> estornosPendentes() {
+        return pagamentoRepository.estornosAtrasados().stream().map(Pagamento::getId).toList();
+    }
+
+    @Transactional
+    public void retentarEstorno(UUID pagamentoId) {
+        pagamentoRepository.findById(pagamentoId)
+                .filter(p -> p.getFrete().getStatus() == StatusFrete.CANCELADO)
+                .ifPresent(this::estornar);
     }
 
     @Transactional(readOnly = true)

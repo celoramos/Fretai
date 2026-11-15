@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * De tempos em tempos: libera os saldos cuja janela de contestação passou sem
- * reclamação, e tenta de novo adiantamentos que falharam na saída da carga.
+ * reclamação, e tenta de novo o que falhou com o PSP fora do ar: adiantamentos na
+ * saída da carga e estornos no cancelamento.
  * Cada pagamento numa transação própria: um com problema não trava os outros.
  */
 @Component
@@ -26,11 +27,14 @@ class LiberacaoSaldoJob {
     @Scheduled(fixedDelayString = "${fretai.pagamento.intervalo-liberacao}",
             initialDelayString = "${fretai.pagamento.intervalo-liberacao}")
     void executar() {
+        for (UUID id : pagamentoService.estornosPendentes()) {
+            tentar(() -> pagamentoService.retentarEstorno(id), "devolver o valor", id);
+        }
         for (UUID id : pagamentoService.adiantamentosPendentes()) {
-            tentar(() -> pagamentoService.retentarAdiantamento(id), "adiantamento", id);
+            tentar(() -> pagamentoService.retentarAdiantamento(id), "liberar o adiantamento", id);
         }
         for (UUID id : pagamentoService.saldosProntos()) {
-            tentar(() -> pagamentoService.liberarSaldo(id), "saldo", id);
+            tentar(() -> pagamentoService.liberarSaldo(id), "liberar o saldo", id);
         }
     }
 
@@ -38,7 +42,7 @@ class LiberacaoSaldoJob {
         try {
             acao.run();
         } catch (RuntimeException e) {
-            log.error("Falha ao liberar {} do pagamento {}; nova tentativa na próxima rodada.", etapa, pagamentoId, e);
+            log.error("Falha ao {} do pagamento {}; nova tentativa na próxima rodada.", etapa, pagamentoId, e);
         }
     }
 }

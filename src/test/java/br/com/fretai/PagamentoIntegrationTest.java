@@ -196,6 +196,105 @@ class PagamentoIntegrationTest {
         mvc.perform(get("/api/fretes/{id}/pagamento", freteId).with(empresa)).andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("PSP fora do ar no cancelamento: o frete cancela mesmo assim e o job devolve o valor depois")
+    void estornoQueFalhouETentadoDeNovo() throws Exception {
+        mvc.perform(put("/api/motoristas/{id}/chave-pix", motoristaId).with(motorista)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"chavePix\": \"+5511988887777\"}"));
+        String freteId = freteAceitoCom40PorCento();
+        UUID pagamentoId = UUID.fromString(JsonPath.read(mvc.perform(post("/api/fretes/{id}/pagamento", freteId)
+                .with(empresa)).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.id"));
+        String cobrancaId = cobrancaDoPsp(freteId);
+        mvc.perform(post("/api/webhooks/pagamentos").header("X-Webhook-Token", "fake-dev")
+                .contentType(MediaType.APPLICATION_JSON).content(webhook("evt-" + UUID.randomUUID(), cobrancaId)));
+        assertFalse(pagamentoService.estornosPendentes().contains(pagamentoId), "frete aceito não tem o que devolver");
+
+        psp.foraDoAr(true);
+        try {
+            mvc.perform(post("/api/fretes/{id}/cancelamento", freteId).with(empresa)
+                            .contentType(MediaType.APPLICATION_JSON).content("{\"motivo\": \"Carga não ficou pronta\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.status").value("CANCELADO"));
+            // O dinheiro continua retido: sem nova tentativa, ficaria assim para sempre.
+            assertFalse(psp.foiEstornada(cobrancaId));
+            mvc.perform(get("/api/fretes/{id}/pagamento", freteId).with(empresa))
+                    .andExpect(jsonPath("$.status").value("RETIDO"));
+            assertTrue(pagamentoService.estornosPendentes().contains(pagamentoId));
+
+            // O job roda com o PSP ainda fora: nada muda, e o erro não se perde.
+            assertThrows(RuntimeException.class, () -> pagamentoService.retentarEstorno(pagamentoId));
+            assertTrue(pagamentoService.estornosPendentes().contains(pagamentoId));
+        } finally {
+            psp.foraDoAr(false);
+        }
+
+        pagamentoService.retentarEstorno(pagamentoId);
+
+        assertTrue(psp.foiEstornada(cobrancaId));
+        assertFalse(pagamentoService.estornosPendentes().contains(pagamentoId));
+        mvc.perform(get("/api/fretes/{id}/pagamento", freteId).with(empresa)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Pix que cai depois do cancelamento, com a cobrança ainda aberta no PSP, é devolvido")
+    void pixPagoDepoisDoCancelamento() throws Exception {
+        mvc.perform(put("/api/motoristas/{id}/chave-pix", motoristaId).with(motorista)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"chavePix\": \"+5511988887777\"}"));
+        String freteId = freteAceitoCom40PorCento();
+        UUID pagamentoId = UUID.fromString(JsonPath.read(mvc.perform(post("/api/fretes/{id}/pagamento", freteId)
+                .with(empresa)).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.id"));
+        String cobrancaId = cobrancaDoPsp(freteId);
+
+        psp.foraDoAr(true);
+        try {
+            // A cobrança não pôde ser cancelada no PSP: o QR Code continua valendo.
+            mvc.perform(post("/api/fretes/{id}/cancelamento", freteId).with(empresa)
+                            .contentType(MediaType.APPLICATION_JSON).content("{\"motivo\": \"Desistência\"}"))
+                    .andExpect(status().isOk());
+        } finally {
+            psp.foraDoAr(false);
+        }
+        mvc.perform(post("/api/webhooks/pagamentos").header("X-Webhook-Token", "fake-dev")
+                        .contentType(MediaType.APPLICATION_JSON).content(webhook("evt-" + UUID.randomUUID(), cobrancaId)))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/fretes/{id}/pagamento", freteId).with(empresa))
+                .andExpect(jsonPath("$.status").value("RETIDO"));
+
+        pagamentoService.estornosPendentes().forEach(pagamentoService::retentarEstorno);
+
+        assertTrue(psp.foiEstornada(cobrancaId));
+        assertFalse(pagamentoService.estornosPendentes().contains(pagamentoId));
+    }
+
+    @Test
+    @DisplayName("PSP fora do ar na saída: a carga sai mesmo assim e o job manda o adiantamento depois")
+    void adiantamentoQueFalhouETentadoDeNovo() throws Exception {
+        mvc.perform(put("/api/motoristas/{id}/chave-pix", motoristaId).with(motorista)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"chavePix\": \"recebe@email.com\"}"));
+        String freteId = freteAceitoCom40PorCento();
+        UUID pagamentoId = UUID.fromString(JsonPath.read(mvc.perform(post("/api/fretes/{id}/pagamento", freteId)
+                .with(empresa)).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.id"));
+        mvc.perform(post("/api/webhooks/pagamentos").header("X-Webhook-Token", "fake-dev")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(webhook("evt-" + UUID.randomUUID(), cobrancaDoPsp(freteId))));
+
+        psp.foraDoAr(true);
+        try {
+            mvc.perform(post("/api/fretes/{id}/inicio", freteId).with(motorista)).andExpect(status().isOk());
+        } finally {
+            psp.foraDoAr(false);
+        }
+        mvc.perform(get("/api/fretes/{id}/pagamento", freteId).with(motorista))
+                .andExpect(jsonPath("$.status").value("RETIDO"));
+        assertTrue(pagamentoService.adiantamentosPendentes().contains(pagamentoId));
+
+        pagamentoService.retentarAdiantamento(pagamentoId);
+
+        mvc.perform(get("/api/fretes/{id}/pagamento", freteId).with(motorista))
+                .andExpect(jsonPath("$.status").value("ADIANTAMENTO_LIBERADO"));
+        assertFalse(pagamentoService.adiantamentosPendentes().contains(pagamentoId));
+    }
+
     // ---------- auxiliares ----------
 
     private String freteAceitoCom40PorCento() throws Exception {
